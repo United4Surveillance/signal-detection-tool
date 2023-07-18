@@ -1,1 +1,1 @@
-﻿case_id;date_report;date_onset;date_hospitalization;date_death;date_vaccination;country;country_id;state;state_id;county;county_id;age;age_group;sex;occupation;place_of_infection;place_of_infection_id;Pathogen;Pathogen_id;Subtype;Subtype_id;Hospitalization;Death;Vaccination;Symptoms;Risks
+﻿case_id,date_report,date_onset,date_hospitalization,date_death,date_vaccination,country,country_id,state,state_id,county,county_id,age,age_group,sex,occupation,place_of_infection,place_of_infection_id,Pathogen,Pathogen_id,Subtype,Subtype_id,Hospitalization,Death,Vaccination,Symptoms,Risks
