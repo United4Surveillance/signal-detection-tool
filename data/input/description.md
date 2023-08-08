@@ -15,7 +15,7 @@
 | community              | NO | Name of the community/small region in which the case was reported|
 | community_id           | NO | Id of the community as NUTS-3 code|
 | age	                   | NO | Age of the reported case at the time of reporting as integer between 0-125|
-| age_group	             | YES | Age group of the reported case ath the time of reporting as interval, e.g. 05-14 for cases with an age between 5 and 14 years|
+| age_group	             | YES | Age group of the reported case at the time of reporting as interval, e.g. 05-14 for cases with an age between 5 and 14 years|
 | sex	                   | YES | Sex of the reported case, one of male, female, diverse, unknown|
 | occupation	           | NO | Occupation of the reported case, one of the following options: care, kindergarten, food production, ???|
 | place_of_infection	   | NO | Name of the region in which the case was likely infected if that place is different from the reporting region|
