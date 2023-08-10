@@ -13,8 +13,66 @@ The maintainers will meet regularly and discuss pull request, issues and add new
 
 Maintainers and contributers can work indepently on issues.
 
+For more information on how to contribute, please see our [contributing guidelines](https://github.com/United4Surveillance/signal-detection-tool/blob/main/CONTRIBUTING.md).
+
 ## Input data
 The tool accepts data in the predefined format described in the description.md in /data/input. 
 
 ## Output
 The tool produces signals based on the given input data. Signals are listed in a human readable output file, the format is described in description.md in data/output/ and in an interactive report together with the surveillance data.
+
+## Development roadmap
+The Joint Action project roadmap states that the tool development should be finished by end of March 2024, while piloting the software should start in January 2024.
+We view this latter deadline as . Our goal is to get as much feedback from the piloting countries as early as possible.
+Therefore, we adopt an agile development approach with the aim to ship improved versions as often and as early as possible. 
+
+**Our goal is to have a working minimal viable product (MVP) at the end of Octobre 2023, at the latest.**
+
+Here is possible iterative development roadmap:
+
+#### V 0.1
+* General:
+	* Provide example data (real or simulated)
+* Simple R script:
+	* Load data from path
+	* Run FarringtonFlex from Surveillance Package
+    * Generate plot of results
+
+#### V 0.2
+* R script:
+	* Expand input data to regionality
+	* Run FarringtonFlex per region
+	* Generate plot of results
+* Simple Evaluation:
+	* Load truth data
+    * Calculate Sensitivity & Specificity
+    * Print results
+
+#### V 0.3
+* Simple user interface:
+	* Create shiny app
+	* "Run" button script functions
+	* Show plot
+	* Show evaluation results
+* Evaluation:
+  * Add timeliness metric
+
+#### V 0.4
+* Simple user interface:
+	* Input data from user prompt (file explorer)
+	* Display regional signals
+* Simple output report:
+	* Create report containing plots
+	* Turn into PDF
+
+#### V 0.5
+* General:
+	* Add Config file (no code)
+		* Name of country
+		* Diseases of interest
+	* Get shapefiles for NUTS3 regions
+	* Visualize regional data using shape files
+* User interface:
+	* Generate report from button
+	* Use/Display information from config file 
+    * Add drop down menu to  switch between diseases
