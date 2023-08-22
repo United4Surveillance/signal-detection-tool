@@ -43,6 +43,7 @@ We welcome contributions from the community! Whether you're reporting a bug, sug
 ### Coding Guidelines
 
 - Follow the [tidyverse style guide](https://style.tidyverse.org/) to maintain code consistency. The RStudio addin [styler](https://styler.r-lib.org/) can help you with that.
+- As an enhancement to the tidyverse style guide, we will make explicitl use of namespaces in order to avoid conflicts and improve clarity (i.e. write dplyr::filter() and stats::filter()) 
 - Write clear and descriptive code comments.
 - Keep dependencies updated and minimize external dependencies where possible.
 
