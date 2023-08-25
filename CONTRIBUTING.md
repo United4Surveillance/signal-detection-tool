@@ -65,6 +65,8 @@ We welcome contributions from the community! Whether you're reporting a bug, sug
 - Write clear and descriptive code comments
 - For documentation use [roxygen comments](https://cran.r-project.org/web/packages/roxygen2/vignettes/roxygen2.html).
 - Keep dependencies updated and minimize external dependencies where possible.
+- For repository structure use [devtools package skeleton](https://bookdown.org/rdpeng/RProgDA/the-devtools-package.html)
+- The code should be compatible/runnable with R-version 4.0.2
 
 ### Commit Message Guidelines
 
@@ -88,6 +90,7 @@ We welcome contributions from the community! Whether you're reporting a bug, sug
 - Write unit tests and integration tests for new features and bug fixes.
 - Ensure all existing tests pass before submitting a pull request.
 - Include testing instructions in the pull request if necessary.
+- Use the [testthat](https://testthat.r-lib.org/) package for writing tests
 
 
 Thank you for contributing to the United4Surveillance signal detection tool!
