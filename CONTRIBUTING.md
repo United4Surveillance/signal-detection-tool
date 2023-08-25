@@ -8,7 +8,9 @@ Welcome to the United4Surveillance signal detection tool repository! We're excit
 2. [How to Contribute](#how-to-contribute)
     - [Reporting Bugs](#reporting-bugs)
     - [Suggesting Enhancements](#suggesting-enhancements)
+    - [Working on Issues](#working-on-issues)
     - [Submitting Pull Requests](#submitting-pull-requests)
+    - [Reviewing Pull Requests](#reviewing-pull-requests)
 3. [Coding Guidelines](#coding-guidelines)
 4. [Commit Message Guidelines](#commit-message-guidelines)
 5. [Branching Strategy](#branching-strategy)
@@ -33,12 +35,27 @@ We welcome contributions from the community! Whether you're reporting a bug, sug
 - If you have an idea for an enhancement, open an issue using our [feature request template](.github/ISSUE_TEMPLATE/feature-request.md).
 - Describe the enhancement in detail, including its use case and benefits.
 
+#### Working on Issues
+
+- You may assign yourself to an issue if nobody else is assigned yet and you are ready to start working on the issue
+- Make sure to solve the issue according to the specified requirements
+- If you don't agree with the definition of the issue or problems arise while working on it, comment on the issue to clarify.
+  
 #### Submitting Pull Requests
 
 - If you are not a maintainer or owner of the repository, please fork the repository and create a new branch from `main` or the relevant feature branch.
 - Follow our [pull request template](.github/PULL_REQUEST_TEMPLATE.md) when submitting a pull request.
 - Ensure your code adheres to our [coding guidelines](#coding-guidelines).
 - Include tests if applicable, and ensure all tests pass.
+
+#### Reviewing Pull Requests
+
+- A pull request may only be merged after a review by another contributor
+- You may assign yourself as an reviewer of a pull request, if you are not its author
+- Please take a close look at the commits and the issue related to the PR
+- Accept the PR if it solves the problem outlined in the feature request issue and adheres to the coding guidelines
+- If any tests fail, reject the PR
+- Use github's PR review functionality and provide constructive feedback
 
 ### Coding Guidelines
 
