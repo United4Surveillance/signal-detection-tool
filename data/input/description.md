@@ -24,8 +24,8 @@
 | pathogen_id	           | NO | Id of the pathogen/diagnosis |
 | subtype	               | NO | Name of the subtype/serovar/variant that was identified|
 | subtype_id	           | NO | Id of the subtype/serovar/variant |
-| hospitalization	       | YES | Indication whether the case was hospitalized, YES, NO or unknown |
-| death                  | YES | Indication whether the case has died, YES, NO or unknown|
-| vaccination	           | YES | Indication whether the case was vaccinated before infection, YES, NO or unknown|
+| hospitalization	       | NO | Indication whether the case was hospitalized, YES, NO or unknown |
+| death                  | NO | Indication whether the case has died, YES, NO or unknown|
+| vaccination	           | NO | Indication whether the case was vaccinated before infection, YES, NO or unknown|
 | symptoms	             | NO | List of symptoms that were observed ???|
 | risks                  | NO | List of risks that the case had before the infection |
