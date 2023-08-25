@@ -60,8 +60,10 @@ We welcome contributions from the community! Whether you're reporting a bug, sug
 ### Coding Guidelines
 
 - Follow the [tidyverse style guide](https://style.tidyverse.org/) to maintain code consistency. The RStudio addin [styler](https://styler.r-lib.org/) can help you with that.
-- As an enhancement to the tidyverse style guide, we will make explicitl use of namespaces in order to avoid conflicts and improve clarity (i.e. write dplyr::filter() and stats::filter()) 
-- Write clear and descriptive code comments.
+- As an enhancement to the tidyverse style guide, we will make explicit use of namespaces in order to avoid conflicts and improve clarity (i.e. write dplyr::filter() and stats::filter())
+- We stick to this pipe operator %>%
+- Write clear and descriptive code comments
+- For documentation use [roxygen comments](https://cran.r-project.org/web/packages/roxygen2/vignettes/roxygen2.html).
 - Keep dependencies updated and minimize external dependencies where possible.
 
 ### Commit Message Guidelines
