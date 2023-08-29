@@ -9,6 +9,9 @@
 # User-specific files
 .Ruserdata
 
+# Global R settings
+.Rprofile
+
 # Example code in package build process
 *-Ex.R
 
@@ -47,3 +50,10 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Data files
+data/
+*.csv
+
+# Temporary idea files
+.idea/
