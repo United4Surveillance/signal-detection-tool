@@ -51,7 +51,7 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
-# Data files
+# Data files - to avoid unintended commits, remove these temporarily when needed
 data/
 *.csv
 
