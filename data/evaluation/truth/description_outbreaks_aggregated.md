@@ -1,6 +1,10 @@
 | Variable               | Mandatory | Description|
 |------------------------|-----------|------------|
 | date_report	           | YES | Date when the case was reported in ISO 8601 format YYYY-MM-DD |
+| count_cases            | YES | Number of reported cases for the respective aggregation |
+| outbreak_status        | YES | Indication whether for the respective aggregation there is an outbreak, YES, NO, Unknown |
+| count_outbreak_cases   | YES | Number of reported cases that belong to the outbreak |
+| outbreak_id	           | NO  | Unique identifier for the specific outbreak, but nothing that can be used to identify the cases or outbreak within the national surveillance system |
 | country	               | YES | Name of the country in which the case was reported|
 | country_id	           | YES | Id of the country in which the case was reported, Id should be NUTS-0 or ISO-alpha3 code|
 | state	                   | NO  | Name of the state/major region in which the case was reported|
@@ -16,5 +20,3 @@
 | pathogen_id	           | NO  | Id of the pathogen/diagnosis |
 | subtype	               | NO  | Name of the subtype/serovar/variant that was identified|
 | subtype_id	           | NO  | Id of the subtype/serovar/variant |
-| outbreak_status          | YES | Indication whether the case is known to be part of an outbreak, YES, NO, Unknown |
-| outbreak_id	           | NO  | Unique identifier for the specific outbreak, but nothing that can be used to identify the cases or outbreak within the national surveillance system |
