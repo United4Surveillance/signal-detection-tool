@@ -1,19 +1,6 @@
 library(surveillance)
 library(tidyverse)
 
-# turn data into sts object
-convert_to_sts <- function(case_counts) {
-  
-  # create sts object
-  return(surveillance::sts(case_counts$cases,
-                           start = c(
-                             case_counts$year[1],
-                             case_counts$week[1]
-                           ),
-                           frequency = 52
-  ))
-}
-
 preprocess_data <- function(data){
   
   # Convert the date columns to date format
@@ -28,6 +15,14 @@ preprocess_data <- function(data){
   data
 }
 
+#' Aggregates case data by year and week of onset
+#' @param data data frame to be converged
+#' 
+#' @examples 
+#' input_path <- "data/input/input.csv"
+#' data <- read.csv(input_path, header = TRUE, sep = ",")
+#' data <- preprocess_data(data) %>% aggregate_data()
+#' sts_cases <- convert_to_sts(data)
 aggregate_data <- function(data){
   
   data %>%
@@ -36,6 +31,33 @@ aggregate_data <- function(data){
     dplyr::select(year = date_onset_year, week = date_onset_week, cases)
 }
 
+#' Turns aggregated data into surveillance's sts format
+#' @param case_counts case count data frame to be converted
+#' 
+#' @examples 
+#' input_path <- "data/input/input.csv"
+#' data <- read.csv(input_path, header = TRUE, sep = ",")
+#' data <- preprocess_data(data) %>% aggregate_data()
+#' sts_cases <- convert_to_sts(data)
+convert_to_sts <- function(case_counts) {
+  
+  # create sts object
+  return(surveillance::sts(case_counts$cases,
+                           start = c(
+                             case_counts$year[1],
+                             case_counts$week[1]
+                           ),
+                           frequency = 52
+  ))
+}
+
+#' Get signals of surveillance's farringtonFlexible algorithm
+#' @param data data frame to be converged
+#' 
+#' @examples 
+#' input_path <- "data/input/input.csv"
+#' data <- read.csv(input_path, header = TRUE, sep = ",")
+#' results <- get_signals_farringtonflexible(data)
 get_signals_farringtonflexible <- function(surveillance_data){
   
   data <- preprocess_data(surveillance_data) %>% aggregate_data()
