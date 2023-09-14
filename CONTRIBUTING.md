@@ -46,6 +46,7 @@ We welcome contributions from the community! Whether you're reporting a bug, sug
 - If you are not a maintainer or owner of the repository, please fork the repository and create a new branch from `main` or the relevant feature branch.
 - Follow our [pull request template](.github/PULL_REQUEST_TEMPLATE.md) when submitting a pull request.
 - Ensure your code adheres to our [coding guidelines](#coding-guidelines).
+- Make sure that your branch entails all relevant previously merged changes and your code is compatible to what is on the main branch. Having started from an old state is not an excuse to push outdated code.
 - Include tests if applicable, and ensure all tests pass.
 
 #### Reviewing Pull Requests
@@ -53,7 +54,7 @@ We welcome contributions from the community! Whether you're reporting a bug, sug
 - A pull request may only be merged after a review by another contributor
 - You may assign yourself as an reviewer of a pull request, if you are not its author
 - Please take a close look at the commits and the issue related to the PR
-- Accept the PR if it solves the problem outlined in the feature request issue and adheres to the coding guidelines
+- Accept the PR if it solves the problem outlined in the feature request issue, adheres to the coding guidelines and is up to date on the current main HEAD.
 - If any tests fail, reject the PR
 - Use github's PR review functionality and provide constructive feedback
 
