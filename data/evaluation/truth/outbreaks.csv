@@ -1,0 +1,11 @@
+case_id, outbreak_status, outbreak_id
+1, YES, 1
+2, YES, 1
+3, NO, NA
+4, NO, NA
+5, YES, 1
+6, NO, NA
+7, YES, 2
+8, YES, 2
+9, YES, 2
+10, YES, 2

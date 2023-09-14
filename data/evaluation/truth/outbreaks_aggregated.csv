@@ -1,0 +1,11 @@
+date_report, count_cases, outbreak_status, count_outbreak_cases, outbreak_id, country,country_id,state,state_id,county,county_id, community, community_id, age,age_group,sex, pathogen,pathogen_id,subtype,subtype_id
+2023-07-15, 10, YES, 3, 1, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA, NA, 15-34, male, Salmonella, NA, S. Agona, NA
+2023-07-16, 8, YES, 4, 1, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA, NA, 15-34, male, Salmonella, NA, S. Agona, NA
+2023-07-17, 15, YES, 8, 1, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA, NA, 15-34, male, Salmonella, NA, S. Agona, NA
+2023-07-18, 17, YES, 10, 1, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA, NA, 15-34, male, Salmonella, NA, S. Agona, NA
+2023-07-19, 11, YES, 5, 1, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA, NA, 15-34, male, Salmonella, NA, S. Agona, NA
+2023-07-20, 3, NO, 0, NA, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA, NA, 15-34, male, Salmonella, NA, S. Agona, NA
+2023-07-21, 5, NO, 0, NA, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA, NA, 15-34, male, Salmonella, NA, S. Agona, NA
+2023-07-22, 8, YES, 4, 2, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA, NA, 15-34, male, Salmonella, NA, S. Agona, NA
+2023-07-23, 12, YES, 6, 2, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA, NA, 15-34, male, Salmonella, NA, S. Agona, NA
+2023-07-24, 15, YES, 9, 2, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA, NA, 15-34, male, Salmonella, NA, S. Agona, NA
