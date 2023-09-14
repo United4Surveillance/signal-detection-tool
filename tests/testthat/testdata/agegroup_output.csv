@@ -1,0 +1,11 @@
+case_id,date_report,date_onset,date_hospitalization,date_death,date_vaccination,country,country_id,state,state_id,county,county_id,community,community_id,age,age_group,sex,occupation,place_of_infection,place_of_infection_id,pathogen,pathogen_id,subtype,subtype_id,hospitalization,death,vaccination,symptoms,risks
+1, 2023-07-15, 2023-07-11, 2023-07-18, 2023-07-19, NA, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA,11,10-14, male, care, Denmark, DK, Salmonella, NA, S. Agona, NA, YES, YES, NO, NA, NA
+2, 2023-07-15, 2023-07-12, 2023-07-19, NA, NA, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA,39,35-39, male, care, Denmark, DK, Salmonella, NA, S. Agona, NA, YES, NO, NO, NA, NA
+3, 2023-07-15, 2023-07-12, NA, NA, NA, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA,74,70-74, male, care, Denmark, DK, Salmonella, NA, S. Agona, NA, NO, NO, NO, NA, NA
+4, 2023-07-16, 2023-07-13, NA, 2023-07-19, NA, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA,88,85-89, male, care, Denmark, DK, Salmonella, NA, S. Agona, NA, NO, YES, NO, NA, NA
+5, 2023-07-16, 2023-07-13, NA, NA, NA, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA,58,55-59, male, care, Denmark, DK, Salmonella, NA, S. Agona, NA, NO, NO, NO, NA, NA
+6, 2023-07-16, 2023-07-13, 2023-07-18, NA, NA, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA,15,15-19, male, care, Denmark, DK, Salmonella, NA, S. Agona, NA, YES, NO, NO, NA, NA
+7, 2023-07-17, 2023-07-14, 2023-07-18, NA, NA, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA,40,40-44, male, care, Denmark, DK, Salmonella, NA, S. Agona, NA, YES, NO, NO, NA, NA
+8, 2023-07-17, 2023-07-15, NA, NA, NA, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA,16,15-19, male, care, Denmark, DK, Salmonella, NA, S. Agona, NA, NO, NO, NO, NA, NA
+9, 2023-07-17, 2023-07-15, NA, NA, NA, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA,10,10-14, male, care, Denmark, DK, Salmonella, NA, S. Agona, NA, NO, NO, NO, NA, NA
+10, 2023-07-17, 2023-07-15, 2023-07-18, 2023-07-19, NA, Germany, DE, Brandenburg, DE4, Potsdam, DE404, NA, NA,34,30-34, male, care, Denmark, DK, Salmonella, NA, S. Agona, NA, YES, YES, NO, NA, NA
