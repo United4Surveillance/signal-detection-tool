@@ -7,6 +7,7 @@ library(tidyverse)
 
 # Sources to scripts and data could be replaced by devtools::load_all() but then this main script cannot be located in the R directory
 source("tool_functions.R")
+source("farrington_flexible.R")
 
 # load example data
 input_path <- "../data/input/input.csv"
