@@ -83,7 +83,8 @@ age_groups <- function(df, break_at = NULL) {
   # converting age_group to factor ------------------------------------------
   
   # extract the lower values of age groups
-  lower_values <- (gsub("-.*", "", df$age_group))
+  lower_values <- gsub("-.*", "", df$age_group)
+  lower_values <- as.numeric(lower_values)
   
   # order the age groups based on the lower values
   ordered_groups <- df$age_group[order(lower_values)]
