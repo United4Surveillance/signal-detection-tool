@@ -14,6 +14,6 @@ input_path <- "../data/input/input.csv"
 data <- read.csv(input_path, header = TRUE, sep = ",")
 
 # run Farrington Flexible on data
-results <- get_signals_farringtonflexible(data)
+results <- get_signals_someoAlgorithm(data)
 
 print(results)
