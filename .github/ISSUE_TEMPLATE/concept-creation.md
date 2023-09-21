@@ -10,13 +10,13 @@ assignees: ''
 
 Provide a brief overview of the concept that should be created.
 
-**Objective:**
-
-Explain the primary goal or purpose of this concept.
-
 **Context:**
 
 Provide background information, relevant links, or references to help others understand the context of this concept.
+
+**Objective:**
+
+Explain the primary goal or purpose of this concept.
 
 **Proposed Output:**
 
