@@ -52,7 +52,7 @@ get_signals <- function(data, method = "farrington", stratification = NULL) {
 
 # load example data
 input_path <- "data/input/input.csv"
-data <- read.csv(input_path, header = TRUE, sep = ",")
+data <- read.csv(input_path, header = TRUE, sep = ",", encoding = "UTF-8")
 
 
 # run signal detection on data
