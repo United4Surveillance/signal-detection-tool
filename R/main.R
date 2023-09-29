@@ -4,11 +4,15 @@
 
 library(surveillance)
 library(tidyverse)
+library(ggiraph)
+library(gt)
+library(checkmate)
 
 # Sources to scripts and data could be replaced by devtools::load_all() but then this main script cannot be located in the R directory
 source("R/tool_functions.R")
 source("R/farrington_flexible.R")
 source("R/results_table.R")
+source("R/plot_regional.R")
 
 #' Get Signals
 #'
@@ -53,7 +57,7 @@ get_signals <- function(data, method = "farrington", stratification = NULL) {
 # load example data
 input_path <- "data/input/input.csv"
 data <- read.csv(input_path, header = TRUE, sep = ",", encoding = "UTF-8")
-
+shape <- sf::st_read("data/shp/NUTS_RG_03M_2021_3035.shp")
 
 # run signal detection on data
 # results <- get_signals(data)  # no stratification
@@ -61,3 +65,11 @@ results <- get_signals(data, stratification = c("county", "sex", "age_group"))
 
 tabl <- create_results_table(results, interactive = FALSE)
 tabl
+
+# run signal detection stratified by region
+signals_county <- get_signals(data, stratification = c("county_id"))
+signals_community <- get_signals(data, stratification = c("community_id"))
+
+# plot surveillance data and signal detection results as a map
+plot_regional(data, signals_county, shape, country_id = "AT", regional_level = "county")
+plot_regional(data, signals_community, shape, country_id = "AT", regional_level = "community", interactive = TRUE)
