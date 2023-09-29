@@ -6,9 +6,9 @@ library(surveillance)
 library(tidyverse)
 
 # Sources to scripts and data could be replaced by devtools::load_all() but then this main script cannot be located in the R directory
-source("tool_functions.R")
-source("farrington_flexible.R")
-source("results_table.R")
+source("R/tool_functions.R")
+source("R/farrington_flexible.R")
+source("R/results_table.R")
 
 #' Get Signals
 #'
@@ -51,7 +51,7 @@ get_signals <- function(data, method = "farrington", stratification = NULL) {
 
 
 # load example data
-input_path <- "../data/input/input.csv"
+input_path <- "data/input/input.csv"
 data <- read.csv(input_path, header = TRUE, sep = ",")
 
 
