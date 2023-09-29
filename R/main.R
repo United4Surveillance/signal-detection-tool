@@ -8,6 +8,7 @@ library(tidyverse)
 # Sources to scripts and data could be replaced by devtools::load_all() but then this main script cannot be located in the R directory
 source("tool_functions.R")
 source("farrington_flexible.R")
+source("results_table.R")
 
 #' Get Signals
 #'
@@ -58,4 +59,5 @@ data <- read.csv(input_path, header = TRUE, sep = ",")
 # results <- get_signals(data)  # no stratification
 results <- get_signals(data, stratification = c("county", "sex", "age_group"))
 
-print(results)
+tabl <- create_results_table(results, interactive = FALSE)
+tabl
