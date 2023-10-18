@@ -16,18 +16,23 @@ plot_regional(
 \arguments{
 \item{data}{data.frame containing surveillance data in linelist format}
 
-\item{signals}{data.frame containing signal detection output stratified by regions}
+\item{signals}{data.frame containing signal detection output stratified by
+regions}
 
 \item{shape}{data.frame with geometry column in sf format}
 
-\item{country_id}{two-letter country-code for the country that should be plotted}
+\item{country_id}{two-letter country-code for the country that should be
+plotted}
 
-\item{regional_level}{character describing which level of aggregation should be shown ("country", "state","county" or "community")}
+\item{regional_level}{character describing which level of aggregation should
+be shown ("country", "state","county" or "community")}
 
-\item{interactive}{boolean identifying whether the plot should be static or interactive}
+\item{interactive}{boolean identifying whether the plot should be static or
+interactive}
 }
 \value{
-either a ggplot object if static plot is chosen or a ggiraph object for the interactive plot
+either a ggplot object if static plot is chosen or a ggiraph object
+  for the interactive plot
 }
 \description{
 Plot surveillance data and signal detection results by region

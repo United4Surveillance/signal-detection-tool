@@ -11,17 +11,19 @@ get_signals_farringtonflexible(
 )
 }
 \arguments{
+\item{surveillance_data}{data frame to be converged}
+
 \item{date_start}{A date object or character of format yyyy-mm-dd}
 
 \item{date_end}{A date object or character of format yyyy-mm-dd}
-
-\item{data}{data frame to be converged}
 }
 \description{
 Get signals of surveillance's farringtonFlexible algorithm
 }
 \examples{
+\dontrun{
 input_path <- "data/input/input.csv"
 data <- read.csv(input_path, header = TRUE, sep = ",")
 results <- get_signals_farringtonflexible(data)
+}
 }

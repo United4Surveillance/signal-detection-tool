@@ -10,13 +10,16 @@ get_float_columns(data)
 \item{data}{A data frame.}
 }
 \value{
-A character vector containing the names of numeric columns that are not integer columns.
+A character vector containing the names of numeric columns that are
+  not integer columns.
 }
 \description{
 This function takes a data frame as input and returns the names of columns
 that contain numeric values and are not integer columns.
 }
 \examples{
+
 data <- data.frame(a = 1:5, b = 1:5, c = 1L:5L)
-get_float_columns(data)
+SignalDetectionTool::get_float_columns(data)
+
 }

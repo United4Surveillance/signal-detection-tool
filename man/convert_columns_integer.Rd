@@ -19,6 +19,8 @@ This function takes a data frame and a vector of column names and converts
 the specified columns to integer type.
 }
 \examples{
+\dontrun{
 data <- data.frame(a = 1:5, b = 1:5, c = 1.234:5.234)
 convert_columns_integer(data, c("a", "b"))
+}
 }
