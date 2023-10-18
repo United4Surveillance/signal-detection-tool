@@ -1,4 +1,3 @@
-library(tidyverse)
 
 #' Get the numeric columns that are not integer columns
 #'
@@ -7,12 +6,15 @@ library(tidyverse)
 #'
 #' @param data A data frame.
 #'
-#' @return A character vector containing the names of numeric columns that are not integer columns.
+#' @return A character vector containing the names of numeric columns that are
+#'   not integer columns.
 #' @export
 #'
 #' @examples
+#'
 #' data <- data.frame(a = 1:5, b = 1:5, c = 1L:5L)
-#' get_float_columns(data)
+#' SignalDetectionTool::get_float_columns(data)
+#'
 get_float_columns <- function(data) {
   # Create a logical vector indicating whether each column is numeric
   is_numeric <- sapply(data, is.numeric)
@@ -32,18 +34,22 @@ get_float_columns <- function(data) {
 
 #' Create an interactive or static table
 #'
-#' This function creates an interactive DataTable or a static gt table
-#' depending on the value of the `interactive` parameter. It can also format
-#' float columns to have two decimal places.
+#' This function creates an interactive DataTable or a static gt table depending
+#' on the value of the `interactive` parameter. It can also format float columns
+#' to have two decimal places.
 #'
 #' @param data A data frame.
-#' @param interactive Logical indicating whether to create an interactive DataTable (default is TRUE).
+#' @param interactive Logical indicating whether to create an interactive
+#'   DataTable (default is TRUE).
 #'
-#' @return An interactive DataTable or a static gt table, depending on the value of `interactive`.
+#' @return An interactive DataTable or a static gt table, depending on the value
+#'   of `interactive`.
 #'
 #' @examples
+#' \dontrun{
 #' data <- data.frame(a = 1:5, b = 1:5, c = 1.234:5.234)
 #' create_table(data)
+#' }
 create_table <- function(data, interactive = TRUE) {
   checkmate::assert(
     checkmate::check_true(interactive),
@@ -86,8 +92,10 @@ create_table <- function(data, interactive = TRUE) {
 #' @return A data frame with the specified columns converted to integers.
 #'
 #' @examples
+#' \dontrun{
 #' data <- data.frame(a = 1:5, b = 1:5, c = 1.234:5.234)
 #' convert_columns_integer(data, c("a", "b"))
+#' }
 convert_columns_integer <- function(data, columns_to_convert) {
   # check that all columns are present in the data
   for (col in columns_to_convert) {
@@ -110,15 +118,25 @@ convert_columns_integer <- function(data, columns_to_convert) {
 #' columns to integers for styling purposes.
 #'
 #' @param data A data frame.
-#' @param interactive Logical indicating whether to create an interactive DataTable (default is TRUE).
-#' @param positive_only Logical indicating whether to filter only positive cases (default is TRUE).
+#' @param interactive Logical indicating whether to create an interactive
+#'   DataTable (default is TRUE).
+#' @param positive_only Logical indicating whether to filter only positive cases
+#'   (default is TRUE).
 #'
-#' @return An interactive DataTable or a static gt table, depending on the value of `interactive`.
+#' @return An interactive DataTable or a static gt table, depending on the value
+#'   of `interactive`.
 #'
 #' @examples
-#' data <- data.frame(year = 2020:2022, week = 1:3, cases = 10:12, alarms = c(TRUE, FALSE, TRUE), upperbound = c(15, NA, 14))
+#' \dontrun{
+#' data <- data.frame(year = 2020:2022,
+#'                    week = 1:3,
+#'                    cases = 10:12,
+#'                    alarms = c(TRUE, FALSE, TRUE),
+#'                    upperbound = c(15, NA, 14))
 #' create_results_table(data)
-create_results_table <- function(data, interactive = TRUE,
+#' }
+create_results_table <- function(data,
+                                 interactive = TRUE,
                                  positive_only = TRUE) {
   checkmate::assert(
     checkmate::check_true(interactive),
@@ -135,9 +153,9 @@ create_results_table <- function(data, interactive = TRUE,
   # convert for styling later on
   data <- convert_columns_integer(data, c("year", "week", "cases"))
 
-  data <- data %>% dplyr::filter(!is.na(upperbound))
+  data <- data %>% dplyr::filter(!is.na(.data$upperbound))
   if (positive_only) {
-    data <- data %>% dplyr::filter(alarms == TRUE)
+    data <- data %>% dplyr::filter(.data$alarms == TRUE)
   }
 
   return(create_table(data, interactive))

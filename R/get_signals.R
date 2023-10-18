@@ -1,18 +1,24 @@
 #' Get Signals
 #'
-#' This function analyzes surveillance data to detect signals using the specified method.
+#' This function analyzes surveillance data to detect signals using the
+#' specified method.
 #'
 #' @param data A data frame containing the surveillance data.
-#' @param method The method to use for signal detection (currently supports "farrington").
-#' @param stratification A character vector specifying the columns to stratify the analysis. Default is NULL.
+#' @param method The method to use for signal detection (currently supports
+#'   "farrington").
+#' @param stratification A character vector specifying the columns to stratify
+#'   the analysis. Default is NULL.
 #'
 #' @return A tibble containing the results of the signal detection analysis.
 #' @export
 #'
 #' @examples
-#' data <- read.csv("../data/input/input.csv")
-#' # results <- get_signals(data)
-#' results <- get_signals(data, method = "farrington", stratification = c("county", "sex"))
+#' \dontrun{
+#' data <- read.csv("data/input/input.csv")
+#' results <- get_signals(data,
+#'                        method = "farrington",
+#'                        stratification = c("county", "sex"))
+#' }
 get_signals <- function(data, method = "farrington", stratification = NULL) {
   # check that input method and stratification are correct
   checkmate::assert(

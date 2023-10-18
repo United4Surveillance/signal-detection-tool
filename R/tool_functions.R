@@ -6,8 +6,10 @@
 #' @param x vector of age group break points
 #'
 #' @examples
+#' \dontrun{
 #' find_age_group(5, c(0, 5, 10, 99))  # would result in "05-09"
 #' find_age_group(12, c(0, 5, 15, 99)) # would result in "05-14"
+#' }
 find_age_group <- function(age, x) {
   intervals <- length(x) # number of age groups
 
@@ -39,11 +41,13 @@ find_age_group <- function(age, x) {
 #' @param break_at integer that controls the length of the age groups
 #'
 #' @examples
+#' \dontrun{
 #' input_path <- "data/input/input_sample.csv"
 #' data <- read.csv(input_path, header = TRUE, sep = ",")
 #' data$age <- sample(1:125, 10, replace = TRUE)
 #' age_groups(data) # default age groups
 #' age_groups(data, c(15L,35L,65L,100L)) # custom age groups
+#' }
 age_groups <- function(df, break_at = NULL) {
   # error checking ----------------------------------------------------------
 
@@ -95,20 +99,28 @@ age_groups <- function(df, break_at = NULL) {
 
 #' Get Signals Stratified
 #'
-#' This function stratifies surveillance data by specified columns and analyzes each stratum separately using the specified method.
+#' This function stratifies surveillance data by specified columns and analyzes
+#' each stratum separately using the specified method.
 #'
 #' @param data A data frame containing the surveillance data.
 #' @param fun The signal detection function to apply to each stratum.
-#' @param stratification_columns A character vector specifying the columns to stratify the data by.
+#' @param stratification_columns A character vector specifying the columns to
+#'   stratify the data by.
 #'
-#' @return A tibble containing the results of the signal detection analysis stratified by the specified columns.
+#' @return A tibble containing the results of the signal detection analysis
+#'   stratified by the specified columns.
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' data <- read.csv("../data/input/input.csv")
 #' categories <- c("county", "sex", "age_group") # Replace with actual column names
-#' results <- get_signals_stratified(data, fun = get_signals_farringtonflexible, stratification_columns = categories)
+#' results <- get_signals_stratified(
+#'   data,
+#'   fun = get_signals_farringtonflexible,
+#'   stratification_columns = categories)
 #' print(results)
+#' }
 get_signals_stratified <- function(data, fun, stratification_columns) {
   # check that all columns are present in the data
   for (col in stratification_columns) {
