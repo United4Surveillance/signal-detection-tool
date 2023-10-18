@@ -27,7 +27,7 @@ test_that("Age group column is added correctly", {
     header = TRUE, sep = ","
   )
   output_data <- read.csv(test_path("testdata", "agegroup_output.csv"),
-    header = TRUE, sep = ","
+                          header = TRUE, sep = ","
   )
 
   expect_error(age_groups(input_data_incorrect)) # no age records in example file
