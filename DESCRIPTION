@@ -4,7 +4,7 @@ Version: 0.0.0.9000
 Authors@R: 
     person("AUTHOR_FIRST", "AUTHOR_LAST", , "AUTHOR@MAIL.COM", role = c("cre", "aut"))
 Description: PKG_DESC.
-License: What license is it under?
+License: MIT + file LICENSE
 Imports: 
     checkmate,
     config,
@@ -16,13 +16,14 @@ Imports:
     gt,
     ISOweek,
     lubridate,
+    magrittr,
     plotly,
+    plyr,
     rlang,
     scales,
     shiny,
     stringr,
-    surveillance,
-    tidyverse
+    surveillance
 Suggests: 
     spelling,
     testthat (>= 3.0.0)
