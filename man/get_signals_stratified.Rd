@@ -11,17 +11,25 @@ get_signals_stratified(data, fun, stratification_columns)
 
 \item{fun}{The signal detection function to apply to each stratum.}
 
-\item{stratification_columns}{A character vector specifying the columns to stratify the data by.}
+\item{stratification_columns}{A character vector specifying the columns to
+stratify the data by.}
 }
 \value{
-A tibble containing the results of the signal detection analysis stratified by the specified columns.
+A tibble containing the results of the signal detection analysis
+  stratified by the specified columns.
 }
 \description{
-This function stratifies surveillance data by specified columns and analyzes each stratum separately using the specified method.
+This function stratifies surveillance data by specified columns and analyzes
+each stratum separately using the specified method.
 }
 \examples{
+\dontrun{
 data <- read.csv("../data/input/input.csv")
 categories <- c("county", "sex", "age_group") # Replace with actual column names
-results <- get_signals_stratified(data, fun = get_signals_farringtonflexible, stratification_columns = categories)
+results <- get_signals_stratified(
+  data,
+  fun = get_signals_farringtonflexible,
+  stratification_columns = categories)
 print(results)
+}
 }

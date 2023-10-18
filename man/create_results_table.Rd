@@ -9,12 +9,15 @@ create_results_table(data, interactive = TRUE, positive_only = TRUE)
 \arguments{
 \item{data}{A data frame.}
 
-\item{interactive}{Logical indicating whether to create an interactive DataTable (default is TRUE).}
+\item{interactive}{Logical indicating whether to create an interactive
+DataTable (default is TRUE).}
 
-\item{positive_only}{Logical indicating whether to filter only positive cases (default is TRUE).}
+\item{positive_only}{Logical indicating whether to filter only positive cases
+(default is TRUE).}
 }
 \value{
-An interactive DataTable or a static gt table, depending on the value of `interactive`.
+An interactive DataTable or a static gt table, depending on the value
+  of `interactive`.
 }
 \description{
 This function creates a results table based on the input data frame. It can
@@ -22,6 +25,12 @@ filter the data based on the `positive_only` parameter and converts certain
 columns to integers for styling purposes.
 }
 \examples{
-data <- data.frame(year = 2020:2022, week = 1:3, cases = 10:12, alarms = c(TRUE, FALSE, TRUE), upperbound = c(15, NA, 14))
+\dontrun{
+data <- data.frame(year = 2020:2022,
+                   week = 1:3,
+                   cases = 10:12,
+                   alarms = c(TRUE, FALSE, TRUE),
+                   upperbound = c(15, NA, 14))
 create_results_table(data)
+}
 }

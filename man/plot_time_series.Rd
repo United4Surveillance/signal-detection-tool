@@ -20,7 +20,9 @@ either a gg or plotly object
 Plot time-series based on the results of Farrington Flexible
 }
 \examples{
+\dontrun{
 data <- read.csv("data/input/input.csv", header = TRUE, sep = ",")
 results <- get_signals_farringtonflexible(data)
 plot_time_series(results)
+}
 }

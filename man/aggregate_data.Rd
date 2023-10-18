@@ -13,8 +13,10 @@ aggregate_data(data)
 Aggregates case data by year and week of onset
 }
 \examples{
+\dontrun{
 input_path <- "data/input/input.csv"
 data <- read.csv(input_path, header = TRUE, sep = ",")
 data <- preprocess_data(data) \%>\% aggregate_data()
 sts_cases <- convert_to_sts(data)
+}
 }

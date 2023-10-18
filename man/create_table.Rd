@@ -9,17 +9,21 @@ create_table(data, interactive = TRUE)
 \arguments{
 \item{data}{A data frame.}
 
-\item{interactive}{Logical indicating whether to create an interactive DataTable (default is TRUE).}
+\item{interactive}{Logical indicating whether to create an interactive
+DataTable (default is TRUE).}
 }
 \value{
-An interactive DataTable or a static gt table, depending on the value of `interactive`.
+An interactive DataTable or a static gt table, depending on the value
+  of `interactive`.
 }
 \description{
-This function creates an interactive DataTable or a static gt table
-depending on the value of the `interactive` parameter. It can also format
-float columns to have two decimal places.
+This function creates an interactive DataTable or a static gt table depending
+on the value of the `interactive` parameter. It can also format float columns
+to have two decimal places.
 }
 \examples{
+\dontrun{
 data <- data.frame(a = 1:5, b = 1:5, c = 1.234:5.234)
 create_table(data)
+}
 }

@@ -7,25 +7,30 @@
 add_rows_missing_dates(data, date_start = NULL, date_end = NULL)
 }
 \arguments{
-\item{data}{A data frame with columns 'year' and 'week' representing the year and week
-values for each observation.}
+\item{data}{A data frame with columns 'year' and 'week' representing the year
+and week values for each observation.}
 
 \item{date_start}{A date object or character of format yyyy-mm-dd}
 
 \item{date_end}{A date object or character of format yyyy-mm-dd}
 }
 \value{
-A data frame containing all year-week combinations within the input range,
-        with missing rows filled in with 0 values for cases.
+A data frame containing all year-week combinations within the input
+  range, with missing rows filled in with 0 values for cases.
 }
 \description{
 This function takes a data frame containing year-week information and ensures
-that it includes all possible year-week combinations within the specified range.
-It fills in missing rows with 0 values for cases and returns the updated data frame.
+that it includes all possible year-week combinations within the specified
+range. It fills in missing rows with 0 values for cases and returns the
+updated data frame.
 }
 \examples{
-data <- data.frame(year = c(2021, 2022, 2022), week = c(1, 2, 4), cases = c(10, 15, 5))
+\dontrun{
+data <- data.frame(year = c(2021, 2022, 2022),
+                   week = c(1, 2, 4),
+                   cases = c(10, 15, 5))
 # updated_data <- add_rows_missing_dates(data, "2022-01-21", "2023-05-01")
 updated_data <- add_rows_missing_dates(data)
 updated_data
+}
 }
