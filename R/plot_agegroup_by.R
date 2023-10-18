@@ -1,9 +1,3 @@
-# Packages
-library(dplyr)
-library(ggiraph)
-library(ggplot2)
-library(rlang)
-
 
 #' Plot age-groups grouped by another variable
 #'
@@ -55,7 +49,9 @@ plot_agegroup_by <- function(df,
         mapping = ggplot2::aes(
           x = !!rlang::sym(age_group_col),
           fill = !!rlang::sym(by_col), # TODO: colors
-          tooltip = sprintf("%s: %.0f", fill, ggplot2::after_stat(count))),
+          tooltip = sprintf("%s: %.0f",
+                            .data$fill,
+                            ggplot2::after_stat(.data$count))),
         color = "black") +
       ggplot2::guides(fill = ggplot2::guide_legend(ncol = min(n_levels, 5)))
   } else {
@@ -65,7 +61,7 @@ plot_agegroup_by <- function(df,
         position = "dodge",
         mapping = ggplot2::aes(
           x = !!rlang::sym(age_group_col),
-          tooltip = sprintf("Count: %.0f", ggplot2::after_stat(count))),
+          tooltip = sprintf("Count: %.0f", ggplot2::after_stat(.data$count))),
         color = "black",
         fill = scales::hue_pal()(1)) # TODO: colors
   }
