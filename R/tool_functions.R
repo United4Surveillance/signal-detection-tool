@@ -5,7 +5,7 @@
 #' @param age integer age in years
 #' @param x vector of age group break points
 #'
-#' @example
+#' @examples
 #' find_age_group(5, c(0, 5, 10, 99))  # would result in "05-09"
 #' find_age_group(12, c(0, 5, 15, 99)) # would result in "05-14"
 find_age_group <- function(age, x) {
@@ -38,7 +38,7 @@ find_age_group <- function(age, x) {
 #' @param df data frame on which the age grouping is created
 #' @param break_at integer that controls the length of the age groups
 #'
-#' @example
+#' @examples
 #' input_path <- "data/input/input_sample.csv"
 #' data <- read.csv(input_path, header = TRUE, sep = ",")
 #' data$age <- sample(1:125, 10, replace = TRUE)
