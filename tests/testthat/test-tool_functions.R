@@ -1,8 +1,3 @@
-if (!require(testthat)) install.packages("testthat")
-library(testthat)
-
-source("../../R/age_group.R") # can be deleted once project is a package
-
 
 test_that("Categorization of age", {
   expect_identical(find_age_group(5, c(0, 5, 10, 99)), "05-09")
