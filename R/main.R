@@ -71,6 +71,9 @@ data <- data %>% mutate(date_onset = ifelse(is.na(date_onset) | date_onset=="", 
 data$age_group <- factor(data$age_group)
 data$sex <- factor(data$sex)
 
+# check data
+check_input_data(data)
+
 # plot timeseries
 results <- get_signals_farringtonflexible(data)
 plot_time_series(results, interactive = T)
