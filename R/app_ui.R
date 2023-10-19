@@ -5,12 +5,13 @@
 #' @import shiny
 #' @noRd
 app_ui <- function(request) {
-  tagList(
+  shiny::tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
     # Your application UI logic
-    fluidPage(
-      h1("SignalDetectionTool")
+    shiny::fluidPage(
+      shiny::h1("SignalDetectionTool"),
+      mod_time_series_plot_ui("ts_plot_1")
     )
   )
 }
@@ -24,7 +25,7 @@ app_ui <- function(request) {
 #' @importFrom golem add_resource_path activate_js favicon bundle_resources
 #' @noRd
 golem_add_external_resources <- function() {
-  add_resource_path(
+  golem::add_resource_path(
     "www",
     app_sys("app/www")
   )
