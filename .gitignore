@@ -57,3 +57,4 @@ data/
 
 # Temporary idea files
 .idea/
+inst/doc
