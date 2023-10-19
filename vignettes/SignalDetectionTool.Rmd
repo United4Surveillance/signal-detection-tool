@@ -1,5 +1,5 @@
 ---
-title: "SignalDetectionTool: R Package for signal detection of surveillance data"
+title: "SignalDetectionTool: R Package for signal detection for surveillance data"
 output: 
   rmarkdown::html_vignette:
     toc: true
@@ -39,18 +39,14 @@ run_app()
 
 The surveillance data to analyze must have the following format. 
 
-```{r, child='../data/input/description.md'}
-```
-
+**Placeholder for meta data** 
 
 ## Advanced Use 
 
 Reading the data in R.
 
 ```{r, results='hide'}
-input_path <- "../data/input/input.csv"
-data <- read.csv(input_path)
-shape <- sf::st_read("../data/shp/NUTS_RG_03M_2021_3035.shp")
+data <- input_example
 
 ```
 
@@ -59,7 +55,8 @@ shape <- sf::st_read("../data/shp/NUTS_RG_03M_2021_3035.shp")
 ```{r}
 data <- dplyr::mutate(data, date_onset = dplyr::if_else(is.na(date_onset), 
                                                         date_report, 
-                                                        date_onset))
+                                                        date_onset)) 
+data <- age_groups(data)
 data$age_group <- factor(data$age_group)
 data$sex <- factor(data$sex)
 ```
@@ -92,7 +89,7 @@ create_results_table(results, interactive = TRUE)
 ```{r, include=FALSE}
 # weird fix since match.fun only looks back through 2 layers of parent 
 # environments for the named function
-guide_colourbar_interactive <- function(...) ggiraph::guide_colourbar_interactive(...)
+# guide_colourbar_interactive <- function(...) ggiraph::guide_colourbar_interactive(...)
 
 ```
 
@@ -101,7 +98,7 @@ guide_colourbar_interactive <- function(...) ggiraph::guide_colourbar_interactiv
 signals_county <- get_signals(data, stratification = c("county_id"))
 plot_regional(data, 
               signals_county, 
-              shape, 
+              nuts_shp, 
               country_id = unique(data$country_id), 
               regional_level = "county", 
               interactive = TRUE)
@@ -111,7 +108,7 @@ plot_regional(data,
 signals_community <- get_signals(data, stratification = c("community_id"))
 plot_regional(data, 
               signals_community, 
-              shape, 
+              nuts_shp, 
               country_id = unique(data$country_id), 
               regional_level = "community", 
               interactive = TRUE)

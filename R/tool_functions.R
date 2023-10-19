@@ -40,6 +40,8 @@ find_age_group <- function(age, x) {
 #' @param df data frame on which the age grouping is created
 #' @param break_at integer that controls the length of the age groups
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' input_path <- "data/input/input_sample.csv"
