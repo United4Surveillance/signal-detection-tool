@@ -6,6 +6,7 @@
 #' @param number_of_weeks number of weeks to be covered in the plot
 #'
 #' @return either a gg or plotly object
+#' @export
 #'
 #' @examples
 #' \dontrun{

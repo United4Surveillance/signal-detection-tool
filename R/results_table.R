@@ -125,6 +125,7 @@ convert_columns_integer <- function(data, columns_to_convert) {
 #'
 #' @return An interactive DataTable or a static gt table, depending on the value
 #'   of `interactive`.
+#' @export
 #'
 #' @examples
 #' \dontrun{

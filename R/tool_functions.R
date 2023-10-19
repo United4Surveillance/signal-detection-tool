@@ -109,7 +109,6 @@ age_groups <- function(df, break_at = NULL) {
 #'
 #' @return A tibble containing the results of the signal detection analysis
 #'   stratified by the specified columns.
-#' @export
 #'
 #' @examples
 #' \dontrun{

@@ -1,5 +1,5 @@
-| Variable               | Mandatory | Description|
-|------------------------|-----------|------------|
+| Variable               | Mandatory | Description                                       |
+|------------------------|-----------|---------------------------------------------------|
 | case_id	             | YES | Unique identifier for a specific case, but nothing that can be used to identify the case or patient within the national surveillance system |
 | date_report	           | YES | Date when the case was reported in ISO 8601 format YYYY-MM-DD |
 | date_onset	           | If available | Date when symptoms started in ISO 8601 format YYYY-MM-DD|

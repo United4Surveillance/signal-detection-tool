@@ -25,6 +25,9 @@ Imports:
     stringr,
     surveillance
 Suggests: 
+    knitr,
+    rmarkdown,
+    sf,
     spelling,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
@@ -32,3 +35,4 @@ Encoding: UTF-8
 Language: en-US
 LazyData: true
 RoxygenNote: 7.2.3
+VignetteBuilder: knitr
