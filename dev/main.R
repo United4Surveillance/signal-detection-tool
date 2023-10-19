@@ -10,18 +10,20 @@ library(checkmate)
 # Sources to scripts and data could be replaced by devtools::load_all() but then this main script cannot be located in the R directory
 devtools::load_all()
 
+### these will be avaialable as 'input_example' and 'nuts_shp'
 # load example data
-input_path <- "data/input/input.csv"
-header <- readLines(input_path, n=1)
-if (grepl(";",header)) {
-  data <- read.csv(input_path, header = TRUE, sep = ";", encoding = "UTF-8")
-} else {
-  data <- read.csv(input_path, header = TRUE, sep = ",", encoding = "UTF-8")
-}
-shape <- sf::st_read("data/shp/NUTS_RG_03M_2021_3035.shp")
+# input_path <- "data/input/input.csv"
+# header <- readLines(input_path, n=1)
+# if (grepl(";",header)) {
+#   data <- read.csv(input_path, header = TRUE, sep = ";", encoding = "UTF-8")
+# } else {
+#   data <- read.csv(input_path, header = TRUE, sep = ",", encoding = "UTF-8")
+# }
+# shape <- sf::st_read("data/shp/NUTS_RG_03M_2021_3035.shp")
+
 
 # preprocess
-data <- data %>% 
+data <- input_example %>%
   dplyr::mutate(date_onset = ifelse(is.na(date_onset) | date_onset == "", date_report, date_onset))
 data$age_group <- factor(data$age_group)
 data$sex <- factor(data$sex)
@@ -56,8 +58,9 @@ if (has_community) {
 # plot surveillance data and signal detection results as a map
 
 if (has_county) {
-  plot_regional(data, signals_county, shape, country_id = country, regional_level = "county")
+  plot_regional(data, signals_county, nuts_shp, country_id = country, regional_level = "county")
 }
 if (has_community) {
-  plot_regional(data, signals_community, shape, country_id = country, regional_level = "community", interactive = TRUE)
+  plot_regional(data, signals_community, nuts_shp, country_id = country, regional_level = "community", interactive = TRUE)
 }
+
