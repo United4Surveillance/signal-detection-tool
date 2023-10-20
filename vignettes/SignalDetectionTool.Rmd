@@ -94,7 +94,7 @@ create_results_table(results, interactive = TRUE)
 ```
 
 
-```{r}
+```{r, eval = FALSE}
 signals_county <- get_signals(data, stratification = c("county_id"))
 plot_regional(data, 
               signals_county, 
@@ -104,7 +104,7 @@ plot_regional(data,
               interactive = TRUE)
 ```
 
-```{r}
+```{r, eval = FALSE}
 signals_community <- get_signals(data, stratification = c("community_id"))
 plot_regional(data, 
               signals_community, 
