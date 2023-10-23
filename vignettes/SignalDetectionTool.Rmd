@@ -18,6 +18,9 @@ knitr::opts_chunk$set(
   fig.dim = c(4, 3), 
   fig.align = "center"
 )
+
+guide_colourbar_interactive <- function(...) ggiraph::guide_colourbar_interactive(...)
+
 ```
 
 
@@ -94,7 +97,7 @@ create_results_table(results, interactive = TRUE)
 ```
 
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 signals_county <- get_signals(data, stratification = c("county_id"))
 plot_regional(data, 
               signals_county, 
@@ -104,7 +107,7 @@ plot_regional(data,
               interactive = TRUE)
 ```
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 signals_community <- get_signals(data, stratification = c("community_id"))
 plot_regional(data, 
               signals_community, 
