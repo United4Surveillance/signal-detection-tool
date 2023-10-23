@@ -42,14 +42,19 @@ plot_regional <- function(data,
   checkmate::assertClass(data, "data.frame")
   checkmate::assertClass(signals, "data.frame")
 
-  shape <- shape %>% dplyr::filter(.data$CNTR_CODE == country_id)
-  shape <- switch(regional_level,
-                  country = shape %>% dplyr::filter(.data$LEVL_CODE == 0),
-                  state = shape %>% dplyr::filter(.data$LEVL_CODE == 1),
-                  county = shape %>% dplyr::filter(.data$LEVL_CODE == 2),
-                  community = shape %>% dplyr::filter(.data$LEVL_CODE == 3),
-                  shape
-  )
+  shape <- shape %>%
+    as.data.frame() %>%
+    dplyr::filter(.data$CNTR_CODE == country_id) %>%
+    sf::st_as_sf() %>%
+    identity()
+
+    shape <- switch(regional_level,
+                    country = shape %>% dplyr::filter(.data$LEVL_CODE == 0),
+                    state = shape %>% dplyr::filter(.data$LEVL_CODE == 1),
+                    county = shape %>% dplyr::filter(.data$LEVL_CODE == 2),
+                    community = shape %>% dplyr::filter(.data$LEVL_CODE == 3),
+                    shape
+    )
   data_reg <- switch(regional_level,
                      country = data %>%
                        dplyr::group_by(.data$country_id) %>%

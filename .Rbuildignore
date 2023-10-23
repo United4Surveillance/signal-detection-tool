@@ -8,3 +8,5 @@ $run_dev.*
 ^LICENSE\.md$
 ^.github$
 ^outputs$
+^doc$
+^Meta$

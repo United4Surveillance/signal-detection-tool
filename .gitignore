@@ -59,3 +59,5 @@ rsconnect/
 # Temporary idea files
 .idea/
 inst/doc
+/doc/
+/Meta/
