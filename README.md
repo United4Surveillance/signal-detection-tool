@@ -26,15 +26,12 @@ Installation directly from github:
     GITHUBTOKEN=“newly created tokenstring”.
 3.  Restart RStudio.
 4.  Install the package using
-    `devtools::install_github(repo = "https://github.com/United4Surveillance/signal-detection-tool", 
-                              ref = "<branch you want to install from>", 
-                              auth_token = Sys.getenv("GITHUBTOKEN")), 
-                              build_vignettes = TRUE)`
+    `devtools::install_github(repo = "https://github.com/United4Surveillance/signal-detection-tool", ref = "<branch you want to install from>", auth_token = Sys.getenv("GITHUBTOKEN"), build_vignettes = TRUE)`
 
 Installation from a local repository:
 
 1. Open the R-project in Rstudio.
-2. Run `devtools::install()`. 
+2. Run `devtools::install(build_vignettes = TRUE)`. 
 
 ## Input data
 The tool accepts data in the predefined format described in the description.md in /data/input. 
