@@ -42,7 +42,10 @@ run_app()
 
 The surveillance data to analyze must have the following format. 
 
-**Placeholder for meta data** 
+```{r echo = FALSE}
+knitr::kable(input_metadata, format = "html")
+```
+
 
 ## Advanced Use 
 
