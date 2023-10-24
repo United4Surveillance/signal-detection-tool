@@ -21,7 +21,7 @@ You can install the development version of SignalDetectionTool like so:
 
 Installation directly from github:
 
-1.  To install a package from a private repository setup a *github access token* by visiting [](https://github.com/settings/tokens) and following the       'Generate new token' process.
+1.  To install a package from a private repository setup a *github access token* by visiting [https://github.com/settings/tokens](https://github.com/settings/tokens) and following the       'Generate new token' process.
 2.  To make the token available in RStudio edit the .Renviron (you can do this by running `usethis::edit_r_environ()`) and add
     GITHUBTOKEN=“newly created tokenstring”.
 3.  Restart RStudio.
