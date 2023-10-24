@@ -177,10 +177,14 @@ get_signals_stratified <- function(data, fun, stratification_columns) {
 #' if the columns have the correct data types.
 #'
 #' @param data A data frame containing the input data.
-#' 
+#'
 #' @return Error messages if any issues are found. If no issues are found,
 #'         it returns TRUE.
+#'
+#' @export
+#'
 #' @examples
+#' \dontrun{
 #' data <- read.csv("../data/input/input.csv")
 #' result <- check_input_data(data)
 #' if (is.logical(result) && result == TRUE) {
@@ -188,10 +192,9 @@ get_signals_stratified <- function(data, fun, stratification_columns) {
 #' } else {
 #'   cat(as.character(result), sep = "\n")
 #' }
-#' @export
-
+#' }
 check_input_data <- function(data) {
-  
+
   # expected data format
   data_structure <- list(
     case_id = "integer",
@@ -202,17 +205,17 @@ check_input_data <- function(data) {
     sex = "factor",
     pathogen = "character"
   )
-  
+
   # are all required columns present?
   necessary_columns <- names(data_structure)
   data_columns <- colnames(data)
   errors <- list()
   missing_columns <- setdiff(necessary_columns, data_columns)
-  
+
   if (length(missing_columns) != 0) {
     errors <- lapply(missing_columns, function(col) paste0("Missing '", col, "' column in the data"))
   }
-  
+
   # are column types correct?
   errors <- append(errors,
     lapply(names(data_structure), function(col_name) {
@@ -227,10 +230,10 @@ check_input_data <- function(data) {
     }),
     after = length(errors)
   )
-  
+
   # remove empty slots
   errors <- errors[sapply(errors, function(element) !is.null(element))]
-  
+
   # return TRUE or print error messages
   if (length(errors) != 0) {
     return(errors)
@@ -238,4 +241,4 @@ check_input_data <- function(data) {
   else {
     return(TRUE)
   }
-}  
+}
