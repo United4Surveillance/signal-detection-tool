@@ -28,7 +28,7 @@ mod_time_series_plot_server <- function(id){
     #     plot_time_series(results = ., interactive = FALSE)
     # })
     output$time_series_plot <- plotly::renderPlotly({
-      input_example %>%
+      SignalDetectionTool::input_example %>%
         get_signals_farringtonflexible() %>%
         plot_time_series(results = ., interactive = TRUE)
     })
