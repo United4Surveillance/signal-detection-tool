@@ -10,8 +10,21 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Your application UI logic
     shiny::fluidPage(
-      shiny::h1("SignalDetectionTool"),
-      mod_time_series_plot_ui("ts_plot_1")
+      # Application title
+      ## Logo and headertext
+      shiny::titlePanel( shiny::div(
+        shiny::column(width = 10, shiny::h1("United4Surveillance Signal Detection Tool")),
+        shiny::column(width = 2, shiny::tags$img(src = "U4S-BLUE-200x87.png"))),
+        windowTitle="U4S Signal Detection"
+      ),
+
+      shiny::tabsetPanel(
+        mod_tabpanel_help_ui("help")
+        # ,
+        # tabPanel("ts_plot_1",
+        #          shiny::h1("SignalDetectionTool"),
+        #          mod_time_series_plot_ui("ts_plot_1"))
+      )
     )
   )
 }
