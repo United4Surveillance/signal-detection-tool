@@ -49,6 +49,7 @@ plot_regional <- function(data, signals, shape, country_id = "AT", regional_leve
   
   plot <- shape %>%
     filter(!is.na(count)) %>%
+    replace_na(list(alarms = 0)) %>% 
     ggplot(aes(fill = count, color = alarms)) +
     geom_sf_interactive(aes(size = 2*alarms, tooltip = paste0("cases: ", count," alarms: ", alarms), data_id = NUTS_ID)) +
     theme_void() +
