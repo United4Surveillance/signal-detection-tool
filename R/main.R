@@ -29,7 +29,7 @@ shape <- sf::st_read("data/shp/NUTS_RG_03M_2021_3035.shp")
 
 # preprocess
 data <- data %>% mutate(date_onset = ifelse(is.na(date_onset) | date_onset=="", date_report, date_onset))
-data$age_group <- factor(data$age_group)
+data$age_group <- factor(data$age_group, levels = stringr::str_sort(unique(data$age_group), numeric = TRUE))
 data$sex <- factor(data$sex)
 
 # check data
