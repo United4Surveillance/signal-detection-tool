@@ -13,7 +13,7 @@ The maintainers will meet regularly and discuss pull request, issues and add new
 
 Maintainers and contributers can work indepently on issues.
 
-For more information on how to contribute, please see our [contributing guidelines](https://github.com/United4Surveillance/signal-detection-tool/blob/main/CONTRIBUTING.md).
+For more information on how to contribute, please see our [contributing guidelines](https://github.com/United4Surveillance/signal-detection-tool/blob/main/.github/CONTRIBUTING.md).
 
 ## Installation
 
