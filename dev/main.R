@@ -3,6 +3,7 @@
 # Feel free to complete the file
 
 library(surveillance)
+library(tidyverse)
 library(ggiraph)
 library(gt)
 library(checkmate)
@@ -10,22 +11,10 @@ library(checkmate)
 # Sources to scripts and data could be replaced by devtools::load_all() but then this main script cannot be located in the R directory
 devtools::load_all()
 
-### these will be avaialable as 'input_example' and 'nuts_shp'
-# load example data
-# input_path <- "data/input/input.csv"
-# header <- readLines(input_path, n=1)
-# if (grepl(";",header)) {
-#   data <- read.csv(input_path, header = TRUE, sep = ";", encoding = "UTF-8")
-# } else {
-#   data <- read.csv(input_path, header = TRUE, sep = ",", encoding = "UTF-8")
-# }
-# shape <- sf::st_read("data/shp/NUTS_RG_03M_2021_3035.shp")
-
-
 # preprocess
 data <- input_example %>%
   dplyr::mutate(date_onset = ifelse(is.na(date_onset) | date_onset == "", date_report, date_onset))
-data$age_group <- factor(data$age_group)
+data$age_group <- factor(data$age_group, levels = stringr::str_sort(unique(data$age_group), numeric = TRUE))
 data$sex <- factor(data$sex)
 
 # check data
