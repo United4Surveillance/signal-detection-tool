@@ -52,8 +52,12 @@ po/*~
 rsconnect/
 
 # Data files - to avoid unintended commits, remove these temporarily when needed
-data/
+# data/
 *.csv
+
 
 # Temporary idea files
 .idea/
+inst/doc
+/doc/
+/Meta/

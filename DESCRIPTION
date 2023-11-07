@@ -1,0 +1,42 @@
+Package: SignalDetectionTool
+Title: PKG_TITLE
+Version: 0.0.0.9000
+Authors@R: 
+    person("AUTHOR_FIRST", "AUTHOR_LAST", , "AUTHOR@MAIL.COM", role = c("cre", "aut"))
+Description: PKG_DESC.
+License: MIT + file LICENSE
+Depends: 
+    R (>= 2.10)
+Imports: 
+    checkmate,
+    config,
+    dplyr,
+    DT,
+    ggiraph,
+    ggplot2,
+    golem,
+    gt,
+    ISOweek,
+    lubridate,
+    magrittr,
+    plotly,
+    plyr,
+    rlang,
+    scales,
+    sf,
+    shiny,
+    stringr,
+    surveillance,
+    tidyr
+Suggests: 
+    knitr,
+    rmarkdown,
+    spelling,
+    testthat (>= 3.0.0)
+VignetteBuilder: 
+    knitr
+Config/testthat/edition: 3
+Encoding: UTF-8
+Language: en-US
+LazyData: true
+RoxygenNote: 7.2.3

@@ -1,8 +1,3 @@
-if (!require(testthat)) install.packages("testthat")
-library(testthat)
-
-source("../../R/age_group.R") # can be deleted once project is a package
-
 
 test_that("Categorization of age", {
   expect_identical(find_age_group(5, c(0, 5, 10, 99)), "05-09")
@@ -27,7 +22,7 @@ test_that("Age group column is added correctly", {
     header = TRUE, sep = ","
   )
   output_data <- read.csv(test_path("testdata", "agegroup_output.csv"),
-    header = TRUE, sep = ","
+                          header = TRUE, sep = ","
   )
 
   expect_error(age_groups(input_data_incorrect)) # no age records in example file

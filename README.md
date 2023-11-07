@@ -15,6 +15,24 @@ Maintainers and contributers can work indepently on issues.
 
 For more information on how to contribute, please see our [contributing guidelines](https://github.com/United4Surveillance/signal-detection-tool/blob/main/CONTRIBUTING.md).
 
+## Installation
+
+You can install the development version of SignalDetectionTool like so:
+
+Installation directly from github:
+
+1.  To install a package from a private repository setup a *github access token* by visiting [https://github.com/settings/tokens](https://github.com/settings/tokens) and following the       'Generate new token' process.
+2.  To make the token available in RStudio edit the .Renviron (you can do this by running `usethis::edit_r_environ()`) and add
+    GITHUBTOKEN=“newly created tokenstring”.
+3.  Restart RStudio.
+4.  Install the package using
+    `devtools::install_github(repo = "https://github.com/United4Surveillance/signal-detection-tool", ref = "<branch you want to install from>", auth_token = Sys.getenv("GITHUBTOKEN"), build_vignettes = TRUE)`
+
+Installation from a local repository:
+
+1. Open the R-project in Rstudio.
+2. Run `devtools::install(build_vignettes = TRUE)`. 
+
 ## Input data
 The tool accepts data in the predefined format described in the description.md in /data/input. 
 
@@ -26,7 +44,7 @@ The Joint Action project roadmap states that the tool development should be fini
 We view this latter deadline as . Our goal is to get as much feedback from the piloting countries as early as possible.
 Therefore, we adopt an agile development approach with the aim to ship improved versions as often and as early as possible. 
 
-**Our goal is to have a working minimal viable product (MVP) at the end of Octobre 2023, at the latest.**
+**Our goal is to have a working minimal viable product (MVP) at the end of October 2023, at the latest.**
 
 Here is possible iterative development roadmap:
 

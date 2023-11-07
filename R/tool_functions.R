@@ -5,9 +5,11 @@
 #' @param age integer age in years
 #' @param x vector of age group break points
 #'
-#' @example
+#' @examples
+#' \dontrun{
 #' find_age_group(5, c(0, 5, 10, 99))  # would result in "05-09"
 #' find_age_group(12, c(0, 5, 15, 99)) # would result in "05-14"
+#' }
 find_age_group <- function(age, x) {
   intervals <- length(x) # number of age groups
 
@@ -38,12 +40,16 @@ find_age_group <- function(age, x) {
 #' @param df data frame on which the age grouping is created
 #' @param break_at integer that controls the length of the age groups
 #'
-#' @example
+#' @export
+#'
+#' @examples
+#' \dontrun{
 #' input_path <- "data/input/input_sample.csv"
 #' data <- read.csv(input_path, header = TRUE, sep = ",")
 #' data$age <- sample(1:125, 10, replace = TRUE)
 #' age_groups(data) # default age groups
 #' age_groups(data, c(15L,35L,65L,100L)) # custom age groups
+#' }
 age_groups <- function(df, break_at = NULL) {
   # error checking ----------------------------------------------------------
 
@@ -95,20 +101,27 @@ age_groups <- function(df, break_at = NULL) {
 
 #' Get Signals Stratified
 #'
-#' This function stratifies surveillance data by specified columns and analyzes each stratum separately using the specified method.
+#' This function stratifies surveillance data by specified columns and analyzes
+#' each stratum separately using the specified method.
 #'
 #' @param data A data frame containing the surveillance data.
 #' @param fun The signal detection function to apply to each stratum.
-#' @param stratification_columns A character vector specifying the columns to stratify the data by.
+#' @param stratification_columns A character vector specifying the columns to
+#'   stratify the data by.
 #'
-#' @return A tibble containing the results of the signal detection analysis stratified by the specified columns.
-#' @export
+#' @return A tibble containing the results of the signal detection analysis
+#'   stratified by the specified columns.
 #'
 #' @examples
+#' \dontrun{
 #' data <- read.csv("../data/input/input.csv")
 #' categories <- c("county", "sex", "age_group") # Replace with actual column names
-#' results <- get_signals_stratified(data, fun = get_signals_farringtonflexible, stratification_columns = categories)
+#' results <- get_signals_stratified(
+#'   data,
+#'   fun = get_signals_farringtonflexible,
+#'   stratification_columns = categories)
 #' print(results)
+#' }
 get_signals_stratified <- function(data, fun, stratification_columns) {
   # check that all columns are present in the data
   for (col in stratification_columns) {
@@ -160,19 +173,25 @@ get_signals_stratified <- function(data, fun, stratification_columns) {
 
 #' Get Signals
 #'
-#' This function analyzes surveillance data to detect signals using the specified method.
+#' This function analyzes surveillance data to detect signals using the
+#' specified method.
 #'
 #' @param data A data frame containing the surveillance data.
-#' @param method The method to use for signal detection (currently supports "farrington").
-#' @param stratification A character vector specifying the columns to stratify the analysis. Default is NULL.
+#' @param method The method to use for signal detection (currently supports
+#'   "farrington").
+#' @param stratification A character vector specifying the columns to stratify
+#'   the analysis. Default is NULL.
 #'
 #' @return A tibble containing the results of the signal detection analysis.
 #' @export
 #'
 #' @examples
-#' data <- read.csv("../data/input/input.csv")
-#' # results <- get_signals(data)
-#' results <- get_signals(data, method = "farrington", stratification = c("county", "sex"))
+#' \dontrun{
+#' data <- read.csv("data/input/input.csv")
+#' results <- get_signals(data,
+#'                        method = "farrington",
+#'                        stratification = c("county", "sex"))
+#' }
 get_signals <- function(data, method = "farrington", stratification = NULL) {
   # check that input method and stratification are correct
   checkmate::assert(
@@ -183,18 +202,19 @@ get_signals <- function(data, method = "farrington", stratification = NULL) {
     checkmate::check_vector(stratification),
     combine = "or"
   )
-  
+
   if (method == "farrington") {
     fun <- get_signals_farringtonflexible
   }
-  
+
   if (is.null(stratification)) {
     results <- fun(data) %>% dplyr::mutate(category = NA, stratum = NA)
   } else {
     results <- get_signals_stratified(data, fun, stratification)
   }
-  
+
   return(results)
+
 }
 
 #' Check input data for required columns and data types
@@ -203,10 +223,14 @@ get_signals <- function(data, method = "farrington", stratification = NULL) {
 #' if the columns have the correct data types.
 #'
 #' @param data A data frame containing the input data.
-#' 
+#'
 #' @return Error messages if any issues are found. If no issues are found,
 #'         it returns TRUE.
+#'
+#' @export
+#'
 #' @examples
+#' \dontrun{
 #' data <- read.csv("../data/input/input.csv")
 #' result <- check_input_data(data)
 #' if (is.logical(result) && result == TRUE) {
@@ -214,10 +238,9 @@ get_signals <- function(data, method = "farrington", stratification = NULL) {
 #' } else {
 #'   cat(as.character(result), sep = "\n")
 #' }
-#' @export
-
+#' }
 check_input_data <- function(data) {
-  
+
   # expected data format
   data_structure <- list(
     case_id = "integer",
@@ -228,17 +251,17 @@ check_input_data <- function(data) {
     sex = "factor",
     pathogen = "character"
   )
-  
+
   # are all required columns present?
   necessary_columns <- names(data_structure)
   data_columns <- colnames(data)
   errors <- list()
   missing_columns <- setdiff(necessary_columns, data_columns)
-  
+
   if (length(missing_columns) != 0) {
     errors <- lapply(missing_columns, function(col) paste0("Missing '", col, "' column in the data"))
   }
-  
+
   # are column types correct?
   errors <- append(errors,
     lapply(names(data_structure), function(col_name) {
@@ -253,10 +276,10 @@ check_input_data <- function(data) {
     }),
     after = length(errors)
   )
-  
+
   # remove empty slots
   errors <- errors[sapply(errors, function(element) !is.null(element))]
-  
+
   # return TRUE or print error messages
   if (length(errors) != 0) {
     return(errors)
@@ -264,4 +287,4 @@ check_input_data <- function(data) {
   else {
     return(TRUE)
   }
-}  
+}

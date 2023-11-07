@@ -1,9 +1,3 @@
-# Packages
-library(dplyr)
-library(ggiraph)
-library(ggplot2)
-library(rlang)
-
 
 #' Plot age-groups grouped by another variable
 #'
@@ -15,17 +9,22 @@ library(rlang)
 #' @export
 #'
 #' @examples
-plot_agegroup_by <- function(df, 
-                             age_group_col = "age_group", 
+#' \dontrun{
+#' plot_agegroup_by(df = test_data,
+#'                   age_group_col = "age_group",
+#'                   by_col = "county")
+#' }
+plot_agegroup_by <- function(df,
+                             age_group_col = "age_group",
                              by_col = "sex") {
-  
+
   # check if age_group_col is contained in df and if age_group_col is a factor
   checkmate::assert(
     checkmate::check_choice(age_group_col, choices = names(df)),
     checkmate::check_factor(df[, age_group_col], all.missing = FALSE),
     combine = "and"
   )
-  
+
   # check if by_col is NULL or if by_col is contained in df and if by_col is a
   # factor
   checkmate::assert(
@@ -37,41 +36,43 @@ plot_agegroup_by <- function(df,
     },
     combine = "and"
   )
-  
+
   # plot
   p <- ggplot2::ggplot(data = df)
-  
+
   if (!is.null(by_col)) {
     n_levels <- length(levels(df[, by_col]))
     p <- p +
       ggiraph::geom_bar_interactive(
-        stat = "count", 
+        stat = "count",
         position = ggplot2::position_dodge(preserve = "single"),
         mapping = ggplot2::aes(
-          x = !!rlang::sym(age_group_col), 
+          x = !!rlang::sym(age_group_col),
           fill = !!rlang::sym(by_col), # TODO: colors
-          tooltip = sprintf("%s: %.0f", fill, ggplot2::after_stat(count))), 
+          tooltip = sprintf("%s: %.0f",
+                            .data$fill,
+                            ggplot2::after_stat(.data$count))),
         color = "black") +
       ggplot2::guides(fill = ggplot2::guide_legend(ncol = min(n_levels, 5)))
   } else {
     p <- p +
       ggiraph::geom_bar_interactive(
-        stat = "count", 
+        stat = "count",
         position = "dodge",
         mapping = ggplot2::aes(
-          x = !!rlang::sym(age_group_col), 
-          tooltip = sprintf("Count: %.0f", ggplot2::after_stat(count))),
-        color = "black", 
+          x = !!rlang::sym(age_group_col),
+          tooltip = sprintf("Count: %.0f", ggplot2::after_stat(.data$count))),
+        color = "black",
         fill = scales::hue_pal()(1)) # TODO: colors
   }
-  
+
   p <- p +
     ggplot2::labs(x = "Age-group", y = "Count") +
     ggplot2::scale_y_continuous(
       breaks = scales::pretty_breaks(n = 10),
       expand = ggplot2::expansion(mult = c(0, 0.1))) +
     ggplot2::theme(
-      legend.direction = "vertical", 
+      legend.direction = "vertical",
       legend.position = "top",
       legend.title.align = 0.5,
       panel.background = ggplot2::element_blank(),
@@ -86,7 +87,7 @@ plot_agegroup_by <- function(df,
       legend.title = ggplot2::element_text(face = "bold")) +
     NULL
   p
-  
+
 }
 
 

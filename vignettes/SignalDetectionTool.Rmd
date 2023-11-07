@@ -1,0 +1,124 @@
+---
+title: "SignalDetectionTool: R Package for signal detection for surveillance data"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{SignalDetectionTool}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE, 
+  warning = FALSE,
+  fig.dim = c(4, 3), 
+  fig.align = "center"
+)
+
+guide_colourbar_interactive <- function(...) ggiraph::guide_colourbar_interactive(...)
+
+```
+
+
+## Running the App 
+
+Source the package
+
+```{r setup}
+library(SignalDetectionTool)
+```
+
+and run the app
+
+```{r, eval=FALSE}
+run_app()
+```
+
+### Upload Data 
+
+The surveillance data to analyze must have the following format. 
+
+```{r echo = FALSE}
+knitr::kable(input_metadata, format = "html")
+```
+
+
+## Advanced Use 
+
+Reading the data in R.
+
+```{r, results='hide'}
+data <- input_example
+
+```
+
+### Preprocessing the data
+
+```{r}
+data <- dplyr::mutate(data, date_onset = dplyr::if_else(is.na(date_onset), 
+                                                        date_report, 
+                                                        date_onset)) 
+data <- age_groups(data)
+data$age_group <- factor(data$age_group)
+data$sex <- factor(data$sex)
+```
+
+### Plotting the time series
+
+```{r}
+results <- get_signals(data)
+
+plot_time_series(results, interactive = TRUE)
+plot_time_series(results, number_of_weeks = 10)
+```
+
+### Plotting the age groups
+
+```{r}
+ggiraph::girafe(ggobj = plot_agegroup_by(data))
+```
+
+### Creating tables 
+
+```{r}
+results <- get_signals(data, stratification = c("county", "sex", "age_group"))
+create_results_table(results, interactive = TRUE)
+```
+
+
+### Regional visualization
+
+```{r, include=FALSE}
+# weird fix since match.fun only looks back through 2 layers of parent 
+# environments for the named function
+# guide_colourbar_interactive <- function(...) ggiraph::guide_colourbar_interactive(...)
+
+```
+
+
+```{r, eval = TRUE}
+signals_county <- get_signals(data, stratification = c("county_id"))
+plot_regional(data, 
+              signals_county, 
+              nuts_shp, 
+              country_id = unique(data$country_id), 
+              regional_level = "county", 
+              interactive = TRUE)
+```
+
+```{r, eval = TRUE}
+signals_community <- get_signals(data, stratification = c("community_id"))
+plot_regional(data, 
+              signals_community, 
+              nuts_shp, 
+              country_id = unique(data$country_id), 
+              regional_level = "community", 
+              interactive = TRUE)
+```
+
+
+
