@@ -86,6 +86,7 @@ plot_regional <- function(data,
 
   plot <- shape %>%
     dplyr::filter(!is.na(.data$count)) %>%
+    tidyr::replace_na(list(alarms = 0)) %>%
     ggplot2::ggplot(ggplot2::aes(fill = .data$count, color = .data$alarms)) +
     ggiraph::geom_sf_interactive(
       ggplot2::aes(size = 2*.data$alarms,
