@@ -28,11 +28,11 @@ We welcome contributions from the community! Whether you're reporting a bug, sug
 #### Reporting Bugs
 
 - Before submitting a new bug report, please check the existing issues to see if the bug has already been reported.
-- Use our [bug report template](.github/ISSUE_TEMPLATE/bug-report.md) to provide necessary details about the issue, including steps to reproduce and expected behavior.
+- Use our [bug report template](ISSUE_TEMPLATE/bug-report.md) to provide necessary details about the issue, including steps to reproduce and expected behavior.
 
 #### Suggesting Enhancements
 
-- If you have an idea for an enhancement, open an issue using our [feature request template](.github/ISSUE_TEMPLATE/feature-request.md).
+- If you have an idea for an enhancement, open an issue using our [feature request template](ISSUE_TEMPLATE/feature-request.md).
 - Describe the enhancement in detail, including its use case and benefits.
 
 #### Working on Issues
@@ -44,7 +44,7 @@ We welcome contributions from the community! Whether you're reporting a bug, sug
 #### Submitting Pull Requests
 
 - If you are not a maintainer or owner of the repository, please fork the repository and create a new branch from `main` or the relevant feature branch.
-- Follow our [pull request template](.github/PULL_REQUEST_TEMPLATE.md) when submitting a pull request.
+- Follow our [pull request template](PULL_REQUEST_TEMPLATE.md) when submitting a pull request.
 - Ensure your code adheres to our [coding guidelines](#coding-guidelines).
 - Make sure that your branch entails all relevant previously merged changes and your code is compatible to what is on the main branch. Having started from an old state is not an excuse to push outdated code.
 - Include tests if applicable, and ensure all tests pass.
