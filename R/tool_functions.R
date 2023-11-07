@@ -214,6 +214,7 @@ get_signals <- function(data, method = "farrington", stratification = NULL) {
   }
 
   return(results)
+
 }
 
 #' Check input data for required columns and data types
