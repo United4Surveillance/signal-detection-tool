@@ -18,6 +18,17 @@ app_ui <- function(request) {
         windowTitle="U4S Signal Detection"
       ),
 
+      shiny::tabsetPanel(
+        mod_tabpanel_help_ui("help")
+
+        ,mod_tabpanel_data_ui("data")
+
+        ,mod_tabpanel_input_ui("input")
+
+
+        ,selected = "Data"
+      )
+
 
     )
   )
