@@ -14,17 +14,11 @@ app_ui <- function(request) {
       ## Logo and headertext
       shiny::titlePanel( shiny::div(
         shiny::column(width = 10, shiny::h1("United4Surveillance Signal Detection Tool")),
-        shiny::column(width = 2, shiny::tags$img(src = "U4S-BLUE-200x87.png"))),
+        shiny::column(width = 2, shiny::tags$img(src = "www/U4S-BLUE-200x87.png"))),
         windowTitle="U4S Signal Detection"
       ),
 
-      shiny::tabsetPanel(
-        mod_tabpanel_help_ui("help")
-        # ,
-        # tabPanel("ts_plot_1",
-        #          shiny::h1("SignalDetectionTool"),
-        #          mod_time_series_plot_ui("ts_plot_1"))
-      )
+
     )
   )
 }
@@ -52,4 +46,5 @@ golem_add_external_resources <- function() {
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()
   )
+
 }
