@@ -25,6 +25,9 @@ app_ui <- function(request) {
 
         ,mod_tabpanel_input_ui("input")
 
+        ,mod_tabpanel_results_ui("results")
+
+        ,mod_tabpanel_report_ui("report")
 
         ,selected = "Data"
       )
