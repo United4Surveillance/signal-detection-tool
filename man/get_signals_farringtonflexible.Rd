@@ -7,7 +7,8 @@
 get_signals_farringtonflexible(
   surveillance_data,
   date_start = NULL,
-  date_end = NULL
+  date_end = NULL,
+  date_var = "date_report"
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ get_signals_farringtonflexible(
 \item{date_start}{A date object or character of format yyyy-mm-dd}
 
 \item{date_end}{A date object or character of format yyyy-mm-dd}
+
+\item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 }
 \description{
 Get signals of surveillance's farringtonFlexible algorithm

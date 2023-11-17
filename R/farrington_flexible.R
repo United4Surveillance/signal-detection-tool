@@ -16,22 +16,26 @@ preprocess_data <- function(data) {
   data
 }
 
-#' Aggregates case data by year and week of onset
-#' @param data data frame to be converged
-#'
+#' Aggregates case data by year and week
+#' @param data data.frame, linelist of cases to be aggregated
+#' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @examples
 #' \dontrun{
-#' input_path <- "data/input/input.csv"
-#' data <- read.csv(input_path, header = TRUE, sep = ",")
-#' data <- preprocess_data(data) %>% aggregate_data()
-#' sts_cases <- convert_to_sts(data)
+#' data <- preprocess_data(input_example) %>% aggregate_data()
 #' }
-aggregate_data <- function(data) {
+aggregate_data <- function(data,
+                           date_var = "date_report") {
+
+
+
+  week_var <- paste0(date_var,"_week")
+  year_var <- paste0(date_var,"_year")
+
   data %>%
-    dplyr::group_by(.data$date_onset_year, .data$date_onset_week) %>%
-    dplyr::summarize(cases = dplyr::n()) %>%
-    dplyr::select(year = .data$date_onset_year,
-                  week = .data$date_onset_week,
+    dplyr::group_by(!!rlang::sym(week_var),!!rlang::sym(year_var)) %>%
+    dplyr::summarize(cases = dplyr::n(), .groups = "drop") %>%
+    dplyr::select(week = !!rlang::sym(week_var),
+                  year = !!rlang::sym(year_var),
                   .data$cases)
 }
 
@@ -139,6 +143,7 @@ add_rows_missing_dates <- function(data, date_start=NULL, date_end=NULL) {
 #' @param surveillance_data data frame to be converged
 #' @param date_start A date object or character of format yyyy-mm-dd
 #' @param date_end A date object or character of format yyyy-mm-dd
+#' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #'
 #' @examples
 #' \dontrun{
@@ -148,7 +153,8 @@ add_rows_missing_dates <- function(data, date_start=NULL, date_end=NULL) {
 #' }
 get_signals_farringtonflexible <- function(surveillance_data,
                                            date_start=NULL,
-                                           date_end=NULL) {
+                                           date_end=NULL,
+                                           date_var = "date_report") {
 
 
   checkmate::assert(
@@ -161,9 +167,12 @@ get_signals_farringtonflexible <- function(surveillance_data,
     checkmate::check_date(lubridate::date(date_end)),
     combine = "or"
   )
+  checkmate::assert(
+    checkmate::check_character(date_var, len = 1, pattern = "date")
+  )
 
   data <- preprocess_data(surveillance_data) %>%
-    aggregate_data() %>%
+    aggregate_data(date_var) %>%
     add_rows_missing_dates(date_start, date_end)
 
   sts_cases <- convert_to_sts(data)

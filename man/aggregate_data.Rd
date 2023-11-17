@@ -2,21 +2,20 @@
 % Please edit documentation in R/farrington_flexible.R
 \name{aggregate_data}
 \alias{aggregate_data}
-\title{Aggregates case data by year and week of onset}
+\title{Aggregates case data by year and week}
 \usage{
-aggregate_data(data)
+aggregate_data(data, date_var = "date_report")
 }
 \arguments{
-\item{data}{data frame to be converged}
+\item{data}{data.frame, linelist of cases to be aggregated}
+
+\item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 }
 \description{
-Aggregates case data by year and week of onset
+Aggregates case data by year and week
 }
 \examples{
 \dontrun{
-input_path <- "data/input/input.csv"
-data <- read.csv(input_path, header = TRUE, sep = ",")
-data <- preprocess_data(data) \%>\% aggregate_data()
-sts_cases <- convert_to_sts(data)
+data <- preprocess_data(input_example) \%>\% aggregate_data()
 }
 }

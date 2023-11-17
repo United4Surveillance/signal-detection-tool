@@ -4,7 +4,14 @@
 \alias{get_signals_stratified}
 \title{Get Signals Stratified}
 \usage{
-get_signals_stratified(data, fun, stratification_columns)
+get_signals_stratified(
+  data,
+  fun,
+  stratification_columns,
+  date_start = NULL,
+  date_end = NULL,
+  date_var = "date_report"
+)
 }
 \arguments{
 \item{data}{A data frame containing the surveillance data.}
@@ -13,6 +20,12 @@ get_signals_stratified(data, fun, stratification_columns)
 
 \item{stratification_columns}{A character vector specifying the columns to
 stratify the data by.}
+
+\item{date_start}{A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.}
+
+\item{date_end}{A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.}
+
+\item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 }
 \value{
 A tibble containing the results of the signal detection analysis
