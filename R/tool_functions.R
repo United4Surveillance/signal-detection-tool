@@ -108,7 +108,9 @@ age_groups <- function(df, break_at = NULL) {
 #' @param fun The signal detection function to apply to each stratum.
 #' @param stratification_columns A character vector specifying the columns to
 #'   stratify the data by.
-#'
+#' @param date_start A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.
+#' @param date_end A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.
+#' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @return A tibble containing the results of the signal detection analysis
 #'   stratified by the specified columns.
 #'
@@ -122,15 +124,29 @@ age_groups <- function(df, break_at = NULL) {
 #'   stratification_columns = categories)
 #' print(results)
 #' }
-get_signals_stratified <- function(data, fun, stratification_columns) {
+get_signals_stratified <- function(data,
+                                   fun,
+                                   stratification_columns,
+                                   date_start = NULL,
+                                   date_end = NULL,
+                                   date_var = "date_report") {
   # check that all columns are present in the data
   for (col in stratification_columns) {
     checkmate::assert(
       checkmate::check_choice(col, choices = names(data))
     )
   }
-  start_date <- min(data$date_onset)
-  end_date <- max(data$date_onset)
+
+  checkmate::assert(
+    checkmate::check_null(date_start),
+    checkmate::check_date(lubridate::date(date_start)),
+    combine="or"
+  )
+  checkmate::assert(
+    checkmate::check_null(date_end),
+    checkmate::check_date(lubridate::date(date_end)),
+    combine="or"
+  )
 
   # Initialize an empty list to store results per category
   category_results <- list()
@@ -150,7 +166,7 @@ get_signals_stratified <- function(data, fun, stratification_columns) {
 
 
       # run selected algorithm here specifying start and end dates
-      results <- fun(sub_data, start_date, end_date)
+      results <- fun(sub_data, date_start, date_end, date_var)
 
       if (is.null(results)) {
         warning(paste0(
@@ -181,7 +197,9 @@ get_signals_stratified <- function(data, fun, stratification_columns) {
 #'   "farrington").
 #' @param stratification A character vector specifying the columns to stratify
 #'   the analysis. Default is NULL.
-#'
+#' @param date_start A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.
+#' @param date_end A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.
+#' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @return A tibble containing the results of the signal detection analysis.
 #' @export
 #'
@@ -192,7 +210,12 @@ get_signals_stratified <- function(data, fun, stratification_columns) {
 #'                        method = "farrington",
 #'                        stratification = c("county", "sex"))
 #' }
-get_signals <- function(data, method = "farrington", stratification = NULL) {
+get_signals <- function(data,
+                        method = "farrington",
+                        stratification = NULL,
+                        date_start = NULL,
+                        date_end = NULL,
+                        date_var = "date_report")  {
   # check that input method and stratification are correct
   checkmate::assert(
     checkmate::check_choice(method, choices = c("farrington"))
@@ -202,15 +225,28 @@ get_signals <- function(data, method = "farrington", stratification = NULL) {
     checkmate::check_vector(stratification),
     combine = "or"
   )
+  checkmate::assert(
+    checkmate::check_null(date_start),
+    checkmate::check_date(lubridate::date(date_start)),
+    combine="or"
+  )
+  checkmate::assert(
+    checkmate::check_null(date_end),
+    checkmate::check_date(lubridate::date(date_end)),
+    combine="or"
+  )
+  checkmate::assert(
+    checkmate::check_character(date_var, len = 1, pattern = "date")
+  )
 
   if (method == "farrington") {
     fun <- get_signals_farringtonflexible
   }
 
   if (is.null(stratification)) {
-    results <- fun(data) %>% dplyr::mutate(category = NA, stratum = NA)
+    results <- fun(data, date_start, date_end, date_var) %>% dplyr::mutate(category = NA, stratum = NA)
   } else {
-    results <- get_signals_stratified(data, fun, stratification)
+    results <- get_signals_stratified(data, fun, stratification, date_start, date_end, date_var)
   }
 
   return(results)

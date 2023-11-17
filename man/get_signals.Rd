@@ -4,7 +4,14 @@
 \alias{get_signals}
 \title{Get Signals}
 \usage{
-get_signals(data, method = "farrington", stratification = NULL)
+get_signals(
+  data,
+  method = "farrington",
+  stratification = NULL,
+  date_start = NULL,
+  date_end = NULL,
+  date_var = "date_report"
+)
 }
 \arguments{
 \item{data}{A data frame containing the surveillance data.}
@@ -14,6 +21,12 @@ get_signals(data, method = "farrington", stratification = NULL)
 
 \item{stratification}{A character vector specifying the columns to stratify
 the analysis. Default is NULL.}
+
+\item{date_start}{A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.}
+
+\item{date_end}{A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.}
+
+\item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 }
 \value{
 A tibble containing the results of the signal detection analysis.
