@@ -32,7 +32,7 @@ A tibble containing the results of the signal detection analysis
   stratified by the specified columns.
 }
 \description{
-This function stratifies surveillance data by specified columns and analyzes
+This function stratifies and aggregates surveillance data by specified columns and analyzes
 each stratum separately using the specified method.
 }
 \examples{

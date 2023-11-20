@@ -4,29 +4,20 @@
 \alias{get_signals_farringtonflexible}
 \title{Get signals of surveillance's farringtonFlexible algorithm}
 \usage{
-get_signals_farringtonflexible(
-  surveillance_data,
-  date_start = NULL,
-  date_end = NULL,
-  date_var = "date_report"
-)
+get_signals_farringtonflexible(data_aggregated)
 }
 \arguments{
-\item{surveillance_data}{data frame to be converged}
-
-\item{date_start}{A date object or character of format yyyy-mm-dd}
-
-\item{date_end}{A date object or character of format yyyy-mm-dd}
-
-\item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
+\item{data_aggregated}{data.frame, aggregated data with case counts}
 }
 \description{
 Get signals of surveillance's farringtonFlexible algorithm
 }
 \examples{
 \dontrun{
-input_path <- "data/input/input.csv"
-data <- read.csv(input_path, header = TRUE, sep = ",")
-results <- get_signals_farringtonflexible(data)
+data_aggregated <- input_example \%>\%
+preprocess_data() \%>\%
+aggregate_data() \%>\%
+add_rows_missing_dates()
+results <- get_signals_farringtonflexible(data_aggregated)
 }
 }

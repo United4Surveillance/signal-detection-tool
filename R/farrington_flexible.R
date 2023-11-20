@@ -1,40 +1,17 @@
 #' Get signals of surveillance's farringtonFlexible algorithm
-#' @param surveillance_data data frame to be converged
-#' @param date_start A date object or character of format yyyy-mm-dd
-#' @param date_end A date object or character of format yyyy-mm-dd
-#' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
+#' @param data_aggregated data.frame, aggregated data with case counts
 #'
 #' @examples
 #' \dontrun{
-#' input_path <- "data/input/input.csv"
-#' data <- read.csv(input_path, header = TRUE, sep = ",")
-#' results <- get_signals_farringtonflexible(data)
+#' data_aggregated <- input_example %>%
+#' preprocess_data() %>%
+#' aggregate_data() %>%
+#' add_rows_missing_dates()
+#' results <- get_signals_farringtonflexible(data_aggregated)
 #' }
-get_signals_farringtonflexible <- function(surveillance_data,
-                                           date_start=NULL,
-                                           date_end=NULL,
-                                           date_var = "date_report") {
+get_signals_farringtonflexible <- function(data_aggregated) {
 
-
-  checkmate::assert(
-    checkmate::check_null(date_start),
-    checkmate::check_date(lubridate::date(date_start)),
-    combine = "or"
-  )
-  checkmate::assert(
-    checkmate::check_null(date_end),
-    checkmate::check_date(lubridate::date(date_end)),
-    combine = "or"
-  )
-  checkmate::assert(
-    checkmate::check_character(date_var, len = 1, pattern = "date")
-  )
-
-  data <- preprocess_data(surveillance_data) %>%
-    aggregate_data(date_var) %>%
-    add_rows_missing_dates(date_start, date_end)
-
-  sts_cases <- convert_to_sts(data)
+  sts_cases <- convert_to_sts(data_aggregated)
 
   num_weeks <- length(sts_cases@observed)
   num_years <- floor((num_weeks - 26) / 52) - 1
@@ -66,9 +43,9 @@ get_signals_farringtonflexible <- function(surveillance_data,
   upperbound <- c(pad, results@upperbound)
   expected <- c(pad, results@control$expected)
 
-  data$alarms <- alarms
-  data$upperbound <- upperbound
-  data$expected <- expected
+  data_aggregated$alarms <- alarms
+  data_aggregated$upperbound <- upperbound
+  data_aggregated$expected <- expected
 
-  return(data)
+  return(data_aggregated)
 }

@@ -101,7 +101,7 @@ age_groups <- function(df, break_at = NULL) {
 
 #' Get Signals Stratified
 #'
-#' This function stratifies surveillance data by specified columns and analyzes
+#' This function stratifies and aggregates surveillance data by specified columns and analyzes
 #' each stratum separately using the specified method.
 #'
 #' @param data A data frame containing the surveillance data.
@@ -164,9 +164,15 @@ get_signals_stratified <- function(data,
       sub_data <- data %>%
         dplyr::slice(grouped_data[i, ".rows"][[1]][[1]])
 
+      # preprocess and aggregated data
+      sub_data_agg <- sub_data %>%
+        preprocess_data() %>%
+        aggregate_data(date_var = date_var) %>%
+        add_rows_missing_dates(date_start, date_end)
 
-      # run selected algorithm here specifying start and end dates
-      results <- fun(sub_data, date_start, date_end, date_var)
+
+      # run selected algorithm
+      results <- fun(sub_data_agg)
 
       if (is.null(results)) {
         warning(paste0(
@@ -244,7 +250,14 @@ get_signals <- function(data,
   }
 
   if (is.null(stratification)) {
-    results <- fun(data, date_start, date_end, date_var) %>% dplyr::mutate(category = NA, stratum = NA)
+
+    # preprocess and aggregated data
+    data_agg <- data %>%
+      preprocess_data() %>%
+      aggregate_data(date_var = date_var) %>%
+      add_rows_missing_dates(date_start, date_end)
+
+    results <- fun(data_agg) %>% dplyr::mutate(category = NA, stratum = NA)
   } else {
     results <- get_signals_stratified(data, fun, stratification, date_start, date_end, date_var)
   }
