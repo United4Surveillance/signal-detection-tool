@@ -4,10 +4,12 @@
 \alias{get_signals_farringtonflexible}
 \title{Get signals of surveillance's farringtonFlexible algorithm}
 \usage{
-get_signals_farringtonflexible(data_aggregated)
+get_signals_farringtonflexible(data_aggregated, number_of_weeks = 52)
 }
 \arguments{
 \item{data_aggregated}{data.frame, aggregated data with case counts}
+
+\item{number_of_weeks}{integer, specifying number of weeks to generate alarms for}
 }
 \description{
 Get signals of surveillance's farringtonFlexible algorithm
