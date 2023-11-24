@@ -1,5 +1,12 @@
-
-
+#' tabpanel "data" UI Function
+#'
+#' @description A shiny Module for a tab to load in data.
+#'
+#' @param id,input,output,session Internal parameters for {shiny}.
+#'
+#' @noRd
+#'
+#' @importFrom shiny NS tagList
 mod_tabpanel_data_ui <- function(id) {
   ns <- shiny::NS(id)
 
@@ -10,7 +17,7 @@ mod_tabpanel_data_ui <- function(id) {
     shiny::sidebarLayout(
       shiny::sidebarPanel(
         # Input: Select a file ----
-        shiny::fileInput(NS(id,"file1"), "Choose CSV File",
+        shiny::fileInput(ns("file1"), "Choose CSV File",
                   multiple = TRUE,
                   accept = c("text/csv",
                              "text/comma-separated-values,text/plain",
@@ -20,17 +27,17 @@ mod_tabpanel_data_ui <- function(id) {
         tags$hr(),
 
         # Input: Checkbox if file has header ----
-        shiny::checkboxInput(NS(id,"header"), "Header", TRUE),
+        shiny::checkboxInput(ns("header"), "Header", TRUE),
 
         # Input: Select separator ----
-        shiny::radioButtons(NS(id,"sep"), "Separator",
+        shiny::radioButtons(ns("sep"), "Separator",
                      choices = c(Comma = ",",
                                  Semicolon = ";",
                                  Tab = "\t"),
                      selected = ","),
 
         # Input: Select quotes ----
-        shiny::radioButtons(NS(id,"quote"), "Quote",
+        shiny::radioButtons(ns("quote"), "Quote",
                      choices = c(None = "",
                                  "Double Quote" = '"',
                                  "Single Quote" = "'"),
@@ -40,7 +47,7 @@ mod_tabpanel_data_ui <- function(id) {
         tags$hr(),
 
         # Input: Select number of rows to display ----
-        shiny::radioButtons(NS(id,"disp"), "Display",
+        shiny::radioButtons(ns("disp"), "Display",
                      choices = c(Head = "head",
                                  All = "all"),
                      selected = "head"),
@@ -49,19 +56,20 @@ mod_tabpanel_data_ui <- function(id) {
         tags$hr(),
 
         # Input: Specify dates?
-        shiny::checkboxInput(NS(id,"dates_bin"), "Limit date interval"),
+        shiny::checkboxInput(ns("dates_bin"), "Limit date interval"),
 
         # Input: Select minimum date
-        shiny::dateInput(NS(id,"min_date"),"Minimum date:", value = "2023-01-01"),
+        shiny::dateInput(ns("min_date"), "Minimum date:",
+                         value = "2023-01-01"),
 
         # Input: Select maximum date
-        shiny::dateInput(NS(id,"max_date"),"Maximum date:"),
+        shiny::dateInput(ns("max_date"), "Maximum date:"),
 
         # Horizontal line ----
         tags$hr(),
 
         # Input: Sort data according to date_report
-        shiny::checkboxInput(NS(id,"sort_bin"), "Sort data according to date")
+        shiny::checkboxInput(ns("sort_bin"), "Sort data according to date")
 
       ),
 
@@ -69,7 +77,7 @@ mod_tabpanel_data_ui <- function(id) {
       mainPanel(
 
           # Output: Data file ----
-          shiny::tableOutput(NS(id,"contents"))
+          shiny::tableOutput(ns("contents"))
 
       )
     ),
@@ -77,7 +85,9 @@ mod_tabpanel_data_ui <- function(id) {
   )
 }
 
-
+#' tabpanel "data" Server Functions
+#'
+#' @noRd
 mod_tabpanel_data_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -123,6 +133,7 @@ mod_tabpanel_data_server <- function(id) {
     })
 
     output$contents <- shiny::renderTable({
+      req(values$df_data)
       tmp_data <- values$df_data
 
       if (input$sort_bin) {
@@ -137,7 +148,7 @@ mod_tabpanel_data_server <- function(id) {
       }
     })
   })
-  return(values)
+  # return(values)
 
 }
 
