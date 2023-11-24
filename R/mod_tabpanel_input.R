@@ -19,7 +19,7 @@ mod_tabpanel_input_ui <- function(id) {
 }
 
 
-mod_tabpanel_input_server <- function(id) {
+mod_tabpanel_input_server <- function(id, indata) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 

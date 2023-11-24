@@ -46,15 +46,6 @@ mod_tabpanel_data_ui <- function(id) {
         # Horizontal line ----
         tags$hr(),
 
-        # Input: Select number of rows to display ----
-        shiny::radioButtons(ns("disp"), "Display",
-                     choices = c(Head = "head",
-                                 All = "all"),
-                     selected = "head"),
-
-        # Horizontal line ----
-        tags$hr(),
-
         # Input: Specify dates?
         shiny::checkboxInput(ns("dates_bin"), "Limit date interval"),
 
@@ -65,19 +56,13 @@ mod_tabpanel_data_ui <- function(id) {
         # Input: Select maximum date
         shiny::dateInput(ns("max_date"), "Maximum date:"),
 
-        # Horizontal line ----
-        tags$hr(),
-
-        # Input: Sort data according to date_report
-        shiny::checkboxInput(ns("sort_bin"), "Sort data according to date")
-
       ),
 
       # Main panel for displaying outputs ----
       mainPanel(
 
           # Output: Data file ----
-          shiny::tableOutput(ns("contents"))
+          DT::dataTableOutput(ns("contents"))
 
       )
     ),
@@ -93,9 +78,9 @@ mod_tabpanel_data_server <- function(id) {
     ns <- session$ns
 
     # Load data
-    values <- shiny::reactiveValues(df_data = NULL)
+    # values <- shiny::reactiveValues(df_data = NULL)
 
-    shiny::observe({
+    data <- shiny::reactive({
       # input$file1 will be NULL initially. After the user selects
       # and uploads a file, head of that data file by default,
       # or all rows if selected, will be shown.
@@ -114,41 +99,34 @@ mod_tabpanel_data_server <- function(id) {
                             quote = input$quote)
       }
 
-      ## NOTE - example, to be removed! ###
-      indata$pathogen[1] <- "E. coli"
-      indata$pathogen[2] <- "Campylobacter"
-      #####################################
-
       # preprocess
-      indata <- indata %>% dplyr::mutate(date_onset = ifelse(is.na(date_onset) | date_onset=="", date_report, date_onset))
+      indata <- indata %>%
+        dplyr::mutate(date_onset = ifelse(is.na(date_onset) | date_onset == "",
+                                          date_report, date_onset))
       indata$age_group <- factor(indata$age_group, levels = stringr::str_sort(unique(indata$age_group), numeric = TRUE))
       indata$sex <- factor(indata$sex)
 
-      if (input$dates_bin) {
-        indata <- subset(indata, dplyr::between(as.Date(date_report), input$min_date, input$max_date))
-      }
+      indata$subset <- TRUE # data subset to consider
 
-      values$df_data <- indata
-
+      return(indata)
     })
 
-    output$contents <- shiny::renderTable({
-      req(values$df_data)
-      tmp_data <- values$df_data
+    # if (input$dates_bin) {
+    #   req(data)
+    #   data_sub <- dplyr::mutate(data(),
+    #                             subset = dplyr::between(as.Date(date_report),
+    #                                                     input$min_date,
+    #                                                     input$max_date))
+    #   data(data_sub)
+    # }
 
-      if (input$sort_bin) {
-        tmp_data <- tmp_data %>% dplyr::arrange(date_report)
-      }
-
-      if(input$disp == "head") {
-        head(tmp_data, 10)
-      }
-      else {
-        tmp_data
-      }
+    output$contents <- DT::renderDataTable({
+      req(data)
+      data()
     })
   })
-  # return(values)
+
+  return(reactive({dplyr::filter(data(), subset == TRUE)}))
 
 }
 

@@ -20,6 +20,7 @@ attachment::att_amend_desc()
 
 ## Loading libraries
 usethis::use_package("shiny")
+usethis::use_package("DT")
 usethis::use_package("surveillance")
 usethis::use_package("tidyverse")
 usethis::use_package("gt")

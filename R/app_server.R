@@ -8,8 +8,8 @@ app_server <- function(input, output, session) {
 
   # Your application server logic
   mod_tabpanel_help_server("help")
-  mod_tabpanel_data_server("data")
-  mod_tabpanel_input_server("input")
+  dat <- mod_tabpanel_data_server("data")
+  mod_tabpanel_input_server("input", indata = dat)
   mod_tabpanel_results_server("results")
   mod_tabpanel_report_server("report")
 }
