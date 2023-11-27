@@ -10,7 +10,8 @@ get_signals(
   stratification = NULL,
   date_start = NULL,
   date_end = NULL,
-  date_var = "date_report"
+  date_var = "date_report",
+  number_of_weeks = 52
 )
 }
 \arguments{
@@ -27,6 +28,8 @@ the analysis. Default is NULL.}
 \item{date_end}{A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.}
 
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
+
+\item{number_of_weeks}{integer, specifying number of weeks to generate alarms for.}
 }
 \value{
 A tibble containing the results of the signal detection analysis.

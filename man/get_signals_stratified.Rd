@@ -10,7 +10,8 @@ get_signals_stratified(
   stratification_columns,
   date_start = NULL,
   date_end = NULL,
-  date_var = "date_report"
+  date_var = "date_report",
+  number_of_weeks = 52
 )
 }
 \arguments{
@@ -26,13 +27,15 @@ stratify the data by.}
 \item{date_end}{A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.}
 
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
+
+\item{number_of_weeks}{integer, specifying number of weeks to generate alarms for.}
 }
 \value{
 A tibble containing the results of the signal detection analysis
   stratified by the specified columns.
 }
 \description{
-This function stratifies surveillance data by specified columns and analyzes
+This function stratifies and aggregates surveillance data by specified columns and analyzes
 each stratum separately using the specified method.
 }
 \examples{
