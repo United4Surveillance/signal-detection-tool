@@ -1,5 +1,6 @@
 #' @title Automated and Early Detection of Disease Outbreaks
 #'
+#' @description
 #' This function retrieves outbreak signals using the aeddo algorithm. It processes
 #' surveillance data, aggregates it based on specified date variables, and applies
 #' the aeddo algorithm to detect potential outbreaks.
@@ -14,6 +15,13 @@
 #' @return An object containing outbreak signals detected by the aeddo algorithm.
 #'
 #' @examples
+#' \dontrun{
+#' data_aggregated <- input_example %>%
+#' preprocess_data() %>%
+#' aggregate_data() %>%
+#' add_rows_missing_dates()
+#' results <- get_signals_aeddo(data_aggregated)
+#' }
 #'
 #' @seealso
 #' \code{\link{aeddo}} for details on the aeddo algorithm.

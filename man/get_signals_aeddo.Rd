@@ -2,34 +2,28 @@
 % Please edit documentation in R/aeddo.R
 \name{get_signals_aeddo}
 \alias{get_signals_aeddo}
-\title{Title}
+\title{Automated and Early Detection of Disease Outbreaks}
 \usage{
 get_signals_aeddo(
-  surveillance_data,
+  data_aggregated,
+  number_of_weeks = 52,
   population_size = 1,
-  date_start = NULL,
-  date_end = NULL,
-  date_var = "date_report",
-  formula = formula(),
+  formula = y ~ 1,
   sig_level = 0.95,
   exclude_past_outbreaks = TRUE,
-  k = integer(),
-  init_theta = numeric(),
-  lower = numeric(),
-  upper = numeric(),
-  method = "BFGS"
+  k = 52 * 3,
+  init_theta = c(0, 1),
+  lower = c(-Inf, 1e-06),
+  upper = c(Inf, 100),
+  method = "L-BFGS-B"
 )
 }
 \arguments{
-\item{surveillance_data}{The surveillance data containing information about cases.}
+\item{data_aggregated}{data.frame, aggregated data with case counts}
+
+\item{number_of_weeks}{integer, specifying the number of weeks to generate alarms for}
 
 \item{population_size}{The population size for the aeddo algorithm. Default is 1.}
-
-\item{date_start}{A date object or character of format yyyy-mm-dd}
-
-\item{date_end}{A date object or character of format yyyy-mm-dd}
-
-\item{date_var}{A character specifying the date variable name used for the aggregation. Default is "date_report".}
 
 \item{formula}{A model formula for the fixed effects in the  hierarchical
 model to fit to the data.}
@@ -52,6 +46,10 @@ estimation.}
 
 \item{method}{The optimization method to use, either "BFGS"  (default) or
 "L-BFGS-B".}
+
+\item{date_end}{A date object or character of format yyyy-mm-dd}
+
+\item{date_var}{A character specifying the date variable name used for the aggregation. Default is "date_report".}
 }
 \value{
 An object containing outbreak signals detected by the aeddo algorithm.
@@ -60,6 +58,16 @@ An object containing outbreak signals detected by the aeddo algorithm.
 This function retrieves outbreak signals using the aeddo algorithm. It processes
 surveillance data, aggregates it based on specified date variables, and applies
 the aeddo algorithm to detect potential outbreaks.
+}
+\examples{
+\dontrun{
+data_aggregated <- input_example \%>\%
+preprocess_data() \%>\%
+aggregate_data() \%>\%
+add_rows_missing_dates()
+results <- get_signals_aeddo(data_aggregated)
+}
+
 }
 \references{
 For information on the aeddo algorithm, refer to the package documentation.
