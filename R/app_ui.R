@@ -19,17 +19,12 @@ app_ui <- function(request) {
       ),
 
       shiny::tabsetPanel(
-        mod_tabpanel_help_ui("help")
-
-        ,mod_tabpanel_data_ui("data")
-
-        ,mod_tabpanel_input_ui("input")
-
-        ,mod_tabpanel_results_ui("results")
-
-        ,mod_tabpanel_report_ui("report")
-
-        ,selected = "Data"
+        mod_tabpanel_help_ui("help"),
+        mod_tabpanel_data_ui("data"),
+        mod_tabpanel_input_ui("input"),
+        mod_tabpanel_signals_ui("signals"),
+        mod_tabpanel_report_ui("report"),
+        selected = "Data"
       )
 
 

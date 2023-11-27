@@ -41,29 +41,13 @@ mod_tabpanel_data_ui <- function(id) {
                      choices = c(None = "",
                                  "Double Quote" = '"',
                                  "Single Quote" = "'"),
-                     selected = '"'),
-
-        # Horizontal line ----
-        tags$hr(),
-
-        # Input: Specify dates?
-        shiny::checkboxInput(ns("dates_bin"), "Limit date interval"),
-
-        # Input: Select minimum date
-        shiny::dateInput(ns("min_date"), "Minimum date:",
-                         value = "2023-01-01"),
-
-        # Input: Select maximum date
-        shiny::dateInput(ns("max_date"), "Maximum date:"),
-
+                     selected = '"')
       ),
 
       # Main panel for displaying outputs ----
       mainPanel(
-
           # Output: Data file ----
           DT::dataTableOutput(ns("contents"))
-
       )
     ),
     icon = icon("file")
@@ -77,9 +61,7 @@ mod_tabpanel_data_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    # Load data
-    # values <- shiny::reactiveValues(df_data = NULL)
-
+    # Load data and preprocess data
     data <- shiny::reactive({
       # input$file1 will be NULL initially. After the user selects
       # and uploads a file, head of that data file by default,
@@ -101,7 +83,8 @@ mod_tabpanel_data_server <- function(id) {
 
       # preprocess
       indata <- indata %>%
-        dplyr::mutate(date_onset = ifelse(is.na(date_onset) | date_onset == "",
+        dplyr::mutate(date_onset =
+                        ifelse(is.na(date_onset) | date_onset == "",
                                           date_report, date_onset))
       indata$age_group <- factor(indata$age_group, levels = stringr::str_sort(unique(indata$age_group), numeric = TRUE))
       indata$sex <- factor(indata$sex)
@@ -111,22 +94,21 @@ mod_tabpanel_data_server <- function(id) {
       return(indata)
     })
 
-    # if (input$dates_bin) {
-    #   req(data)
-    #   data_sub <- dplyr::mutate(data(),
-    #                             subset = dplyr::between(as.Date(date_report),
-    #                                                     input$min_date,
-    #                                                     input$max_date))
-    #   data(data_sub)
-    # }
-
+    # Data preview table ----
     output$contents <- DT::renderDataTable({
       req(data)
       data()
     })
+
+    # Return a reactive data set from this server that can be passed
+    # along to subsequent tab modules
+    return(data)
+
   })
 
-  return(reactive({dplyr::filter(data(), subset == TRUE)}))
+  # data_out <- dplyr::filter(data(), subset == TRUE)
+
+
 
 }
 
