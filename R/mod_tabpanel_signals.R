@@ -17,14 +17,7 @@ mod_tabpanel_signals_ui <- function(id) {
   #
   # )
   shiny::tabPanel(
-    "Signals",
-    shiny::sidebarLayout(
-      shiny::sidebarPanel(
-        br()
-        ,shiny::actionButton(ns("run_get_signals"), "Run program")
-      ),
-      shiny::mainPanel(
-        shiny::br()
+    "Signals"
         ,shiny::h3("Plot of timeseries")
         ,shiny::plotOutput(ns("timeseries"))
 
@@ -33,10 +26,9 @@ mod_tabpanel_signals_ui <- function(id) {
         ,shiny::plotOutput(ns("age_group"))
 
         ,shiny::br()
-        ,shiny::h3("Signal detection plot")
+        ,shiny::h3("Signal detection table")
         ,shiny::tableOutput(ns("signals"))
-      )
-    )
+    ,icon = shiny::icon("wave-square")
   )
   }
 
