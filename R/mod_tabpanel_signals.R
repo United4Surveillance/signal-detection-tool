@@ -41,39 +41,52 @@ mod_tabpanel_signals_ui <- function(id) {
   }
 
 
-mod_tabpanel_signals_server <- function(id, indata) {
-  observe({print(head(indata()))})
+mod_tabpanel_signals_server <- function(id, indata, strat_vars) {
+  observe({
+    req(indata, strat_vars)
+    print("signals-tab");
+    print(head(indata()))
+    print(paste(c("signals-tab strat_vars:", strat_vars())))
+    })
+
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    ## interactive 'yes/no'-button and weeks slider?
+    strat_vars_tidy <- reactive({
+      req(strat_vars)
+      strat_vars_chr <- strat_vars()
+      # Tidy up stratification vector
+      if ("None" %in% strat_vars_chr) {strat_vars_chr <- NULL}
+      # 'None' takes precedence over 'All'
+      else if ("All" %in% strat_vars_chr) {strat_vars_chr <- names(indata())}
+
+      print(strat_vars_chr)
+      return(strat_vars_chr)
+    })
+
+
+    ## TODO: interactive 'yes/no'-button and weeks slider?
+    ## TODO: apply over selected pathogens
     output$timeseries <- shiny::renderPlot({
-      req(indata)
+      req(indata, strat_vars_tidy)
       results <- get_signals(data = indata(),
-                             method = "farrington", stratification = NULL)
-      return(SignalDetectionTool::plot_time_series(results, interactive = F,
-                                                   number_of_weeks = 10))
+                             method = "farrington",
+                             stratification = strat_vars_tidy())
+      print(results)
+      return(SignalDetectionTool::plot_time_series(results,
+                                                   interactive = FALSE))
     })
 
     output$age_group <- shiny::renderPlot({
       return(SignalDetectionTool::plot_agegroup_by(indata()))
     })
 
-    ## make ReactiveEvent?
     output$signals <- shiny::renderTable({
-      # 'None' takes precendence over 'All'
-      if ("None" %in% input$strat_vars) {
-        results <- SignalDetectionTool::get_signals(indata())
-      } else if ("All" %in% input$strat_vars) {
-        results <- SignalDetectionTool::get_signals(
-          indata(), stratification = names(indata()))
-      } else {
-        results <- SignalDetectionTool::get_signals(
-          indata(), stratification = input$strat_vars)
-      }
-
+      print(c("strat_vars_tidy: ", strat_vars_tidy()))
+      results <- SignalDetectionTool::get_signals(
+        indata(), stratification = strat_vars_tidy())
       return(create_results_table(results, interactive = FALSE))
-
+      # interactive mode not working here?
     })
 
   })

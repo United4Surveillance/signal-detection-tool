@@ -89,8 +89,6 @@ mod_tabpanel_data_server <- function(id) {
       indata$age_group <- factor(indata$age_group, levels = stringr::str_sort(unique(indata$age_group), numeric = TRUE))
       indata$sex <- factor(indata$sex)
 
-      indata$subset <- TRUE # data subset to consider
-
       return(indata)
     })
 

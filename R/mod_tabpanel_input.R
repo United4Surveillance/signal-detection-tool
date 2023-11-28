@@ -36,67 +36,53 @@ mod_tabpanel_input_server <- function(id, indata) {
 
     data_sub <- shiny::reactive({
       req(indata)
+      dat <- indata()
+      # data range limit or pick everything
+      dat <- dplyr::mutate(dat, subset = TRUE)
       if (input$dates_bin) {
-        dplyr::mutate(indata(),
-                      subset = dplyr::between(as.Date(date_report),
-                                              input$min_date,
-                                              input$max_date))
-     } else {
-       indata()
-     }
+        dat <- dplyr::mutate(dat,
+                             subset = dplyr::between(as.Date(date_report),
+                                                     input$min_date,
+                                                     input$max_date))
+      }
 
+      print(head(dat))
 
-   })
+      # add subset indicator for selected pathogens
+      dat <- dplyr::mutate(dat,
+                           subset = subset &
+                             (pathogen %in% input$pathogen_vars))
+      return(dat)
+    })
 
-    shiny::observe({ print(head(data_sub())) })
+    shiny::observe({ print("input:"); print(head(data_sub())) })
 
     ## showing options in ui
     output$pathogen_choices <- shiny::renderUI({
-      return(shiny::checkboxGroupInput(inputId = ns("pathogen_vars"),
+      return(shiny::selectInput(inputId = ns("pathogen_vars"),
                                        label = "Choose pathogen:",
-                                       choices = unique(indata()$pathogen),
-                                       selected = unique(indata()$pathogen))
+                                       choices = unique(indata()$pathogen))
              )
     })
 
     output$strat_choices <- shiny::renderUI({
       return(shiny::selectInput(inputId = ns("strat_vars"),
                                 label = "Parameters to stratify by:",
-                                choices = c("None", "All",
+                                choices = c("None",
+                                            # "All", # not sensible?
                                             names(indata())),
                                 # needs robustness!!
-                                selected = NULL,
+                                selected = "None",
                                 multiple = TRUE)
              )
+      print(c("input-strat_vars", input$strat_vars))
     })
 
-    return(reactive({
-      dplyr::filter(data_sub(), subset == TRUE)
-      }))
-
-    # reacting based on decisions done in ui
-    # from 'pathogen_vars' and 'strat_vars'
-    # shiny::eventReactive(eventExpr = input$pathogen_vars, {
-    #   path_vars <<- input$pathogen_vars
-    #   indata() <<- indata() %>% filter(pathogen %in% input$pathogen_vars)
-    # })
-
-    # shiny::observeEvent(input$pathogen_vars, {
-    #   tmp <- values$df_data %>% filter(pathogen %in% input$pathogen_vars)
-    #   values$df_data <- tmp
-    # })
-
-    # shiny::eventReactive(eventExpr = input$strat_vars, {
-    #   strat_vars <- input$strat_vars
-    #   if ("None" %in% input$strat_vars) {
-    #     strat_vars <<- c()
-    #   }
-    #
-    #   # 'None' takes precendence to 'All'
-    #   else if ("All" %in% input$strat_vars) {
-    #     strat_vars <<- names(indata())
-    #   }
-    # })
+    # Return list of subsetted data and parameters
+    return(
+      list(data = reactive({ dplyr::filter(data_sub(), subset == TRUE) }),
+           strat_vars = reactive({ input$strat_vars }))
+      )
 
   })
 
