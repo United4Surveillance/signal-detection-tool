@@ -4,7 +4,8 @@ mod_tabpanel_signals_ui <- function(id) {
   shiny::tabPanel(
     "Signals"
     ,shiny::h3("Plot of timeseries")
-    ,shiny::plotOutput(ns("timeseries"))
+    # ,shiny::plotOutput(ns("timeseries"))
+    ,plotly::plotlyOutput(ns("timeseries"))
 
     ,shiny::br()
     ,shiny::h3("Plot of age group")
@@ -12,7 +13,8 @@ mod_tabpanel_signals_ui <- function(id) {
 
     ,shiny::br()
     ,shiny::h3("Signal detection table")
-    ,shiny::tableOutput(ns("signals"))
+    # ,shiny::tableOutput(ns("signals"))
+    ,DT::DTOutput(ns("signals"))
     ,icon = shiny::icon("wave-square")
   )
   }
@@ -44,25 +46,27 @@ mod_tabpanel_signals_server <- function(id, indata, strat_vars) {
 
     ## TODO: interactive 'yes/no'-button and weeks slider?
     ## TODO: apply over selected pathogens?
-    output$timeseries <- shiny::renderPlot({
+    output$timeseries <- plotly::renderPlotly({
+      # shiny::renderPlot({
       req(indata, strat_vars_tidy)
       results <- get_signals(data = indata(),
                              method = "farrington",
                              stratification = strat_vars_tidy())
       print(results)
       return(SignalDetectionTool::plot_time_series(results,
-                                                   interactive = FALSE))
+                                                   interactive = TRUE))
     })
 
     output$age_group <- shiny::renderPlot({
       return(SignalDetectionTool::plot_agegroup_by(indata()))
     })
 
-    output$signals <- shiny::renderTable({
+    output$signals <- DT::renderDT({
+      # shiny::renderTable({
       print(c("strat_vars_tidy: ", strat_vars_tidy()))
       results <- SignalDetectionTool::get_signals(
         indata(), stratification = strat_vars_tidy())
-      return(create_results_table(results, interactive = FALSE))
+      return(create_results_table(results, interactive = TRUE))
       # FIXME: interactive mode not working here?
     })
 
