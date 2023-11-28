@@ -29,7 +29,7 @@ mod_tabpanel_report_ui <- function(id) {
      )
 
     ),
-    icon = icon("download")
+    icon = shiny::icon("download")
     )
 
 }

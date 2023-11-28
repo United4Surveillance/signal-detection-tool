@@ -1,33 +1,18 @@
 mod_tabpanel_signals_ui <- function(id) {
   ns <- shiny::NS(id)
 
-  # shiny::tabPanel(
-  #   shiny::sidebarPanel(
-  #     shiny::br()
-  #     ,shiny::h2("Choose signals detection methods:")
-  #     ,shiny::checkboxGroupInput(NS(id,"method_vars"),"Choose",c("Farringthon", "EARS"), selected = "Farringthon")
-  #     ,shiny::br()
-  #     ,shiny::actionButton(NS(id,"run_get_signals"), "Examine for signals")
-  #   )
-  #
-  #   ,shiny::mainPanel(
-  #     shiny::br()
-  #     ,
-  #   )
-  #
-  # )
   shiny::tabPanel(
     "Signals"
-        ,shiny::h3("Plot of timeseries")
-        ,shiny::plotOutput(ns("timeseries"))
+    ,shiny::h3("Plot of timeseries")
+    ,shiny::plotOutput(ns("timeseries"))
 
-        ,shiny::br()
-        ,shiny::h3("Plot of age group")
-        ,shiny::plotOutput(ns("age_group"))
+    ,shiny::br()
+    ,shiny::h3("Plot of age group")
+    ,shiny::plotOutput(ns("age_group"))
 
-        ,shiny::br()
-        ,shiny::h3("Signal detection table")
-        ,shiny::tableOutput(ns("signals"))
+    ,shiny::br()
+    ,shiny::h3("Signal detection table")
+    ,shiny::tableOutput(ns("signals"))
     ,icon = shiny::icon("wave-square")
   )
   }
@@ -58,7 +43,7 @@ mod_tabpanel_signals_server <- function(id, indata, strat_vars) {
 
 
     ## TODO: interactive 'yes/no'-button and weeks slider?
-    ## TODO: apply over selected pathogens
+    ## TODO: apply over selected pathogens?
     output$timeseries <- shiny::renderPlot({
       req(indata, strat_vars_tidy)
       results <- get_signals(data = indata(),
@@ -78,7 +63,7 @@ mod_tabpanel_signals_server <- function(id, indata, strat_vars) {
       results <- SignalDetectionTool::get_signals(
         indata(), stratification = strat_vars_tidy())
       return(create_results_table(results, interactive = FALSE))
-      # interactive mode not working here?
+      # FIXME: interactive mode not working here?
     })
 
   })
