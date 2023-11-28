@@ -47,7 +47,9 @@ golem_add_external_resources <- function() {
   )
 
   tags$head(
-    favicon(),
+    golem::favicon(
+      ico = "https://united4surveillance.eu/wp-content/uploads/2023/03/FAV-150x107.png",
+      ext = "png"),
     bundle_resources(
       path = app_sys("app/www"),
       app_title = "SignalDetectionTool"
