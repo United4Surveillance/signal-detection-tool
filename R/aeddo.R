@@ -34,8 +34,8 @@ get_signals_aeddo <- function(data_aggregated,
                               exclude_past_outbreaks = TRUE,
                               k = 52*3,
                               init_theta = c(rep(0, 4), 1),
-                              lower = c(-0.5, 1e-6, -6, -6, -6),
-                              upper = c(0.5, 1, 1, 1, 1e2),
+                              lower = c(-1, -0.01, -0.8, -0.8, -6),
+                              upper = c(1e2, 0.5, 1, 1, 1e2),
                               method = "L-BFGS-B") {
 
 
@@ -72,6 +72,7 @@ get_signals_aeddo <- function(data_aggregated,
     upper = upper,
     method = method)
 
+  # Collect the results
   pad <- rep(NA, k)
   alarms <- c(pad, aeddo_results$outbreak_alarm)
   upperbound <- c(
