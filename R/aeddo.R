@@ -35,7 +35,7 @@ get_signals_aeddo <- function(data_aggregated,
                               k = 52*3,
                               init_theta = c(rep(0, 4), 1),
                               lower = c(-1, -0.01, -0.8, -0.8, -6),
-                              upper = c(1e2, 0.5, 1, 1, 1e2),
+                              upper = c(1e2, 0.5, 1, 1, 10),
                               method = "L-BFGS-B") {
 
 
