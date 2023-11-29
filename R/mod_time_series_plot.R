@@ -29,6 +29,9 @@ mod_time_series_plot_server <- function(id){
     # })
     output$time_series_plot <- plotly::renderPlotly({
       SignalDetectionTool::input_example %>%
+        preprocess_data() %>%
+        aggregate_data() %>%
+        add_rows_missing_dates() %>%
         get_signals_farringtonflexible() %>%
         plot_time_series(results = ., interactive = TRUE)
     })
