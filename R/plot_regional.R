@@ -12,7 +12,7 @@
 #' @param interactive boolean identifying whether the plot should be static or
 #'   interactive
 #'
-#' @return either a ggplot object if static plot is chosen or a ggiraph object
+#' @return either a ggplot object if static plot is chosen or a plotly object
 #'   for the interactive plot
 #' @export
 #'
@@ -88,17 +88,28 @@ plot_regional <- function(data,
     dplyr::filter(!is.na(.data$count)) %>%
     tidyr::replace_na(list(alarms = 0)) %>%
     ggplot2::ggplot(ggplot2::aes(fill = .data$count, color = .data$alarms)) +
-    ggiraph::geom_sf_interactive(
+    ggplot2::geom_sf(
       ggplot2::aes(size = 2*.data$alarms,
-                   tooltip = paste0("cases: ", .data$count," alarms: ", .data$alarms),
+                   text = paste0("cases: ", .data$count," alarms: ", .data$alarms),
                    data_id = .data$NUTS_ID)) +
     ggplot2::theme_void() +
-    ggiraph::scale_fill_distiller_interactive(palette = "YlGn", direction = 1) +
-    ggiraph::scale_color_distiller_interactive(palette = "Reds", direction = 1) +
+    ggplot2::scale_fill_distiller(palette = "YlGn", direction = 1) +
+    ggplot2::scale_color_distiller(palette = "Reds", direction = 1) +
     ggplot2::scale_size_identity()
 
   if (interactive) {
-    return(ggiraph::girafe(ggobj = plot))
+    plot <- plotly::ggplotly(plot, tooltip = "text") %>%
+      plotly::config(modeBarButtonsToRemove = c('autoScale2d',
+                                                'resetScale2d',
+                                                'select2d',
+                                                'lasso2d',
+                                                'zoomIn2d',
+                                                'zoomOut2d',
+                                                'pan2d',
+                                                'zoom2d',
+                                                'toggleSpikelines'))
+
+    return(plot)
   }
 
   plot <- plot + ggplot2::geom_sf_text(ggplot2::aes(label = .data$alarms),

@@ -4,8 +4,9 @@
 #' @param df case data
 #' @param age_group_col name of the age-group column
 #' @param by_col name of the grouping column
+#' @param interactive if TRUE, interactive plot is returned
 #'
-#' @return a gg object with interactive bar geometries usable with ggiraph
+#' @return either a gg or plotly object
 #' @export
 #'
 #' @examples
@@ -16,7 +17,8 @@
 #' }
 plot_agegroup_by <- function(df,
                              age_group_col = "age_group",
-                             by_col = "sex") {
+                             by_col = "sex",
+                             interactive = FALSE) {
 
   # check if age_group_col is contained in df and if age_group_col is a factor
   checkmate::assert(
@@ -43,25 +45,25 @@ plot_agegroup_by <- function(df,
   if (!is.null(by_col)) {
     n_levels <- length(levels(df[, by_col]))
     p <- p +
-      ggiraph::geom_bar_interactive(
+      ggplot2::geom_bar(
         stat = "count",
         position = ggplot2::position_dodge(preserve = "single"),
         mapping = ggplot2::aes(
           x = !!rlang::sym(age_group_col),
           fill = !!rlang::sym(by_col), # TODO: colors
-          tooltip = sprintf("%s: %.0f",
+          text = sprintf("%s: %.0f",
                             .data$fill,
                             ggplot2::after_stat(.data$count))),
         color = "black") +
       ggplot2::guides(fill = ggplot2::guide_legend(ncol = min(n_levels, 5)))
   } else {
     p <- p +
-      ggiraph::geom_bar_interactive(
+      ggplot2::geom_bar(
         stat = "count",
         position = "dodge",
         mapping = ggplot2::aes(
           x = !!rlang::sym(age_group_col),
-          tooltip = sprintf("Count: %.0f", ggplot2::after_stat(.data$count))),
+          text = sprintf("Count: %.0f", ggplot2::after_stat(.data$count))),
         color = "black",
         fill = scales::hue_pal()(1)) # TODO: colors
   }
@@ -86,6 +88,21 @@ plot_agegroup_by <- function(df,
       axis.title.y = ggplot2::element_text(face = "bold"),
       legend.title = ggplot2::element_text(face = "bold")) +
     NULL
+
+  if(interactive) {
+    p <- plotly::ggplotly(p, tooltip = "text") %>%
+      plotly::layout(legend = list(orientation = "h", x = 0.3, y = 1.1)) %>%
+      plotly::config(modeBarButtonsToRemove = c('autoScale2d',
+                                                'resetScale2d',
+                                                'select2d',
+                                                'lasso2d',
+                                                'zoomIn2d',
+                                                'zoomOut2d',
+                                                'pan2d',
+                                                'zoom2d',
+                                                'toggleSpikelines'))
+  }
+
   p
 
 }
@@ -99,14 +116,13 @@ plot_agegroup_by <- function(df,
 # p_ag <- plot_agegroup_by(df = test_data,
 #                          age_group_col = "age_group",
 #                          by_col = NULL)
-# ggiraph::girafe(ggobj = p_ag)
+# p_ag
 # p_ag_sex <- plot_agegroup_by(df = test_data,
 #                              age_group_col = "age_group",
-#                              by_col = "sex")
-# ggiraph::girafe(ggobj = p_ag_sex)
+#                              by_col = "sex", interactive = TRUE)
+# p_ag_sex
 # p_ag_county <- plot_agegroup_by(df = test_data,
 #                                age_group_col = "age_group",
 #                                by_col = "county")
 # p_ag_county
-# ggiraph::girafe(ggobj = p_ag_county)
 
