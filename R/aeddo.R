@@ -7,8 +7,6 @@
 #'
 #' @param data_aggregated data.frame, aggregated data with case counts
 #' @param number_of_weeks integer, specifying the number of weeks to generate alarms for
-#' @param date_end A date object or character of format yyyy-mm-dd
-#' @param date_var A character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @param population_size The population size for the aeddo algorithm. Default is 1.
 #' @inheritParams aeddo::aeddo
 #'
@@ -28,16 +26,16 @@
 #'
 #' @references
 #' For information on the aeddo algorithm, refer to the package documentation.
+#' @importFrom rlang .data
 get_signals_aeddo <- function(data_aggregated,
                               number_of_weeks = 52,
                               population_size = 1,
-                              formula = y ~ 1,
                               sig_level = 0.95,
                               exclude_past_outbreaks = TRUE,
                               k = 52*3,
-                              init_theta = c(0, 1),
-                              lower = c(-Inf, 1e-6),
-                              upper = c(Inf, 1e2),
+                              init_theta = c(rep(0, 4), 1),
+                              lower = c(-0.5, 1e-6, -6, -6, -6),
+                              upper = c(0.5, 1, 1, 1, 1e2),
                               method = "L-BFGS-B") {
 
 
@@ -45,17 +43,27 @@ get_signals_aeddo <- function(data_aggregated,
     checkmate::check_integerish(number_of_weeks)
   )
 
+  # Define the formula for the fixed effects
+  fixed_effects_formula <- stats::as.formula(
+    paste0("y ~ 1 + t + sin(2*pi*w/",
+           number_of_weeks,
+           ") + cos(2*pi*w/",
+           number_of_weeks, ")"))
+
   # Append the 'time' and population size, 'n', for the 'aeddo' algorithm
   data_aggregated <- data_aggregated %>%
-    dplyr::mutate(week = formatC(week, width = 2, flag = 0)) %>%
-    dplyr::mutate(time = ISOweek::ISOweek2date(paste0(year, "-W", week, "-7")),
-                  n = population_size) %>%
-    dplyr::select("time", y = "cases", "n")
+    dplyr::mutate(week = formatC(.data$week, width = 2, flag = 0)) %>%
+    dplyr::mutate(time = ISOweek::ISOweek2date(
+      paste0(.data$year, "-W", .data$week, "-7")),
+      n = population_size,
+      t = dplyr::row_number(),
+      w = as.integer(.data$week)) %>%
+    dplyr::rename(y = "cases")
 
   # Employ the aeddo method to monitor the data
   aeddo_results <- aeddo::aeddo(
-    data = data,
-    formula = formula,
+    data = data_aggregated,
+    formula = fixed_effects_formula,
     k = k,
     sig_level = sig_level,
     exclude_past_outbreaks = exclude_past_outbreaks,
@@ -66,11 +74,12 @@ get_signals_aeddo <- function(data_aggregated,
 
   pad <- rep(NA, k)
   alarms <- c(pad, aeddo_results$outbreak_alarm)
-  upperbound <- c(pad,
-                  dgamma(
-                    x = sig_level,
-                    shape = 1/aeddo_results$phi,
-                    scale = aeddo_results$phi))
+  upperbound <- c(
+    pad,
+    stats::dgamma(
+      x = sig_level,
+      shape = 1/aeddo_results$phi,
+      scale = aeddo_results$phi))
   ranef <- c(pad, aeddo_results$u)
   expected <- c(pad, aeddo_results$lambda)
 

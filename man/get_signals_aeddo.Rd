@@ -8,13 +8,12 @@ get_signals_aeddo(
   data_aggregated,
   number_of_weeks = 52,
   population_size = 1,
-  formula = y ~ 1,
   sig_level = 0.95,
   exclude_past_outbreaks = TRUE,
   k = 52 * 3,
-  init_theta = c(0, 1),
-  lower = c(-Inf, 1e-06),
-  upper = c(Inf, 100),
+  init_theta = c(rep(0, 4), 1),
+  lower = c(-0.5, 1e-06, -6, -6, -6),
+  upper = c(0.5, 1, 1, 1, 100),
   method = "L-BFGS-B"
 )
 }
@@ -24,9 +23,6 @@ get_signals_aeddo(
 \item{number_of_weeks}{integer, specifying the number of weeks to generate alarms for}
 
 \item{population_size}{The population size for the aeddo algorithm. Default is 1.}
-
-\item{formula}{A model formula for the fixed effects in the  hierarchical
-model to fit to the data.}
 
 \item{sig_level}{The quantile from the random effects distribution used for
 defining the for outbreak detection threshold, a numeric value between 0 and
@@ -46,10 +42,6 @@ estimation.}
 
 \item{method}{The optimization method to use, either "BFGS"  (default) or
 "L-BFGS-B".}
-
-\item{date_end}{A date object or character of format yyyy-mm-dd}
-
-\item{date_var}{A character specifying the date variable name used for the aggregation. Default is "date_report".}
 }
 \value{
 An object containing outbreak signals detected by the aeddo algorithm.
