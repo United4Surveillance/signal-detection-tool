@@ -163,16 +163,17 @@ get_signals_stratified <- function(data,
 
   # Loop through each category
   for (category in stratification_columns) {
-    # Group the data by the current category
-    grouped_data <- data %>%
-      dplyr::group_by_at(category) %>%
-      dplyr::group_data()
 
-    # iterate over all strata and
-    for (i in 1:nrow(grouped_data)) {
-      stratum <- grouped_data[i, category][[1]]
-      sub_data <- data %>%
-        dplyr::slice(grouped_data[i, ".rows"][[1]][[1]])
+    if(is.factor(data[, category])){
+      strata <- levels(data[, category])
+    }
+    else{
+      strata <- unique(data[, category])  # character is supported as well
+    }
+
+    # iterate over all strata and run algorithm
+    for (stratum in strata) {
+      sub_data <- data %>% dplyr::filter(.data[[category]] == stratum)
 
       # preprocess and aggregated data
       sub_data_agg <- sub_data %>%
