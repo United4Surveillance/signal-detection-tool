@@ -288,35 +288,35 @@ get_signals <- function(data,
   }
 
 
-  return(dplyr::mutate(results, method = "farrington"))
+  return(dplyr::mutate(results, method = method))
 }
 
-#' Save Results
+#' Save signals
 #'
 #' Save the processed results to a CSV file and return codes and messages for application use.
 #'
-#' @param results The processed results data frame.
+#' @param signals The processed results data frame.
 #' @param original_input_data The original input data used for analysis.
 #' @param filepath The optional filepath to save the results. If not provided, a filename is generated.
 #'
-#' @return A list containing result status (TRUE or FALSE) and a message (NULL for success, a warning, or an error).
+#' @return A list containing success status (TRUE or FALSE) and a message (NULL for success, a warning, or an error).
 #'
 #' @examples
-#' # Save results with default filename
-#' save_results(my_results, my_input_data)
+#' # Save signals with default filename
+#' save_signals(my_results, my_input_data)
 #'
-#' # Save results with a custom filepath
-#' # results <- SignalDetectionTool::get_signals(SignalDetectionTool::input_example)
-#' results <- SignalDetectionTool::get_signals(SignalDetectionTool::input_example,
+#' # Save signals with a custom filepath
+#' # signals <- SignalDetectionTool::get_signals(SignalDetectionTool::input_example)
+#' signals <- SignalDetectionTool::get_signals(SignalDetectionTool::input_example,
 #'   stratification = c("county", "sex", "age_group")
 #' )
-#' save_results(results, SignalDetectionTool::input_example)
+#' save_signals(signals, SignalDetectionTool::input_example)
 #'
 #' @export
-save_results <- function(results, original_input_data, filepath = "") {
+save_signals <- function(signals, original_input_data, filepath = "") {
   # get last day of week & rename columns
-  to_save <- results %>%
-    dplyr::mutate(date = lubridate::ceiling_date(lubridate::ymd(paste0(results$year, "-01-01")) + lubridate::weeks(results$week), "week") - 1) %>%
+  to_save <- signals %>%
+    dplyr::mutate(date = lubridate::ceiling_date(lubridate::ymd(paste0(signals$year, "-01-01")) + lubridate::weeks(signals$week), "week") - 1) %>%
     dplyr::filter(!is.na(alarms)) %>%
     dplyr::rename(
       outbreak_status = "alarms",
@@ -332,7 +332,7 @@ save_results <- function(results, original_input_data, filepath = "") {
 
   # if stratification was applied, get the stratification column and append
   if ("stratum" %in% colnames(to_save)) {
-    strat_columns <- unique(results_strat$category)
+    strat_columns <- unique(signals$category)
     reconstruct_columns <- union(reconstruct_columns, strat_columns)
   }
   # TODO might want to add column `<column>_id` if available
@@ -364,24 +364,23 @@ save_results <- function(results, original_input_data, filepath = "") {
     filepath <- conjure_filename(to_save)
   }
 
-  # actually save results to file an return codes, messages for app to utilize
+  # actually save signals to file an return codes, messages for app to utilize
   tryCatch(
     {
       write.csv(to_save, filepath, row.names = FALSE)
 
       # Return TRUE and NULL if there are no warnings or errors
-      return(list(result = TRUE, message = NULL))
+      return(list(success = TRUE, message = NULL))
     },
     warning = function(warning_message) {
       # Return TRUE and the warning message if there are warnings
-      return(list(result = TRUE, message = warning_message))
+      return(list(success = TRUE, message = warning_message))
     },
     error = function(error_message) {
       # Return FALSE and the error message if there are errors
-      return(list(result = FALSE, message = error_message))
+      return(list(success = FALSE, message = error_message))
     }
   )
-  return(to_save)
 }
 
 
