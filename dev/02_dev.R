@@ -18,6 +18,15 @@
 ## install.packages('attachment') # if needed.
 attachment::att_amend_desc()
 
+## Loading libraries
+usethis::use_package("shiny")
+usethis::use_package("DT")
+usethis::use_package("surveillance")
+usethis::use_package("tidyverse")
+usethis::use_package("gt")
+usethis::use_package("checkmate")
+usethis::use_package("R6") # data structure - OOP
+
 ## Add modules ----
 ## Create a module infrastructure in R/
 golem::add_module(name = "name_of_module1", with_test = TRUE) # Name of the module

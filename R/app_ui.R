@@ -10,8 +10,24 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Your application UI logic
     shiny::fluidPage(
-      shiny::h1("SignalDetectionTool"),
-      mod_time_series_plot_ui("ts_plot_1")
+      # Application title
+      ## Logo and headertext
+      shiny::titlePanel( shiny::div(
+        shiny::column(width = 10, shiny::h1("United4Surveillance Signal Detection Tool")),
+        shiny::column(width = 2, shiny::tags$img(src = "www/U4S-BLUE-200x87.png"))),
+        windowTitle="U4S Signal Detection"
+      ),
+
+      shiny::tabsetPanel(
+        mod_tabpanel_help_ui("help"),
+        mod_tabpanel_data_ui("data"),
+        mod_tabpanel_input_ui("input"),
+        mod_tabpanel_signals_ui("signals"),
+        mod_tabpanel_report_ui("report"),
+        selected = "Data"
+      )
+
+
     )
   )
 }
@@ -31,7 +47,9 @@ golem_add_external_resources <- function() {
   )
 
   tags$head(
-    favicon(),
+    golem::favicon(
+      ico = "https://united4surveillance.eu/wp-content/uploads/2023/03/FAV-150x107.png",
+      ext = "png"),
     bundle_resources(
       path = app_sys("app/www"),
       app_title = "SignalDetectionTool"
@@ -39,4 +57,5 @@ golem_add_external_resources <- function() {
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()
   )
+
 }
