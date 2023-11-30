@@ -263,6 +263,8 @@ get_signals <- function(data,
 
   if (method == "farrington") {
     fun <- get_signals_farringtonflexible
+  } else if (method == "aeddo") {
+    fun <- get_signals_aeddo
   }
 
   if (is.null(stratification)) {
