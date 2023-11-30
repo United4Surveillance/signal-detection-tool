@@ -7,7 +7,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' find_age_group(5, c(0, 5, 10, 99))  # would result in "05-09"
+#' find_age_group(5, c(0, 5, 10, 99)) # would result in "05-09"
 #' find_age_group(12, c(0, 5, 15, 99)) # would result in "05-14"
 #' }
 find_age_group <- function(age, x) {
@@ -48,7 +48,7 @@ find_age_group <- function(age, x) {
 #' data <- read.csv(input_path, header = TRUE, sep = ",")
 #' data$age <- sample(1:125, 10, replace = TRUE)
 #' age_groups(data) # default age groups
-#' age_groups(data, c(15L,35L,65L,100L)) # custom age groups
+#' age_groups(data, c(15L, 35L, 65L, 100L)) # custom age groups
 #' }
 age_groups <- function(df, break_at = NULL) {
   # error checking ----------------------------------------------------------
@@ -122,7 +122,8 @@ age_groups <- function(df, break_at = NULL) {
 #' results <- get_signals_stratified(
 #'   data,
 #'   fun = get_signals_farringtonflexible,
-#'   stratification_columns = categories)
+#'   stratification_columns = categories
+#' )
 #' print(results)
 #' }
 get_signals_stratified <- function(data,
@@ -142,12 +143,12 @@ get_signals_stratified <- function(data,
   checkmate::assert(
     checkmate::check_null(date_start),
     checkmate::check_date(lubridate::date(date_start)),
-    combine="or"
+    combine = "or"
   )
   checkmate::assert(
     checkmate::check_null(date_end),
     checkmate::check_date(lubridate::date(date_end)),
-    combine="or"
+    combine = "or"
   )
 
   checkmate::assert(
@@ -224,8 +225,9 @@ get_signals_stratified <- function(data,
 #' \dontrun{
 #' data <- read.csv("data/input/input.csv")
 #' results <- get_signals(data,
-#'                        method = "farrington",
-#'                        stratification = c("county", "sex"))
+#'   method = "farrington",
+#'   stratification = c("county", "sex")
+#' )
 #' }
 get_signals <- function(data,
                         method = "farrington",
@@ -233,7 +235,7 @@ get_signals <- function(data,
                         date_start = NULL,
                         date_end = NULL,
                         date_var = "date_report",
-                        number_of_weeks = 52)  {
+                        number_of_weeks = 52) {
   # check that input method and stratification are correct
   checkmate::assert(
     checkmate::check_choice(method, choices = c("farrington"))
@@ -246,12 +248,12 @@ get_signals <- function(data,
   checkmate::assert(
     checkmate::check_null(date_start),
     checkmate::check_date(lubridate::date(date_start)),
-    combine="or"
+    combine = "or"
   )
   checkmate::assert(
     checkmate::check_null(date_end),
     checkmate::check_date(lubridate::date(date_end)),
-    combine="or"
+    combine = "or"
   )
   checkmate::assert(
     checkmate::check_character(date_var, len = 1, pattern = "date")
@@ -268,7 +270,6 @@ get_signals <- function(data,
   }
 
   if (is.null(stratification)) {
-
     # preprocess and aggregated data
     data_agg <- data %>%
       preprocess_data() %>%
@@ -277,15 +278,137 @@ get_signals <- function(data,
 
     results <- fun(data_agg, number_of_weeks) %>% dplyr::mutate(category = NA, stratum = NA)
   } else {
-    results <- get_signals_stratified(data,
-                                      fun,
-                                      stratification,
-                                      date_start,
-                                      date_end,
-                                      date_var,
-                                      number_of_weeks)
+    results <- get_signals_stratified(
+      data,
+      fun,
+      stratification,
+      date_start,
+      date_end,
+      date_var,
+      number_of_weeks
+    )
   }
 
-  return(results)
 
+  return(dplyr::mutate(results, method = method))
+}
+
+#' Save signals
+#'
+#' Save the processed results to a CSV file and return codes and messages for application use.
+#'
+#' @param signals The processed results data frame.
+#' @param original_input_data The original input data used for analysis.
+#' @param filepath The optional filepath to save the results. If not provided, a filename is generated.
+#'
+#' @return A list containing success status (TRUE or FALSE) and a message (NULL for success, a warning, or an error).
+#'
+#' @examples
+#' # Save signals with default filename
+#' save_signals(my_results, my_input_data)
+#'
+#' # Save signals with a custom filepath
+#' # signals <- SignalDetectionTool::get_signals(SignalDetectionTool::input_example)
+#' signals <- SignalDetectionTool::get_signals(SignalDetectionTool::input_example,
+#'   stratification = c("county", "sex", "age_group")
+#' )
+#' save_signals(signals, SignalDetectionTool::input_example)
+#'
+#' @export
+save_signals <- function(signals, original_input_data, filepath = "") {
+  # get last day of week
+  # renaming and reorganization of output is kept here for future use, once we change signal output
+  to_save <- signals %>%
+    dplyr::mutate(date = lubridate::ceiling_date(lubridate::ymd(paste0(signals$year, "-01-01")) + lubridate::weeks(signals$week), "week") - 1) %>%
+    dplyr::filter(!is.na(alarms)) # %>%
+  #   dplyr::rename(
+  #     outbreak_status = "alarms",
+  #     count_cases = "cases"
+  #   ) %>%
+  #   dplyr::mutate(expected = ifelse(is.na(expected), 0, expected)) %>%
+  #   dplyr::mutate(count_outbreak_cases = outbreak_status * (count_cases - floor(upperbound))) # %>%
+  #
+  # # list of columns to reconstruct
+  # reconstruct_columns <- SignalDetectionTool::input_metadata[SignalDetectionTool::input_metadata$Mandatory == "YES", "Variable"]
+  # # remove columns that are not applicable for aggregated data
+  # reconstruct_columns <- reconstruct_columns[-which(reconstruct_columns %in% c("case_id", "date_report"))]
+  #
+  # # if stratification was applied, get the stratification column and append
+  # if ("stratum" %in% colnames(to_save)) {
+  #   strat_columns <- unique(signals$category)
+  #   reconstruct_columns <- union(reconstruct_columns, strat_columns)
+  # }
+  # # TODO might want to add column `<column>_id` if available
+  #
+  #
+  # # retrieve original value if all identical, set to "all" otherwise
+  # for (col in reconstruct_columns) {
+  #   to_save[col] <- original_input_data[1, col] # set initial value
+  #   if (length(unique(original_input_data[col])[[1]]) > 1) {
+  #     to_save <- to_save %>% dplyr::mutate({{ col }} := "all")
+  #   }
+  # }
+  #
+  # # iterate over categories, write values into appropriate column
+  # for (cat in unique(to_save[["category"]])) {
+  #   rows_stratified <- !is.na(to_save[["category"]]) & to_save["category"] == cat
+  #   to_save[rows_stratified, cat] <- as.character(to_save[rows_stratified, "stratum"])
+  # }
+  # # drop some output columns
+  # to_save <- to_save %>% dplyr::select(-upperbound, -expected)
+  #
+  # # check if analysis was stratified, if so drop respective columns
+  # if ("stratum" %in% colnames(to_save)) {
+  #   to_save <- to_save %>% dplyr::select(-category, -stratum)
+  # }
+
+  if (filepath == "") {
+    filepath <- conjure_filename(to_save)
+  }
+
+  # actually save signals to file an return codes, messages for app to utilize
+  tryCatch(
+    {
+      write.csv(to_save, filepath, row.names = FALSE)
+
+      # Return TRUE and NULL if there are no warnings or errors
+      return(list(success = TRUE, message = NULL))
+    },
+    warning = function(warning_message) {
+      # Return TRUE and the warning message if there are warnings
+      return(list(success = TRUE, message = warning_message))
+    },
+    error = function(error_message) {
+      # Return FALSE and the error message if there are errors
+      return(list(success = FALSE, message = error_message))
+    }
+  )
+}
+
+
+#' Conjure Filename
+#'
+#' Generate an output filename based on the results from get_signals.
+#'
+#' @param data The data frame containing information for filename generation.
+#'
+#' @return The generated filename with the directory path, i.e. signals_farrington_Austria_Pertussis_2022-01-01_2023-07-08_.csv
+#'
+#' @examples
+#' # Generate a filename based on results data
+#' conjure_filename(SignalDetectionTool::get_signals(SignalDetectionTool::input_example))
+#'
+#' @export
+conjure_filename <- function(data) {
+  directory <- "outputs"
+
+  # resulting filename will be
+  # signals_method_country_pathogen_date-start_date-end.csv
+  filename <- paste("signals", data[1, "method"], data[1, "country"],
+    data[1, "pathogen"],
+    min(data$date), max(data$date), ".csv",
+    sep = "_"
+  )
+
+  return(paste(directory, filename, sep = "/"))
 }
