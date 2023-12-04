@@ -305,10 +305,8 @@ get_signals <- function(data,
 #' @return A list containing success status (TRUE or FALSE) and a message (NULL for success, a warning, or an error).
 #'
 #' @examples
-#' # Save signals with default filename
-#' save_signals(my_results, my_input_data)
 #'
-#' # Save signals with a custom filepath
+#' # Save signals with default or custom filepath
 #' # signals <- SignalDetectionTool::get_signals(SignalDetectionTool::input_example)
 #' signals <- SignalDetectionTool::get_signals(SignalDetectionTool::input_example,
 #'   stratification = c("county", "sex", "age_group")

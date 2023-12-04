@@ -16,7 +16,7 @@ Finds correct age interval for given age
 }
 \examples{
 \dontrun{
-find_age_group(5, c(0, 5, 10, 99))  # would result in "05-09"
+find_age_group(5, c(0, 5, 10, 99)) # would result in "05-09"
 find_age_group(12, c(0, 5, 15, 99)) # would result in "05-14"
 }
 }

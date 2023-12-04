@@ -45,7 +45,8 @@ categories <- c("county", "sex", "age_group") # Replace with actual column names
 results <- get_signals_stratified(
   data,
   fun = get_signals_farringtonflexible,
-  stratification_columns = categories)
+  stratification_columns = categories
+)
 print(results)
 }
 }

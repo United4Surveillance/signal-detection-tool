@@ -12,8 +12,8 @@ get_signals_aeddo(
   exclude_past_outbreaks = TRUE,
   k = 52 * 3,
   init_theta = c(rep(0, 4), 1),
-  lower = c(-0.5, 1e-06, -6, -6, -6),
-  upper = c(0.5, 1, 1, 1, 100),
+  lower = c(-1, -0.01, -0.8, -0.8, -6),
+  upper = c(100, 0.5, 1, 1, 10),
   method = "L-BFGS-B"
 )
 }

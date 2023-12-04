@@ -42,7 +42,8 @@ specified method.
 \dontrun{
 data <- read.csv("data/input/input.csv")
 results <- get_signals(data,
-                       method = "farrington",
-                       stratification = c("county", "sex"))
+  method = "farrington",
+  stratification = c("county", "sex")
+)
 }
 }

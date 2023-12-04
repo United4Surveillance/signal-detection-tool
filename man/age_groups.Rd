@@ -20,6 +20,6 @@ input_path <- "data/input/input_sample.csv"
 data <- read.csv(input_path, header = TRUE, sep = ",")
 data$age <- sample(1:125, 10, replace = TRUE)
 age_groups(data) # default age groups
-age_groups(data, c(15L,35L,65L,100L)) # custom age groups
+age_groups(data, c(15L, 35L, 65L, 100L)) # custom age groups
 }
 }
