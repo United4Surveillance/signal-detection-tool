@@ -170,10 +170,10 @@ get_signals_stratified <- function(data,
   # stratified aggregated data can be filled up with 0s until min and max date
   # of the full dataset
   if(is.null(date_start)){
-    date_start <- min(data[[date_var]])
+    date_start <- min(data[[date_var]], na.rm = TRUE)
   }
   if(is.null(date_end)){
-    date_end <- max(data[[date_var]])
+    date_end <- max(data[[date_var]], na.rm = TRUE)
   }
 
   # Loop through each category
