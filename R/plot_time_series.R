@@ -72,7 +72,7 @@ plot_time_series <- function(results, interactive = FALSE,
                                                       results$upperbound), 10)),
                      legend = list(orientation = "h", x = 0.25, y = -0.2)) %>%
       plotly::config(modeBarButtonsToRemove = c('autoScale2d',
-                                                'resetScale2d',
+                                                # 'resetScale2d',
                                                 'select2d',
                                                 'lasso2d',
                                                 'zoomIn2d',
