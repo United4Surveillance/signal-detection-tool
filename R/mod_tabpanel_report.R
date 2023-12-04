@@ -1,5 +1,12 @@
-
-
+#' tabpanel "report" UI Function
+#'
+#' @description A shiny Module for a tab to generate and download report of results.
+#'
+#' @param id,input,output,session Internal parameters for {shiny}.
+#'
+#' @noRd
+#'
+#' @importFrom shiny NS tagList
 mod_tabpanel_report_ui <- function(id) {
   ns <- shiny::NS(id)
 
@@ -34,7 +41,9 @@ mod_tabpanel_report_ui <- function(id) {
 
 }
 
-
+#' tabpanel "report" Server Functions
+#'
+#' @noRd
 mod_tabpanel_report_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns

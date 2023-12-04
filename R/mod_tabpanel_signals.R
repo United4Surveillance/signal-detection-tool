@@ -1,3 +1,13 @@
+#' tabpanel "signals" UI Function
+#'
+#' @description A shiny Module for a tab to generate and display results from
+#' signal detection methods based on parameters inputs chosen.
+#'
+#' @param id,input,output,session Internal parameters for {shiny}.
+#'
+#' @noRd
+#'
+#' @importFrom shiny NS tagList
 mod_tabpanel_signals_ui <- function(id) {
   ns <- shiny::NS(id)
 
@@ -19,7 +29,9 @@ mod_tabpanel_signals_ui <- function(id) {
   )
   }
 
-
+#' tabpanel "signals" Server Functions
+#'
+#' @noRd
 mod_tabpanel_signals_server <- function(id, indata, strat_vars) {
   observe({
     req(indata, strat_vars)
