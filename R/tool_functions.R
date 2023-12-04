@@ -162,6 +162,20 @@ get_signals_stratified <- function(data,
   # Initialize an empty list to store results per category
   category_results <- list()
 
+  # preprocess the data
+  data <- data %>%
+    preprocess_data()
+
+  # get min and max date of the whole dataset before stratification
+  # stratified aggregated data can be filled up with 0s until min and max date
+  # of the full dataset
+  if(is.null(date_start)){
+    date_start <- min(data[[date_var]], na.rm = TRUE)
+  }
+  if(is.null(date_end)){
+    date_end <- max(data[[date_var]], na.rm = TRUE)
+  }
+
   # Loop through each category
   for (category in stratification_columns) {
 
@@ -176,9 +190,8 @@ get_signals_stratified <- function(data,
     for (stratum in strata) {
       sub_data <- data %>% dplyr::filter(.data[[category]] == stratum)
 
-      # preprocess and aggregated data
+      # aggregate data
       sub_data_agg <- sub_data %>%
-        preprocess_data() %>%
         aggregate_data(date_var = date_var) %>%
         add_rows_missing_dates(date_start, date_end)
 
