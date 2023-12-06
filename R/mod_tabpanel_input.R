@@ -60,9 +60,9 @@ mod_tabpanel_input_server <- function(id, indata) {
     ## showing options in ui
     output$pathogen_choices <- shiny::renderUI({
       return(shiny::selectInput(inputId = ns("pathogen_vars"),
-                                       label = "Choose pathogen:",
-                                       choices = unique(indata()$pathogen))
-             )
+                                label = "Choose pathogen:",
+                                choices = unique(indata()$pathogen))
+      )
     })
 
     output$strat_choices <- shiny::renderUI({
@@ -74,15 +74,16 @@ mod_tabpanel_input_server <- function(id, indata) {
                                 # needs robustness!!
                                 selected = "None",
                                 multiple = TRUE)
-             )
+      )
       print(c("input-strat_vars", input$strat_vars))
     })
 
     # Return list of subsetted data and parameters
     return(
       list(data = reactive({ dplyr::filter(data_sub(), subset == TRUE) }),
-           strat_vars = reactive({ input$strat_vars }))
-      )
+           strat_vars = reactive({ input$strat_vars }),
+           pathogen_vars = reactive({ input$pathogen_vars }))
+    )
 
   })
 
