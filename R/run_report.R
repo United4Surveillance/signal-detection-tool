@@ -11,7 +11,7 @@
 #' @param analysis_range vector of date range for analysis period
 #' @param output_file The name of the output file \link[rmarkdown]{render}
 #'
-#' @return
+#' @return renders report see \link[rmarkdown]{render}
 #' @export
 #'
 #' @examples
