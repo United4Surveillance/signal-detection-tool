@@ -31,7 +31,7 @@ be shown ("country", "state","county" or "community")}
 interactive}
 }
 \value{
-either a ggplot object if static plot is chosen or a ggiraph object
+either a ggplot object if static plot is chosen or a plotly object
   for the interactive plot
 }
 \description{
