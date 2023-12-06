@@ -1,0 +1,62 @@
+---
+title: "`r params$disease` - `r params$country`"
+subtitle: "Signal Detection Report"
+date: "Report generated on `r format(Sys.Date(), '%d %B %Y')`"
+output: 
+  html_document:
+    css: "style.css"
+    theme: cerulean
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    embed-resources: true
+    self-contained: true
+params: 
+  data: NULL
+  disease: "Pertussis"
+  country: "Austria"
+  training_range: !r c(as.Date("1900-01-01"), as.Date("1901-01-01"))
+  analysis_range: !r c(as.Date("1901-01-02"), as.Date("1902-01-01"))
+  algo: "farrington"
+  strata: !r c("county_id", "community_id", "sex", "age_group") 
+  interactive: false
+  tables: true
+  weeks: 52
+
+---
+
+```{r, echo=FALSE}
+htmltools::img(src = knitr::image_uri("logo.png"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:0; right:0; padding:10px;')
+```
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(eval = TRUE, 
+                      echo = FALSE, 
+                      fig.align = 'center',
+                      fig.width = 13,
+                      fig.height = 5,
+                      message = FALSE, 
+                      warning = FALSE)
+```
+
+
+```{r, results='asis'}
+res <- knitr::knit_child('SignalDetectionReport_body.Rmd', quiet = TRUE)
+cat(res)
+```
+
+
+```{r, results='asis'}
+
+for (strat in params$strata) {
+  res <- knitr::knit_child('SignalDetectionReport_strata.Rmd', quiet = TRUE)
+  cat(res, sep = '\n')
+}
+```
+
+
+
+
+

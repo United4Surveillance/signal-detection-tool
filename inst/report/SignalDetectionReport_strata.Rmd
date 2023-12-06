@@ -1,0 +1,73 @@
+
+```{r}
+df <- results_strata %>% 
+  dplyr::filter(category %in% strat)
+
+strat_text <- dplyr::case_when(strat == "county_id" ~ "county ID",
+                               strat == "community_id" ~ "community ID",
+                               strat == "age_group" ~ "agegroup",
+                               TRUE ~ strat)
+```
+
+
+## Signals stratified by `r strat_text`
+
+```{r, results='asis'}
+results_analysis <- df %>% 
+  dplyr::filter(!is.na(alarms))
+
+stringr::str_glue(
+  "When stratifiying by {strat_text} the {params$algo} algorithm detects ", 
+  "{sum(results_analysis$alarm)} signals in the analysis period ", 
+  "{params$training_range[1]} - {params$training_range[2]}.")
+```
+
+
+```{r}
+#| fig.cap=paste0("Number of ", params$disease, " cases by week and signals stratified by ", strat_text, ", ", params$country)
+plot_time_series(df, 
+                 number_of_weeks = params$weeks,
+                 interactive = params$interactive)
+```
+
+
+```{r}
+#| eval = strat=="sex",
+#| fig.cap=paste0("Number of ", params$disease, " cases by agegroup stratified by sex, ", params$country)
+
+plot_agegroup_by(age_groups(data) %>% 
+                   dplyr::mutate(sex = factor(sex)), by_col = strat, 
+                 interactive = params$interactive) #quick fix for factor problem 
+```
+
+
+```{r}
+#| eval = strat=="county_id",
+#| fig.cap=paste0("Number of ", params$disease, " cases and signals stratified by county ID, ", params$country)
+
+plot_regional(data, 
+              df, 
+              nuts_shp, 
+              country_id = unique(data$country_id), 
+              regional_level = "county", 
+              interactive =  params$interactive)
+```
+
+```{r}
+#| eval = strat=="community_id",
+#| fig.cap=paste0("Number of ", params$disease, " cases and signals stratified by community ID, ", params$country)
+
+plot_regional(data, 
+              df, 
+              nuts_shp, 
+              country_id = unique(data$country_id), 
+              regional_level = "community", 
+              interactive =  params$interactive)
+```
+
+
+```{r, eval = params$tables}
+create_results_table(df, interactive = params$interactive)
+```
+
+
