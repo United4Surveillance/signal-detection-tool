@@ -2,7 +2,7 @@
 % Please edit documentation in R/run_report.R
 \name{run_report}
 \alias{run_report}
-\title{Renders signal detction report}
+\title{Renders signal detection report}
 \usage{
 run_report(
   report_format = "HTML",
@@ -37,10 +37,10 @@ the analysis. Default is NULL.}
 \item{output_file}{The name of the output file \link[rmarkdown]{render}}
 }
 \value{
-renders report see \link[rmarkdown]{render}
+the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 }
 \description{
-Renders signal detction report
+Renders signal detection report
 }
 \examples{
 \dontrun{

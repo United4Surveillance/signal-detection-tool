@@ -1,4 +1,4 @@
-#' Renders signal detction report
+#' Renders signal detection report
 #'
 #' @param report_format format of the report: HTML, DOCX or PDF
 #' @param data data.frame containing surveillance data in linelist format
@@ -11,7 +11,7 @@
 #' @param analysis_range vector of date range for analysis period
 #' @param output_file The name of the output file \link[rmarkdown]{render}
 #'
-#' @return renders report see \link[rmarkdown]{render}
+#' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 #' @export
 #'
 #' @examples
