@@ -10,10 +10,9 @@ mod_tabpanel_input_ui <- function(id) {
     # Input: Specify dates?
     shiny::checkboxInput(ns("dates_bin"), "Limit date interval"),
     # Input: Select minimum date
-    shiny::dateInput(ns("min_date"), "Minimum date:",
-                     value = "2023-01-01"),
+    shiny::uiOutput(ns("min_date_choice")),
     # Input: Select maximum date
-    shiny::dateInput(ns("max_date"), "Maximum date:"),
+    shiny::uiOutput(ns("max_date_choice")),
 
     h2("Choose which pathogen in the dataset to check for aberrations"),
     br(),
@@ -33,6 +32,24 @@ mod_tabpanel_input_ui <- function(id) {
 mod_tabpanel_input_server <- function(id, indata) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
+
+    # date uiOutputs default choices from data
+    output$min_date_choice <- shiny::renderUI({
+      return(shiny::dateInput(inputId = ns("min_date"), label = "Minimum date:",
+                              value = min(indata()$date_report),
+                              min = min(indata()$date_report),
+                              max = max(indata()$date_report),
+                              weekstart = 1)
+             )
+    })
+    output$max_date_choice <- shiny::renderUI({
+      return(shiny::dateInput(inputId = ns("max_date"), label = "Maximum date:",
+                              value = max(indata()$date_report),
+                              min = min(indata()$date_report),
+                              max = max(indata()$date_report),
+                              weekstart = 1)
+             )
+    })
 
     data_sub <- shiny::reactive({
       req(indata)
