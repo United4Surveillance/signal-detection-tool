@@ -12,7 +12,6 @@
 #' }
 get_signals_farringtonflexible <- function(data_aggregated,
                                            number_of_weeks = 52) {
-
   checkmate::assert(
     checkmate::check_integerish(number_of_weeks)
   )
@@ -20,13 +19,22 @@ get_signals_farringtonflexible <- function(data_aggregated,
   sts_cases <- convert_to_sts(data_aggregated)
 
   num_weeks_total <- length(sts_cases@observed)
-  num_years_total <- floor((num_weeks_total - 26) / 52) - 1
+  num_weeks_for_calibration <- num_weeks_total - number_of_weeks
+  num_years_total <- floor((num_weeks_for_calibration - 26) / 52)
 
-  if (num_years_total <= 0) {
+  if (num_weeks_for_calibration < 0) {
     warning(paste0(
-      "Your input data/stratification only stretches over ", num_weeks_total,
-      " weeks. FarringtonFlexible needs at least a year of data to calibrate an ",
-      " epidemiological baseline."
+      "The number of weeks you want to generate alarms for (n = ", number_of_weeks, ")",
+      " is higher than the number of weeks you have in your data (n = ", num_weeks_total, ")."
+    ))
+    return(NULL)
+  } else if (num_weeks_for_calibration < 52 + 26) {
+    warning(paste0(
+      "Your data/stratification covers ",
+      num_weeks_total,
+      " number of weeks in total and you want to generate alarms for ", number_of_weeks, ". ",
+      "FarringtonFlexible needs at least 1.5 years (78 weeks) of data to calibrate an epidemiological basline. ",
+      "You have ", num_weeks_for_calibration, " weeks for calibration left in your data/stratification."
     ))
     return(NULL)
   }

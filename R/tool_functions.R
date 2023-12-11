@@ -290,7 +290,13 @@ get_signals <- function(data,
       aggregate_data(date_var = date_var) %>%
       add_rows_missing_dates(date_start, date_end)
 
-    results <- fun(data_agg, number_of_weeks) %>% dplyr::mutate(category = NA, stratum = NA)
+    results <- fun(data_agg, number_of_weeks)
+
+    if(!is.null(results)){
+      results %>%
+        dplyr::mutate(category = NA, stratum = NA) %>%
+        dplyr::mutate(method = method)
+    }
   } else {
     results <- get_signals_stratified(
       data,
@@ -304,7 +310,7 @@ get_signals <- function(data,
   }
 
 
-  return(dplyr::mutate(results, method = method))
+  return(results)
 }
 
 #' Save signals
