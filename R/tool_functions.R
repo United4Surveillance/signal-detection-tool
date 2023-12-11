@@ -252,7 +252,7 @@ get_signals <- function(data,
                         number_of_weeks = 52) {
   # check that input method and stratification are correct
   checkmate::assert(
-    checkmate::check_choice(method, choices = c("farrington"))
+    checkmate::check_choice(method, choices = c("farrington","aeddo","ears"))
   )
   checkmate::assert(
     checkmate::check_null(stratification),
@@ -281,6 +281,8 @@ get_signals <- function(data,
     fun <- get_signals_farringtonflexible
   } else if (method == "aeddo") {
     fun <- get_signals_aeddo
+  } else if (method == "ears"){
+    fun <- get_signals_ears
   }
 
   if (is.null(stratification)) {
