@@ -252,7 +252,7 @@ get_signals <- function(data,
                         number_of_weeks = 52) {
   # check that input method and stratification are correct
   checkmate::assert(
-    checkmate::check_choice(method, choices = c("farrington"))
+    checkmate::check_choice(method, choices = c("farrington","aeddo","ears"))
   )
   checkmate::assert(
     checkmate::check_null(stratification),
@@ -281,6 +281,8 @@ get_signals <- function(data,
     fun <- get_signals_farringtonflexible
   } else if (method == "aeddo") {
     fun <- get_signals_aeddo
+  } else if (method == "ears"){
+    fun <- get_signals_ears
   }
 
   if (is.null(stratification)) {
@@ -290,7 +292,13 @@ get_signals <- function(data,
       aggregate_data(date_var = date_var) %>%
       add_rows_missing_dates(date_start, date_end)
 
-    results <- fun(data_agg, number_of_weeks) %>% dplyr::mutate(category = NA, stratum = NA)
+    results <- fun(data_agg, number_of_weeks)
+
+    if(!is.null(results)){
+      results %>%
+        dplyr::mutate(category = NA, stratum = NA) %>%
+        dplyr::mutate(method = method)
+    }
   } else {
     results <- get_signals_stratified(
       data,
@@ -304,7 +312,7 @@ get_signals <- function(data,
   }
 
 
-  return(dplyr::mutate(results, method = method))
+  return(results)
 }
 
 #' Save signals
