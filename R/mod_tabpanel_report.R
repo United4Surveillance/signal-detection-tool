@@ -26,13 +26,15 @@ mod_tabpanel_report_ui <- function(id) {
                              value = TRUE),
 
         # Button
-        shiny::downloadButton(NS(id, "downloadReport"), "Download")
+        shiny::downloadButton(NS(id, "downloadReport"), "Create Report")
 
       ),
 
       # Main panel for displaying outputs ----
       shiny::mainPanel(
-        shiny::h1("This is the report"),
+        shiny::h1("Signal detection report"),
+        shiny::p(paste("Be aware that the generation of the report can take",
+                       "several minutes.")),
         shiny::textOutput(NS(id, "report_text"))
       )
 
