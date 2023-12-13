@@ -61,6 +61,9 @@ mod_tabpanel_data_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
+    # set maximum file size to 50MB
+    options(shiny.maxRequestSize = 50 * 1024^2)
+
     # Load data and preprocess data
     data <- shiny::reactive({
       # input$file1 will be NULL initially. After the user selects
