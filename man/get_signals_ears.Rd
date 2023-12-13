@@ -10,6 +10,8 @@ get_signals_ears(data_aggregated, number_of_weeks = 52, method = "C1")
 \item{data_aggregated}{data.frame, aggregated data with case counts}
 
 \item{number_of_weeks}{integer, specifying number of weeks to generate alarms for}
+
+\item{method}{string indicating which method to use: one of "C1", "C2", "C3"}
 }
 \description{
 Get signals of surveillance's EARS algorithm
