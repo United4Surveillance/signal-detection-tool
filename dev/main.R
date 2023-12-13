@@ -27,7 +27,7 @@ plot_time_series(results, number_of_weeks = 10)
 
 # plot age group
 plot_agegroup_by(data)
-ggiraph::girafe(ggobj = plot_agegroup_by(data))
+plot_agegroup_by(data, interactive = TRUE)
 
 # run signal detection on data
 # results <- get_signals(data)  # no stratification

@@ -4,7 +4,12 @@
 \alias{plot_agegroup_by}
 \title{Plot age-groups grouped by another variable}
 \usage{
-plot_agegroup_by(df, age_group_col = "age_group", by_col = "sex")
+plot_agegroup_by(
+  df,
+  age_group_col = "age_group",
+  by_col = "sex",
+  interactive = FALSE
+)
 }
 \arguments{
 \item{df}{case data}
@@ -12,9 +17,11 @@ plot_agegroup_by(df, age_group_col = "age_group", by_col = "sex")
 \item{age_group_col}{name of the age-group column}
 
 \item{by_col}{name of the grouping column}
+
+\item{interactive}{if TRUE, interactive plot is returned}
 }
 \value{
-a gg object with interactive bar geometries usable with ggiraph
+either a gg or plotly object
 }
 \description{
 Plot age-groups grouped by another variable
