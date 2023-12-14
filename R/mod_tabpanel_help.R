@@ -2,7 +2,7 @@
 #'
 #' @description A shiny Module for a tab panel that explains how to use the shiny app.
 #'
-#' @param id,input,output,session Internal parameters for {shiny}.
+#' @param id Internal parameter for {shiny}, ensuring namespace coherency in sessions.
 #'
 #' @noRd
 #'

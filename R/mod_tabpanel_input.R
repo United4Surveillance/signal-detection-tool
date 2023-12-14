@@ -2,7 +2,7 @@
 #'
 #' @description A shiny Module for a tab to select input parameters for analyses in the shiny app.
 #'
-#' @param id,input,output,session Internal parameters for {shiny}.
+#' @param id Internal parameter for {shiny}, ensuring namespace coherency in sessions.
 #'
 #' @noRd
 #'

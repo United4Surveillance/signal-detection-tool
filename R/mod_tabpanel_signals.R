@@ -3,7 +3,7 @@
 #' @description A shiny Module for a tab to generate and display results from
 #' signal detection methods based on parameters inputs chosen.
 #'
-#' @param id,input,output,session Internal parameters for {shiny}.
+#' @param id Internal parameter for {shiny}, ensuring namespace coherency in sessions.
 #'
 #' @noRd
 #'
