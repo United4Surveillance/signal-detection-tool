@@ -67,7 +67,7 @@ plot_time_series <- function(results, interactive = FALSE,
                                   tickvals = pretty(results$date, n = 8),
                                   title = "Time"),
                      yaxis = list(title = "Number of Infected",
-                                  tickvals = pretty(c(results$cases,
+                                  tickvals = pretty(c(0, results$cases,
                                                       results$expected,
                                                       results$upperbound), 10)),
                      legend = list(orientation = "h", x = 0.25, y = -0.2)) %>%
