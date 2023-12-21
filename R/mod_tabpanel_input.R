@@ -1,3 +1,12 @@
+#' tabpanel "input" UI Function
+#'
+#' @description A shiny Module for a tab to select input parameters for analyses in the shiny app.
+#'
+#' @param id Internal parameter for {shiny}, ensuring namespace coherency in sessions.
+#'
+#' @noRd
+#'
+#' @importFrom shiny NS tagList
 mod_tabpanel_input_ui <- function(id) {
   ns <- shiny::NS(id)
 
@@ -29,7 +38,9 @@ mod_tabpanel_input_ui <- function(id) {
   )
 }
 
-
+#' tabpanel "input" Server Functions
+#'
+#' @noRd
 mod_tabpanel_input_server <- function(id, indata) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
