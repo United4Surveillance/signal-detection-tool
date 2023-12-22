@@ -30,13 +30,14 @@ mod_tabpanel_input_ui <- function(id) {
 }
 
 
-mod_tabpanel_input_server <- function(id, indata) {
+mod_tabpanel_input_server <- function(id, data, errors_detected) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
     data_sub <- shiny::reactive({
-      req(indata)
-      dat <- indata()
+      req(data)
+      req(!errors_detected())
+      dat <- data()
       # data range limit or pick everything
       dat <- dplyr::mutate(dat, subset = TRUE)
       if (input$dates_bin) {
@@ -45,8 +46,6 @@ mod_tabpanel_input_server <- function(id, indata) {
                                                      input$min_date,
                                                      input$max_date))
       }
-
-      print(head(dat))
 
       # add subset indicator for selected pathogens
       dat <- dplyr::mutate(dat,
@@ -61,7 +60,7 @@ mod_tabpanel_input_server <- function(id, indata) {
     output$pathogen_choices <- shiny::renderUI({
       return(shiny::selectInput(inputId = ns("pathogen_vars"),
                                        label = "Choose pathogen:",
-                                       choices = unique(indata()$pathogen))
+                                       choices = unique(data()$pathogen))
              )
     })
 
@@ -70,7 +69,7 @@ mod_tabpanel_input_server <- function(id, indata) {
                                 label = "Parameters to stratify by:",
                                 choices = c("None",
                                             # "All", # not sensible?
-                                            names(indata())),
+                                            names(data())),
                                 # needs robustness!!
                                 selected = "None",
                                 multiple = TRUE)
