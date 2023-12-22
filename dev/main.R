@@ -4,7 +4,6 @@
 
 library(surveillance)
 library(tidyverse)
-library(ggiraph)
 library(gt)
 library(checkmate)
 

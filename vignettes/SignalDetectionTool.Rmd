@@ -19,8 +19,6 @@ knitr::opts_chunk$set(
   fig.align = "center"
 )
 
-guide_colourbar_interactive <- function(...) ggiraph::guide_colourbar_interactive(...)
-
 ```
 
 
@@ -76,12 +74,6 @@ plot_time_series(results, interactive = TRUE)
 plot_time_series(results, number_of_weeks = 10)
 ```
 
-### Plotting the age groups
-
-```{r}
-ggiraph::girafe(ggobj = plot_agegroup_by(data))
-```
-
 ### Creating tables 
 
 ```{r}
@@ -91,13 +83,6 @@ create_results_table(results, interactive = TRUE)
 
 
 ### Regional visualization
-
-```{r, include=FALSE}
-# weird fix since match.fun only looks back through 2 layers of parent 
-# environments for the named function
-# guide_colourbar_interactive <- function(...) ggiraph::guide_colourbar_interactive(...)
-
-```
 
 
 ```{r, eval = TRUE}
