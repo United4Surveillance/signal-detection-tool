@@ -54,6 +54,12 @@ rsconnect/
 # Data files - to avoid unintended commits, remove these temporarily when needed
 # data/
 *.csv
+*.docx
+*.html
+*.pdf
+
+## exeptions
+!template.docx
 
 
 # Temporary idea files
