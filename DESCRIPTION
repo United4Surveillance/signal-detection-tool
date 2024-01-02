@@ -13,7 +13,6 @@ Imports:
     config,
     dplyr,
     DT,
-    ggiraph,
     ggplot2,
     golem,
     gt,
