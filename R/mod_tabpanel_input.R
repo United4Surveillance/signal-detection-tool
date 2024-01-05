@@ -1,3 +1,12 @@
+#' tabpanel "input" UI Function
+#'
+#' @description A shiny Module for a tab to select input parameters for analyses in the shiny app.
+#'
+#' @param id Internal parameter for {shiny}, ensuring namespace coherency in sessions.
+#'
+#' @noRd
+#'
+#' @importFrom shiny NS tagList
 mod_tabpanel_input_ui <- function(id) {
   ns <- shiny::NS(id)
 
@@ -28,7 +37,8 @@ mod_tabpanel_input_ui <- function(id) {
     icon = icon("viruses")
   )
 }
-#
+
+
 
 #' @param id,input,output,session standard \code{shiny} boilerplate
 #' @param data reactive input dataset preprocessed if no errors
@@ -66,6 +76,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
                                        label = "Choose pathogen:",
                                        choices = unique(data()$pathogen))
              )
+
     })
 
     output$strat_choices <- shiny::renderUI({
@@ -78,15 +89,16 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
                                 # needs robustness!!
                                 selected = "None",
                                 multiple = TRUE)
-             )
+      )
       print(c("input-strat_vars", input$strat_vars))
     })
 
     # Return list of subsetted data and parameters
     return(
       list(data = reactive({ dplyr::filter(data_sub(), subset == TRUE) }),
-           strat_vars = reactive({ input$strat_vars }))
-      )
+           strat_vars = reactive({ input$strat_vars }),
+           pathogen_vars = reactive({ input$pathogen_vars }))
+    )
 
   })
 

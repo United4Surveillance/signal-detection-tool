@@ -1,0 +1,65 @@
+
+
+```{r libraries}
+library(dplyr)
+library(SignalDetectionTool)
+```
+
+```{r parameters}
+if (is.null(params$data)) {
+  data <- SignalDetectionTool::input_example
+} else {
+  data <- params$data
+}
+
+```
+
+
+# Data and Methods 
+
+- Method used: `r params$algo`
+- Date range used for training the model: `r params$training_range[1]` to `r params$training_range[2]`
+- Date range for the analysis: `r params$analysis_range[1]` to `r params$analysis_range[2]`
+- Other configurations used for the model 
+
+TODO: Possible inclusion of a method description. 
+
+```{r}
+results <- get_signals(data, 
+                       method = params$algo)
+
+if (!is.null(strata)) {
+  results_strata <- get_signals(data, 
+                              method = params$algo, 
+                              stratification = params$strata)
+}
+
+
+```
+
+
+# Signal Detection 
+
+```{r, results='asis'}
+results_analysis <- results %>% 
+  dplyr::filter(!is.na(alarms))
+
+stringr::str_glue(
+  "In the analysis period {params$training_range[1]} - {params$training_range[2]} ", 
+  "there where {sum(results_analysis$cases)} cases of {params$disease} in {params$country}. ",
+  "Using the {params$algo} algorithm {sum(results_analysis$alarm)} signals where detected.")
+```
+
+
+```{r}
+#| fig.cap=paste0("Number of ", params$disease, " cases by week and signals, ", params$country)
+plot_time_series(results, 
+                 number_of_weeks = params$weeks,
+                 interactive = params$interactive)
+```
+
+```{r}
+create_results_table(results, interactive = params$interactive)
+```
+
+

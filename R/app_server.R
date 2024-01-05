@@ -20,5 +20,10 @@ app_server <- function(input, output, session) {
     strat_vars = datinput$strat_vars,
     errors_detected = data_load_check_result$errors_detected
   )
-  mod_tabpanel_report_server("report")
+
+  mod_tabpanel_report_server("report",
+                             indata = datinput$data,
+                             strat_vars = datinput$strat_vars,
+                             pathogen_vars = datinput$pathogen_vars)
+
 }
