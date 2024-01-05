@@ -1,4 +1,8 @@
-# returns empty list when there are no errors
+#' Checking whether raw surveillance linelist fulfills requirements to the data specified in the SOP
+#' Checking presence and correct type of mandatory variables
+#' Checking type and values of optional variables
+#' @param data data.frame, raw linelist of surveillance cases
+#' @returns list, empty when no errors occured or filled with error messages
 check_raw_surveillance_data <- function(data) {
   errors <- list()
 
@@ -28,11 +32,6 @@ check_raw_surveillance_data <- function(data) {
   errors_optional <- check_type_and_value_optional_variables(data)
   errors <- c(errors, errors_mandatory, errors_optional)
 
-  # check outbreak information when available
-  if ("outbreak_status" %in% colnames(data)) {
-    errors <- check_raw_outbreak_data(data, outbreaks_in_surveillance_data = TRUE)
-  }
-
   # return TRUE or print error messages
   if (length(errors) != 0) {
     # remove empty slots
@@ -41,71 +40,11 @@ check_raw_surveillance_data <- function(data) {
     errors
 }
 
-check_raw_outbreak_data <- function(data,
-                                    outbreaks_in_surveillance_data = TRUE) {
-  errors <- list()
-
-  if (!outbreaks_in_surveillance_data) {
-    # check that reading in worked
-    if (nrow(data) == 0) {
-      errors <- append(errors, "Loaded data is empty")
-      return(errors)
-    }
-  }
-
-  errors_presence <- check_presence_mandatory_variables_outbreak(
-    data,
-    outbreaks_in_surveillance_data
-  )
-  errors_type_and_value <- check_type_and_value_outbreak_variables(
-    data,
-    outbreaks_in_surveillance_data
-  )
-
-  errors <- c(errors_presence, errors_type_and_value)
-
-  if (length(errors) != 0) {
-    # remove empty slots
-    errors <- errors[sapply(errors, function(element) !is.null(element))]
-  }
-  errors
-}
-
-check_consistency_surveillance_and_outbreak_data <- function(data_surveillance,
-                                                             data_outbreak) {
-  errors <- list()
-
-  # are the case_ids in the same format?
-  type_case_id_surveillance <- class(data_surveillance$case_id)
-  type_case_id_truth <- class(data_outbreak$case_id)
-  if (type_case_id_surveillance != type_case_id_truth) {
-    errors <- append(
-      errors,
-      "case_ids do not have the same format in the surveillance and outbreak data"
-    )
-  }
-
-  # check that each case_id in data_surveillance is present in data_outbreak
-  # Question: do we want to check this?
-  unmatched_case_ids <- data_surveillance %>%
-    dplyr::anti_join(data_outbreak, by = "case_id")
-
-  if (nrow(unmatched_case_ids) > 0) {
-    # we could return which case_ids are not found
-    errors <- append(
-      errors,
-      paste0(
-        nrow(unmatched_case_ids),
-        "case_ids do not exist in the outbreak data"
-      )
-    )
-  }
-  errors
-}
-
-# checking mandatory variables in the surveillance data
-# 1) if they are present in the data
-# 2) if they have the correct type and correct values
+#' checking mandatory variables in the surveillance data
+#' check if mandatory variables are present in the data
+#' check if they have the correct type and correct values
+#' @param data data.frame, raw surveillance linelist
+#' @returns list, empty or filled with errors
 check_mandatory_variables <- function(data) {
   errors_presence <- check_presence_mandatory_variables(data)
   errors_types <- check_type_and_value_mandatory_variables(data)
@@ -115,10 +54,9 @@ check_mandatory_variables <- function(data) {
   errors
 }
 
-check_character_levels <- function(vector, levels) {
-  all(vector %in% levels)
-}
-
+#' checking presence of mandatory variables in surveillance data
+#' @param data data.frame, raw linelist of surveillance cases
+#' @returns list, empty when no errors occured or filled with error messages
 check_presence_mandatory_variables <- function(data) {
   errors <- list()
 
@@ -145,30 +83,9 @@ check_presence_mandatory_variables <- function(data) {
   errors
 }
 
-# optional parameter specifying whether outbreak information is already inside the surveillance data (TRUE)
-# or provided as a seperate file
-check_presence_mandatory_variables_outbreak <- function(data,
-                                                        outbreaks_in_surveillance_data = TRUE) {
-  errors <- list()
-
-  # case_id is already checked in the surveillance data
-  if (outbreaks_in_surveillance_data) {
-    mandatory_columns <- c("outbreak_status")
-  } else {
-    mandatory_columns <- c("case_id", "outbreak_status")
-  }
-
-  data_columns <- colnames(data)
-  missing_columns <- setdiff(mandatory_columns, data_columns)
-
-  if (length(missing_columns) != 0) {
-    errors <- lapply(missing_columns, function(col) paste0("Missing or empty mandatory column '", col, "' in the data"))
-  }
-
-  errors
-}
-
-# those mandatory variables which are there are checked for their type
+#' Checking those mandatory variables which are present in the data for their type
+#' @param data data.frame, raw linelist of surveillance cases
+#' @returns list, empty when no errors occured or filled with error messages
 check_type_and_value_mandatory_variables <- function(data) {
   errors <- list()
   data_columns <- colnames(data)
@@ -227,28 +144,9 @@ check_type_and_value_mandatory_variables <- function(data) {
   errors
 }
 
-check_type_and_value_outbreak_variables <- function(data,
-                                                    outbreaks_in_surveillance_data = TRUE) {
-  errors <- list()
-  data_columns <- colnames(data)
-
-  if (!outbreaks_in_surveillance_data) {
-    if ("case_id" %in% data_columns) {
-      errors <- append(errors, check_type_and_value_case_id(data))
-    }
-  }
-  if ("outbreak_status" %in% data_columns) {
-    errors <- append(errors, check_type_and_value_yes_no_unknown(data, "outbreak_status"))
-  }
-  if ("outbreak_id" %in% data_columns) {
-    if (!checkmate::qtest(data$outbreak_id, c("s", "n"))) {
-      errors <- append(errors, "outbreak_id is not a character or a numeric")
-    }
-  }
-
-  errors
-}
-
+#' Checking correct type and value of optional variables which are present in the data
+#' @param data data.frame, raw linelist of surveillance cases
+#' @returns list, empty when no errors occured or filled with error messages
 check_type_and_value_optional_variables <- function(data) {
   errors <- list()
   data_columns <- colnames(data)
@@ -281,13 +179,8 @@ check_type_and_value_optional_variables <- function(data) {
     }
   }
 
-  # check yes no unknown vars
-  yes_no_unknown_vars <- c(
-    "hospitalization",
-    "death",
-    "vaccination"
-  )
-  yes_no_unknown_vars <- intersect(data_columns, yes_no_unknown_vars)
+  # variables with yes,no,unknown values
+  yes_no_unknown_vars <- intersect(data_columns, yes_no_unknown_variables())
 
   for (yes_no_unknown_var in yes_no_unknown_vars) {
     errors <- append(errors, check_type_and_value_yes_no_unknown(data, yes_no_unknown_var))
@@ -319,6 +212,10 @@ check_type_and_value_optional_variables <- function(data) {
   errors
 }
 
+#' Checking type and values of date variables
+#' @param data data.frame, raw linelist of surveillance cases
+#' @param date_var character, date variable to check
+#' @returns list, empty when no errors occured or filled with error messages
 check_type_and_value_date <- function(data, date_var) {
   errors <- list()
 
@@ -339,6 +236,10 @@ check_type_and_value_date <- function(data, date_var) {
   errors
 }
 
+
+#' Checking type of case_id, duplication or missing case_id
+#' @param data data.frame, raw linelist of surveillance cases
+#' @returns list, empty when no errors occured or filled with error messages
 check_type_and_value_case_id <- function(data) {
   errors <- list()
 
@@ -360,6 +261,10 @@ check_type_and_value_case_id <- function(data) {
   errors
 }
 
+#' Checking type and values of variables which should have yes,no,unknown values
+#' @param data data.frame, raw linelist of surveillance cases
+#' @param var character, variable to check
+#' @returns list, empty when no errors occured or filled with error messages
 check_type_and_value_yes_no_unknown <- function(data, var) {
 
   errors <- list()
@@ -375,7 +280,9 @@ check_type_and_value_yes_no_unknown <- function(data, var) {
   errors
 }
 
-# when there is a problem set to TRUE
+#' Helper function to check for presence of date_report variable or instead week_report and year_report
+#' @param data_columns vector, column names of raw surveillance linelist
+#' @returns boolean, TRUE when the required variables are present, FALSE if not present
 check_any_date_report <- function(data_columns) {
   if ("date_report" %in% data_columns) {
     FALSE
@@ -386,6 +293,9 @@ check_any_date_report <- function(data_columns) {
   }
 }
 
+#' Helper function to check for presence of age variable or instead age_group
+#' @param data_columns vector, column names of raw surveillance linelist
+#' @returns boolean, TRUE when the required variables are present, FALSE if not present
 check_any_age <- function(data_columns) {
   if (any(c("age", "age_group") %in% data_columns)) {
     FALSE
@@ -394,13 +304,16 @@ check_any_age <- function(data_columns) {
   }
 }
 
-# retrieve variables which are in addition provided with the dataset but are not used for analysis
+#' retrieve variables which are in provided in surveillance linelist but are not used in the tool
+#' @param data data.frame, raw linelist of surveillance cases
+#' @returns vector with all column names which are not part of the defined input data variables
 get_unused_variables <- function(data) {
-  setdiff(colnames(data), input_and_outbreak_variables())
+  setdiff(colnames(data), input_metadata$Variable)
 }
 
-# check for a complete empty row in provided data
-# when there is a problem set to TRUE
+#' check whether there is a completely empty row in provided surveillance data
+#' @param data data.frame, raw linelist of surveillance cases
+#' @returns boolean, TRUE when there was an empty row inside the data, FALSE when no empty rows
 check_empty_rows <- function(data) {
   # transform POSICXct variables to character before to not produce an error in the check below
   data <- data %>%
@@ -409,32 +322,36 @@ check_empty_rows <- function(data) {
   any(apply(data == "" | is.na(data) | is.null(data), 1, all))
 }
 
-# checking YYYYY-mm-dd format
+#' checking YYYYY-mm-dd format of date variables
+#' @param date_var character, date variable to check
+#' @returns boolean, when TRUE all values of date_var are in the required format, when FALSE at least one is not in required format
 is_ISO8601 <- function(date_var) {
+  # need to allow empty entries inside the data variable
   all(grepl("^\\d{4}-\\d{2}-\\d{2}$", date_var) | is.na(date_var) | date_var == "")
 }
 
-#
-# detailed check that months are numbers between 01-12 and days are from 01-31
+#' detailed check of date variables
+#' check that months are numbers between 01-12 and days are from 01-31
+#' @param date_var character, date variable to check
+#' @returns boolean, when TRUE all values of date_var are in the required format, when FALSE at least one is not in required format
 is_ISO8601_detailed <- function(date_var) {
   pattern <- "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
 
   all(grepl(pattern, date_var) | is.na(date_var) | date_var == "")
 }
 
+#' Helper to check that values of a character variable are in given levels
+#' @param vector a vector i.e. column of the data whose values should be checked
+#' @param levels vector with levels the vector should have
+#' @returns boolean, TRUE when all values are inside levels, FALSE if there is a value which was not specified in levels
+check_character_levels <- function(vector, levels) {
+  all(vector %in% levels)
+}
+
+#' Checking for duplicates in case_id
+#' @param data data.frame, raw linelist of surveillance cases
+#' @returns data.frame with duplicated case_ids
 get_case_id_duplicates <- function(data) {
   data %>%
     dplyr::filter(duplicated(case_id))
-}
-
-check_week_year_duplicates <- function(data, strata = NULL) {
-  stopifnot(get_week_year_duplicates(data, strata) %>%
-    nrow() == 0)
-}
-
-get_week_year_duplicates <- function(data, strata = NULL) {
-  vars <- c(strata, "week", "year")
-
-  data %>%
-    dplyr::filter(duplicated(.[vars]))
 }
