@@ -18,10 +18,13 @@ mod_tabpanel_data_ui <- function(id) {
       shiny::sidebarPanel(
         # Input: Select a file ----
         shiny::fileInput(ns("file1"), "Choose CSV or Excel File",
-                  multiple = TRUE,
-                  accept = c(".xlsx",
-                             ".xls",
-                             ".csv")),
+          multiple = TRUE,
+          accept = c(
+            ".xlsx",
+            ".xls",
+            ".csv"
+          )
+        ),
       ),
 
       # Main panel for displaying outputs ----
@@ -33,8 +36,8 @@ mod_tabpanel_data_ui <- function(id) {
         div(
           style = "border: 2px solid black; padding: 10px;",
           htmlOutput(ns("errors"))
-        ),  # Display errors output
-        hr(),  # Horizontal line for visual separation
+        ), # Display errors output
+        hr(), # Horizontal line for visual separation
         h4("Columns in your dataset which were not checked for correctness and will not be used by the Signal Detection Tool"),
         span("In this section you receive feedback about columns which are not recognised by this tool. These can be columns which have a wrong column name as they do not match the predefined names in the SOP. Furthermore additional columns you provided in your dataset which we did not predefine are shown here."),
         hr(),
@@ -44,9 +47,11 @@ mod_tabpanel_data_ui <- function(id) {
         div(
           style = "border: 2px solid black; padding: 10px;",
           htmlOutput(ns("unused_vars"))
-        )
-          # Output: data file ----
-          #DT::dataTableOutput(ns("contents"))
+        ),
+        h3("Uploaded dataset"),
+        hr(),
+        # Output: Data file ----
+        DT::dataTableOutput(ns("contents"))
       )
     ),
     icon = icon("file")
@@ -54,6 +59,11 @@ mod_tabpanel_data_ui <- function(id) {
 }
 
 #' tabpanel "data" Server Functions
+#' Reading csv or Excel data
+#' Checking data for errors
+#' Preprocessing the data when no errors on mandatory variables present
+#' displaying the data
+#' @returns list of two reactive objects, data_processed reactive preprocessed dataset when no errors_detected() is FALSE otherwise raw dataset, errors_detected reactive boolean specifying whether errors in the mandatory variables where detected
 #'
 #' @noRd
 mod_tabpanel_data_server <- function(id) {
@@ -72,10 +82,9 @@ mod_tabpanel_data_server <- function(id) {
       req(input$file1)
       # check on the filetype
       ext <- tools::file_ext(input$file1$name)
-      validate(need(ext == "csv"|ext == "xlsx"|ext == "xls", "Please upload a csv, xlsx or xls file"))
+      validate(need(ext == "csv" | ext == "xlsx" | ext == "xls", "Please upload a csv, xlsx or xls file"))
       # read data
-      read_csv_or_excel(input$file1$name,input$file1$datapath)
-
+      read_csv_or_excel(input$file1$name, input$file1$datapath)
     })
 
     errors <- shiny::reactive({
@@ -87,39 +96,40 @@ mod_tabpanel_data_server <- function(id) {
       length(errors()) != 0
     })
 
+    # when there were no errors apply preprocessing to data
+    data_preprocessed <- shiny::reactive({
+      if (!errors_detected()) {
+        preprocess_data(data())
+      } else {
+        data()
+      }
+    })
+
     output$errors <- renderText({
-      if(!errors_detected()){
+      if (!errors_detected()) {
         "All columns with correct column name have the right type and values."
-      }else{
+      } else {
         format_html_list(errors())
       }
     })
     output$unused_vars <- renderText({
       # get additional variables
       unused_vars <- get_unused_variables(data())
-      if(length(unused_vars) == 0){
+      if (length(unused_vars) == 0) {
         "There are zero variables which are not recognised/known by the tool."
-      }
-      else{
+      } else {
         format_html_list(unused_vars)
       }
     })
 
     # data preview table ----
-    # output$contents <- DT::renderdataTable({
-    #   req(data_input)
-    #   data_input()
-    # })
+    output$contents <- DT::renderDataTable({
+      req(data)
+      data()
+    })
 
-    # Return a reactive data_input set from this server that can be passed
+    # Return a reactive preprocessed data from this server that can be passed
     # along to subsequent tab modules
-    return(list(data = data, errors_detected = errors_detected))
-
+    return(list(data = data_preprocessed, errors_detected = errors_detected))
   })
-
-  # data_out <- dplyr::filter(data_input(), subset == TRUE)
-
-
-
 }
-
