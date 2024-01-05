@@ -20,7 +20,7 @@ mod_tabpanel_signals_ui <- function(id) {
   }
 
 
-mod_tabpanel_signals_server <- function(id, data, strat_vars) {
+mod_tabpanel_signals_server <- function(id, data, strat_vars, errors_detected) {
   observe({
     req(data, strat_vars)
     })
@@ -45,6 +45,7 @@ mod_tabpanel_signals_server <- function(id, data, strat_vars) {
     output$timeseries <- plotly::renderPlotly({
       # shiny::renderPlot({
       req(data, strat_vars_tidy)
+      req(!errors_detected())
       results <- get_signals(data = data(),
                              method = "farrington",
                              stratification = strat_vars_tidy())
@@ -53,10 +54,12 @@ mod_tabpanel_signals_server <- function(id, data, strat_vars) {
     })
 
     output$age_group <- shiny::renderPlot({
+      req(!errors_detected())
       return(SignalDetectionTool::plot_agegroup_by(data()))
     })
 
     output$signals <- DT::renderDT({
+      req(!errors_detected())
       # shiny::renderTable({
       results <- SignalDetectionTool::get_signals(
         data(), stratification = strat_vars_tidy())

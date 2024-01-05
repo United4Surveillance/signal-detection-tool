@@ -28,9 +28,12 @@ mod_tabpanel_input_ui <- function(id) {
     icon = icon("viruses")
   )
 }
+#
 
-
-mod_tabpanel_input_server <- function(id, data, errors_detected) {
+#' @param id,input,output,session standard \code{shiny} boilerplate
+#' @param data reactive input dataset preprocessed if no errors
+#' @param errors_detected reactive boolean, when TRUE errors on mandatory variables where detected
+mod_tabpanel_input_server <- function(id, data, errors_detected){
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -58,6 +61,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     ## showing options in ui
     output$pathogen_choices <- shiny::renderUI({
+      req(!errors_detected())
       return(shiny::selectInput(inputId = ns("pathogen_vars"),
                                        label = "Choose pathogen:",
                                        choices = unique(data()$pathogen))
@@ -65,6 +69,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     })
 
     output$strat_choices <- shiny::renderUI({
+      req(!errors_detected())
       return(shiny::selectInput(inputId = ns("strat_vars"),
                                 label = "Parameters to stratify by:",
                                 choices = c("None",
