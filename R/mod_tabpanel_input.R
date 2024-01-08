@@ -106,6 +106,20 @@ mod_tabpanel_input_server <- function(id, indata) {
       print(c("input-strat_vars", input$strat_vars))
     })
 
+    # updating stratification choices, removing 'None' if any is chosen
+    shiny::observeEvent(input$strat_vars, {
+      Selected = input$strat_vars
+
+      if (length(Selected) > 1 & 'None' %in% Selected) {
+        Selected = Selected[Selected != 'None']
+      }
+
+      shiny::updateSelectInput(session = session,
+                               inputId = 'strat_vars',
+                               selected = Selected)
+
+    }, ignoreNULL = T)
+
     # Return list of subsetted data and parameters
     return(
       list(data = reactive({ dplyr::filter(data_sub(), subset == TRUE) }),
