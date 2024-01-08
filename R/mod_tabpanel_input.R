@@ -51,7 +51,7 @@ mod_tabpanel_input_server <- function(id, indata) {
                               min = min(indata()$date_report),
                               max = max(indata()$date_report),
                               weekstart = 1)
-             )
+      )
     })
     output$max_date_choice <- shiny::renderUI({
       return(shiny::dateInput(inputId = ns("max_date"), label = "Maximum date:",
@@ -59,7 +59,7 @@ mod_tabpanel_input_server <- function(id, indata) {
                               min = min(indata()$date_report),
                               max = max(indata()$date_report),
                               weekstart = 1)
-             )
+      )
     })
 
     data_sub <- shiny::reactive({
@@ -74,7 +74,6 @@ mod_tabpanel_input_server <- function(id, indata) {
                                                      input$max_date))
       }
 
-      print(head(dat))
 
       # add subset indicator for selected pathogens
       dat <- dplyr::mutate(dat,
@@ -82,8 +81,6 @@ mod_tabpanel_input_server <- function(id, indata) {
                              (pathogen %in% input$pathogen_vars))
       return(dat)
     })
-
-    shiny::observe({ print("input:"); print(head(data_sub())) })
 
     ## showing options in ui
     output$pathogen_choices <- shiny::renderUI({
@@ -97,28 +94,41 @@ mod_tabpanel_input_server <- function(id, indata) {
       return(shiny::selectInput(inputId = ns("strat_vars"),
                                 label = "Parameters to stratify by:",
                                 choices = c("None",
-                                            # "All", # not sensible?
                                             names(indata())),
-                                # needs robustness!!
                                 selected = "None",
                                 multiple = TRUE)
       )
-      print(c("input-strat_vars", input$strat_vars))
     })
+
+    # tracks the last selection made (starts as NULL)
+    last_selection <- shiny::reactiveValues(d = NULL)
 
     # updating stratification choices, removing 'None' if any is chosen
     shiny::observeEvent(input$strat_vars, {
       Selected = input$strat_vars
 
-      if (length(Selected) > 1 & 'None' %in% Selected) {
-        Selected = Selected[Selected != 'None']
+      # finding lastest selection change
+      new_selection <- setdiff(Selected, last_selection$d)
+
+      if (length(new_selection) > 0) {
+        # if lastest selection is 'None', only keep 'None'
+        if (new_selection == 'None') {
+          Selected = 'None'
+        # if latest selection is not 'None', keep everything except 'None'
+        } else {
+          Selected = Selected[Selected != 'None']
+        }
       }
 
+      # updating UI component
       shiny::updateSelectInput(session = session,
                                inputId = 'strat_vars',
                                selected = Selected)
 
-    }, ignoreNULL = T)
+      # updating last selection
+      last_selection$d <<- Selected
+
+    }, ignoreNULL = F)
 
     # Return list of subsetted data and parameters
     return(
