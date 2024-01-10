@@ -1,16 +1,44 @@
+#' Preprocessing of linelist surveillance data with or without outbreak_ids
+#' @param data data.frame, Linelist of surveillance data
+#' @returns data.frame, preprocessed linelist with transformation of columns to date, to lower, generation of isoyear and isoweek
 preprocess_data <- function(data) {
   # Convert the date columns to date format
+  yes_no_unknown_vars <- intersect(colnames(data), yes_no_unknown_variables())
+  # get all variables present in the data which might need transformation tolower
+  to_lower_vars <- intersect(colnames(data), c(yes_no_unknown_variables(), "sex"))
+  # get all regional stratification variables
+  regional_id_vars <- intersect(colnames(data), region_id_variable_names())
+
   data <- data %>%
-    dplyr::mutate(dplyr::across(dplyr::starts_with("date"), ~ as.Date(.x, optional = T)))
+    dplyr::mutate(dplyr::across(dplyr::starts_with("date"), ~ as.Date(.x, optional = T))) %>%
+    dplyr::mutate(dplyr::across(dplyr::all_of(to_lower_vars), ~ tolower(.x))) %>%
+    dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, ""))) %>%
+    dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, "unknown"))) %>%
+    dplyr::mutate(dplyr::across(dplyr::all_of(regional_id_vars), ~ as.character(.x)))
 
   # add columns for isoyear and isoweek for each date
   data <- data %>%
     dplyr::mutate(dplyr::across(dplyr::starts_with("date") & !dplyr::where(is.numeric),
-                                ~ surveillance::isoWeekYear(.x)$ISOYear,
-                                .names = "{.col}_year")) %>%
+      ~ surveillance::isoWeekYear(.x)$ISOYear,
+      .names = "{.col}_year"
+    )) %>%
     dplyr::mutate(dplyr::across(dplyr::starts_with("date") & !dplyr::where(is.numeric),
-                                ~ surveillance::isoWeekYear(.x)$ISOWeek,
-                                .names = "{.col}_week"))
+      ~ surveillance::isoWeekYear(.x)$ISOWeek,
+      .names = "{.col}_week"
+    ))
+
+  # age or age_group is mandatory thus we need to check whether column present in data
+  if ("age_group" %in% colnames(data)) {
+    data <- data %>%
+      dplyr::mutate(age_group = factor(age_group,
+        levels = stringr::str_sort(unique(data$age_group), numeric = TRUE)
+      ))
+  }
+  # sex is not mandatory
+  if ("sex" %in% colnames(data)) {
+    data <- data %>%
+      dplyr::mutate(sex = factor(sex))
+  }
 
   data
 }
@@ -24,18 +52,17 @@ preprocess_data <- function(data) {
 #' }
 aggregate_data <- function(data,
                            date_var = "date_report") {
-
-
-
-  week_var <- paste0(date_var,"_week")
-  year_var <- paste0(date_var,"_year")
+  week_var <- paste0(date_var, "_week")
+  year_var <- paste0(date_var, "_year")
 
   data %>%
-    dplyr::group_by(!!rlang::sym(week_var),!!rlang::sym(year_var)) %>%
+    dplyr::group_by(!!rlang::sym(week_var), !!rlang::sym(year_var)) %>%
     dplyr::summarize(cases = dplyr::n(), .groups = "drop") %>%
-    dplyr::select(week = !!rlang::sym(week_var),
-                  year = !!rlang::sym(year_var),
-                  .data$cases)
+    dplyr::select(
+      week = !!rlang::sym(week_var),
+      year = !!rlang::sym(year_var),
+      .data$cases
+    )
 }
 
 
@@ -52,11 +79,11 @@ aggregate_data <- function(data,
 convert_to_sts <- function(case_counts) {
   # create sts object
   return(surveillance::sts(case_counts$cases,
-                           start = c(
-                             case_counts$year[1],
-                             case_counts$week[1]
-                           ),
-                           frequency = 52
+    start = c(
+      case_counts$year[1],
+      case_counts$week[1]
+    ),
+    frequency = 52
   ))
 }
 
@@ -77,15 +104,16 @@ convert_to_sts <- function(case_counts) {
 #'
 #' @examples
 #' \dontrun{
-#' data <- data.frame(year = c(2021, 2022, 2022),
-#'                    week = c(1, 2, 4),
-#'                    cases = c(10, 15, 5))
+#' data <- data.frame(
+#'   year = c(2021, 2022, 2022),
+#'   week = c(1, 2, 4),
+#'   cases = c(10, 15, 5)
+#' )
 #' # updated_data <- add_rows_missing_dates(data, "2022-01-21", "2023-05-01")
 #' updated_data <- add_rows_missing_dates(data)
 #' updated_data
 #' }
-add_rows_missing_dates <- function(data, date_start=NULL, date_end=NULL) {
-
+add_rows_missing_dates <- function(data, date_start = NULL, date_end = NULL) {
   checkmate::assert(
     checkmate::check_subset("year", names(data)),
     checkmate::check_subset("week", names(data)),
@@ -105,15 +133,13 @@ add_rows_missing_dates <- function(data, date_start=NULL, date_end=NULL) {
 
   if (is.null(date_start)) {
     min_year_week <- min(data$year * 100 + data$week)
-  }
-  else{
+  } else {
     min_year_week <- lubridate::isoyear(date_start) * 100 +
       lubridate::isoweek(date_start)
   }
   if (is.null(date_end)) {
     max_year_week <- max(data$year * 100 + data$week)
-  }
-  else{
+  } else {
     max_year_week <- lubridate::isoyear(date_end) * 100 +
       lubridate::isoweek(date_end)
   }
@@ -122,7 +148,7 @@ add_rows_missing_dates <- function(data, date_start=NULL, date_end=NULL) {
   # Create a template data frame with all year-week combinations in specified
   # timeframe
   template <- expand.grid(
-    year = floor(min_year_week/100):floor(max_year_week/100),
+    year = floor(min_year_week / 100):floor(max_year_week / 100),
     week = 1:52
   )
 

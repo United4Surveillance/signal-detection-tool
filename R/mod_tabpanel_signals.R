@@ -29,15 +29,13 @@ mod_tabpanel_signals_ui <- function(id) {
   )
   }
 
+
 #' tabpanel "signals" Server Functions
 #'
 #' @noRd
-mod_tabpanel_signals_server <- function(id, indata, strat_vars) {
+mod_tabpanel_signals_server <- function(id, data, strat_vars, errors_detected) {
   observe({
-    req(indata, strat_vars)
-    print("signals-tab");
-    print(head(indata()))
-    print(paste(c("signals-tab strat_vars:", strat_vars())))
+    req(data, strat_vars)
     })
 
   shiny::moduleServer(id, function(input, output, session) {
@@ -49,9 +47,8 @@ mod_tabpanel_signals_server <- function(id, indata, strat_vars) {
       # Tidy up stratification vector
       if ("None" %in% strat_vars_chr) {strat_vars_chr <- NULL}
       # 'None' takes precedence over 'All'
-      else if ("All" %in% strat_vars_chr) {strat_vars_chr <- names(indata())}
+      else if ("All" %in% strat_vars_chr) {strat_vars_chr <- names(data())}
 
-      print(strat_vars_chr)
       return(strat_vars_chr)
     })
 
@@ -60,24 +57,25 @@ mod_tabpanel_signals_server <- function(id, indata, strat_vars) {
     ## TODO: apply over selected pathogens?
     output$timeseries <- plotly::renderPlotly({
       # shiny::renderPlot({
-      req(indata, strat_vars_tidy)
-      results <- get_signals(data = indata(),
+      req(data, strat_vars_tidy)
+      req(!errors_detected())
+      results <- get_signals(data = data(),
                              method = "farrington",
                              stratification = strat_vars_tidy())
-      print(results)
       return(SignalDetectionTool::plot_time_series(results,
                                                    interactive = TRUE))
     })
 
     output$age_group <- shiny::renderPlot({
-      return(SignalDetectionTool::plot_agegroup_by(indata()))
+      req(!errors_detected())
+      return(SignalDetectionTool::plot_agegroup_by(data()))
     })
 
     output$signals <- DT::renderDT({
+      req(!errors_detected())
       # shiny::renderTable({
-      print(c("strat_vars_tidy: ", strat_vars_tidy()))
       results <- SignalDetectionTool::get_signals(
-        indata(), stratification = strat_vars_tidy())
+        data(), stratification = strat_vars_tidy())
       return(create_results_table(results, interactive = TRUE))
       # FIXME: interactive mode not working here?
     })

@@ -162,10 +162,6 @@ get_signals_stratified <- function(data,
   # Initialize an empty list to store results per category
   category_results <- list()
 
-  # preprocess the data
-  data <- data %>%
-    preprocess_data()
-
   # get min and max date of the whole dataset before stratification
   # stratified aggregated data can be filled up with 0s until min and max date
   # of the full dataset
@@ -290,7 +286,6 @@ get_signals <- function(data,
   if (is.null(stratification)) {
     # preprocess and aggregated data
     data_agg <- data %>%
-      preprocess_data() %>%
       aggregate_data(date_var = date_var) %>%
       add_rows_missing_dates(date_start, date_end)
 
