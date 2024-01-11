@@ -2,8 +2,6 @@
 |------------------------|-----------|---------------------------------------------------|
 | case_id	             | YES | Unique identifier for a specific case, but nothing that can be used to identify the case or patient within the national surveillance system  |
 | date_report	           | YES | Date when the case was reported in ISO 8601 format YYYY-MM-DD  |
-| year_report 	           | NO  | Year of reporting date, only necessary when using weekly format and date_report is not provided   |
-| week_report  	           | NO  | Epiweek of reporting date, only necessary when using weekly format and date_report is not provided    |
 | date_onset	           | NO  | Date when symptoms started in ISO 8601 format YYYY-MM-DD |
 | date_hospitalization	 | NO  | Date when the case was admitted to the hospital in ISO 8601 format YYYY-MM-DD |
 | date_death	           | NO  |  Date when the case died in ISO 8601 format YYYY-MM-DD |
@@ -35,5 +33,3 @@
 | hospitalization	       | NO | Indication whether the case was hospitalized, yes, no or unknown  |
 | death                  | NO | Indication whether the case has died, yes, no or unknown |
 | vaccination	           | NO | Indication whether the case was vaccinated before infection, yes, no or unknown |
-| outbreak_status 	           | YES  | Indication whether the case is known to be part of an outbreak, yes, no, unknown  |
-| outbreak_id  	           | NO   | Unique identifier for the specific outbreak to which the specific case belongs to, but nothing that can be used to identify the case or patient or outbreak within the national surveillance system   |
