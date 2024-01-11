@@ -37,34 +37,37 @@ mod_tabpanel_input_ui <- function(id) {
   )
 }
 
-#' tabpanel "input" Server Functions
-#'
-#' @noRd
-mod_tabpanel_input_server <- function(id, indata) {
+
+
+#' @param id,input,output,session standard \code{shiny} boilerplate
+#' @param data reactive input dataset preprocessed if no errors
+#' @param errors_detected reactive boolean, when TRUE errors on mandatory variables where detected
+mod_tabpanel_input_server <- function(id, data, errors_detected){
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
     # date uiOutputs default choices from data
     output$min_date_choice <- shiny::renderUI({
       return(shiny::dateInput(inputId = ns("min_date"), label = "Minimum date:",
-                              value = min(indata()$date_report),
-                              min = min(indata()$date_report),
-                              max = max(indata()$date_report),
+                              value = min(data()$date_report),
+                              min = min(data()$date_report),
+                              max = max(data()$date_report),
                               weekstart = 1)
       )
     })
     output$max_date_choice <- shiny::renderUI({
       return(shiny::dateInput(inputId = ns("max_date"), label = "Maximum date:",
-                              value = max(indata()$date_report),
-                              min = min(indata()$date_report),
-                              max = max(indata()$date_report),
+                              value = max(data()$date_report),
+                              min = min(data()$date_report),
+                              max = max(data()$date_report),
                               weekstart = 1)
       )
     })
 
     data_sub <- shiny::reactive({
-      req(indata)
-      dat <- indata()
+      req(data)
+      req(!errors_detected())
+      dat <- data()
       # data range limit or pick everything
       dat <- dplyr::mutate(dat, subset = TRUE)
       if (input$dates_bin) {
@@ -73,7 +76,6 @@ mod_tabpanel_input_server <- function(id, indata) {
                                                      input$min_date,
                                                      input$max_date))
       }
-
 
       # add subset indicator for selected pathogens
       dat <- dplyr::mutate(dat,
@@ -84,17 +86,20 @@ mod_tabpanel_input_server <- function(id, indata) {
 
     ## showing options in ui
     output$pathogen_choices <- shiny::renderUI({
+      req(!errors_detected())
       return(shiny::selectInput(inputId = ns("pathogen_vars"),
-                                label = "Choose pathogen:",
-                                choices = unique(indata()$pathogen))
-      )
+                                       label = "Choose pathogen:",
+                                       choices = unique(data()$pathogen))
+             )
+
     })
 
     output$strat_choices <- shiny::renderUI({
+      req(!errors_detected())
       return(shiny::selectInput(inputId = ns("strat_vars"),
                                 label = "Parameters to stratify by:",
                                 choices = c("None",
-                                            names(indata())),
+                                            names(data())),
                                 selected = "None",
                                 multiple = TRUE)
       )
