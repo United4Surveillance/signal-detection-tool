@@ -49,17 +49,17 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
     # date uiOutputs default choices from data
     output$min_date_choice <- shiny::renderUI({
       return(shiny::dateInput(inputId = ns("min_date"), label = "Minimum date:",
-                              value = min(indata()$date_report),
-                              min = min(indata()$date_report),
-                              max = max(indata()$date_report),
+                              value = min(data()$date_report),
+                              min = min(data()$date_report),
+                              max = max(data()$date_report),
                               weekstart = 1)
              )
     })
     output$max_date_choice <- shiny::renderUI({
       return(shiny::dateInput(inputId = ns("max_date"), label = "Maximum date:",
-                              value = max(indata()$date_report),
-                              min = min(indata()$date_report),
-                              max = max(indata()$date_report),
+                              value = max(data()$date_report),
+                              min = min(data()$date_report),
+                              max = max(data()$date_report),
                               weekstart = 1)
              )
     })
