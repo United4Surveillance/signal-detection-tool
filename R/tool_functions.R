@@ -36,7 +36,7 @@ find_age_group <- function(age, x) {
   }
 }
 
-#' Creates age grouping variable for a given data set
+#' Creates age grouping factorized variable for a given data set
 #' @param df data frame on which the age grouping is created
 #' @param break_at integer that controls the length of the age groups
 #'
@@ -51,53 +51,56 @@ find_age_group <- function(age, x) {
 #' age_groups(data, c(15L, 35L, 65L, 100L)) # custom age groups
 #' }
 age_groups <- function(df, break_at = NULL) {
-  # error checking ----------------------------------------------------------
+  # check whether age_groups already exist
+  if (!("age_group" %in% colnames(df))) {
+    # if age_group doesn't exist, create it from age
+      # error checking ---------------------------------------------------------
 
-  if (!is.null(break_at)) { # check for non integer values
-    if (!(is.integer(break_at))) {
-      stop("Input of integer type is only allowed")
-    }
+    if (!is.null(break_at)) { # check for non integer values
+      if (!(is.integer(break_at))) {
+        stop("Input of integer type is only allowed")
+      }
 
-    var <- length(break_at) # helper vector
-    for (i in 1:(var - 1)) { # check if break points are ordered
-      if (break_at[i + 1] < break_at[i]) {
-        stop("Invalid break points")
+      var <- length(break_at) # helper vector
+      for (i in 1:(var - 1)) { # check if break points are ordered
+        if (break_at[i + 1] < break_at[i]) {
+          stop("Invalid break points")
+        }
       }
     }
-  }
 
-  # setting up age groups ---------------------------------------------------
+    # setting up age groups ----------------------------------------------------
 
-  default_break_at <- seq(5, 125, 5)
+    default_break_at <- seq(5, 125, 5)
 
-  if (is.null(break_at)) { # use default age groups
-    set <- c(0, default_break_at) # helper vector
-  } else { # use custom age groups
-    set <- c(0, break_at)
-  }
-
-  # assigning age group  ----------------------------------------------------
-
-  for (i in 1:nrow(df)) { # assign age group to every age in data frame
-
-    if (is.integer(df$age) != TRUE) { # check for integer
-      stop("Type of age is not integer")
+    if (is.null(break_at)) { # use default age groups
+      set <- c(0, default_break_at) # helper vector
+    } else { # use custom age groups
+      set <- c(0, break_at)
     }
-    df$age_group[i] <- find_age_group(df$age[i], set)
+
+    # assigning age group  -----------------------------------------------------
+
+    for (i in 1:nrow(df)) { # assign age group to every age in data frame
+
+      if (is.integer(df$age) != TRUE) { # check for integer
+        stop("Type of age is not integer")
+      }
+      df$age_group[i] <- find_age_group(df$age[i], set)
+    }
+
+    # move age_group to correct position
+    df <- df %>% dplyr::relocate(age_group, .after = age)
   }
 
-  # converting age_group to factor ------------------------------------------
-
-  # extract the lower values of age groups
-  lower_values <- gsub("-.*", "", df$age_group)
-  lower_values <- as.numeric(lower_values)
-
-  # order the age groups based on the lower values
-  ordered_groups <- df$age_group[order(lower_values)]
-
-  df$age_group <- factor(df$age_group, levels = unique(ordered_groups))
+  # converting age_group to factor ---------------------------------------------
+  df$age_group <- factor(df$age_group,
+                         levels = stringr::str_sort(unique(df$age_group), numeric = TRUE)
+                         )
   return(df)
 }
+
+
 
 #' Get Signals Stratified
 #'
