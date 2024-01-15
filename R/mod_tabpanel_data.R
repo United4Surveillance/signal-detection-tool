@@ -124,8 +124,14 @@ mod_tabpanel_data_server <- function(id) {
 
     # data preview table ----
     output$contents <- DT::renderDataTable({
-      req(data)
-      data()
+      req(errors_detected)
+      if (!errors_detected()) {
+        req(data_preprocessed)
+        data_preprocessed()
+      } else {
+        req(data)
+        data()
+      }
     })
 
     # Return a reactive preprocessed data from this server that can be passed
