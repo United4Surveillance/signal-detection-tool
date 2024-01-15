@@ -308,7 +308,7 @@ check_any_age <- function(data_columns) {
 #' @param data data.frame, raw linelist of surveillance cases
 #' @returns vector with all column names which are not part of the defined input data variables
 get_unused_variables <- function(data) {
-  setdiff(colnames(data), input_metadata$Variable)
+  setdiff(colnames(data), SignalDetectionTool::input_metadata$Variable)
 }
 
 #' check whether there is a completely empty row in provided surveillance data
