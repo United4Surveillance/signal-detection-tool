@@ -12,22 +12,18 @@ mod_tabpanel_signals_ui <- function(id) {
   ns <- shiny::NS(id)
 
   shiny::tabPanel(
-    "Signals"
-    ,shiny::h3("Plot of timeseries")
-    # ,shiny::plotOutput(ns("timeseries"))
-    ,plotly::plotlyOutput(ns("timeseries"))
-
-    ,shiny::br()
-    ,shiny::h3("Plot of age group")
-    ,shiny::plotOutput(ns("age_group"))
-
-    ,shiny::br()
-    ,shiny::h3("Signal detection table")
-    # ,shiny::tableOutput(ns("signals"))
-    ,DT::DTOutput(ns("signals"))
-    ,icon = shiny::icon("wave-square")
+    "Signals",
+    mod_plot_time_series_ui(ns("timeseries")),
+    shiny::br(),
+    shiny::h3("Plot of age group"),
+    shiny::plotOutput(ns("age_group")),
+    shiny::br(),
+    shiny::h3("Signal detection table"),
+    # shiny::tableOutput(ns("signals")),
+    DT::DTOutput(ns("signals")),
+    icon = shiny::icon("wave-square")
   )
-  }
+}
 
 
 #' tabpanel "signals" Server Functions
@@ -55,16 +51,9 @@ mod_tabpanel_signals_server <- function(id, data, strat_vars, errors_detected) {
 
     ## TODO: interactive 'yes/no'-button and weeks slider?
     ## TODO: apply over selected pathogens?
-    output$timeseries <- plotly::renderPlotly({
-      # shiny::renderPlot({
-      req(data, strat_vars_tidy)
-      req(!errors_detected())
-      results <- get_signals(data = data(),
-                             method = "farrington",
-                             stratification = strat_vars_tidy())
-      return(SignalDetectionTool::plot_time_series(results,
-                                                   interactive = TRUE))
-    })
+    mod_plot_time_series_server("timeseries",
+                                indata = data,
+                                strat_vars = strat_vars_tidy)
 
     output$age_group <- shiny::renderPlot({
       req(!errors_detected())

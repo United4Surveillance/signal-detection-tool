@@ -38,7 +38,7 @@ mod_tabpanel_input_ui <- function(id) {
 }
 
 
-
+#' tabpanel "input" Server Functions
 #' @param id,input,output,session standard \code{shiny} boilerplate
 #' @param data reactive input dataset preprocessed if no errors
 #' @param errors_detected reactive boolean, when TRUE errors on mandatory variables where detected
