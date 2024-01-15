@@ -26,9 +26,11 @@ updated data frame.
 }
 \examples{
 \dontrun{
-data <- data.frame(year = c(2021, 2022, 2022),
-                   week = c(1, 2, 4),
-                   cases = c(10, 15, 5))
+data <- data.frame(
+  year = c(2021, 2022, 2022),
+  week = c(1, 2, 4),
+  cases = c(10, 15, 5)
+)
 # updated_data <- add_rows_missing_dates(data, "2022-01-21", "2023-05-01")
 updated_data <- add_rows_missing_dates(data)
 updated_data

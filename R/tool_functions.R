@@ -162,10 +162,6 @@ get_signals_stratified <- function(data,
   # Initialize an empty list to store results per category
   category_results <- list()
 
-  # preprocess the data
-  data <- data %>%
-    preprocess_data()
-
   # get min and max date of the whole dataset before stratification
   # stratified aggregated data can be filled up with 0s until min and max date
   # of the full dataset
@@ -252,8 +248,8 @@ get_signals <- function(data,
                         number_of_weeks = 52) {
   # check that input method and stratification are correct
   checkmate::assert(
-    checkmate::check_choice(method, choices = c("farrington","aeddo","ears"))
-  )
+    checkmate::check_choice(method, choices = c("farrington","aeddo","ears","cusum")))
+
   checkmate::assert(
     checkmate::check_null(stratification),
     checkmate::check_vector(stratification),
@@ -283,12 +279,13 @@ get_signals <- function(data,
     fun <- get_signals_aeddo
   } else if (method == "ears"){
     fun <- get_signals_ears
+  } else if (method == "cusum"){
+    fun <- get_signals_cusum
   }
 
   if (is.null(stratification)) {
     # preprocess and aggregated data
     data_agg <- data %>%
-      preprocess_data() %>%
       aggregate_data(date_var = date_var) %>%
       add_rows_missing_dates(date_start, date_end)
 

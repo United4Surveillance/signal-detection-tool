@@ -1,3 +1,12 @@
+#' tabpanel "input" UI Function
+#'
+#' @description A shiny Module for a tab to select input parameters for analyses in the shiny app.
+#'
+#' @param id Internal parameter for {shiny}, ensuring namespace coherency in sessions.
+#'
+#' @noRd
+#'
+#' @importFrom shiny NS tagList
 mod_tabpanel_input_ui <- function(id) {
   ns <- shiny::NS(id)
 
@@ -10,10 +19,9 @@ mod_tabpanel_input_ui <- function(id) {
     # Input: Specify dates?
     shiny::checkboxInput(ns("dates_bin"), "Limit date interval"),
     # Input: Select minimum date
-    shiny::dateInput(ns("min_date"), "Minimum date:",
-                     value = "2023-01-01"),
+    shiny::uiOutput(ns("min_date_choice")),
     # Input: Select maximum date
-    shiny::dateInput(ns("max_date"), "Maximum date:"),
+    shiny::uiOutput(ns("max_date_choice")),
 
     h2("Choose which pathogen in the dataset to check for aberrations"),
     br(),
@@ -30,13 +38,36 @@ mod_tabpanel_input_ui <- function(id) {
 }
 
 
-mod_tabpanel_input_server <- function(id, indata) {
+
+#' @param id,input,output,session standard \code{shiny} boilerplate
+#' @param data reactive input dataset preprocessed if no errors
+#' @param errors_detected reactive boolean, when TRUE errors on mandatory variables where detected
+mod_tabpanel_input_server <- function(id, data, errors_detected){
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
+    # date uiOutputs default choices from data
+    output$min_date_choice <- shiny::renderUI({
+      return(shiny::dateInput(inputId = ns("min_date"), label = "Minimum date:",
+                              value = min(data()$date_report),
+                              min = min(data()$date_report),
+                              max = max(data()$date_report),
+                              weekstart = 1)
+             )
+    })
+    output$max_date_choice <- shiny::renderUI({
+      return(shiny::dateInput(inputId = ns("max_date"), label = "Maximum date:",
+                              value = max(data()$date_report),
+                              min = min(data()$date_report),
+                              max = max(data()$date_report),
+                              weekstart = 1)
+             )
+    })
+
     data_sub <- shiny::reactive({
-      req(indata)
-      dat <- indata()
+      req(data)
+      req(!errors_detected())
+      dat <- data()
       # data range limit or pick everything
       dat <- dplyr::mutate(dat, subset = TRUE)
       if (input$dates_bin) {
@@ -45,8 +76,6 @@ mod_tabpanel_input_server <- function(id, indata) {
                                                      input$min_date,
                                                      input$max_date))
       }
-
-      print(head(dat))
 
       # add subset indicator for selected pathogens
       dat <- dplyr::mutate(dat,
@@ -59,30 +88,34 @@ mod_tabpanel_input_server <- function(id, indata) {
 
     ## showing options in ui
     output$pathogen_choices <- shiny::renderUI({
+      req(!errors_detected())
       return(shiny::selectInput(inputId = ns("pathogen_vars"),
                                        label = "Choose pathogen:",
-                                       choices = unique(indata()$pathogen))
+                                       choices = unique(data()$pathogen))
              )
+
     })
 
     output$strat_choices <- shiny::renderUI({
+      req(!errors_detected())
       return(shiny::selectInput(inputId = ns("strat_vars"),
                                 label = "Parameters to stratify by:",
                                 choices = c("None",
                                             # "All", # not sensible?
-                                            names(indata())),
+                                            names(data())),
                                 # needs robustness!!
                                 selected = "None",
                                 multiple = TRUE)
-             )
+      )
       print(c("input-strat_vars", input$strat_vars))
     })
 
     # Return list of subsetted data and parameters
     return(
       list(data = reactive({ dplyr::filter(data_sub(), subset == TRUE) }),
-           strat_vars = reactive({ input$strat_vars }))
-      )
+           strat_vars = reactive({ input$strat_vars }),
+           pathogen_vars = reactive({ input$pathogen_vars }))
+    )
 
   })
 
