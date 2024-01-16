@@ -2,7 +2,7 @@
 % Please edit documentation in R/tool_functions.R
 \name{age_groups}
 \alias{age_groups}
-\title{Creates age grouping variable for a given data set}
+\title{Creates age grouping factorized variable for a given data set}
 \usage{
 age_groups(df, break_at = NULL)
 }
@@ -12,7 +12,7 @@ age_groups(df, break_at = NULL)
 \item{break_at}{integer that controls the length of the age groups}
 }
 \description{
-Creates age grouping variable for a given data set
+Creates age grouping factorized variable for a given data set
 }
 \examples{
 \dontrun{
