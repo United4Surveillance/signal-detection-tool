@@ -18,16 +18,13 @@ mod_plot_time_series_ui <- function(id) {
 #' time_series_plot Server Functions
 #'
 #' @noRd
-mod_plot_time_series_server <- function(id, indata, strat_vars) {
+mod_plot_time_series_server <- function(id, signals) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
     output$timeseries_plot <- plotly::renderPlotly({
-      shiny::req(indata, strat_vars)
-      results <- get_signals(data = indata(),
-                             method = "farrington",
-                             stratification = strat_vars())
-      SignalDetectionTool::plot_time_series(results, interactive = TRUE)
+      shiny::req(signals())
+      SignalDetectionTool::plot_time_series(signals(), interactive = TRUE)
     })
   })
 }
