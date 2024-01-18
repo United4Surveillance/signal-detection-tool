@@ -28,6 +28,16 @@ mod_tabpanel_input_ui <- function(id) {
 
     shiny::uiOutput(ns("pathogen_choices")),
 
+    h2("Filter dataset"),
+    br(),
+    shiny::div(
+      id = "filter_ui",
+      shiny::uiOutput(ns("filter_variables")),
+      shiny::uiOutput(ns("filter_values")),
+    ),
+    tags$style(shiny::HTML("#input-filter_variables{display:inline-block}")),
+    tags$style(shiny::HTML("#input-filter_values{display:inline-block}")),
+
     h2("Choose stratification parameters"),
     br(),
 
@@ -53,7 +63,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
                               min = min(data()$date_report),
                               max = max(data()$date_report),
                               weekstart = 1)
-             )
+      )
     })
     output$max_date_choice <- shiny::renderUI({
       return(shiny::dateInput(inputId = ns("max_date"), label = "Maximum date:",
@@ -61,7 +71,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
                               min = min(data()$date_report),
                               max = max(data()$date_report),
                               weekstart = 1)
-             )
+      )
     })
 
     data_sub <- shiny::reactive({
@@ -84,16 +94,75 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
       return(dat)
     })
 
-    shiny::observe({ print("input:"); print(head(data_sub())) })
+    # shiny::observe({ print("input:"); print(head(data_sub())) })
 
     ## showing options in ui
     output$pathogen_choices <- shiny::renderUI({
       req(!errors_detected())
       return(shiny::selectInput(inputId = ns("pathogen_vars"),
-                                       label = "Choose pathogen:",
-                                       choices = unique(data()$pathogen))
-             )
+                                label = "Choose pathogen:",
+                                choices = unique(data()$pathogen))
+      )
 
+    })
+
+
+    # filter ui
+    filter_var_opts <- shiny::reactive({
+      shiny::req(data_sub)
+      shiny::req(!errors_detected())
+      available_vars <- intersect(c("state",
+                                    "county",
+                                    "regional_level1",
+                                    "regional_level2",
+                                    "regional_level3",
+                                    "subtype",
+                                    "age_group",
+                                    "sex"),
+                                  names(data_sub())) %>%
+        sort()
+      available_vars
+    })
+
+    output$filter_variables <- shiny::renderUI({
+      shiny::req(!errors_detected())
+      shiny::req(filter_var_opts)
+      shiny::selectInput(inputId = ns("filter_variable"),
+                         multiple = FALSE,
+                         label = "Choose variable to filter",
+                         selected = "None",
+                         choices = c("None", filter_var_opts()))
+    })
+
+    output$filter_values <- shiny::renderUI({
+      shiny::req(!errors_detected())
+      shiny::req(input$filter_variable != "None")
+
+      # keep level ordering if factor
+      if (class(data_sub()[[input$filter_variable]]) == "factor") {
+        filter_choices <- levels(data()[[input$filter_variable]])
+      } else {
+        filter_choices <- data_sub() %>%
+          dplyr::pull(input$filter_variable) %>%
+          unique()
+      }
+
+      shiny::selectInput(
+        inputId = ns("filter_values"),
+        multiple = TRUE,
+        label = "Choose values to filter for",
+        choices = filter_choices
+      )
+
+    })
+
+    filtered_data <- shiny::reactive({
+      shiny::req(input$filter_variable != "None")
+      shiny::req(input$filter_values)
+
+      df <- data_sub() %>%
+        dplyr::filter(!!rlang::sym(input$filter_variable) %in% input$filter_values)
+      df
     })
 
     output$strat_choices <- shiny::renderUI({
@@ -112,7 +181,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
 
     # Return list of subsetted data and parameters
     return(
-      list(data = reactive({ dplyr::filter(data_sub(), subset == TRUE) }),
+      list(data = reactive({ dplyr::filter(filtered_data(), subset == TRUE) }),
            strat_vars = reactive({ input$strat_vars }),
            pathogen_vars = reactive({ input$pathogen_vars }))
     )
