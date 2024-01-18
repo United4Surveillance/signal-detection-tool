@@ -92,10 +92,6 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
                            subset = subset &
                              (pathogen %in% input$pathogen_vars))
 
-      row_sample <- sample(1:nrow(dat), 50)
-      dat[row_sample, "state"] <- NA_character_
-      print(head(dat[row_sample, ]))
-
       return(dat)
     })
 
