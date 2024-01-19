@@ -21,11 +21,11 @@ find_age_group <- function(age, x) {
     if ((x[i] <= age) & (age < x[i + 1])) {
       if (age < 10 | x[i] < 10) { # zero padding
         group <- paste(paste0(0, x[i]),
-          ifelse(x[i + 1] - 1 < 10,
-            paste0(0, x[i + 1] - 1),
-            x[i + 1] - 1
-          ),
-          sep = "-"
+                       ifelse(x[i + 1] - 1 < 10,
+                              paste0(0, x[i + 1] - 1),
+                              x[i + 1] - 1
+                       ),
+                       sep = "-"
         )
         return(group)
       } else {
@@ -34,6 +34,117 @@ find_age_group <- function(age, x) {
       }
     }
   }
+}
+
+#' Age Group Format Check and Adjustment
+#'
+#' This function checks whether the 'age_group' column in the given data frame
+#' follows the format "xx-xx" and adjusts it if necessary.
+#' If the format is not as desired, it modifies the entries to comply with the specified format.
+#'
+#' @param df A data frame containing an 'age_group' column.
+#'
+#' @return A modified data frame with the 'age_group' column adjusted for the desired format.
+#'
+#' @examples
+#' \dontrun{
+#' # Example usage:
+#' data_frame <- data.frame(age_group = c("01-05", "6-10", "11-15", "16-20"))
+#' adjusted_data <- agegrp_format_check(data_frame)
+#' print(adjusted_data)
+#' }
+#'
+#' @importFrom stringr str_starts str_split_fixed
+agegrp_format_check <- function(df) {
+  # checking whether format is as wanted as xx-xx
+  # if not okay, change to comply with format
+  # regex checking if there are any with 2 or more digits, followed by a hyphen or a '+'
+  if (any(stringr::str_starts(df$age_group, "[:digit:]{2,}[\\-\\+]") == FALSE)) {
+    splits <- stringr::str_split_fixed(as.character(df$age_group),"[\\+\\-]", 2)
+
+    for (i in 1:length(df$age_group)) {
+      # adding leading zeros on <10 ages
+      if (as.numeric(splits[i,1]) < 10 & as.numeric(splits[i,2]) < 10) {
+        df$age_group[i] <- paste0(sprintf("%02d",as.numeric(splits[i,1])),
+                                  "-",
+                                  sprintf("%02d",as.numeric(splits[i,2]))
+        )
+      }
+    }
+  }
+
+  return(df)
+}
+
+#' Complete Age Group List
+#'
+#' This function takes a data frame containing an 'age_group' column,
+#' finds a non-NULL example age group, and generates a complete list of age
+#' groups based on the gap between the lower and upper bounds.
+#' It is particularly useful for completing missing age groups in datasets.
+#'
+#' @param df A data frame containing an 'age_group' column.
+#'
+#' @return A character vector representing the complete age group array.
+#'
+#' @examples
+#' \dontrun{
+#' # Example usage:
+#' data_frame <- data.frame(age_group = c("01-05", "06-10", "11-15", "16-20"))
+#' complete_list <- complete_agegrp_list(data_frame)
+#' print(complete_list)
+#' }
+#'
+#' @importFrom stringr str_split_1
+#' @importFrom plyr round_any
+complete_agegrp_list <- function(df) {
+  # setting binary variable to false
+  symbols_bin <- FALSE
+
+  # find an example of an age group that is not NULL
+  tmp_agegrp <- df$age_group[!is.null(df$age_group) & !grepl("[\\+]",df$age_group)][1]
+
+  # get the lower and upper of the age group gap and find the range
+  lower_split <- as.numeric(stringr::str_split_1(as.character(tmp_agegrp),"-")[1])
+  upper_split <- as.numeric(stringr::str_split_1(as.character(tmp_agegrp),"-")[2])
+  split_range <- plyr::round_any(upper_split - lower_split, accuracy = 5)
+
+  # find the maximum age in relation to the age group gap
+  max_data_rounded <- plyr::round_any(x = max(df$age),
+                                      accuracy = split_range,
+                                      f = ceiling)
+
+  # make sequences
+  seq_lower <- seq(0,max_data_rounded,split_range)
+  seq_upper <- (seq_lower-1)[-1]
+
+  # ensuring whether + has been used, e.g. 80-89, 90+
+  if (any(grepl("[\\+]", df$age_group)==TRUE)) {
+    # set binary variable that symbol is in use
+    symbols_bin <- TRUE
+
+    # find the maximum agegroup
+    splitted_agegroup <- stringr::str_split_fixed(string = unique(df$age_group),
+                                                  pattern = "[\\+\\-]",
+                                                  n = 2)
+    max_number <- as.numeric(splitted_agegroup[which(splitted_agegroup[,2] == "")][1])
+  }
+
+  # combine to create the complete age group array
+  # adding leading zeros on <10 ages
+  all_agegrps <- paste0(sprintf("%02d",seq_lower[-length(seq_lower)]),
+                        "-",
+                        sprintf("%02d",seq_upper))
+
+  if (symbols_bin) {
+    # locate max_number in agegrps and replace it with "max_number+"
+    all_agegrps[grep(x = all_agegrps, pattern = max_number)] <- paste0(max_number,"+")
+
+    # remove any items after +-symbol
+    all_agegrps <- all_agegrps[1:grep(x = all_agegrps, pattern = "[\\+]")]
+  }
+
+  return(all_agegrps)
 }
 
 #' Creates age grouping factorized variable for a given data set
@@ -54,7 +165,7 @@ age_groups <- function(df, break_at = NULL) {
   # check whether age_groups already exist
   if (!("age_group" %in% colnames(df))) {
     # if age_group doesn't exist, create it from age
-      # error checking ---------------------------------------------------------
+    # error checking ---------------------------------------------------------
 
     if (!is.null(break_at)) { # check for non integer values
       if (!(is.integer(break_at))) {
@@ -93,10 +204,17 @@ age_groups <- function(df, break_at = NULL) {
     df <- df %>% dplyr::relocate(age_group, .after = age)
   }
 
+  # # ensure age_group format with xx-xx format demand
+  df <- agegrp_format_check(df)
+
+  # get the complete list of agegroups
+  all_agegroups <- complete_agegrp_list(df)
+
   # converting age_group to factor ---------------------------------------------
   df$age_group <- factor(df$age_group,
-                         levels = stringr::str_sort(unique(df$age_group), numeric = TRUE)
-                         )
+                         levels = stringr::str_sort(all_agegroups, numeric = TRUE)
+  )
+
   return(df)
 }
 
@@ -425,9 +543,9 @@ conjure_filename <- function(data) {
   # resulting filename will be
   # signals_method_country_pathogen_date-start_date-end.csv
   filename <- paste("signals", data[1, "method"], data[1, "country"],
-    data[1, "pathogen"],
-    min(data$date), max(data$date), ".csv",
-    sep = "_"
+                    data[1, "pathogen"],
+                    min(data$date), max(data$date), ".csv",
+                    sep = "_"
   )
 
   return(paste(directory, filename, sep = "/"))
