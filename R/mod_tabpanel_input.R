@@ -30,13 +30,10 @@ mod_tabpanel_input_ui <- function(id) {
 
     h2("Filter dataset"),
     br(),
-    shiny::div(
-      id = "filter_ui",
-      shiny::uiOutput(ns("filter_variables")),
-      shiny::uiOutput(ns("filter_values")),
-    ),
-    tags$style(shiny::HTML("#input-filter_variables{display:inline-block}")),
-    tags$style(shiny::HTML("#input-filter_values{display:inline-block}")),
+    shiny::uiOutput(ns("filter_variables")),
+    shiny::uiOutput(ns("filter_values")),
+    tags$style(shiny::HTML(paste0("#", id, "-filter_variables{display:inline-block}"))),
+    tags$style(shiny::HTML(paste0("#", id, "-filter_values{display:inline-block}"))),
 
     h2("Choose stratification parameters"),
     br(),
