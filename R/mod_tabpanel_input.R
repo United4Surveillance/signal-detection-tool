@@ -117,24 +117,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
     output$strat_choices <- shiny::renderUI({
       req(!errors_detected())
 
-      shiny::selectInput(inputId = ns("strat_vars"),
-                         label = "Parameters to stratify by:",
-                         choices = c("None",
-                                     strata_var_opts()),
-                         selected = "None",
-                         multiple = TRUE)
-    })
-
-    shiny::observeEvent(input$strat_vars, {
-      n_strat_vars <- length(input$strat_vars)
-      if (n_strat_vars > 3) {
-        shiny::updateSelectInput(
-          inputId = "strat_vars",
-          label = "Parameters to stratify by:",
-          choices = c("None",
-                      strata_var_opts()),
-          selected = tail(input$strat_vars, 3))
-      }
+      shiny::selectizeInput(inputId = ns("strat_vars"),
+                            label = "Parameters to stratify by:",
+                            choices = c("None",
+                                        strata_var_opts()),
+                            selected = "None",
+                            multiple = TRUE,
+                            options = list(maxItems = 3))
     })
 
     # Return list of subsetted data and parameters
