@@ -59,7 +59,8 @@ mod_tabpanel_signals_server <- function(
         date_var = "date_report",
         number_of_weeks = number_of_weeks()
       ) %>%
-        tail(., number_of_weeks())
+        dplyr::filter(!is.na(alarms))
+
       results
     })
 
@@ -67,13 +68,15 @@ mod_tabpanel_signals_server <- function(
       shiny::req(!errors_detected())
       shiny::req(signal_results())
       weeks <- paste0(signal_results()$year, "-", signal_results()$week, "-1") %>%
-        as.Date("%Y-%W-%u")
+        as.Date("%Y-%W-%u") %>%
+        unique() %>%
+        sort()
+
       dates <- seq(weeks[1], weeks[length(weeks)], by = "day")
       data_n_weeks <- data() %>%
         dplyr::filter(date_report %in% dates) # this has to use the same variable as in get_signals()
       data_n_weeks
     })
-
 
 
     ## TODO: interactive 'yes/no'-button and weeks slider?
@@ -85,7 +88,7 @@ mod_tabpanel_signals_server <- function(
     output$age_group <- plotly::renderPlotly({
       req(!errors_detected())
       SignalDetectionTool::plot_agegroup_by(signal_data(),
-                                            by_col = "sex",
+                                            by_col = strat_vars_tidy()[1],
                                             interactive = TRUE)
     })
 
