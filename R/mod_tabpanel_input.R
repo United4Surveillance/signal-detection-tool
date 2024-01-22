@@ -28,7 +28,7 @@ mod_tabpanel_input_ui <- function(id) {
 
     shiny::uiOutput(ns("pathogen_choices")),
 
-    h2("Choose stratification parameters"),
+    h2("Choose stratification parameters (max. 3)"),
     br(),
 
     shiny::uiOutput(ns("strat_choices")),
@@ -53,7 +53,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
                               min = min(data()$date_report),
                               max = max(data()$date_report),
                               weekstart = 1)
-             )
+      )
     })
     output$max_date_choice <- shiny::renderUI({
       return(shiny::dateInput(inputId = ns("max_date"), label = "Maximum date:",
@@ -61,7 +61,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
                               min = min(data()$date_report),
                               max = max(data()$date_report),
                               weekstart = 1)
-             )
+      )
     })
 
     data_sub <- shiny::reactive({
@@ -84,30 +84,46 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
       return(dat)
     })
 
-    shiny::observe({ print("input:"); print(head(data_sub())) })
+    # shiny::observe({ print("input:"); print(head(data_sub())) })
 
     ## showing options in ui
     output$pathogen_choices <- shiny::renderUI({
       req(!errors_detected())
       return(shiny::selectInput(inputId = ns("pathogen_vars"),
-                                       label = "Choose pathogen:",
-                                       choices = unique(data()$pathogen))
-             )
+                                label = "Choose pathogen:",
+                                choices = unique(data()$pathogen))
+      )
 
+    })
+
+
+    # strata
+    strata_var_opts <- shiny::reactive({
+      shiny::req(data_sub)
+      shiny::req(!errors_detected())
+      available_vars <- intersect(c("state",
+                                    "county",
+                                    "regional_level1",
+                                    "regional_level2",
+                                    "regional_level3",
+                                    "subtype",
+                                    "age_group",
+                                    "sex"),
+                                  names(data_sub())) %>%
+        sort()
+      available_vars
     })
 
     output$strat_choices <- shiny::renderUI({
       req(!errors_detected())
-      return(shiny::selectInput(inputId = ns("strat_vars"),
-                                label = "Parameters to stratify by:",
-                                choices = c("None",
-                                            # "All", # not sensible?
-                                            names(data())),
-                                # needs robustness!!
-                                selected = "None",
-                                multiple = TRUE)
-      )
-      print(c("input-strat_vars", input$strat_vars))
+
+      shiny::selectizeInput(inputId = ns("strat_vars"),
+                            label = "Parameters to stratify by:",
+                            choices = c("None",
+                                        strata_var_opts()),
+                            selected = "None",
+                            multiple = TRUE,
+                            options = list(maxItems = 3))
     })
 
     # Return list of subsetted data and parameters
