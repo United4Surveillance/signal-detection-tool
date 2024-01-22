@@ -24,7 +24,7 @@ mod_tabpanel_input_ui <- function(id) {
 
     shiny::uiOutput(ns("pathogen_choices")),
 
-    h2("Choose stratification parameters"),
+    h2("Choose stratification parameters (max. 3)"),
     br(),
 
     shiny::uiOutput(ns("strat_choices")),
@@ -53,6 +53,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
 
     # shiny::observe({ print("input:"); print(head(data())) })
 
+
     ## showing options in ui
     output$pathogen_choices <- shiny::renderUI({
       shiny::req(!errors_detected())
@@ -63,18 +64,34 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
 
     })
 
-    output$strat_choices <- shiny::renderUI({
+
+    # strata
+    strata_var_opts <- shiny::reactive({
+      shiny::req(data)
       shiny::req(!errors_detected())
-      return(shiny::selectInput(inputId = ns("strat_vars"),
-                                label = "Parameters to stratify by:",
-                                choices = c("None",
-                                            # "All", # not sensible?
-                                            names(data())),
-                                # needs robustness!!
-                                selected = "None",
-                                multiple = TRUE)
-      )
-      print(c("input-strat_vars", input$strat_vars))
+      available_vars <- intersect(c("state",
+                                    "county",
+                                    "regional_level1",
+                                    "regional_level2",
+                                    "regional_level3",
+                                    "subtype",
+                                    "age_group",
+                                    "sex"),
+                                  names(data())) %>%
+        sort()
+      available_vars
+    })
+
+    output$strat_choices <- shiny::renderUI({
+      req(!errors_detected())
+
+      shiny::selectizeInput(inputId = ns("strat_vars"),
+                            label = "Parameters to stratify by:",
+                            choices = c("None",
+                                        strata_var_opts()),
+                            selected = "None",
+                            multiple = TRUE,
+                            options = list(maxItems = 3))
     })
 
     # Return list of subsetted data and parameters
