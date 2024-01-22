@@ -28,7 +28,7 @@ mod_tabpanel_input_ui <- function(id) {
 
     shiny::uiOutput(ns("pathogen_choices")),
 
-    h2("Choose stratification parameters"),
+    h2("Choose stratification parameters (max. 3)"),
     br(),
 
     shiny::uiOutput(ns("strat_choices")),
@@ -38,7 +38,7 @@ mod_tabpanel_input_ui <- function(id) {
 }
 
 
-
+#' tabpanel "input" Server Functions
 #' @param id,input,output,session standard \code{shiny} boilerplate
 #' @param data reactive input dataset preprocessed if no errors
 #' @param errors_detected reactive boolean, when TRUE errors on mandatory variables where detected
@@ -88,21 +88,40 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
     output$pathogen_choices <- shiny::renderUI({
       req(!errors_detected())
       return(shiny::selectInput(inputId = ns("pathogen_vars"),
-                                       label = "Choose pathogen:",
-                                       choices = unique(data()$pathogen))
-             )
+                                label = "Choose pathogen:",
+                                choices = unique(data()$pathogen))
+      )
 
+    })
+
+
+    # strata
+    strata_var_opts <- shiny::reactive({
+      shiny::req(data_sub)
+      shiny::req(!errors_detected())
+      available_vars <- intersect(c("state",
+                                    "county",
+                                    "regional_level1",
+                                    "regional_level2",
+                                    "regional_level3",
+                                    "subtype",
+                                    "age_group",
+                                    "sex"),
+                                  names(data_sub())) %>%
+        sort()
+      available_vars
     })
 
     output$strat_choices <- shiny::renderUI({
       req(!errors_detected())
-      return(shiny::selectInput(inputId = ns("strat_vars"),
-                                label = "Parameters to stratify by:",
-                                choices = c("None",
-                                            names(data())),
-                                selected = "None",
-                                multiple = TRUE)
-      )
+      
+      shiny::selectizeInput(inputId = ns("strat_vars"),
+                            label = "Parameters to stratify by:",
+                            choices = c("None",
+                                        strata_var_opts()),
+                            selected = "None",
+                            multiple = TRUE,
+                            options = list(maxItems = 3))
     })
 
     # tracks the last selection made (starts as NULL)
@@ -126,7 +145,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
       }
 
       # updating UI component
-      shiny::updateSelectInput(session = session,
+      shiny::updateSelectizeInput(session = session,
                                inputId = 'strat_vars',
                                selected = Selected)
 
