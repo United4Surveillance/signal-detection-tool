@@ -37,7 +37,7 @@ check_raw_surveillance_data <- function(data) {
     # remove empty slots
     errors <- errors[sapply(errors, function(element) !is.null(element))]
   }
-    errors
+  errors
 }
 
 #' checking mandatory variables in the surveillance data
@@ -266,7 +266,6 @@ check_type_and_value_case_id <- function(data) {
 #' @param var character, variable to check
 #' @returns list, empty when no errors occured or filled with error messages
 check_type_and_value_yes_no_unknown <- function(data, var) {
-
   errors <- list()
 
   if (!checkmate::test_character(data[[var]])) {
@@ -354,4 +353,25 @@ check_character_levels <- function(vector, levels) {
 get_case_id_duplicates <- function(data) {
   data %>%
     dplyr::filter(duplicated(case_id))
+}
+
+#' Checking for duplicated weeks, years per strata
+#' This helps to be sure that there is only one timeseries per strata
+#' @param data data.frame aggregated surveillance data by year and week
+#' @param strata vector of characters specifying the strata we expect to have one timeseries per strata combination
+#' @returns NULL if no duplicates, otherwise throws an error
+check_week_year_duplicates <- function(data, strata = NULL) {
+  stopifnot(get_week_year_duplicates(data, strata) %>%
+    nrow() == 0)
+}
+
+#' Get duplicated year week per strata
+#' @param data data.frame aggregated surveillance data by year and week
+#' @param strata vector of characters specifying the strata we expect to have one timeseries per strata combination
+#' @returns tibble, with duplicates found
+get_week_year_duplicates <- function(data, strata = NULL) {
+  vars <- c(strata, "week", "year")
+
+  data %>%
+    dplyr::filter(duplicated(.[vars]))
 }
