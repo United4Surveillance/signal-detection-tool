@@ -24,7 +24,7 @@ read_csv_or_excel <- function(filename, filepath) {
     data <- read_csv_both_sep(filepath)
   } else if (filetype == "xlsx" | filetype == "xls") {
     data <- readxl::read_excel(filepath, guess_max = 5000)
-    data <- data.frame(data)
+    data <- as.data.frame(data, stringsAsFactors = FALSE)
   }
   data
 }
