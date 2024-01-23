@@ -65,6 +65,41 @@ aggregate_data <- function(data,
     )
 }
 
+#' Aggregate cases and signals for the number of weeks given per groups specified.
+#' First the signals are filtered to obtain the signals for the last n weeks, n given by the number of weeks
+#' aggregating the number of cases observed, create variable any alarm generated and the aggregate the number of alarms
+#' @param signals tibble, output of the get_signals() function with number of cases per week, year and alarm
+#' @param number_of_weeks integer, specifying the number of weeks we want to aggregate the number of cases and the generated alarms
+#' @param groups character vector, specifying the strata to aggregate by
+#' @returns tibble, with one line per groups containint the number of cases, any_alarms and n_alarms
+#' @examples
+#' \dontrun{
+#' signals <- input_example %>%
+#'   preprocess_data() %>%
+#'   get_signals(stratification = c("sex", "county_id"))
+#' signals %>% aggregate_signals()
+#' }
+aggregate_signals <- function(signals,
+                              number_of_weeks,
+                              groups = c("category", "stratum")) {
+  checkmate::assert(
+    checkmate::check_integerish(number_of_weeks)
+  )
+
+  signals %>%
+    filter_data_last_n_weeks(
+      number_of_weeks = number_of_weeks,
+      groups = groups
+    ) %>%
+    dplyr::group_by(!!!rlang::syms(groups)) %>%
+    dplyr::summarise(
+      cases = sum(cases, na.rm = T),
+      any_alarms = any(alarms, na.rm = T),
+      n_alarms = sum(alarms, na.rm = T)
+    ) %>%
+    dplyr::ungroup()
+}
+
 
 #' Turns aggregated data into surveillance's sts format
 #' @param case_counts case count data frame to be converted
@@ -162,4 +197,26 @@ add_rows_missing_dates <- function(data, date_start = NULL, date_end = NULL) {
   result$cases[is.na(result$cases)] <- 0
 
   return(result)
+}
+
+#' Filter the data so that only the data of the last n weeks are returned
+#' @param data_agg data.frame, aggregated surveillance or signals dataset, where aggregated means no linelist but cases or signals per week, year
+#' @param number_of_weeks integer, specifying the number of weeks from the most recent week we want to filter the data for
+#' @param groups character vector, groups to stratify by before filtering such that there is one timeseries to filter per group
+#' @returns data.frame, aggregated data of last n weeks
+filter_data_last_n_weeks <- function(data_agg,
+                                     number_of_weeks,
+                                     groups = c("category", "stratum")) {
+  checkmate::assert(
+    checkmate::check_integerish(number_of_weeks)
+  )
+
+  # before slicing the last n weeks check that there is no duplicate week, year per groups
+  check_week_year_duplicates(data_agg, strata = groups)
+
+  data_agg %>%
+    dplyr::group_by(!!!rlang::syms(groups)) %>%
+    dplyr::arrange(year, week) %>%
+    dplyr::slice_tail(n = number_of_weeks) %>%
+    dplyr::ungroup()
 }
