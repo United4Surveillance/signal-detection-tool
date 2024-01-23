@@ -84,8 +84,6 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
       return(dat)
     })
 
-    # shiny::observe({ print("input:"); print(head(data_sub())) })
-
     ## showing options in ui
     output$pathogen_choices <- shiny::renderUI({
       req(!errors_detected())
@@ -116,7 +114,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
 
     output$strat_choices <- shiny::renderUI({
       req(!errors_detected())
-
+      
       shiny::selectizeInput(inputId = ns("strat_vars"),
                             label = "Parameters to stratify by:",
                             choices = c("None",
@@ -125,6 +123,36 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
                             multiple = TRUE,
                             options = list(maxItems = 3))
     })
+
+    # tracks the last selection made (starts as NULL)
+    last_selection <- shiny::reactiveValues(d = NULL)
+
+    # updating stratification choices, removing 'None' if any is chosen
+    shiny::observeEvent(input$strat_vars, {
+      Selected = input$strat_vars
+
+      # finding lastest selection change
+      new_selection <- setdiff(Selected, last_selection$d)
+
+      if (length(new_selection) > 0) {
+        # if lastest selection is 'None', only keep 'None'
+        if (new_selection == 'None') {
+          Selected = 'None'
+        # if latest selection is not 'None', keep everything except 'None'
+        } else {
+          Selected = Selected[Selected != 'None']
+        }
+      }
+
+      # updating UI component
+      shiny::updateSelectizeInput(session = session,
+                               inputId = 'strat_vars',
+                               selected = Selected)
+
+      # updating last selection
+      last_selection$d <<- Selected
+
+    }, ignoreNULL = F)
 
     # Return list of subsetted data and parameters
     return(
