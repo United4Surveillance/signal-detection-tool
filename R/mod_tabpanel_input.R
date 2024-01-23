@@ -28,6 +28,13 @@ mod_tabpanel_input_ui <- function(id) {
 
     shiny::uiOutput(ns("pathogen_choices")),
 
+    h2("Filter dataset"),
+    br(),
+    shiny::uiOutput(ns("filter_variables")),
+    shiny::uiOutput(ns("filter_values")),
+    tags$style(shiny::HTML(paste0("#", id, "-filter_variables{display:inline-block}"))),
+    tags$style(shiny::HTML(paste0("#", id, "-filter_values{display:inline-block}"))),
+
     h2("Choose stratification parameters (max. 3)"),
     br(),
 
@@ -81,6 +88,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
       dat <- dplyr::mutate(dat,
                            subset = subset &
                              (pathogen %in% input$pathogen_vars))
+
       return(dat)
     })
 
@@ -95,8 +103,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
     })
 
 
-    # strata
-    strata_var_opts <- shiny::reactive({
+    # variable options for filter ui and strata selection
+    available_var_opts <- shiny::reactive({
       shiny::req(data_sub)
       shiny::req(!errors_detected())
       available_vars <- intersect(c("state",
@@ -112,13 +120,69 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
       available_vars
     })
 
+    output$filter_variables <- shiny::renderUI({
+      shiny::req(!errors_detected())
+      shiny::req(available_var_opts)
+      shiny::selectInput(inputId = ns("filter_variable"),
+                         multiple = FALSE,
+                         label = "Choose variable to filter",
+                         selected = "None",
+                         choices = c("None", available_var_opts()))
+    })
+
+    output$filter_values <- shiny::renderUI({
+      shiny::req(!errors_detected())
+      shiny::req(input$filter_variable != "None")
+
+      # keep level ordering if factor
+      if (class(data_sub()[[input$filter_variable]]) == "factor") {
+        filter_choices <- levels(data()[[input$filter_variable]])
+      } else {
+        filter_choices <- data_sub() %>%
+          dplyr::pull(input$filter_variable) %>%
+          as.character() %>%
+          tidyr::replace_na("N/A") %>%
+          unique()
+        filter_choices
+      }
+
+      shiny::selectInput(
+        inputId = ns("filter_values"),
+        multiple = TRUE,
+        label = "Choose values to filter for",
+        choices = filter_choices
+      )
+
+    })
+
+    filtered_data <- shiny::reactive({
+      shiny::req(input$filter_variable)
+
+      if (input$filter_variable == "None" | is.null(input$filter_values)) {
+        df <- data_sub()
+      } else {
+        filter_var <- rlang::sym(input$filter_variable)
+        if ("N/A" %in% input$filter_values) {
+          df <- data_sub() %>%
+            dplyr::filter(
+              is.na(!!filter_var) |
+                !!filter_var %in% input$filter_values[input$filter_values != "N/A"])
+        } else {
+          df <- data_sub() %>%
+            dplyr::filter(!!filter_var %in% input$filter_values)
+        }
+      }
+      df
+    })
+
     output$strat_choices <- shiny::renderUI({
       req(!errors_detected())
-      
+      shiny::req(available_var_opts)
+
       shiny::selectizeInput(inputId = ns("strat_vars"),
                             label = "Parameters to stratify by:",
                             choices = c("None",
-                                        strata_var_opts()),
+                                        available_var_opts()),
                             selected = "None",
                             multiple = TRUE,
                             options = list(maxItems = 3))
@@ -138,7 +202,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
         # if lastest selection is 'None', only keep 'None'
         if (new_selection == 'None') {
           Selected = 'None'
-        # if latest selection is not 'None', keep everything except 'None'
+          # if latest selection is not 'None', keep everything except 'None'
         } else {
           Selected = Selected[Selected != 'None']
         }
@@ -146,17 +210,17 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
 
       # updating UI component
       shiny::updateSelectizeInput(session = session,
-                               inputId = 'strat_vars',
-                               selected = Selected)
+                                  inputId = 'strat_vars',
+                                  selected = Selected)
 
       # updating last selection
       last_selection$d <<- Selected
 
-    }, ignoreNULL = F)
+    }, ignoreNULL = FALSE)
 
     # Return list of subsetted data and parameters
     return(
-      list(data = reactive({ dplyr::filter(data_sub(), subset == TRUE) }),
+      list(data = reactive({ dplyr::filter(filtered_data(), subset == TRUE) }),
            strat_vars = reactive({ input$strat_vars }),
            pathogen_vars = reactive({ input$pathogen_vars }))
     )
