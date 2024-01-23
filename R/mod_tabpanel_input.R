@@ -35,7 +35,7 @@ mod_tabpanel_input_ui <- function(id) {
     tags$style(shiny::HTML(paste0("#", id, "-filter_variables{display:inline-block}"))),
     tags$style(shiny::HTML(paste0("#", id, "-filter_values{display:inline-block}"))),
 
-    h2("Choose stratification parameters"),
+    h2("Choose stratification parameters (max. 3)"),
     br(),
 
     shiny::uiOutput(ns("strat_choices")),
@@ -105,8 +105,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
     })
 
 
-    # filter ui
-    filter_var_opts <- shiny::reactive({
+    # variable options for filter ui and strata selection
+    available_var_opts <- shiny::reactive({
       shiny::req(data_sub)
       shiny::req(!errors_detected())
       available_vars <- intersect(c("state",
@@ -124,12 +124,12 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
 
     output$filter_variables <- shiny::renderUI({
       shiny::req(!errors_detected())
-      shiny::req(filter_var_opts)
+      shiny::req(available_var_opts)
       shiny::selectInput(inputId = ns("filter_variable"),
                          multiple = FALSE,
                          label = "Choose variable to filter",
                          selected = "None",
-                         choices = c("None", filter_var_opts()))
+                         choices = c("None", available_var_opts()))
     })
 
     output$filter_values <- shiny::renderUI({
@@ -176,16 +176,15 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
 
     output$strat_choices <- shiny::renderUI({
       req(!errors_detected())
-      return(shiny::selectInput(inputId = ns("strat_vars"),
-                                label = "Parameters to stratify by:",
-                                choices = c("None",
-                                            # "All", # not sensible?
-                                            names(data())),
-                                # needs robustness!!
-                                selected = "None",
-                                multiple = TRUE)
-      )
-      print(c("input-strat_vars", input$strat_vars))
+      shiny::req(available_var_opts)
+
+      shiny::selectizeInput(inputId = ns("strat_vars"),
+                            label = "Parameters to stratify by:",
+                            choices = c("None",
+                                        available_var_opts()),
+                            selected = "None",
+                            multiple = TRUE,
+                            options = list(maxItems = 3))
     })
 
     # Return list of subsetted data and parameters
