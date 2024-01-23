@@ -2,46 +2,18 @@
 % Please edit documentation in R/plot_regional.R
 \name{plot_regional}
 \alias{plot_regional}
-\title{Plot surveillance data and signal detection results by region}
+\title{Plot number of cases with number of signals by region}
 \usage{
-plot_regional(
-  data,
-  signals,
-  shape,
-  country_id = "AT",
-  regional_level = "county",
-  interactive = FALSE
-)
+plot_regional(shape_with_signals, interactive = FALSE)
 }
 \arguments{
-\item{data}{data.frame containing surveillance data in linelist format}
+\item{shape_with_signals}{sf shapefile, with additional columns from signals cases, n_alarms, any_alarms}
 
-\item{signals}{data.frame containing signal detection output stratified by
-regions}
-
-\item{shape}{data.frame with geometry column in sf format}
-
-\item{country_id}{two-letter country-code for the country that should be
-plotted}
-
-\item{regional_level}{character describing which level of aggregation should
-be shown ("country", "state","county" or "community")}
-
-\item{interactive}{boolean identifying whether the plot should be static or
-interactive}
+\item{interactive}{boolean identifying whether the plot should be static or interactive}
 }
 \value{
-either a ggplot object if static plot is chosen or a plotly object
-  for the interactive plot
+either a ggplot object if static plot is chosen or a plotly object for the interactive plot
 }
 \description{
-Plot surveillance data and signal detection results by region
-}
-\examples{
-\dontrun{
-plot_regional(data,
-              signals_county,
-              shape,
-              country_id = country, regional_level = "county")
-}
+Plot number of cases with number of signals by region
 }
