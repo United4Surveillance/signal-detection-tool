@@ -50,12 +50,15 @@ yes_no_unknown_variables <- function(){
   )
 }
 
-#' Variable names of the NUTS id variables
+#' Variable names of the region_id variables including those which do not necessarily follow NUTS format
 region_id_variable_names <- function() {
   c(
     "country_id",
     "state_id",
     "county_id",
-    "community_id"
+    "community_id",
+    "region_level1_id",
+    "region_level2_id",
+    "region_level3_id"
   )
 }
