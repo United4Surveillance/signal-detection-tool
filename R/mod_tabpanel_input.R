@@ -158,18 +158,21 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
     })
 
     filtered_data <- shiny::reactive({
-      shiny::req(input$filter_variable != "None")
-      shiny::req(input$filter_values)
+      shiny::req(input$filter_variable)
 
-      filter_var <- rlang::sym(input$filter_variable)
-      if ("N/A" %in% input$filter_values) {
-        df <- data_sub() %>%
-          dplyr::filter(
-            is.na(!!filter_var) |
-              !!filter_var %in% input$filter_values[input$filter_values != "N/A"])
+      if (input$filter_variable == "None" | is.null(input$filter_values)) {
+        df <- data_sub()
       } else {
-        df <- data_sub() %>%
-          dplyr::filter(!!filter_var %in% input$filter_values)
+        filter_var <- rlang::sym(input$filter_variable)
+        if ("N/A" %in% input$filter_values) {
+          df <- data_sub() %>%
+            dplyr::filter(
+              is.na(!!filter_var) |
+                !!filter_var %in% input$filter_values[input$filter_values != "N/A"])
+        } else {
+          df <- data_sub() %>%
+            dplyr::filter(!!filter_var %in% input$filter_values)
+        }
       }
       df
     })
