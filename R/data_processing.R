@@ -2,6 +2,8 @@
 #' @param data data.frame, Linelist of surveillance data
 #' @returns data.frame, preprocessed linelist with transformation of columns to date, to lower, generation of isoyear and isoweek
 preprocess_data <- function(data) {
+  # remove completely empty columns from the dataset
+  data <- remove_empty_columns(data)
   # Convert the date columns to date format
   yes_no_unknown_vars <- intersect(colnames(data), yes_no_unknown_variables())
   # get all variables present in the data which might need transformation tolower
