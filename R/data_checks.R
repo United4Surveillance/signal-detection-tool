@@ -19,13 +19,8 @@ check_raw_surveillance_data <- function(data) {
     errors <- append(errors, "Empty rows in the data")
   }
 
-  # remove all columns which are not filled
-  empty_columns <- apply(data, 2, function(x) {
-    (all(is.na(x)) | all(x == ""))
-  })
-  empty_column_names <- names(empty_columns)[empty_columns]
-  data <- data %>%
-    dplyr::select(-all_of(empty_column_names))
+  # removing completely empty columns from before checking
+  data <- remove_empty_columns(data)
 
   # check mandatory and optional variabless
   errors_mandatory <- check_mandatory_variables(data)
@@ -37,7 +32,7 @@ check_raw_surveillance_data <- function(data) {
     # remove empty slots
     errors <- errors[sapply(errors, function(element) !is.null(element))]
   }
-    errors
+  errors
 }
 
 #' checking mandatory variables in the surveillance data
@@ -266,7 +261,6 @@ check_type_and_value_case_id <- function(data) {
 #' @param var character, variable to check
 #' @returns list, empty when no errors occured or filled with error messages
 check_type_and_value_yes_no_unknown <- function(data, var) {
-
   errors <- list()
 
   if (!checkmate::test_character(data[[var]])) {
@@ -338,6 +332,25 @@ is_ISO8601_detailed <- function(date_var) {
   pattern <- "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
 
   all(grepl(pattern, date_var) | is.na(date_var) | date_var == "")
+}
+
+#' Retrieveing which columns in the dataset only contain missing values
+#' @param data data.frame, dataset to check for empty columns can be linelist of surveillance data
+#' @returns named vector with column names and boolean specifying complete missingness or not
+get_empty_columns <- function(data) {
+  apply(data, 2, function(x) {
+    (all(is.na(x)) | all(x == "") | all(x == "unknown") | all(x == "NA"))
+  })
+}
+
+#' Removing columns from data which only contain missing values
+#' @param data data.frame, dataset to remove empty columns from, can be linelist of surveillance data
+#' @param returns data.frame without columns which only contained missing values
+remove_empty_columns <- function(data) {
+  empty_columns <- get_empty_columns(data)
+  empty_column_names <- names(empty_columns)[empty_columns]
+  data %>%
+    dplyr::select(-dplyr::all_of(empty_column_names))
 }
 
 #' Helper to check that values of a character variable are in given levels
