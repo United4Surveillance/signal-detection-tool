@@ -189,17 +189,15 @@ check_type_and_value_optional_variables <- function(data) {
   # check remaining character variables
   remaining_char_vars <- c(
     "state",
-    "regional_level1",
+    "region_level1",
     "county",
-    "regional_level2",
+    "region_level2",
     "community",
-    "regional_level3",
+    "region_level3",
     "age_group",
     "occupation",
     "place_of_infection",
-    "subtype",
-    "symptoms",
-    "risks"
+    "subtype"
   )
   remaining_char_vars <- intersect(data_columns, remaining_char_vars)
 
