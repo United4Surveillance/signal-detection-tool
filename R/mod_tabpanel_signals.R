@@ -59,7 +59,7 @@ mod_tabpanel_signals_server <- function(
         date_var = "date_report",
         number_of_weeks = number_of_weeks()
       ) %>%
-        dplyr::filter(!is.na(alarms))
+        filter_data_last_n_weeks(number_of_weeks = number_of_weeks())
 
       results
     })
