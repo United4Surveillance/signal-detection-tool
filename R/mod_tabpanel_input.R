@@ -24,6 +24,13 @@ mod_tabpanel_input_ui <- function(id) {
 
     shiny::uiOutput(ns("pathogen_choices")),
 
+    h2("Filter dataset"),
+    br(),
+    shiny::uiOutput(ns("filter_variables")),
+    shiny::uiOutput(ns("filter_values")),
+    tags$style(shiny::HTML(paste0("#", id, "-filter_variables{display:inline-block}"))),
+    tags$style(shiny::HTML(paste0("#", id, "-filter_values{display:inline-block}"))),
+
     h2("Choose stratification parameters (max. 3)"),
     br(),
 
@@ -53,6 +60,16 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
 
     # shiny::observe({ print("input:"); print(head(data())) })
 
+    data_sub <- shiny::reactive({
+      req(data)
+      req(!errors_detected())
+
+      # add subset indicator for selected pathogens
+      dat <- data() %>%
+        dplyr::mutate(subset = pathogen %in% input$pathogen_vars)
+
+      return(dat)
+    })
 
     ## showing options in ui
     output$pathogen_choices <- shiny::renderUI({
@@ -65,9 +82,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
     })
 
 
-    # strata
-    strata_var_opts <- shiny::reactive({
-      shiny::req(data)
+    # variable options for filter ui and strata selection
+    available_var_opts <- shiny::reactive({
+      shiny::req(data_sub)
       shiny::req(!errors_detected())
       available_vars <- intersect(c("state",
                                     "county",
@@ -77,30 +94,115 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
                                     "subtype",
                                     "age_group",
                                     "sex"),
-                                  names(data())) %>%
+                                  names(data_sub())) %>%
         sort()
       available_vars
     })
 
+    output$filter_variables <- shiny::renderUI({
+      shiny::req(!errors_detected())
+      shiny::req(available_var_opts)
+      shiny::selectInput(inputId = ns("filter_variable"),
+                         multiple = FALSE,
+                         label = "Choose variable to filter",
+                         selected = "None",
+                         choices = c("None", available_var_opts()))
+    })
+
+    output$filter_values <- shiny::renderUI({
+      shiny::req(!errors_detected())
+      shiny::req(input$filter_variable != "None")
+
+      # keep level ordering if factor
+      if (class(data_sub()[[input$filter_variable]]) == "factor") {
+        filter_choices <- levels(data_sub()[[input$filter_variable]])
+      } else {
+        filter_choices <- data_sub() %>%
+          dplyr::pull(input$filter_variable) %>%
+          as.character() %>%
+          tidyr::replace_na("N/A") %>%
+          unique()
+        filter_choices
+      }
+
+      shiny::selectInput(
+        inputId = ns("filter_values"),
+        multiple = TRUE,
+        label = "Choose values to filter for",
+        choices = filter_choices
+      )
+
+    })
+
+    filtered_data <- shiny::reactive({
+      shiny::req(input$filter_variable)
+
+      if (input$filter_variable == "None" | is.null(input$filter_values)) {
+        df <- data_sub()
+      } else {
+        filter_var <- rlang::sym(input$filter_variable)
+        if ("N/A" %in% input$filter_values) {
+          df <- data_sub() %>%
+            dplyr::filter(
+              is.na(!!filter_var) |
+                !!filter_var %in% input$filter_values[input$filter_values != "N/A"])
+        } else {
+          df <- data_sub() %>%
+            dplyr::filter(!!filter_var %in% input$filter_values)
+        }
+      }
+      df
+    })
+
     output$strat_choices <- shiny::renderUI({
       req(!errors_detected())
+      shiny::req(available_var_opts)
 
       shiny::selectizeInput(inputId = ns("strat_vars"),
                             label = "Parameters to stratify by:",
                             choices = c("None",
-                                        strata_var_opts()),
+                                        available_var_opts()),
                             selected = "None",
                             multiple = TRUE,
                             options = list(maxItems = 3))
     })
 
+    # tracks the last selection made (starts as NULL)
+    last_selection <- shiny::reactiveValues(d = NULL)
+
+    # updating stratification choices, removing 'None' if any is chosen
+    shiny::observeEvent(input$strat_vars, {
+      Selected = input$strat_vars
+
+      # finding lastest selection change
+      new_selection <- setdiff(Selected, last_selection$d)
+
+      if (length(new_selection) > 0) {
+        # if lastest selection is 'None', only keep 'None'
+        if (new_selection == 'None') {
+          Selected = 'None'
+          # if latest selection is not 'None', keep everything except 'None'
+        } else {
+          Selected = Selected[Selected != 'None']
+        }
+      }
+
+      # updating UI component
+      shiny::updateSelectizeInput(session = session,
+                                  inputId = 'strat_vars',
+                                  selected = Selected)
+
+      # updating last selection
+      last_selection$d <<- Selected
+
+    }, ignoreNULL = FALSE)
+
     # Return list of subsetted data and parameters
     return(
-      # list(data = reactive({ dplyr::filter(data(), subset == TRUE) }),
-      list(data = shiny::reactive(data()),
-           n_weeks = shiny::reactive(input$n_weeks),
-           strat_vars = shiny::reactive(input$strat_vars),
-           pathogen_vars = shiny::reactive(input$pathogen_vars))
+        list(data = reactive({ dplyr::filter(filtered_data(), subset == TRUE) }),
+             n_weeks = shiny::reactive(input$n_weeks),
+             strat_vars = reactive({ input$strat_vars }),
+             pathogen_vars = reactive({ input$pathogen_vars }))
     )
 
   })
