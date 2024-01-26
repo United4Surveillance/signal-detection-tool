@@ -17,7 +17,7 @@
 #' }
 plot_agegroup_by <- function(df,
                              age_group_col = "age_group",
-                             by_col = "sex",
+                             by_col = NULL,
                              interactive = FALSE) {
 
   # check if age_group_col is contained in df and if age_group_col is a factor
@@ -52,8 +52,8 @@ plot_agegroup_by <- function(df,
           x = !!rlang::sym(age_group_col),
           fill = !!rlang::sym(by_col), # TODO: colors
           text = sprintf("%s: %.0f",
-                            .data$fill,
-                            ggplot2::after_stat(.data$count))),
+                         .data$fill,
+                         ggplot2::after_stat(.data$count))),
         color = "black") +
       ggplot2::guides(fill = ggplot2::guide_legend(ncol = min(n_levels, 5)))
   } else {
@@ -84,16 +84,16 @@ plot_agegroup_by <- function(df,
       panel.grid.major.y = ggplot2::element_line(colour = "grey75"),
       panel.grid.minor.y = ggplot2::element_line(colour = "grey90"),
       axis.title.x = ggplot2::element_text(face = "bold"),
-      axis.text.x = ggplot2::element_text(angle = 90, hjust = 1),
+      # axis.text.x = ggplot2::element_text(angle = 90, hjust = 1),
       axis.title.y = ggplot2::element_text(face = "bold"),
       legend.title = ggplot2::element_text(face = "bold")) +
     NULL
 
-  if(interactive) {
+  if (interactive) {
     p <- plotly::ggplotly(p, tooltip = "text") %>%
       plotly::layout(legend = list(orientation = "h", x = 0.3, y = 1.1)) %>%
       plotly::config(modeBarButtonsToRemove = c('autoScale2d',
-                                                'resetScale2d',
+                                                # 'resetScale2d',
                                                 'select2d',
                                                 'lasso2d',
                                                 'zoomIn2d',
