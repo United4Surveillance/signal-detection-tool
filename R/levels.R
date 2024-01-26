@@ -62,3 +62,16 @@ region_id_variable_names <- function() {
     "region_level3_id"
   )
 }
+
+#' Variable names of the region_id variables including those which do not necessarily follow NUTS format
+region_variable_names <- function() {
+  c(
+    "country",
+    "state",
+    "county",
+    "community",
+    "region_level1",
+    "region_level2",
+    "region_level3"
+  )
+}
