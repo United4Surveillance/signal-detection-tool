@@ -18,12 +18,12 @@ mod_tabpanel_data_ui <- function(id) {
       shiny::sidebarPanel(
         # Input: Select a file ----
         shiny::fileInput(ns("file1"), "Choose CSV or Excel File",
-          multiple = TRUE,
-          accept = c(
-            ".xlsx",
-            ".xls",
-            ".csv"
-          )
+                         multiple = TRUE,
+                         accept = c(
+                           ".xlsx",
+                           ".xls",
+                           ".csv"
+                         )
         ),
       ),
 
@@ -125,7 +125,12 @@ mod_tabpanel_data_server <- function(id) {
     # data preview table ----
     output$contents <- DT::renderDataTable({
       req(data)
-      data()
+      DT::datatable(
+        data(),
+        options = list(
+          scrollX = TRUE
+        )
+      )
     })
 
     # Return a reactive preprocessed data from this server that can be passed
