@@ -60,16 +60,14 @@ check_mandatory_variables <- function(data) {
 check_presence_mandatory_variables <- function(data) {
   errors <- list()
 
-  # age and date_report are checked seperately as there are several options how to provide them
-  mandatory_columns <- c("case_id", "country", "country_id", "pathogen")
+  # age is not mandatory as age or age_group can be given and thus
+  # checked seperately
+  mandatory_columns <- input_metadata %>%
+    dplyr::filter(Mandatory == "YES") %>%
+    dplyr::pull("Variable")
 
   data_columns <- colnames(data)
   missing_columns <- setdiff(mandatory_columns, data_columns)
-
-  # check whether data contains one of date_report or year_report and week_report
-  if (check_any_date_report(data_columns)) {
-    missing_columns <- c(missing_columns, "date_report")
-  }
 
   # check whether data contains one of age or agegroup
   if (check_any_age(data_columns)) {
@@ -96,26 +94,7 @@ check_type_and_value_mandatory_variables <- function(data) {
   if ("date_report" %in% data_columns) {
     errors <- append(errors, check_type_and_value_date(data, "date_report"))
   }
-  if ("report_week" %in% data_columns) {
-    if (!checkmate::test_integerish(data$report_week)) {
-      errors <- append(errors, "report_week is not an integer")
-    } else {
-      # any NA or empty strings
-      if (any(is.na(data$report_week)) | any(data$report_week == "")) {
-        errors <- append(errors, "Missing/empty report_week inside data")
-      }
-    }
-  }
-  if ("report_year" %in% data_columns) {
-    if (!checkmate::test_integerish(data$report_year)) {
-      errors <- append(errors, "report_year is not an integer")
-    } else {
-      # any NA or empty strings
-      if (any(is.na(data$report_year)) | any(data$report_year == "")) {
-        errors <- append(errors, "Missing/empty report_year inside data")
-      }
-    }
-  }
+
   if ("age" %in% data_columns) {
     if (!checkmate::test_integerish(data$age)) {
       errors <- append(errors, "age is not an integer")
@@ -276,19 +255,6 @@ check_type_and_value_yes_no_unknown <- function(data, var) {
     }
   }
   errors
-}
-
-#' Helper function to check for presence of date_report variable or instead week_report and year_report
-#' @param data_columns vector, column names of raw surveillance linelist
-#' @returns boolean, TRUE when the required variables are present, FALSE if not present
-check_any_date_report <- function(data_columns) {
-  if ("date_report" %in% data_columns) {
-    FALSE
-  } else if (all(c("week_report", "year_report") %in% data_columns)) {
-    FALSE
-  } else {
-    TRUE
-  }
 }
 
 #' Helper function to check for presence of age variable or instead age_group
