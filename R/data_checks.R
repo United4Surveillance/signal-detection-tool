@@ -325,7 +325,7 @@ check_empty_rows <- function(data) {
 #' @returns boolean, when TRUE all values of date_var are in the required format, when FALSE at least one is not in required format
 is_ISO8601 <- function(date_var) {
   # need to allow empty entries inside the data variable
-  all(grepl("^\\d{4}-\\d{2}-\\d{2}$", date_var) | is.na(date_var) | date_var == "")
+  all(grepl("^\\d{4}-\\d{2}-\\d{2}$", date_var) | is.na(date_var) | date_var == "" | date_var == "unknown" | date_var == "NA")
 }
 
 #' detailed check of date variables
@@ -335,7 +335,7 @@ is_ISO8601 <- function(date_var) {
 is_ISO8601_detailed <- function(date_var) {
   pattern <- "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
 
-  all(grepl(pattern, date_var) | is.na(date_var) | date_var == "")
+  all(grepl(pattern, date_var) | is.na(date_var) | date_var == "" | date_var == "unknown" | date_var == "NA")
 }
 
 #' Helper to check that values of a character variable are in given levels
