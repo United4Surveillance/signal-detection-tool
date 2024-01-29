@@ -293,8 +293,7 @@ get_signals <- function(data,
 
     if(!is.null(results)){
       results <- results %>%
-        dplyr::mutate(category = NA, stratum = NA) %>%
-        dplyr::mutate(method = method)
+        dplyr::mutate(category = NA, stratum = NA)
     }
   } else {
     results <- get_signals_stratified(
