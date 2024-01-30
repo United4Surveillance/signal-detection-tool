@@ -13,14 +13,9 @@ mod_tabpanel_signals_ui <- function(id) {
 
   shiny::tabPanel(
     "Signals",
-    mod_plot_time_series_ui(id = ns("timeseries")),
-    shiny::br(),
-    shiny::h3("Plot of age group"),
-    plotly:::plotlyOutput(ns("age_group")),
-    shiny::br(),
-    shiny::h3("Signal detection table"),
-    # shiny::tableOutput(ns("signals")),
-    DT::DTOutput(ns("signals")),
+
+    shiny::uiOutput(ns("signals_tab_ui")),
+
     icon = shiny::icon("wave-square")
   )
 }
@@ -37,6 +32,33 @@ mod_tabpanel_signals_server <- function(
     strat_vars) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
+
+    ## UI-portion of the tab below!
+    # ensuring that content is onlyu shown if data check returns no errors
+    output$signals_tab_ui <- shiny::renderUI({
+      if (errors_detected() == TRUE) {
+        return(shiny::tagList(
+          shiny::br(),
+          shiny::h2("Data Format Check Failed"),
+          shiny::p("Unfortunately, the selected data does not meet the required format."),
+          shiny::p("Please make sure the data follows the correct structure and try again."),
+          shiny::br(),
+          shiny::hr(),
+          shiny::p("You can check the data in the 'Data' tab for more details on the issue.")
+        ))
+      } else {
+        return(shiny::tagList(
+          mod_plot_time_series_ui(id = ns("timeseries")),
+          shiny::br(),
+          shiny::h3("Plot of age group"),
+          plotly:::plotlyOutput(ns("age_group")),
+          shiny::br(),
+          shiny::h3("Signal detection table"),
+          # shiny::tableOutput(ns("signals")),
+          DT::DTOutput(ns("signals"))
+        ))
+      }
+    })
 
     # fix stratification vars
     strat_vars_tidy <- reactive({
