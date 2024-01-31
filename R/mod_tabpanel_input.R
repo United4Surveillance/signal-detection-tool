@@ -22,25 +22,23 @@ mod_tabpanel_input_ui <- function(id) {
     shiny::uiOutput(ns("min_date_choice")),
     # Input: Select maximum date
     shiny::uiOutput(ns("max_date_choice")),
-
     h2("Choose which pathogen in the dataset to check for aberrations"),
     br(),
-
     shiny::uiOutput(ns("pathogen_choices")),
-
     h2("Filter dataset"),
     br(),
     shiny::uiOutput(ns("filter_variables")),
     shiny::uiOutput(ns("filter_values")),
     tags$style(shiny::HTML(paste0("#", id, "-filter_variables{display:inline-block}"))),
     tags$style(shiny::HTML(paste0("#", id, "-filter_values{display:inline-block}"))),
-
     h2("Choose stratification parameters (max. 3)"),
     br(),
-
     shiny::uiOutput(ns("strat_choices")),
-
-    icon = icon("viruses")
+    icon = icon("viruses"),
+    h2("Choose the outbreak detection algorithm you want to use"),
+    br(),
+    shiny::uiOutput(ns("algorithm_choice")),
+    div(style = "margin-bottom: 80px;")
   )
 }
 
@@ -49,26 +47,28 @@ mod_tabpanel_input_ui <- function(id) {
 #' @param id,input,output,session standard \code{shiny} boilerplate
 #' @param data reactive input dataset preprocessed if no errors
 #' @param errors_detected reactive boolean, when TRUE errors on mandatory variables where detected
-mod_tabpanel_input_server <- function(id, data, errors_detected){
+mod_tabpanel_input_server <- function(id, data, errors_detected) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
     # date uiOutputs default choices from data
     output$min_date_choice <- shiny::renderUI({
-      return(shiny::dateInput(inputId = ns("min_date"), label = "Minimum date:",
-                              value = min(data()$date_report),
-                              min = min(data()$date_report),
-                              max = max(data()$date_report),
-                              weekstart = 1)
-      )
+      return(shiny::dateInput(
+        inputId = ns("min_date"), label = "Minimum date:",
+        value = min(data()$date_report),
+        min = min(data()$date_report),
+        max = max(data()$date_report),
+        weekstart = 1
+      ))
     })
     output$max_date_choice <- shiny::renderUI({
-      return(shiny::dateInput(inputId = ns("max_date"), label = "Maximum date:",
-                              value = max(data()$date_report),
-                              min = min(data()$date_report),
-                              max = max(data()$date_report),
-                              weekstart = 1)
-      )
+      return(shiny::dateInput(
+        inputId = ns("max_date"), label = "Maximum date:",
+        value = max(data()$date_report),
+        min = min(data()$date_report),
+        max = max(data()$date_report),
+        weekstart = 1
+      ))
     })
 
     data_sub <- shiny::reactive({
@@ -79,15 +79,19 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
       dat <- dplyr::mutate(dat, subset = TRUE)
       if (input$dates_bin) {
         dat <- dplyr::mutate(dat,
-                             subset = dplyr::between(as.Date(date_report),
-                                                     input$min_date,
-                                                     input$max_date))
+          subset = dplyr::between(
+            as.Date(date_report),
+            input$min_date,
+            input$max_date
+          )
+        )
       }
 
       # add subset indicator for selected pathogens
       dat <- dplyr::mutate(dat,
-                           subset = subset &
-                             (pathogen %in% input$pathogen_vars))
+        subset = subset &
+          (pathogen %in% input$pathogen_vars)
+      )
 
       return(dat)
     })
@@ -95,11 +99,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
     ## showing options in ui
     output$pathogen_choices <- shiny::renderUI({
       req(!errors_detected())
-      return(shiny::selectInput(inputId = ns("pathogen_vars"),
-                                label = "Choose pathogen:",
-                                choices = unique(data()$pathogen))
-      )
-
+      return(shiny::selectInput(
+        inputId = ns("pathogen_vars"),
+        label = "Choose pathogen:",
+        choices = unique(data()$pathogen)
+      ))
     })
 
 
@@ -107,15 +111,19 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
     available_var_opts <- shiny::reactive({
       shiny::req(data_sub)
       shiny::req(!errors_detected())
-      available_vars <- intersect(c("state",
-                                    "county",
-                                    "regional_level1",
-                                    "regional_level2",
-                                    "regional_level3",
-                                    "subtype",
-                                    "age_group",
-                                    "sex"),
-                                  names(data_sub())) %>%
+      available_vars <- intersect(
+        c(
+          "state",
+          "county",
+          "regional_level1",
+          "regional_level2",
+          "regional_level3",
+          "subtype",
+          "age_group",
+          "sex"
+        ),
+        names(data_sub())
+      ) %>%
         sort()
       available_vars
     })
@@ -123,11 +131,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
     output$filter_variables <- shiny::renderUI({
       shiny::req(!errors_detected())
       shiny::req(available_var_opts)
-      shiny::selectInput(inputId = ns("filter_variable"),
-                         multiple = FALSE,
-                         label = "Choose variable to filter",
-                         selected = "None",
-                         choices = c("None", available_var_opts()))
+      shiny::selectInput(
+        inputId = ns("filter_variable"),
+        multiple = FALSE,
+        label = "Choose variable to filter",
+        selected = "None",
+        choices = c("None", available_var_opts())
+      )
     })
 
     output$filter_values <- shiny::renderUI({
@@ -152,7 +162,6 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
         label = "Choose values to filter for",
         choices = filter_choices
       )
-
     })
 
     filtered_data <- shiny::reactive({
@@ -166,7 +175,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
           df <- data_sub() %>%
             dplyr::filter(
               is.na(!!filter_var) |
-                !!filter_var %in% input$filter_values[input$filter_values != "N/A"])
+                !!filter_var %in% input$filter_values[input$filter_values != "N/A"]
+            )
         } else {
           df <- data_sub() %>%
             dplyr::filter(!!filter_var %in% input$filter_values)
@@ -179,52 +189,102 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
       req(!errors_detected())
       shiny::req(available_var_opts)
 
-      shiny::selectizeInput(inputId = ns("strat_vars"),
-                            label = "Parameters to stratify by:",
-                            choices = c("None",
-                                        available_var_opts()),
-                            selected = "None",
-                            multiple = TRUE,
-                            options = list(maxItems = 3))
+      shiny::selectizeInput(
+        inputId = ns("strat_vars"),
+        label = "Parameters to stratify by:",
+        choices = c(
+          "None",
+          available_var_opts()
+        ),
+        selected = "None",
+        multiple = TRUE,
+        options = list(maxItems = 3)
+      )
     })
 
     # tracks the last selection made (starts as NULL)
     last_selection <- shiny::reactiveValues(d = NULL)
 
     # updating stratification choices, removing 'None' if any is chosen
-    shiny::observeEvent(input$strat_vars, {
-      Selected = input$strat_vars
+    shiny::observeEvent(input$strat_vars,
+      {
+        Selected <- input$strat_vars
 
-      # finding lastest selection change
-      new_selection <- setdiff(Selected, last_selection$d)
+        # finding lastest selection change
+        new_selection <- setdiff(Selected, last_selection$d)
 
-      if (length(new_selection) > 0) {
-        # if lastest selection is 'None', only keep 'None'
-        if (new_selection == 'None') {
-          Selected = 'None'
-          # if latest selection is not 'None', keep everything except 'None'
-        } else {
-          Selected = Selected[Selected != 'None']
+        if (length(new_selection) > 0) {
+          # if lastest selection is 'None', only keep 'None'
+          if (new_selection == "None") {
+            Selected <- "None"
+            # if latest selection is not 'None', keep everything except 'None'
+          } else {
+            Selected <- Selected[Selected != "None"]
+          }
         }
-      }
 
-      # updating UI component
-      shiny::updateSelectizeInput(session = session,
-                                  inputId = 'strat_vars',
-                                  selected = Selected)
+        # updating UI component
+        shiny::updateSelectizeInput(
+          session = session,
+          inputId = "strat_vars",
+          selected = Selected
+        )
 
-      # updating last selection
-      last_selection$d <<- Selected
+        # updating last selection
+        last_selection$d <<- Selected
+      },
+      ignoreNULL = FALSE
+    )
 
-    }, ignoreNULL = FALSE)
+    # apply signal detection on country level to the filtered data to check which algorithms are working
+    # this is checking whether there is enough training data for the algorithm to compute a baseline
+    algorithms_possible <- shiny::reactive({
+      shiny::req(input$filter_variable)
+      shiny::req(filtered_data)
+
+
+      signals_all_methods <- dplyr::bind_rows(purrr::map(unlist(available_algorithms()), function(algorithm) {
+        signals <- get_signals(filtered_data(),
+          method = algorithm,
+          number_of_weeks = 52
+        )
+        if (!is.null(signals)) {
+          signals <- signals %>% dplyr::mutate(method = algorithm)
+        }
+      }))
+
+      algorithms_working <- unique(signals_all_methods$method)
+      algorithms_working_named <- available_algorithms()[unlist(available_algorithms()) %in% algorithms_working]
+
+      return(algorithms_working_named)
+    })
+
+
+    output$algorithm_choice <- shiny::renderUI({
+      shiny::req(!errors_detected())
+      shiny::req(algorithms_possible)
+      shiny::selectInput(
+        inputId = ns("algorithm_choice"),
+        multiple = FALSE,
+        label = "Choose an algorithm:",
+        selected = "FarringtonFlexible",
+        choices = algorithms_possible()
+      )
+    })
 
     # Return list of subsetted data and parameters
     return(
-      list(data = reactive({ dplyr::filter(filtered_data(), subset == TRUE) }),
-           strat_vars = reactive({ input$strat_vars }),
-           pathogen_vars = reactive({ input$pathogen_vars }))
+      list(
+        data = reactive({
+          dplyr::filter(filtered_data(), subset == TRUE)
+        }),
+        strat_vars = reactive({
+          input$strat_vars
+        }),
+        pathogen_vars = reactive({
+          input$pathogen_vars
+        })
+      )
     )
-
   })
-
 }
