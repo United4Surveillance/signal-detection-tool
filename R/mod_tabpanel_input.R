@@ -12,33 +12,10 @@ mod_tabpanel_input_ui <- function(id) {
 
   shiny::tabPanel(
     "Input parameters",
-    # Horizontal line ----
-    tags$hr(),
 
-    # Input date range
-    # Input: Specify dates?
-    shiny::checkboxInput(ns("dates_bin"), "Limit date interval"),
-    # Input: Select minimum date
-    shiny::uiOutput(ns("min_date_choice")),
-    # Input: Select maximum date
-    shiny::uiOutput(ns("max_date_choice")),
-    h2("Choose which pathogen in the dataset to check for aberrations"),
-    br(),
-    shiny::uiOutput(ns("pathogen_choices")),
-    h2("Filter dataset"),
-    br(),
-    shiny::uiOutput(ns("filter_variables")),
-    shiny::uiOutput(ns("filter_values")),
-    tags$style(shiny::HTML(paste0("#", id, "-filter_variables{display:inline-block}"))),
-    tags$style(shiny::HTML(paste0("#", id, "-filter_values{display:inline-block}"))),
-    h2("Choose stratification parameters (max. 3)"),
-    br(),
-    shiny::uiOutput(ns("strat_choices")),
-    icon = icon("viruses"),
-    h2("Choose the outbreak detection algorithm you want to use"),
-    br(),
-    shiny::uiOutput(ns("algorithm_choice")),
-    div(style = "margin-bottom: 80px;")
+    shiny::uiOutput(ns("input_tab_ui")),
+
+    icon = icon("viruses")
   )
 }
 
@@ -51,61 +28,78 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    # date uiOutputs default choices from data
-    output$min_date_choice <- shiny::renderUI({
-      return(shiny::dateInput(
-        inputId = ns("min_date"), label = "Minimum date:",
-        value = min(data()$date_report),
-        min = min(data()$date_report),
-        max = max(data()$date_report),
-        weekstart = 1
-      ))
+    ## UI-portion of the tab below!
+    # ensuring that content is onlyu shown if data check returns no errors
+    output$input_tab_ui <- shiny::renderUI({
+      if (errors_detected() == TRUE) {
+        return(shiny::tagList(
+          shiny::br(),
+          shiny::h2("Data Format Check Failed"),
+          shiny::p("Unfortunately, the selected data does not meet the required format."),
+          shiny::p("Please make sure the data follows the correct structure and try again."),
+          shiny::br(),
+          shiny::hr(),
+          shiny::p("You can check the data in the 'Data' tab for more details on the issue.")
+        ))
+      } else {
+        return(shiny::tagList(
+          # Horizontal line ----
+          tags$hr(),
+
+          h2("Choose the number of weeks to generate signals for"),
+          shiny::uiOutput(ns("weeks_slider")),
+
+
+          h2("Choose which pathogen in the dataset to check for aberrations"),
+          br(),
+
+          shiny::uiOutput(ns("pathogen_choices")),
+
+          h2("Filter dataset"),
+          br(),
+          shiny::uiOutput(ns("filter_variables")),
+          shiny::uiOutput(ns("filter_values")),
+          tags$style(shiny::HTML(paste0("#", id, "-filter_variables{display:inline-block}"))),
+          tags$style(shiny::HTML(paste0("#", id, "-filter_values{display:inline-block}"))),
+
+          h2("Choose stratification parameters (max. 3)"),
+          br(),
+
+          shiny::uiOutput(ns("strat_choices"))
+        ))
+      }
     })
-    output$max_date_choice <- shiny::renderUI({
-      return(shiny::dateInput(
-        inputId = ns("max_date"), label = "Maximum date:",
-        value = max(data()$date_report),
-        min = min(data()$date_report),
-        max = max(data()$date_report),
-        weekstart = 1
-      ))
+
+    output$weeks_slider <- shiny::renderUI({
+      shiny::req(!errors_detected())
+      shiny::sliderInput(inputId = ns("n_weeks"),
+                         label = "",
+                         value = 6,
+                         min = 1,
+                         max = 52) #TODO: make this dynamic
     })
+
+    # shiny::observe({ print("input:"); print(head(data())) })
 
     data_sub <- shiny::reactive({
       req(data)
       req(!errors_detected())
-      dat <- data()
-      # data range limit or pick everything
-      dat <- dplyr::mutate(dat, subset = TRUE)
-      if (input$dates_bin) {
-        dat <- dplyr::mutate(dat,
-          subset = dplyr::between(
-            as.Date(date_report),
-            input$min_date,
-            input$max_date
-          )
-        )
-      }
 
       # add subset indicator for selected pathogens
-      dat <- dplyr::mutate(dat,
-        subset = subset &
-          (pathogen %in% input$pathogen_vars)
-      )
+      dat <- data() %>%
+        dplyr::mutate(subset = pathogen %in% input$pathogen_vars)
 
       return(dat)
     })
 
     ## showing options in ui
     output$pathogen_choices <- shiny::renderUI({
-      req(!errors_detected())
-      return(shiny::selectInput(
-        inputId = ns("pathogen_vars"),
-        label = "Choose pathogen:",
-        choices = unique(data()$pathogen)
-      ))
+      shiny::req(!errors_detected())
+      return(shiny::selectInput(inputId = ns("pathogen_vars"),
+                                label = "Choose pathogen:",
+                                choices = unique(data()$pathogen))
+      )
     })
-
 
     # variable options for filter ui and strata selection
     available_var_opts <- shiny::reactive({
@@ -146,7 +140,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
       # keep level ordering if factor
       if (class(data_sub()[[input$filter_variable]]) == "factor") {
-        filter_choices <- levels(data()[[input$filter_variable]])
+        filter_choices <- levels(data_sub()[[input$filter_variable]])
       } else {
         filter_choices <- data_sub() %>%
           dplyr::pull(input$filter_variable) %>%
@@ -273,18 +267,10 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     })
 
     # Return list of subsetted data and parameters
-    return(
-      list(
-        data = reactive({
-          dplyr::filter(filtered_data(), subset == TRUE)
-        }),
-        strat_vars = reactive({
-          input$strat_vars
-        }),
-        pathogen_vars = reactive({
-          input$pathogen_vars
-        })
-      )
+    return(list(data = reactive({ dplyr::filter(filtered_data(), subset == TRUE) }),
+             n_weeks = shiny::reactive(input$n_weeks),
+             strat_vars = reactive({ input$strat_vars }),
+             pathogen_vars = reactive({ input$pathogen_vars }))
     )
   })
 }

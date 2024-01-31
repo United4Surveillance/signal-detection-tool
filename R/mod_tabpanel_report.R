@@ -12,40 +12,9 @@ mod_tabpanel_report_ui <- function(id) {
 
   shiny::tabPanel(
     "Report",
-    shiny::titlePanel("Download Report"),
 
-    # Sidebar layout with input and output definitions ----
-    shiny::sidebarLayout(
+    shiny::uiOutput(ns("report_tab_ui")),
 
-      # Sidebar panel for inputs ----
-      shiny::sidebarPanel(
-
-        # Input: Choose dataset ----
-        shiny::selectInput(NS(id, "format"), "Choose a format:",
-                           choices = c("HTML", "DOCX", "PDF")),
-
-        shiny::checkboxInput(NS(id, "interactive"),
-                             "Interactive HTML",
-                             value = TRUE),
-
-        shiny::checkboxInput(NS(id, "tables"),
-                             "Include tables (stratifications)",
-                             value = TRUE),
-
-        # Button
-        shiny::downloadButton(NS(id, "downloadReport"), "Create Report")
-
-      ),
-
-      # Main panel for displaying outputs ----
-      shiny::mainPanel(
-        shiny::h1("Signal detection report"),
-        shiny::p(paste("Be aware that the generation of the report can take",
-                       "several minutes.")),
-        shiny::textOutput(NS(id, "report_text"))
-      )
-
-    ),
     icon = shiny::icon("download")
   )
 
@@ -58,9 +27,62 @@ mod_tabpanel_report_ui <- function(id) {
 mod_tabpanel_report_server <- function(id,
                                        indata,
                                        strat_vars,
-                                       pathogen_vars) {
+                                       pathogen_vars,
+                                       errors_detected) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
+
+    ## UI-portion of the tab below!
+    # ensuring that content is onlyu shown if data check returns no errors
+    output$report_tab_ui <- shiny::renderUI({
+      if (errors_detected() == TRUE) {
+        return(shiny::tagList(
+          shiny::br(),
+          shiny::h2("Data Format Check Failed"),
+          shiny::p("Unfortunately, the selected data does not meet the required format."),
+          shiny::p("Please make sure the data follows the correct structure and try again."),
+          shiny::br(),
+          shiny::hr(),
+          shiny::p("You can check the data in the 'Data' tab for more details on the issue.")
+        ))
+      } else {
+        return(shiny::tagList(
+          shiny::titlePanel("Download Report"),
+
+          # Sidebar layout with input and output definitions ----
+          shiny::sidebarLayout(
+
+            # Sidebar panel for inputs ----
+            shiny::sidebarPanel(
+
+              # Input: Choose dataset ----
+              shiny::selectInput(NS(id, "format"), "Choose a format:",
+                                 choices = c("HTML", "DOCX", "PDF")),
+
+              shiny::checkboxInput(NS(id, "interactive"),
+                                   "Interactive HTML",
+                                   value = TRUE),
+
+              shiny::checkboxInput(NS(id, "tables"),
+                                   "Include tables (stratifications)",
+                                   value = TRUE),
+
+              # Button
+              shiny::downloadButton(NS(id, "downloadReport"), "Create Report")
+
+            ),
+
+            # Main panel for displaying outputs ----
+            shiny::mainPanel(
+              shiny::h1("Signal detection report"),
+              shiny::p(paste("Be aware that the generation of the report can take",
+                             "several minutes.")),
+              shiny::textOutput(NS(id, "report_text"))
+            )
+          )
+        ))
+      }
+    })
 
     # Download generated report
     output$report_text <- renderText({

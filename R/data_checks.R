@@ -19,25 +19,25 @@ check_raw_surveillance_data <- function(data) {
     errors <- append(errors, "Empty rows in the data")
   }
 
-  # remove all columns which are not filled
-  empty_columns <- apply(data, 2, function(x) {
-    (all(is.na(x)) | all(x == ""))
-  })
-  empty_column_names <- names(empty_columns)[empty_columns]
-  data <- data %>%
-    dplyr::select(-all_of(empty_column_names))
+  # removing completely empty columns from before checking
+  data <- remove_empty_columns(data)
 
   # check mandatory and optional variabless
   errors_mandatory <- check_mandatory_variables(data)
   errors_optional <- check_type_and_value_optional_variables(data)
-  errors <- c(errors, errors_mandatory, errors_optional)
+
+  # checking consistency of all region and corresponding id variables provided
+  regions_available <- intersect(colnames(data),region_variable_names())
+  errors_consistency_region <- check_region_region_id_consistency(data,regions_available)
+
+  errors <- c(errors, errors_mandatory, errors_optional, errors_consistency_region)
 
   # return TRUE or print error messages
   if (length(errors) != 0) {
     # remove empty slots
     errors <- errors[sapply(errors, function(element) !is.null(element))]
   }
-    errors
+  errors
 }
 
 #' checking mandatory variables in the surveillance data
@@ -266,7 +266,6 @@ check_type_and_value_case_id <- function(data) {
 #' @param var character, variable to check
 #' @returns list, empty when no errors occured or filled with error messages
 check_type_and_value_yes_no_unknown <- function(data, var) {
-
   errors <- list()
 
   if (!checkmate::test_character(data[[var]])) {
@@ -322,6 +321,33 @@ check_empty_rows <- function(data) {
   any(apply(data == "" | is.na(data) | is.null(data), 1, all))
 }
 
+#' Check whether the region and corresponding region_id columns only have one region name per ID
+#' @param data data.frame, raw linelist of surveillance cases
+#' @param regions vector of strings, specifying the region variable names, i.e. c("county","community")
+#' @returns list, empty when no errors occured or filled with error messages
+check_region_region_id_consistency <- function(data, regions) {
+  errors <- list()
+
+  for (i in seq_along(regions)) {
+    region <- regions[i]
+    region_id <- get_region_id_from_region(region)
+
+    if (region %in% colnames(data) & region_id %in% colnames(data)) {
+      region_and_region_id <- data %>%
+        dplyr::distinct(!!rlang::sym(region_id), !!rlang::sym(region))
+      duplicated_ids <- any(duplicated(region_and_region_id %>%
+        dplyr::select(region_id)), na.rm = T)
+      if (duplicated_ids) {
+        error_message <- paste0("There are several differing region names in the column ", region, " which have the same ", region_id, ". Each ", region_id, " should only match one ", region, " . Please check whether there are any typos in your ", region, " column")
+        errors <- append(errors, error_message)
+      }
+    }
+  }
+  errors
+}
+
+
+
 #' checking YYYYY-mm-dd format of date variables
 #' @param date_var character, date variable to check
 #' @returns boolean, when TRUE all values of date_var are in the required format, when FALSE at least one is not in required format
@@ -338,6 +364,25 @@ is_ISO8601_detailed <- function(date_var) {
   pattern <- "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
 
   all(grepl(pattern, date_var) | is.na(date_var) | date_var == "")
+}
+
+#' Retrieveing which columns in the dataset only contain missing values
+#' @param data data.frame, dataset to check for empty columns can be linelist of surveillance data
+#' @returns named vector with column names and boolean specifying complete missingness or not
+get_empty_columns <- function(data) {
+  apply(data, 2, function(x) {
+    (all(is.na(x)) | all(x == "") | all(x == "unknown") | all(x == "NA"))
+  })
+}
+
+#' Removing columns from data which only contain missing values
+#' @param data data.frame, dataset to remove empty columns from, can be linelist of surveillance data
+#' @returns data.frame without columns which only contained missing values
+remove_empty_columns <- function(data) {
+  empty_columns <- get_empty_columns(data)
+  empty_column_names <- names(empty_columns)[empty_columns]
+  data %>%
+    dplyr::select(-dplyr::all_of(empty_column_names))
 }
 
 #' Helper to check that values of a character variable are in given levels
