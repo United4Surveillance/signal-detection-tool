@@ -39,12 +39,9 @@ preprocess_data <- function(data) {
     ))
 
   # age or age_group is mandatory thus we need to check whether column present in data
-  if ("age_group" %in% colnames(data)) {
-    data <- data %>%
-      dplyr::mutate(age_group = factor(age_group,
-        levels = stringr::str_sort(unique(data$age_group), numeric = TRUE)
-      ))
-  }
+  # or else create age_group from age
+  data <- age_groups(data)
+
   # sex is not mandatory
   if ("sex" %in% colnames(data)) {
     data <- data %>%
