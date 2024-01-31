@@ -18,7 +18,10 @@ plot_barchart <- function(signals_agg,
     checkmate::check_false(interactive),
     combine = "or"
   )
-
+  # current possibilities we allow for barchart plotting
+  checkmate::assert_choice(unique(signals_agg$category), choices = c("age_group",
+                                                                     "subtype",
+                                                                     "sex"))
   x_axis_labels <- list(age_group = "Age group",
                         subtype = "Subtype",
                         sex = "Sex")
