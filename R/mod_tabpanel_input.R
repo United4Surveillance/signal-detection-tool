@@ -12,38 +12,10 @@ mod_tabpanel_input_ui <- function(id) {
 
   shiny::tabPanel(
     "Input parameters",
-    # Horizontal line ----
-    tags$hr(),
-
-    h2("Choose the number of weeks to generate signals for"),
-    shiny::uiOutput(ns("weeks_slider")),
-
-
-    h2("Choose which pathogen in the dataset to check for aberrations"),
-    br(),
-
-    shiny::uiOutput(ns("pathogen_choices")),
-
-    shiny::div(id = "filter_input",
-               h2("Filter dataset",
-                  shiny::actionButton(inputId = ns("add_filter"),
-                                      label = "",
-                                      icon = shiny::icon("plus")),
-                  shiny::actionButton(inputId = ns("remove_filter"),
-                                      label = "",
-                                      icon = shiny::icon("minus"))),
-    ),
-    br(),
-    mod_input_filter_ui(id = ns("filter0")),
-
-
-    h2("Choose stratification parameters (max. 3)"),
-    br(),
-
-    shiny::uiOutput(ns("strat_choices")),
-
+    shiny::uiOutput(ns("input_tab_ui")),
     icon = icon("viruses")
   )
+
 }
 
 
@@ -61,6 +33,54 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
       rvs_r6$.values$remove(ind)
       rvs_r6$.nameOrder <- setdiff(rvs_r6$.nameOrder, ind)
     }
+
+    ## UI-portion of the tab below!
+    # ensuring that content is onlyu shown if data check returns no errors
+    output$input_tab_ui <- shiny::renderUI({
+      if (errors_detected() == TRUE) {
+        return(shiny::tagList(
+          shiny::br(),
+          shiny::h2("Data Format Check Failed"),
+          shiny::p("Unfortunately, the selected data does not meet the required format."),
+          shiny::p("Please make sure the data follows the correct structure and try again."),
+          shiny::br(),
+          shiny::hr(),
+          shiny::p("You can check the data in the 'Data' tab for more details on the issue.")
+        ))
+      } else {
+        return(shiny::tagList(
+          # Horizontal line ----
+          tags$hr(),
+
+          h2("Choose the number of weeks to generate signals for"),
+          shiny::uiOutput(ns("weeks_slider")),
+
+
+          h2("Choose which pathogen in the dataset to check for aberrations"),
+          br(),
+
+          shiny::uiOutput(ns("pathogen_choices")),
+
+          shiny::div(id = "filter_input",
+                     h2("Filter dataset",
+                        shiny::actionButton(inputId = ns("add_filter"),
+                                            label = "",
+                                            icon = shiny::icon("plus")),
+                        shiny::actionButton(inputId = ns("remove_filter"),
+                                            label = "",
+                                            icon = shiny::icon("minus"))),
+          ),
+          br(),
+          mod_input_filter_ui(id = ns("filter0")),
+
+
+          h2("Choose stratification parameters (max. 3)"),
+          br(),
+
+          shiny::uiOutput(ns("strat_choices")),
+        ))
+      }
+    })
 
     output$weeks_slider <- shiny::renderUI({
       shiny::req(!errors_detected())
