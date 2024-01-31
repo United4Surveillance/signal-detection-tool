@@ -345,7 +345,7 @@ get_empty_columns <- function(data) {
 
 #' Removing columns from data which only contain missing values
 #' @param data data.frame, dataset to remove empty columns from, can be linelist of surveillance data
-#' @param returns data.frame without columns which only contained missing values
+#' @returns data.frame without columns which only contained missing values
 remove_empty_columns <- function(data) {
   empty_columns <- get_empty_columns(data)
   empty_column_names <- names(empty_columns)[empty_columns]
