@@ -38,7 +38,7 @@ plot_barchart <- function(signals_agg,
                                              color = dplyr::if_else(any_alarms, "red",NA),
                                              text = sprintf("Number of cases: %.0f \nNumber of alarms: %.0f",
                                                             .data$cases, .data$n_alarms)),
-                      fill = "darkblue",
+                      fill = "#304794",
                       linewidth = 1.2) +
     ggplot2::labs(x = x_label,y = "Number of cases") +
     ggplot2::scale_color_identity("",
