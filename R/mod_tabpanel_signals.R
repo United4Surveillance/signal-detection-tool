@@ -29,7 +29,8 @@ mod_tabpanel_signals_server <- function(
     data,
     errors_detected,
     number_of_weeks,
-    strat_vars) {
+    strat_vars,
+    method) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -77,6 +78,7 @@ mod_tabpanel_signals_server <- function(
       shiny::req(!errors_detected())
       results <- SignalDetectionTool::get_signals(
         data = data(),
+        method = method(),
         stratification = strat_vars_tidy(),
         date_var = "date_report",
         number_of_weeks = number_of_weeks()

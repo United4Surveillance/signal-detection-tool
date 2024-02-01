@@ -65,7 +65,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
           h2("Choose stratification parameters (max. 3)"),
           br(),
 
-          shiny::uiOutput(ns("strat_choices"))
+          shiny::uiOutput(ns("strat_choices")),
+
+          h2("Chose an outbreak detection algorithm"),
+          span("Depending on the number of weeks you want to generate alarms for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
+          br(),
+
+          shiny::uiOutput(ns("algorithm_choice"))
         ))
       }
     })
@@ -235,12 +241,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     algorithms_possible <- shiny::reactive({
       shiny::req(input$filter_variable)
       shiny::req(filtered_data)
+      shiny::req(input$n_weeks)
 
 
       signals_all_methods <- dplyr::bind_rows(purrr::map(unlist(available_algorithms()), function(algorithm) {
         signals <- get_signals(filtered_data(),
           method = algorithm,
-          number_of_weeks = 52
+          number_of_weeks = input$n_weeks
         )
         if (!is.null(signals)) {
           signals <- signals %>% dplyr::mutate(method = algorithm)
@@ -253,16 +260,33 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       return(algorithms_working_named)
     })
 
+    # implementing that the algorithm choice does not always move back to the default
+    # farrington when the number of weeks is changed but stays with the last selected
+    # algorithm as this algorithm is still working
+    last_selected_algorithm <- shiny::reactiveVal("farrington")
+
+    shiny::observeEvent(input$algorithm_choice, {
+      last_selected_algorithm(input$algorithm_choice)
+
+    })
 
     output$algorithm_choice <- shiny::renderUI({
       shiny::req(!errors_detected())
       shiny::req(algorithms_possible)
+
+      selected_algorithm <- last_selected_algorithm()
+      # when last selected algorithm is no longer possible chose the first of the list
+      if(!selected_algorithm %in% algorithms_possible()){
+        selected_algorithm <- algorithms_possible()[1]
+      }
+
       shiny::selectInput(
         inputId = ns("algorithm_choice"),
         multiple = FALSE,
         label = "Choose an algorithm:",
-        selected = "FarringtonFlexible",
-        choices = algorithms_possible()
+        selected = selected_algorithm,
+        choices = algorithms_possible(),
+        selectize = FALSE
       )
     })
 
@@ -270,7 +294,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     return(list(data = reactive({ dplyr::filter(filtered_data(), subset == TRUE) }),
              n_weeks = shiny::reactive(input$n_weeks),
              strat_vars = reactive({ input$strat_vars }),
-             pathogen_vars = reactive({ input$pathogen_vars }))
+             pathogen_vars = reactive({ input$pathogen_vars }),
+             method = reactive({ input$algorithm_choice }))
     )
   })
 }

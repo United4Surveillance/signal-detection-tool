@@ -28,6 +28,7 @@ mod_tabpanel_report_server <- function(id,
                                        indata,
                                        strat_vars,
                                        pathogen_vars,
+                                       method,
                                        errors_detected) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -87,7 +88,7 @@ mod_tabpanel_report_server <- function(id,
     # Download generated report
     output$report_text <- renderText({
       paste("Generated outputs for", pathogen_vars(), " stratified ",
-            "by ", paste0(strat_vars(), collapse = ", "))
+            "by ", paste0(strat_vars(), collapse = ", "), "using ", names(available_algorithms())[available_algorithms() == method()], " as outbreak detection algorithm.")
     })
 
 
@@ -100,6 +101,7 @@ mod_tabpanel_report_server <- function(id,
         run_report(report_format = input$format,
                    data = indata(),
                    strata = strat_vars(),
+                   algo = method(),
                    interactive = input$interactive,
                    tables = input$tables,
                    # training_range, #TODO

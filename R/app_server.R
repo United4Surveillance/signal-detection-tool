@@ -19,13 +19,15 @@ app_server <- function(input, output, session) {
     data = datinput$data,
     number_of_weeks = datinput$n_weeks,
     strat_vars = datinput$strat_vars,
-    errors_detected = data_load_check_result$errors_detected
+    errors_detected = data_load_check_result$errors_detected,
+    method = datinput$method
   )
 
   mod_tabpanel_report_server("report",
                              indata = datinput$data,
                              strat_vars = datinput$strat_vars,
                              pathogen_vars = datinput$pathogen_vars,
-                             errors_detected = data_load_check_result$errors_detected)
+                             errors_detected = data_load_check_result$errors_detected,
+                             method = datinput$method)
 
 }
