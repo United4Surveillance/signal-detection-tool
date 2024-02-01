@@ -7,7 +7,7 @@
 plot_agegroup_by(
   df,
   age_group_col = "age_group",
-  by_col = "sex",
+  by_col = NULL,
   interactive = FALSE
 )
 }
