@@ -184,7 +184,13 @@ get_signals_stratified <- function(data,
 
     # iterate over all strata and run algorithm
     for (stratum in strata) {
-      sub_data <- data %>% dplyr::filter(.data[[category]] == stratum)
+      # when stratum is NA filter needs to be done differently otherwise the NA stratum is lost
+      if(is.na(stratum)){
+        sub_data <- data %>% dplyr::filter(is.na(.data[[category]]))
+      } else{
+        sub_data <- data %>% dplyr::filter(.data[[category]] == stratum)
+      }
+
 
       # aggregate data
       sub_data_agg <- sub_data %>%
