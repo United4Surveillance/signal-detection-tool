@@ -5,12 +5,21 @@ date: "Report generated on `r format(Sys.Date(), '%d %B %Y')`"
 output: 
   html_document:
     css: "style.css"
+    includes:
+      before_body: "header_logo.html"
     theme: cerulean
     toc: true
     toc_depth: 3
     toc_float: true
     embed-resources: true
     self-contained: true
+  word_document:
+    reference_docx: "template.docx"
+    toc: true
+  pdf_document:
+    toc: true
+    includes:
+      in_header: "preamble.tex"
 params: 
   data: NULL
   disease: "Pertussis"
