@@ -47,22 +47,10 @@ knitr::kable(input_metadata, format = "html")
 
 ## Advanced Use 
 
-Reading the data in R.
-
-```{r, results='hide'}
-data <- input_example
-
-```
-
 ### Preprocessing the data
 
 ```{r}
-data <- dplyr::mutate(data, date_onset = dplyr::if_else(is.na(date_onset), 
-                                                        date_report, 
-                                                        date_onset)) 
-data <- age_groups(data)
-data$age_group <- factor(data$age_group)
-data$sex <- factor(data$sex)
+data <- preprocess_data(input_example)
 ```
 
 ### Plotting the time series
