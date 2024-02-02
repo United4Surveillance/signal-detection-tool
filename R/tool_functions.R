@@ -219,7 +219,7 @@ get_signals_stratified <- function(data,
 #' This function analyzes surveillance data to detect signals using the
 #' specified method.
 #'
-#' @param data A data frame containing the surveillance data.
+#' @param data A data frame containing the surveillance data preprocessed with [preprocess_data()].
 #' @param method The method to use for signal detection (currently supports
 #'   "farrington").
 #' @param stratification A character vector specifying the columns to stratify
