@@ -1,6 +1,13 @@
 #' Preprocessing of linelist surveillance data with or without outbreak_ids
 #' @param data data.frame, Linelist of surveillance data
-#' @returns data.frame, preprocessed linelist with transformation of columns to date, to lower, generation of isoyear and isoweek
+#' @returns data.frame, preprocessed linelist with transformation of columns to date,
+#' to lower, generation of isoyear and isoweek
+#'
+#' @export
+#'
+#' \dontrun{
+#' preprocess_data(input_example)
+#' }
 preprocess_data <- function(data) {
   # Convert the date columns to date format
   yes_no_unknown_vars <- intersect(colnames(data), yes_no_unknown_variables())
