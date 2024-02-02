@@ -70,28 +70,4 @@ create_results_table(results, interactive = TRUE)
 ```
 
 
-### Regional visualization
-
-
-```{r, eval = TRUE}
-signals_county <- get_signals(data, stratification = c("county_id"))
-plot_regional(data, 
-              signals_county, 
-              nuts_shp, 
-              country_id = unique(data$country_id), 
-              regional_level = "county", 
-              interactive = TRUE)
-```
-
-```{r, eval = TRUE}
-signals_community <- get_signals(data, stratification = c("community_id"))
-plot_regional(data, 
-              signals_community, 
-              nuts_shp, 
-              country_id = unique(data$country_id), 
-              regional_level = "community", 
-              interactive = TRUE)
-```
-
-
 
