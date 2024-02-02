@@ -10,8 +10,14 @@ preprocess_data(data)
 \item{data}{data.frame, Linelist of surveillance data}
 }
 \value{
-data.frame, preprocessed linelist with transformation of columns to date, to lower, generation of isoyear and isoweek
+data.frame, preprocessed linelist with transformation of columns to date,
+to lower, generation of isoyear and isoweek
 }
 \description{
 Preprocessing of linelist surveillance data with or without outbreak_ids
+}
+\examples{
+\dontrun{
+preprocess_data(input_example)
+}
 }

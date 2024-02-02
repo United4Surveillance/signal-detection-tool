@@ -17,6 +17,10 @@ Generate an output filename based on the results from get_signals.
 }
 \examples{
 # Generate a filename based on results data
-conjure_filename(SignalDetectionTool::get_signals(SignalDetectionTool::input_example))
+\dontrun{
+data <- preprocess_data(SignalDetectionTool::input_example)
+conjure_filename(SignalDetectionTool::get_signals(data))
+}
+
 
 }

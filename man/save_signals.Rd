@@ -20,12 +20,10 @@ A list containing success status (TRUE or FALSE) and a message (NULL for success
 Save the processed results to a CSV file and return codes and messages for application use.
 }
 \examples{
-
 # Save signals with default or custom filepath
-# signals <- SignalDetectionTool::get_signals(SignalDetectionTool::input_example)
-signals <- SignalDetectionTool::get_signals(SignalDetectionTool::input_example,
-  stratification = c("county", "sex", "age_group")
-)
-save_signals(signals, SignalDetectionTool::input_example)
+\dontrun{
+data <- preprocess_data(SignalDetectionTool::input_example)
+save_signals(SignalDetectionTool::get_signals(data), data)
+}
 
 }

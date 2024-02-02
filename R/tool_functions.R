@@ -322,13 +322,11 @@ get_signals <- function(data,
 #' @return A list containing success status (TRUE or FALSE) and a message (NULL for success, a warning, or an error).
 #'
 #' @examples
-#'
 #' # Save signals with default or custom filepath
-#' # signals <- SignalDetectionTool::get_signals(SignalDetectionTool::input_example)
-#' signals <- SignalDetectionTool::get_signals(SignalDetectionTool::input_example,
-#'   stratification = c("county", "sex", "age_group")
-#' )
-#' save_signals(signals, SignalDetectionTool::input_example)
+#' \dontrun{
+#' data <- preprocess_data(SignalDetectionTool::input_example)
+#' save_signals(SignalDetectionTool::get_signals(data), data)
+#' }
 #'
 #' @export
 save_signals <- function(signals, original_input_data, filepath = "") {
@@ -412,7 +410,11 @@ save_signals <- function(signals, original_input_data, filepath = "") {
 #'
 #' @examples
 #' # Generate a filename based on results data
-#' conjure_filename(SignalDetectionTool::get_signals(SignalDetectionTool::input_example))
+#' \dontrun{
+#' data <- preprocess_data(SignalDetectionTool::input_example)
+#' conjure_filename(SignalDetectionTool::get_signals(data))
+#' }
+#'
 #'
 #' @export
 conjure_filename <- function(data) {
