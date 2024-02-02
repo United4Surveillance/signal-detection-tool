@@ -292,9 +292,8 @@ get_signals <- function(data,
     results <- fun(data_agg, number_of_weeks)
 
     if(!is.null(results)){
-      results %>%
-        dplyr::mutate(category = NA, stratum = NA) %>%
-        dplyr::mutate(method = method)
+      results <- results %>%
+        dplyr::mutate(category = NA, stratum = NA)
     }
   } else {
     results <- get_signals_stratified(

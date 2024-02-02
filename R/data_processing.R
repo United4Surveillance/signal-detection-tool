@@ -9,6 +9,8 @@
 #' preprocess_data(input_example)
 #' }
 preprocess_data <- function(data) {
+  # remove completely empty columns from the dataset
+  data <- remove_empty_columns(data)
   # Convert the date columns to date format
   yes_no_unknown_vars <- intersect(colnames(data), yes_no_unknown_variables())
   # get all variables present in the data which might need transformation tolower
@@ -71,6 +73,32 @@ aggregate_data <- function(data,
       year = !!rlang::sym(year_var),
       .data$cases
     )
+}
+
+#' Aggregate cases and signals for the number of weeks given stratum and category.
+#' First the signals are filtered to obtain the signals for the last n weeks, n given by the number of weeks
+#' aggregating the number of cases observed, create variable any alarm generated and the aggregate the number of alarms
+#' @param signals tibble, output of the get_signals() function with number of cases per week, year and alarm
+#' @param number_of_weeks integer, specifying the number of weeks we want to aggregate the number of cases and the generated alarms
+#' @returns tibble, with one line per groups containing the number of cases, any_alarms and n_alarms
+#' @examples
+#' \dontrun{
+#' signals <- input_example %>%
+#'   preprocess_data() %>%
+#'   get_signals(stratification = c("sex", "county_id"))
+#' signals %>% aggregate_signals(number_of_weeks = 6)
+#' }
+aggregate_signals <- function(signals, number_of_weeks) {
+
+  signals %>%
+    filter_data_last_n_weeks(number_of_weeks = number_of_weeks) %>%
+    dplyr::group_by(category,stratum) %>%
+    dplyr::summarise(
+      cases = sum(cases, na.rm = T),
+      any_alarms = any(alarms, na.rm = T),
+      n_alarms = sum(alarms, na.rm = T)
+    ) %>%
+    dplyr::ungroup()
 }
 
 
@@ -170,4 +198,22 @@ add_rows_missing_dates <- function(data, date_start = NULL, date_end = NULL) {
   result$cases[is.na(result$cases)] <- 0
 
   return(result)
+}
+
+#' Filter the data so that only the data of the last n weeks are returned
+#' This function can be used to filter for those last n weeks where alarms were generated. For this we could use is.na(alarms) but because it might happen that algorithms generate NA for an alarm this function is the safer option.
+#' @param data_agg data.frame, aggregated surveillance or signals dataset, where aggregated means no linelist but cases or signals per week, year
+#' @param number_of_weeks integer, specifying the number of weeks from the most recent week we want to filter the data for
+#' @returns data.frame, aggregated data of last n weeks
+filter_data_last_n_weeks <- function(data_agg,
+                                     number_of_weeks) {
+  checkmate::assert(
+    checkmate::check_integerish(number_of_weeks)
+  )
+
+  data_agg %>%
+    dplyr::group_by(category,stratum) %>%
+    dplyr::arrange(year, week) %>%
+    dplyr::slice_tail(n = number_of_weeks) %>%
+    dplyr::ungroup()
 }

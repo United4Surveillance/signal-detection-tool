@@ -2,10 +2,10 @@
 % Please edit documentation in R/levels.R
 \name{region_id_variable_names}
 \alias{region_id_variable_names}
-\title{Variable names of the NUTS id variables}
+\title{Variable names of the region_id variables including those which do not necessarily follow NUTS format}
 \usage{
 region_id_variable_names()
 }
 \description{
-Variable names of the NUTS id variables
+Variable names of the region_id variables including those which do not necessarily follow NUTS format
 }
