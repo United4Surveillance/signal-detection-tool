@@ -5,6 +5,7 @@
 #'
 #' @export
 #'
+#' @examples
 #' \dontrun{
 #' preprocess_data(input_example)
 #' }
