@@ -34,11 +34,6 @@ params:
 
 ---
 
-```{r, echo=FALSE}
-htmltools::img(src = knitr::image_uri("logo.png"), 
-               alt = 'logo', 
-               style = 'position:absolute; top:0; right:0; padding:10px;')
-```
 
 ```{r, echo=FALSE}
 knitr::opts_chunk$set(eval = TRUE, 
