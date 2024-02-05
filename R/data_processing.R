@@ -12,10 +12,11 @@ preprocess_data <- function(data) {
   regional_id_vars <- intersect(colnames(data), region_id_variable_names())
 
   data <- data %>%
-    dplyr::mutate(dplyr::across(dplyr::starts_with("date"), ~ as.Date(.x, optional = T))) %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(to_lower_vars), ~ tolower(.x))) %>%
     dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, ""))) %>%
     dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, "unknown"))) %>%
+    dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, "NA"))) %>%
+    dplyr::mutate(dplyr::across(dplyr::starts_with("date"), ~ as.Date(.x, optional = T))) %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(regional_id_vars), ~ as.character(.x)))
 
   # add columns for isoyear and isoweek for each date
@@ -67,10 +68,12 @@ aggregate_data <- function(data,
     )
 }
 
-#' Aggregate cases and signals for the number of weeks given stratum and category.
-#' First the signals are filtered to obtain the signals for the last n weeks, n given by the number of weeks
+#' Aggregate cases and signals over the number of weeks.
+
+#' First the signals are filtered to obtain the signals for the last n weeks
 #' aggregating the number of cases observed, create variable any alarm generated and the aggregate the number of alarms
-#' @param signals tibble, output of the get_signals() function with number of cases per week, year and alarm
+
+#' @param signals tibble, output of the \code{\link{get_signals}} function with number of cases and alarm per week, year
 #' @param number_of_weeks integer, specifying the number of weeks we want to aggregate the number of cases and the generated alarms
 #' @returns tibble, with one line per groups containing the number of cases, any_alarms and n_alarms
 #' @examples
@@ -80,6 +83,7 @@ aggregate_data <- function(data,
 #'   get_signals(stratification = c("sex", "county_id"))
 #' signals %>% aggregate_signals(number_of_weeks = 6)
 #' }
+#' @export
 aggregate_signals <- function(signals, number_of_weeks) {
 
   signals %>%
