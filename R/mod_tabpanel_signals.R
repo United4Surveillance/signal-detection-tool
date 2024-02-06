@@ -51,7 +51,7 @@ mod_tabpanel_signals_server <- function(
       else if (no_algorithm_possible() == TRUE){
         return(shiny::tagList(
           shiny::br(),
-          shiny::h3("There is no algorithm which can be applied to your current settings, please change your selected settings in the input tab and try again."),
+          shiny::h3("There is no outbreak detection algorithm which can be applied to your current settings, please change your selected settings in the input tab and try again."),
           shiny::br()
         ))
       } else {
