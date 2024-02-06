@@ -2,7 +2,7 @@
 
 
 #' Decider for creating a map or a table based on whether all NUTS_ids are found in the shapefile
-#' @param signals_agg tibble, aggregated signals over n weeks with columns number of cases, any_alarms and n_alarms
+#' @param signals_agg tibble, aggregated signals over n weeks with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. state and county.
 #' @param data_surveillance data.frame, surveillance linelist
 #' @param region character, specifying the variable for the region to be shown should be one of ("country","state",
 #' "county","community","region_level1", "region_level2","region_level3")
@@ -95,4 +95,42 @@ create_map_or_table <- function(signals_agg,
   }
 
   return(output)
+}
+
+#' Decider function to create barplot or table of aggregated cases with signals
+
+#' Depending on the number of unique levels to visualise it is decided whether a barplot or a table is shown. The aggregated number of cases for each stratum and whether any alarm are shown.
+#' @param signals_agg tibble, aggregated signals over n weeks with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. age_group and county.
+#' @param category_selected the category from the signals_agg we want to visualise
+#' @param n_levels the threshold for the number of levels from which we decide when a table is generated instead of a barchart visualisation
+#' @param interactive boolean identifying whether the plot should be static or interactive
+#' @returns a table or a plot depending on whether number of unique levels for the category to visualise, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
+#' @examples
+#' \dontrun{
+#' signals <- input_example %>%
+#'   preprocess_data() %>%
+#'   get_signals(stratification = c("sex", "age_group"))
+#' signals_agg <- signals %>% aggregate_signals(number_of_weeks = 6)
+#' create_barplot_or_table(signals_agg, "age_group")
+#' }
+create_barplot_or_table <- function(signals_agg,
+                                    category_selected,
+                                    n_levels = 25,
+                                    interactive = TRUE){
+
+  signals_agg <- signals_agg %>%
+    dplyr::filter(category == category_selected)
+
+  n_levels_data <- length(unique(signals_agg$stratum))
+
+  if(n_levels_data < n_levels){
+    plot_barchart(signals_agg, interactive = interactive)
+  }else{
+    create_table(
+      signals_agg %>%
+        dplyr::select(-category) %>%
+        convert_columns_integer(c("cases", "n_alarms")),
+      interactive = interactive
+    )
+  }
 }
