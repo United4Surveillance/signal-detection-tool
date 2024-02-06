@@ -2,24 +2,20 @@
 % Please edit documentation in R/data_processing.R
 \name{filter_data_last_n_weeks}
 \alias{filter_data_last_n_weeks}
-\title{Filter the data so that only the data of the last n weeks are returned}
+\title{Filter the data so that only the data of the last n weeks are returned
+This function can be used to filter for those last n weeks where alarms were generated. For this we could use is.na(alarms) but because it might happen that algorithms generate NA for an alarm this function is the safer option.}
 \usage{
-filter_data_last_n_weeks(
-  data_agg,
-  number_of_weeks,
-  groups = c("category", "stratum")
-)
+filter_data_last_n_weeks(data_agg, number_of_weeks)
 }
 \arguments{
 \item{data_agg}{data.frame, aggregated surveillance or signals dataset, where aggregated means no linelist but cases or signals per week, year}
 
 \item{number_of_weeks}{integer, specifying the number of weeks from the most recent week we want to filter the data for}
-
-\item{groups}{character vector, groups to stratify by before filtering such that there is one timeseries to filter per group}
 }
 \value{
 data.frame, aggregated data of last n weeks
 }
 \description{
 Filter the data so that only the data of the last n weeks are returned
+This function can be used to filter for those last n weeks where alarms were generated. For this we could use is.na(alarms) but because it might happen that algorithms generate NA for an alarm this function is the safer option.
 }
