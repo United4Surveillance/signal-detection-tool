@@ -68,12 +68,13 @@ run_report <- function(
 
 
   report_f <- dplyr::case_when(
-    report_format == "HTML" ~ "SignalDetectionReport.Rmd",
-    report_format == "DOCX" ~ "SignalDetectionReportWord.Rmd",
-    report_format == "PDF" ~ "SignalDetectionReportPDF.Rmd",
+    report_format == "HTML" ~ "html_document",
+    report_format == "DOCX" ~ "word_document",
+    report_format == "PDF" ~ "pdf_document",
     TRUE ~ NA_character_)
 
-  rmarkdown::render(paste0("inst/report/", report_f),
+  rmarkdown::render("inst/report/SignalDetectionReport.Rmd",
+                    output_format = report_f,
                     params = report_params,
                     output_file = output_file)
 
