@@ -276,18 +276,35 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
       selected_algorithm <- last_selected_algorithm()
       # when last selected algorithm is no longer possible chose the first of the list
-      if(!selected_algorithm %in% algorithms_possible()){
+      if(!selected_algorithm %in% algorithms_possible() & length(algorithms_possible()) >= 1){
         selected_algorithm <- algorithms_possible()[1]
       }
 
-      shiny::selectInput(
-        inputId = ns("algorithm_choice"),
-        multiple = FALSE,
-        label = "Choose an algorithm:",
-        selected = selected_algorithm,
-        choices = algorithms_possible(),
-        selectize = FALSE
-      )
+      if(length(algorithms_possible()) == 0){
+        shiny::tagList(
+          br(),
+          HTML("<b> For the selection you chose no algorithm is possible to apply. Please reduce the number of weeks you want generate alarms for or change the filters you set. <b>"),
+          br())
+
+      }else{
+        shiny::selectInput(
+          inputId = ns("algorithm_choice"),
+          multiple = FALSE,
+          label = "Choose an algorithm:",
+          selected = selected_algorithm,
+          choices = algorithms_possible(),
+          selectize = FALSE
+        )
+      }
+    })
+
+    no_algorithm_possible <- shiny::reactive({
+      req(algorithms_possible)
+      if(length(algorithms_possible()) == 0){
+        TRUE
+      }else{
+        FALSE
+      }
     })
 
     # Return list of subsetted data and parameters
@@ -295,7 +312,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
              n_weeks = shiny::reactive(input$n_weeks),
              strat_vars = reactive({ input$strat_vars }),
              pathogen_vars = reactive({ input$pathogen_vars }),
-             method = reactive({ input$algorithm_choice }))
+             method = reactive({ input$algorithm_choice }),
+             no_algorithm_possible = shiny::reactive(no_algorithm_possible()))
     )
   })
 }

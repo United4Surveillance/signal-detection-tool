@@ -30,7 +30,8 @@ mod_tabpanel_signals_server <- function(
     errors_detected,
     number_of_weeks,
     strat_vars,
-    method) {
+    method,
+    no_algorithm_possible) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -46,6 +47,12 @@ mod_tabpanel_signals_server <- function(
           shiny::br(),
           shiny::hr(),
           shiny::p("You can check the data in the 'Data' tab for more details on the issue.")
+        ))}
+      else if (no_algorithm_possible() == TRUE){
+        return(shiny::tagList(
+          shiny::br(),
+          shiny::h3("There is no algorithm which can be applied to your current settings, please change your selected settings in the input tab and try again."),
+          shiny::br()
         ))
       } else {
         return(shiny::tagList(
@@ -76,6 +83,7 @@ mod_tabpanel_signals_server <- function(
     # generate signals once
     signal_results <- shiny::reactive({
       shiny::req(!errors_detected())
+      shiny::req(!no_algorithm_possible())
       results <- SignalDetectionTool::get_signals(
         data = data(),
         method = method(),

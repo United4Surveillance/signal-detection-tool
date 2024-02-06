@@ -29,7 +29,8 @@ mod_tabpanel_report_server <- function(id,
                                        strat_vars,
                                        pathogen_vars,
                                        method,
-                                       errors_detected) {
+                                       errors_detected,
+                                       no_algorithm_possible) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -45,6 +46,12 @@ mod_tabpanel_report_server <- function(id,
           shiny::br(),
           shiny::hr(),
           shiny::p("You can check the data in the 'Data' tab for more details on the issue.")
+        ))
+      } else if (no_algorithm_possible() == TRUE){
+        return(shiny::tagList(
+          shiny::br(),
+          shiny::h3("There is no algorithm which can be applied to your current settings, please change your selected settings in the input tab and try again."),
+          shiny::br()
         ))
       } else {
         return(shiny::tagList(
