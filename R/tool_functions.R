@@ -151,6 +151,17 @@ age_groups <- function(df, break_at = NULL) {
   # conducting format enquires
   format_check_results <- age_format_check(df)
 
+  # if not the correct xx-xx format is used, insert leading 0's where necesary
+  if (length(format_check_results$format_agegrp_xx) > 0) {
+    splits <- stringr::str_split_fixed(as.character(df$age_group),"[:punct:]", 2)
+
+    for (item in format_check_results$format_agegrp_xx) {
+      df$age_group[item] <- paste0(sprintf("%02d",as.numeric(splits[item,1])),
+                                   "-",
+                                   sprintf("%02d",as.numeric(splits[item,2])))
+
+    }
+  }
 
   # converting age_group to factor ------------------------------------------
   df$age_group <- factor(df$age_group,
