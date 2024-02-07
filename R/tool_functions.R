@@ -43,9 +43,10 @@ find_age_group <- function(age, x) {
 #'   2. Verifying if the age group format is in the "xx-xx" format.
 #'   3. Checking if any punctuation characters are used at either end of the age group.
 #'
-#' @param df A data frame containing an 'age_group' variable
+#' @param df A data frame containing an 'age_group' variable.
 #'
 #' @return A list containing the results of the formatting checks:
+#'   \item{agegrp_div}{The most frequently used punctuation character, which serves as the divider in age groups.}
 #'   \item{equal_sizing}{Logical indicating whether the lengths of age groups are equidistant.}
 #'   \item{format_agegrp_xx}{Indices of entries in 'age_group' following the "xx-xx" format.}
 #'   \item{punct_char_check}{Logical indicating whether any punctuation characters are used at either end of the age group.}
@@ -58,7 +59,7 @@ find_age_group <- function(age, x) {
 #' print(check_results)
 #' }
 #'
-#' @importFrom stringr str_split_fixed str_starts str_ends
+#' @importFrom stringr str_split_fixed str_starts str_ends str_extract_all
 #'
 #' @export
 age_format_check <- function(df) {
@@ -77,14 +78,24 @@ age_format_check <- function(df) {
     )
 
   # checking whether any punctuation characters are used at either end of age_group
-  punct_char_check <- !any(
+  # if TRUE, a punctation character is used at one of the ends in an age_group
+  punct_char_check <- any(
     c(stringr::str_starts(unique(df$age_group), "[^[:alnum:]]"),
       stringr::str_ends(unique(df$age_group), "[^[:alnum:]]")
     ) == TRUE
   )
 
+  # extract which divider is used
+  # using logic that most used punctuation character is divider
+  punct_chars <- stringr::str_extract_all(string = df$age_group,
+                                          pattern = "[^[:alnum:]]",
+                                          simplify = TRUE) %>%
+    stats::aggregate(data.frame(count = .), length)
+  agegrp_div <- punct_chars$count[which.max(punct_chars$V1)]
+
   # return list of formatting checks results
-  return(list(equal_sizing     = equal_sizing,
+  return(list(agegrp_div       = agegrp_div,
+              equal_sizing     = equal_sizing,
               format_agegrp_xx = format_agegrp_xx,
               punct_char_check = punct_char_check)
   )
@@ -157,7 +168,7 @@ age_groups <- function(df, break_at = NULL) {
 
     for (item in format_check_results$format_agegrp_xx) {
       df$age_group[item] <- paste0(sprintf("%02d",as.numeric(splits[item,1])),
-                                   "-",
+                                   agegrp_div,
                                    sprintf("%02d",as.numeric(splits[item,2])))
 
     }
