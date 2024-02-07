@@ -36,6 +36,60 @@ find_age_group <- function(age, x) {
   }
 }
 
+#' Age Group Format Check
+#'
+#' This function checks the format of the 'age_group' variable in the given data frame. It performs several checks including:
+#'   1. Checking if the lengths of age groups are equidistant.
+#'   2. Verifying if the age group format is in the "xx-xx" format.
+#'   3. Checking if any punctuation characters are used at either end of the age group.
+#'
+#' @param df A data frame containing an 'age_group' variable
+#'
+#' @return A list containing the results of the formatting checks:
+#'   \item{equal_sizing}{Logical indicating whether the lengths of age groups are equidistant.}
+#'   \item{format_agegrp_xx}{Indices of entries in 'age_group' following the "xx-xx" format.}
+#'   \item{punct_char_check}{Logical indicating whether any punctuation characters are used at either end of the age group.}
+#'
+#' @examples
+#' \dontrun{
+#' # Example usage:
+#' data_frame <- data.frame(age_group = c("01-05", "6-10", "11-15", "16-20"))
+#' check_results <- age_format_check(data_frame)
+#' print(check_results)
+#' }
+#'
+#' @importFrom stringr str_split_fixed str_starts str_ends
+#'
+#' @export
+age_format_check <- function(df) {
+  # setting variables
+  splits   <- stringr::str_split_fixed(as.character(unique(df$age_group)),"[:punct:]", 2)
+
+  # checking if length is equidistant
+  abs_diff <- abs(as.numeric(splits[,1]) - as.numeric(splits[,2]))
+  equal_sizing <- (length(unique(abs_diff)) == 1)
+
+  # checking whether xx-xx format is in use
+  format_agegrp_xx <-
+    union(
+      which(stringr::str_starts(df$age_group, "[:digit:]{1}[:punct:]")),
+      which(stringr::str_ends(df$age_group, "[:punct:][:digit:]{1}"))
+    )
+
+  # checking whether any punctuation characters are used at either end of age_group
+  punct_char_check <- !any(
+    c(stringr::str_starts(unique(df$age_group), "[^[:alnum:]]"),
+      stringr::str_ends(unique(df$age_group), "[^[:alnum:]]")
+    ) == TRUE
+  )
+
+  # return list of formatting checks results
+  return(list(equal_sizing     = equal_sizing,
+              format_agegrp_xx = format_agegrp_xx,
+              punct_char_check = punct_char_check)
+  )
+}
+
 #' Creates age grouping variable for a given data set
 #' @param df data frame on which the age grouping is created
 #' @param break_at integer that controls the length of the age groups
@@ -93,6 +147,10 @@ age_groups <- function(df, break_at = NULL) {
     df <- df %>% dplyr::relocate(age_group, .after = age)
 
   }
+
+  # conducting format enquires
+  format_check_results <- age_format_check(df)
+
 
   # converting age_group to factor ------------------------------------------
   df$age_group <- factor(df$age_group,
