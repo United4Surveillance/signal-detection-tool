@@ -7,7 +7,7 @@
 create_map_or_table(
   signals_agg,
   data_surveillance,
-  region_id,
+  region,
   shape,
   interactive = TRUE
 )
@@ -17,8 +17,8 @@ create_map_or_table(
 
 \item{data_surveillance}{data.frame, surveillance linelist}
 
-\item{region_id}{character, specifying the variable for the region_id to be shown should be one of ("country_id","state_id",
-"county_id","community_id","region_level1_id", "region_level2_id","region_level3_id")}
+\item{region}{character, specifying the variable for the region to be shown should be one of ("country","state",
+"county","community","region_level1", "region_level2","region_level3")}
 
 \item{shape}{sf, shapefile}
 
@@ -34,7 +34,7 @@ Decider for creating a map or a table based on whether all NUTS_ids are found in
 \dontrun{
 signals <- input_example \%>\%
   preprocess_data() \%>\%
-  get_signals(stratification = c("sex", "county_id"))
+  get_signals(stratification = c("sex", "county"))
 signals_agg <- signals \%>\% aggregate_signals(number_of_weeks = 6)
 create_map_or_table(signals_agg, input_example, "county_id", nuts_shp)
 }

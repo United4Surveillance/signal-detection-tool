@@ -15,7 +15,7 @@ get_signals(
 )
 }
 \arguments{
-\item{data}{A data frame containing the surveillance data.}
+\item{data}{A data frame containing the surveillance data preprocessed with [preprocess_data()].}
 
 \item{method}{The method to use for signal detection (currently supports
 "farrington").}
