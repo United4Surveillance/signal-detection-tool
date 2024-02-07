@@ -47,22 +47,10 @@ knitr::kable(input_metadata, format = "html")
 
 ## Advanced Use 
 
-Reading the data in R.
-
-```{r, results='hide'}
-data <- input_example
-
-```
-
 ### Preprocessing the data
 
 ```{r}
-data <- dplyr::mutate(data, date_onset = dplyr::if_else(is.na(date_onset), 
-                                                        date_report, 
-                                                        date_onset)) 
-data <- age_groups(data)
-data$age_group <- factor(data$age_group)
-data$sex <- factor(data$sex)
+data <- preprocess_data(input_example)
 ```
 
 ### Plotting the time series
@@ -79,30 +67,6 @@ plot_time_series(results, number_of_weeks = 10)
 ```{r}
 results <- get_signals(data, stratification = c("county", "sex", "age_group"))
 create_results_table(results, interactive = TRUE)
-```
-
-
-### Regional visualization
-
-
-```{r, eval = TRUE}
-signals_county <- get_signals(data, stratification = c("county_id"))
-plot_regional(data, 
-              signals_county, 
-              nuts_shp, 
-              country_id = unique(data$country_id), 
-              regional_level = "county", 
-              interactive = TRUE)
-```
-
-```{r, eval = TRUE}
-signals_community <- get_signals(data, stratification = c("community_id"))
-plot_regional(data, 
-              signals_community, 
-              nuts_shp, 
-              country_id = unique(data$country_id), 
-              regional_level = "community", 
-              interactive = TRUE)
 ```
 
 
