@@ -2,8 +2,8 @@
 % Please edit documentation in R/data_processing.R
 \name{aggregate_signals}
 \alias{aggregate_signals}
-\title{Aggregate cases and signals for the number of weeks given stratum and category.
-First the signals are filtered to obtain the signals for the last n weeks,
+\title{Aggregate cases and signals over the number of weeks.
+First the signals are filtered to obtain the signals for the last n weeks
 aggregating the number of cases observed, create variable any alarm generated and the aggregate the number of alarms}
 \usage{
 aggregate_signals(signals, number_of_weeks)
@@ -17,7 +17,7 @@ aggregate_signals(signals, number_of_weeks)
 tibble, with one line per groups containing the number of cases, any_alarms and n_alarms
 }
 \description{
-Aggregate cases and signals for the number of weeks given stratum and category.
+Aggregate cases and signals over the number of weeks.
 First the signals are filtered to obtain the signals for the last n weeks
 aggregating the number of cases observed, create variable any alarm generated and the aggregate the number of alarms
 }
