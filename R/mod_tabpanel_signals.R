@@ -13,7 +13,6 @@ mod_tabpanel_signals_ui <- function(id) {
 
   shiny::tabPanel(
     "Signals",
-
     shiny::uiOutput(ns("signals_tab_ui")),
 
     icon = shiny::icon("wave-square")
@@ -33,7 +32,7 @@ mod_tabpanel_signals_server <- function(
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    ## UI-portion of the tab below!
+    # UI-portion of the tab below!
     # ensuring that content is onlyu shown if data check returns no errors
     output$signals_tab_ui <- shiny::renderUI({
       if (errors_detected() == TRUE) {
@@ -48,13 +47,9 @@ mod_tabpanel_signals_server <- function(
         ))
       } else {
         return(shiny::tagList(
-          mod_plot_time_series_ui(id = ns("timeseries")),
-          shiny::br(),
-          shiny::h3("Plot of age group"),
-          plotly:::plotlyOutput(ns("age_group")),
+          uiOutput(ns("plot_table_stratas")),
           shiny::br(),
           shiny::h3("Signal detection table"),
-          # shiny::tableOutput(ns("signals")),
           DT::DTOutput(ns("signals"))
         ))
       }
@@ -80,10 +75,13 @@ mod_tabpanel_signals_server <- function(
         stratification = strat_vars_tidy(),
         date_var = "date_report",
         number_of_weeks = number_of_weeks()
-      ) %>%
-        filter_data_last_n_weeks(number_of_weeks = number_of_weeks())
-
+      )
       results
+    })
+
+    signals_agg <- shiny::reactive({
+      shiny::req(signal_results)
+      aggregate_signals(signal_results(), number_of_weeks = number_of_weeks())
     })
 
     signal_data <- shiny::reactive({
@@ -100,18 +98,102 @@ mod_tabpanel_signals_server <- function(
       data_n_weeks
     })
 
+    output$plot_table_stratas <- renderUI({
+      req(signal_results)
+      plot_table_list <- list()
 
-    ## TODO: interactive 'yes/no'-button and weeks slider?
-    ## TODO: apply over selected pathogens?
-    mod_plot_time_series_server(id = "timeseries",
-                                signals = signal_results)
+      # using the categories of the signal_results instead of strat_vars_tidy
+      # because it could be that not for all selected strat_vars signals could have been generated
+      # we would still want to give this feedback to the user then
+      signal_categories <- unique(signal_results()$category)
+      # remove the NA category which is generate when signals were generated unstratified
+      signal_categories <- signal_categories[!is.na(signal_categories)]
+      n_plots_tables <- length(signal_categories)
 
-    # agegroup plot
-    output$age_group <- plotly::renderPlotly({
-      req(!errors_detected())
-      SignalDetectionTool::plot_agegroup_by(signal_data(),
-                                            by_col = strat_vars_tidy()[1],
-                                            interactive = TRUE)
+      if (n_plots_tables == 0){
+        # plot the raw timeseries
+        plot_timeseries <- plot_time_series(signal_results(), interactive = TRUE)
+        plot_table_list[[1]] <- plot_timeseries
+      }
+      else if(n_plots_tables == 1){
+        if(signal_categories %in% c("county","state")){
+          plot_or_table1 <- create_map_or_table(signals_agg(),
+                                                data(),
+                                                signal_categories[1])
+        }else{
+          plot_or_table1 <- create_barplot_or_table(signals_agg(),
+                                                    signal_categories[1])
+        }
+        plot_table_list[[1]] <- plot_or_table1
+      }
+
+      else if(n_plots_tables == 2){
+
+        if(signal_categories[1] %in% c("state","county","community")){
+          plot_or_table1 <- create_map_or_table(signals_agg(),
+                                                data(),
+                                                signal_categories[1])
+        }else{
+          plot_or_table1 <- create_barplot_or_table(signals_agg(),
+                                                    signal_categories[1])
+        }
+        if(signal_categories[2] %in% c("state","county","community")){
+          plot_or_table2 <- create_map_or_table(signals_agg(),
+                                                data(),
+                                                signal_categories[2])
+        }else{
+          plot_or_table2 <- create_barplot_or_table(signals_agg(),
+                                                    signal_categories[2])
+        }
+
+        plot_table_list[[1]] <- plot_or_table1
+        plot_table_list[[2]] <- plot_or_table2
+
+      }
+
+      else if(n_plots_tables == 3){
+
+        if(signal_categories[1] %in% c("state","county","community")){
+          plot_or_table1 <- create_map_or_table(signals_agg(),
+                                                data(),
+                                                signal_categories[1])
+        }else{
+          plot_or_table1 <- create_barplot_or_table(signals_agg(),
+                                                    signal_categories[1])
+        }
+        if(signal_categories[2] %in% c("state","county","community")){
+          plot_or_table2 <- create_map_or_table(signals_agg(),
+                                                data(),
+                                                signal_categories[2])
+        }else{
+          plot_or_table2 <- create_barplot_or_table(signals_agg(),
+                                                    signal_categories[2])
+        }
+
+        if(signal_categories[3] %in% c("state","county","community")){
+          plot_or_table3 <- create_map_or_table(signals_agg(),
+                                                data(),
+                                                signal_categories[3])
+        }else{
+          plot_or_table3 <- create_barplot_or_table(signals_agg(),
+                                                    signal_categories[3])
+        }
+        plot_table_list[[1]] <- plot_or_table1
+        plot_table_list[[2]] <- plot_or_table2
+        plot_table_list[[3]] <- plot_or_table3
+
+      }
+
+      if(n_plots_tables == 0| n_plots_tables == 1){
+        column_plots <- fluidRow(column(12, plot_table_list[1]))
+      } else{
+        column_plots <- fluidRow(
+          lapply(1:n_plots_tables, function(x) column(12/n_plots_tables, plot_table_list[x]))
+        )
+      }
+
+      return(column_plots)
+
     })
 
     # signals table
