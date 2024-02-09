@@ -60,8 +60,6 @@ find_age_group <- function(age, x) {
 #' }
 #'
 #' @importFrom stringr str_split_fixed str_starts str_ends str_extract_all
-#'
-#' @export
 age_format_check <- function(df) {
   # setting variables
   splits   <- stringr::str_split_fixed(as.character(unique(df$age_group)),"[:punct:]", 2)
@@ -104,8 +102,6 @@ age_format_check <- function(df) {
 #' Creates age grouping variable for a given data set
 #' @param df data frame on which the age grouping is created
 #' @param break_at integer that controls the length of the age groups
-#'
-#' @export
 #'
 #' @examples
 #' \dontrun{
