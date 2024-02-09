@@ -193,6 +193,15 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
             if (class(df[[rlang::as_name(filter_var)]]) == "Date") { # apply filter if filtering date
               df <- df %>%
                 dplyr::filter(!!filter_var %in% seq(filter_val[1], filter_val[2], "day"))
+            } else if (filter_var == "age_group") {                  # apply filter for age_group
+              df <- df %>%
+                dplyr::filter(!!filter_var %in% filter_val) %>%
+                dplyr::mutate(age_group = forcats::fct_drop(age_group),
+                              age_group = forcats::fct_expand(
+                                age_group,
+                                union(setdiff(age_group,factor(filter_val)),
+                                      setdiff(factor(filter_val), age_group))
+                ))
             } else if ("N/A" %in% filter_val) {                      # apply filter if filtering for NAs
               df <- df %>%
                 dplyr::filter(
@@ -208,6 +217,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
           df
         }
       }
+
       df
     })
 
