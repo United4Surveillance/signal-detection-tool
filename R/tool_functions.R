@@ -47,9 +47,9 @@ find_age_group <- function(age, x) {
 #'
 #' @return A list containing the results of the formatting checks:
 #'   \item{agegrp_div}{The most frequently used punctuation character, which serves as the divider in age groups.}
+#'   \item{other_punct_character}{Any other punctuation character used. Also used as logical indicator.}
 #'   \item{equal_sizing}{Logical indicating whether the lengths of age groups are equidistant.}
 #'   \item{format_agegrp_xx}{Indices of entries in 'age_group' following the "xx-xx" format.}
-#'   \item{punct_char_check}{Logical indicating whether any punctuation characters are used at either end of the age group.}
 #'
 #' @examples
 #' \dontrun{
@@ -89,15 +89,138 @@ age_format_check <- function(df) {
                                           pattern = "[^[:alnum:]]",
                                           simplify = TRUE) %>%
     stats::aggregate(data.frame(count = .), length)
+
+  # finding the main age_group divider
   agegrp_div <- punct_chars$count[which.max(punct_chars$V1)]
+
+  # if more than one punct char is used, return it
+  other_punct_char <- ""
+  if (length(punct_chars$count) > 1 & punct_char_check) {
+    other_punct_char <- punct_chars$count[!punct_chars$count == agegrp_div][1]
+  }
 
   # return list of formatting checks results
   return(list(agegrp_div       = agegrp_div,
+              other_punct_char = other_punct_char,
               equal_sizing     = equal_sizing,
-              format_agegrp_xx = format_agegrp_xx,
-              punct_char_check = punct_char_check)
+              format_agegrp_xx = format_agegrp_xx)
   )
 }
+
+
+#' Complete Age Group Array
+#'
+#' This function generates a complete array of age groups based on the format check results and existing age group data.
+#' It is particularly useful for completing missing age groups in datasets
+#'
+#' @param df A data frame containing an 'age_group' variable.
+#' @param format_check_results A list containing the results of the age group format check.
+#'
+#' @return A character vector representing the complete array of age groups.
+#'
+#' @examples
+#' \dontrun{
+#' # Example usage:
+#' data_frame <- data.frame(age_group = c("01-05", "6-10", "11-15", "16-20"))
+#' format_check_results <- list(equal_sizing = TRUE, agegrp_div = "-", punct_char_check = FALSE)
+#' complete_agegrp_arr(data_frame, format_check_results)
+#' }
+#'
+#' @importFrom stringr str_split_1 str_sort
+#' @importFrom plyr round_any
+#' @import dplyr
+complete_agegrp_arr <- function(df, format_check_results) {
+  # if there is equidistance
+  if (format_check_results$equal_sizing) {
+    # create sequence based on existing age_groups
+    # find an example of an age group that is not NULL
+    tmp_agegrp <- df$age_group[grepl(paste0("[\\",format_check_results$agegrp_div,"]"), df$age_group)][1]
+
+    # get the lower and upper of the age group gap and find the range
+    lower_split <- as.numeric(stringr::str_split_1(as.character(tmp_agegrp),format_check_results$agegrp_div)[1])
+    upper_split <- as.numeric(stringr::str_split_1(as.character(tmp_agegrp),format_check_results$agegrp_div)[2])
+    split_range <- plyr::round_any(upper_split - lower_split, accuracy = 5)
+
+    # find the maximum age in relation to the age group gap
+    max_data_rounded <- plyr::round_any(x = max(df$age),
+                                        accuracy = split_range,
+                                        f = ceiling)
+
+    # make sequences
+    seq_lower <- seq(0,max_data_rounded,split_range)
+    seq_upper <- (seq_lower-1)[-1]
+
+  } else if (!format_check_results$equal_sizing) {
+    # find unique elements of age_group
+    tmp_uniq_agegrp <- stringr::str_sort(unique(df$age_group), numeric = TRUE)
+
+    # check to see if there are any gaps
+    # building regex string dependent on level of punct characters found
+    regex_string <-
+      paste0("[\\",
+             format_check_results$agegrp_div)
+
+    if (!format_check_results$other_punct_char == "") {
+      regex_string <- paste0(regex_string, "\\", format_check_results$other_punct_char)
+    }
+
+    regex_string <- paste0(regex_string, "]")
+
+    # splitting the ages
+    splits <- stringr::str_split_fixed(string  = tmp_uniq_agegrp,
+                                       pattern = regex_string,
+                                       n = 2)
+
+    # find where there are missing gaps
+    dummy_fill <- data.frame(lower=1:length(tmp_uniq_agegrp)*NA,
+                             upper=1:length(tmp_uniq_agegrp)*NA)
+
+    for (i in 2:length(splits[,1])) {
+      print(as.numeric(splits[i,1]) - as.numeric(splits[i-1,2]))
+
+      if (as.numeric(splits[i,1]) - as.numeric(splits[i-1,2]) > 1) {
+        dummy_fill[i,1] <- as.numeric(splits[i-1,2])
+        dummy_fill[i,2] <- as.numeric(splits[i,1])
+      }
+    }
+
+    dummy_fill <- filter(dummy_fill, !is.na(lower))
+
+    # create the sequence levels
+    seq_lower <- c(splits[,1],(dummy_fill$lower+1)) %>% stringr::str_sort(., numeric = TRUE) %>%
+      as.numeric()
+    seq_upper <- c(splits[,2],(dummy_fill$upper-1)) %>% .[nzchar(.,keepNA = FALSE)] %>%
+      stringr::str_sort(., numeric = TRUE) %>% as.numeric()
+  }
+
+  # ensuring lower and upper seq are equal in length
+  if (!(length(seq_lower) == length(seq_upper))) {
+    if (length(seq_lower) > length(seq_upper)) {
+      seq_lower <- seq_lower[-length(seq_lower)]
+    } else {
+      seq_upper <- seq_upper[-length(seq_upper)]
+    }
+  }
+
+  # combine to create the complete age group array
+  # adding leading zeros on <10 ages
+  all_agegrps <- paste0(sprintf("%02d",seq_lower),
+                        format_check_results$agegrp_div,
+                        sprintf("%02d",seq_upper))
+
+  # if symbol is used, add it the last 'lower'
+  if (!format_check_results$other_punct_char == "") {
+    # locate the maximum number
+    max_number <- as.numeric(splits[which(splits[,2] == "")][1])
+
+    # locate max_number in agegrps and replace it with "max_number+"
+    all_agegrps <- append(all_agegrps, paste0(max_number,
+                                              format_check_results$other_punct_char))
+  }
+
+  return(all_agegrps)
+}
+
 
 #' Creates age grouping variable for a given data set
 #' @param df data frame on which the age grouping is created
@@ -164,15 +287,17 @@ age_groups <- function(df, break_at = NULL) {
 
     for (item in format_check_results$format_agegrp_xx) {
       df$age_group[item] <- paste0(sprintf("%02d",as.numeric(splits[item,1])),
-                                   agegrp_div,
+                                   format_check_results$agegrp_div,
                                    sprintf("%02d",as.numeric(splits[item,2])))
 
     }
   }
 
+  all_agegroups <- complete_agegrp_arr(df, format_check_results)
+
   # converting age_group to factor ------------------------------------------
   df$age_group <- factor(df$age_group,
-                         levels = stringr::str_sort(unique(df$age_group), numeric = TRUE))
+                         levels = stringr::str_sort(all_agegroups, numeric = TRUE))
 
   return(df)
 }

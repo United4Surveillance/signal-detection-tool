@@ -12,9 +12,9 @@ age_format_check(df)
 \value{
 A list containing the results of the formatting checks:
   \item{agegrp_div}{The most frequently used punctuation character, which serves as the divider in age groups.}
+  \item{other_punct_character}{Any other punctuation character used. Also used as logical indicator.}
   \item{equal_sizing}{Logical indicating whether the lengths of age groups are equidistant.}
   \item{format_agegrp_xx}{Indices of entries in 'age_group' following the "xx-xx" format.}
-  \item{punct_char_check}{Logical indicating whether any punctuation characters are used at either end of the age group.}
 }
 \description{
 This function checks the format of the 'age_group' variable in the given data frame. It performs several checks including:
