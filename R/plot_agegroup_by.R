@@ -73,6 +73,7 @@ plot_agegroup_by <- function(df,
     ggplot2::scale_y_continuous(
       breaks = scales::pretty_breaks(n = 10),
       expand = ggplot2::expansion(mult = c(0, 0.1))) +
+    ggplot2::scale_x_discrete(drop = FALSE)+
     ggplot2::theme(
       legend.direction = "vertical",
       legend.position = "top",
