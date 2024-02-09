@@ -6,7 +6,7 @@
 #' @param data_surveillance data.frame, surveillance linelist
 #' @param region character, specifying the variable for the region to be shown should be one of ("country","state",
 #' "county","community","region_level1", "region_level2","region_level3")
-#' @param shape sf, shapefile
+#' @param shape sf, shapefile default set to internal europe shapefile nuts_shp
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @returns a table or a plot depending on whether the matching of the NUTS IDs was fully possible, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 #' @examples
@@ -20,7 +20,7 @@
 create_map_or_table <- function(signals_agg,
                                 data_surveillance,
                                 region,
-                                shape,
+                                shape = nuts_shp,
                                 interactive = TRUE) {
   checkmate::assertChoice(region, region_variable_names())
 
