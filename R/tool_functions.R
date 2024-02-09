@@ -47,9 +47,9 @@ find_age_group <- function(age, x) {
 #'
 #' @return A list containing the results of the formatting checks:
 #'   \item{agegrp_div}{The most frequently used punctuation character, which serves as the divider in age groups.}
+#'   \item{other_punct_character}{Any other punctuation character used. Also used as logical indicator.}
 #'   \item{equal_sizing}{Logical indicating whether the lengths of age groups are equidistant.}
 #'   \item{format_agegrp_xx}{Indices of entries in 'age_group' following the "xx-xx" format.}
-#'   \item{punct_char_check}{Logical indicating whether any punctuation characters are used at either end of the age group.}
 #'
 #' @examples
 #' \dontrun{
@@ -89,13 +89,21 @@ age_format_check <- function(df) {
                                           pattern = "[^[:alnum:]]",
                                           simplify = TRUE) %>%
     stats::aggregate(data.frame(count = .), length)
+
+  # finding the main age_group divider
   agegrp_div <- punct_chars$count[which.max(punct_chars$V1)]
+
+  # if more than one punct char is used, return it
+  other_punct_char <- ""
+  if (length(punct_chars$count) > 1 & punct_char_check) {
+    other_punct_char <- punct_chars$count[!punct_chars$count == agegrp_div][1]
+  }
 
   # return list of formatting checks results
   return(list(agegrp_div       = agegrp_div,
+              other_punct_char = other_punct_char,
               equal_sizing     = equal_sizing,
-              format_agegrp_xx = format_agegrp_xx,
-              punct_char_check = punct_char_check)
+              format_agegrp_xx = format_agegrp_xx)
   )
 }
 
@@ -277,15 +285,17 @@ age_groups <- function(df, break_at = NULL) {
 
     for (item in format_check_results$format_agegrp_xx) {
       df$age_group[item] <- paste0(sprintf("%02d",as.numeric(splits[item,1])),
-                                   agegrp_div,
+                                   format_check_results$agegrp_div,
                                    sprintf("%02d",as.numeric(splits[item,2])))
 
     }
   }
 
+  all_agegroups <- complete_agegrp_arr(df, format_check_results)
+
   # converting age_group to factor ------------------------------------------
   df$age_group <- factor(df$age_group,
-                         levels = stringr::str_sort(unique(df$age_group), numeric = TRUE))
+                         levels = stringr::str_sort(all_agegroups, numeric = TRUE))
 
   return(df)
 }
