@@ -176,8 +176,6 @@ complete_agegrp_arr <- function(df, format_check_results) {
                              upper=1:length(tmp_uniq_agegrp)*NA)
 
     for (i in 2:length(splits[,1])) {
-      print(as.numeric(splits[i,1]) - as.numeric(splits[i-1,2]))
-
       if (as.numeric(splits[i,1]) - as.numeric(splits[i-1,2]) > 1) {
         dummy_fill[i,1] <- as.numeric(splits[i-1,2])
         dummy_fill[i,2] <- as.numeric(splits[i,1])
