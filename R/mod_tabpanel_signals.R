@@ -113,52 +113,33 @@ mod_tabpanel_signals_server <- function(
       signal_categories <- signal_categories[!is.na(signal_categories)]
       n_plots_tables <- length(signal_categories)
 
-      # setting header for the table_plot_strata section
-      header_timeseries <- h3(paste0("Timeseries of weekly cases on country level with signal detection applied to the last ", number_of_weeks(), " weeks."))
-      if (n_plots_tables > 1) {
-        header_stratification <- h3(paste0("Visualisations and/or tables showing the number of cases in the last ", number_of_weeks(), " weeks with alarms from Signal Detection", " for the selected strata ", paste(signal_categories, collapse = ", "), "."))
+      # generating barcharts, maps or tables and header for this ui section
+      # The number of plots/tables and the header generated depends on the number of signal_categories
+      # if strata were selected by the user
+      if (n_plots_tables != 0) {
+        # populate the plot_table_list with plots/tables of each category
+        plot_table_list <- lapply(signal_categories, function(category) {
+          decider_barplot_map_table(signals_agg(), data(), category)
+        })
+        if (n_plots_tables == 1) {
+          header <- h3(paste0("Visualisation and/or table showing the number of cases in the last ", number_of_weeks(), " weeks with alarms from Signal Detection", " for the selected stratum ", paste(signal_categories, collapse = ", "), "."))
+        } else {
+          header <- h3(paste0("Visualisations and/or tables showing the number of cases in the last ", number_of_weeks(), " weeks with alarms from Signal Detection", " for the selected strata ", paste(signal_categories, collapse = ", "), "."))
+        }
+
+        # in case no strata were selected (n_plots_tables == 0) we show the country timeseries
       } else {
-        header_stratification <- h3(paste0("Visualisation and/or table showing the number of cases in the last ", number_of_weeks(), " weeks with alarms from Signal Detection", " for the selected stratum ", paste(signal_categories, collapse = ", "), "."))
-      }
-
-
-      if (n_plots_tables == 0) {
-        # plot the raw timeseries
         plot_timeseries <- plot_time_series(signal_results(), interactive = TRUE)
         plot_table_list[[1]] <- plot_timeseries
-      } else if (n_plots_tables == 1) {
-        plot_table_list[[1]] <- decider_barplot_map_table(
-          signals_agg(),
-          data(),
-          signal_categories[1]
-        )
-      } else if (n_plots_tables == 2) {
-        # populate the plot_table_list with plots/tables of each category
-        plot_table_list <- lapply(signal_categories, function(category) {
-          decider_barplot_map_table(signals_agg(), data(), category)
-        })
-      } else if (n_plots_tables == 3) {
-        # populate the plot_table_list with plots/tables of each category
-        plot_table_list <- lapply(signal_categories, function(category) {
-          decider_barplot_map_table(signals_agg(), data(), category)
-        })
+        # update the n_plots_tables such that creating the column_plots below works
+        n_plots_tables <- 1
+        header <- h3(paste0("Timeseries of weekly cases on country level with signal detection applied to the last ", number_of_weeks(), " weeks."))
       }
 
-      if (n_plots_tables == 0 | n_plots_tables == 1) {
-        column_plots <- fluidRow(column(12, plot_table_list[1]))
-      } else {
-        column_plots <- fluidRow(
-          lapply(1:n_plots_tables, function(x) column(12 / n_plots_tables, plot_table_list[x]))
-        )
-      }
-
-      # Combine the header with the columns
-      if (n_plots_tables == 0) {
-        columns_with_header <- list(header_timeseries, column_plots)
-      } else {
-        columns_with_header <- list(header_stratification, column_plots)
-      }
-
+      column_plots <- fluidRow(
+        lapply(1:n_plots_tables, function(x) column(12 / n_plots_tables, plot_table_list[x]))
+      )
+      columns_with_header <- list(header, column_plots)
 
       # Return the combined UI elements
       column_plots_with_headers <- do.call(tagList, columns_with_header)
