@@ -14,7 +14,6 @@ mod_tabpanel_signals_ui <- function(id) {
   shiny::tabPanel(
     "Signals",
     shiny::uiOutput(ns("signals_tab_ui")),
-
     icon = shiny::icon("wave-square")
   )
 }
@@ -60,9 +59,13 @@ mod_tabpanel_signals_server <- function(
       req(strat_vars)
       strat_vars_chr <- strat_vars()
       # Tidy up stratification vector
-      if ("None" %in% strat_vars_chr) {strat_vars_chr <- NULL}
+      if ("None" %in% strat_vars_chr) {
+        strat_vars_chr <- NULL
+      }
       # 'None' takes precedence over 'All'
-      else if ("All" %in% strat_vars_chr) {strat_vars_chr <- names(data())}
+      else if ("All" %in% strat_vars_chr) {
+        strat_vars_chr <- names(data())
+      }
 
       return(strat_vars_chr)
     })
@@ -104,105 +107,72 @@ mod_tabpanel_signals_server <- function(
 
       # using the categories of the signal_results instead of strat_vars_tidy
       # because it could be that not for all selected strat_vars signals could have been generated
-      # we would still want to give this feedback to the user then
+      # we would still want to give this feedback to the user then, this is not implemented yet
       signal_categories <- unique(signal_results()$category)
       # remove the NA category which is generate when signals were generated unstratified
       signal_categories <- signal_categories[!is.na(signal_categories)]
       n_plots_tables <- length(signal_categories)
 
-      if (n_plots_tables == 0){
+      # setting header for the table_plot_strata section
+      header_timeseries <- h3(paste0("Timeseries of weekly cases on country level with signal detection applied to the last ", number_of_weeks(), " weeks."))
+      if (n_plots_tables > 1) {
+        header_stratification <- h3(paste0("Visualisations and/or tables showing the number of cases in the last ", number_of_weeks(), " weeks with alarms from Signal Detection", " for the selected strata ", paste(signal_categories, collapse = ", "), "."))
+      } else {
+        header_stratification <- h3(paste0("Visualisation and/or table showing the number of cases in the last ", number_of_weeks(), " weeks with alarms from Signal Detection", " for the selected stratum ", paste(signal_categories, collapse = ", "), "."))
+      }
+
+
+      if (n_plots_tables == 0) {
         # plot the raw timeseries
         plot_timeseries <- plot_time_series(signal_results(), interactive = TRUE)
         plot_table_list[[1]] <- plot_timeseries
-      }
-      else if(n_plots_tables == 1){
-        if(signal_categories %in% c("county","state")){
-          plot_or_table1 <- create_map_or_table(signals_agg(),
-                                                data(),
-                                                signal_categories[1])
-        }else{
-          plot_or_table1 <- create_barplot_or_table(signals_agg(),
-                                                    signal_categories[1])
-        }
-        plot_table_list[[1]] <- plot_or_table1
-      }
-
-      else if(n_plots_tables == 2){
-
-        if(signal_categories[1] %in% c("state","county","community")){
-          plot_or_table1 <- create_map_or_table(signals_agg(),
-                                                data(),
-                                                signal_categories[1])
-        }else{
-          plot_or_table1 <- create_barplot_or_table(signals_agg(),
-                                                    signal_categories[1])
-        }
-        if(signal_categories[2] %in% c("state","county","community")){
-          plot_or_table2 <- create_map_or_table(signals_agg(),
-                                                data(),
-                                                signal_categories[2])
-        }else{
-          plot_or_table2 <- create_barplot_or_table(signals_agg(),
-                                                    signal_categories[2])
-        }
-
-        plot_table_list[[1]] <- plot_or_table1
-        plot_table_list[[2]] <- plot_or_table2
-
+      } else if (n_plots_tables == 1) {
+        plot_table_list[[1]] <- decider_barplot_map_table(
+          signals_agg(),
+          data(),
+          signal_categories[1]
+        )
+      } else if (n_plots_tables == 2) {
+        # populate the plot_table_list with plots/tables of each category
+        plot_table_list <- lapply(signal_categories, function(category) {
+          decider_barplot_map_table(signals_agg(), data(), category)
+        })
+      } else if (n_plots_tables == 3) {
+        # populate the plot_table_list with plots/tables of each category
+        plot_table_list <- lapply(signal_categories, function(category) {
+          decider_barplot_map_table(signals_agg(), data(), category)
+        })
       }
 
-      else if(n_plots_tables == 3){
-
-        if(signal_categories[1] %in% c("state","county","community")){
-          plot_or_table1 <- create_map_or_table(signals_agg(),
-                                                data(),
-                                                signal_categories[1])
-        }else{
-          plot_or_table1 <- create_barplot_or_table(signals_agg(),
-                                                    signal_categories[1])
-        }
-        if(signal_categories[2] %in% c("state","county","community")){
-          plot_or_table2 <- create_map_or_table(signals_agg(),
-                                                data(),
-                                                signal_categories[2])
-        }else{
-          plot_or_table2 <- create_barplot_or_table(signals_agg(),
-                                                    signal_categories[2])
-        }
-
-        if(signal_categories[3] %in% c("state","county","community")){
-          plot_or_table3 <- create_map_or_table(signals_agg(),
-                                                data(),
-                                                signal_categories[3])
-        }else{
-          plot_or_table3 <- create_barplot_or_table(signals_agg(),
-                                                    signal_categories[3])
-        }
-        plot_table_list[[1]] <- plot_or_table1
-        plot_table_list[[2]] <- plot_or_table2
-        plot_table_list[[3]] <- plot_or_table3
-
-      }
-
-      if(n_plots_tables == 0| n_plots_tables == 1){
+      if (n_plots_tables == 0 | n_plots_tables == 1) {
         column_plots <- fluidRow(column(12, plot_table_list[1]))
-      } else{
+      } else {
         column_plots <- fluidRow(
-          lapply(1:n_plots_tables, function(x) column(12/n_plots_tables, plot_table_list[x]))
+          lapply(1:n_plots_tables, function(x) column(12 / n_plots_tables, plot_table_list[x]))
         )
       }
 
-      return(column_plots)
+      # Combine the header with the columns
+      if (n_plots_tables == 0) {
+        columns_with_header <- list(header_timeseries, column_plots)
+      } else {
+        columns_with_header <- list(header_stratification, column_plots)
+      }
 
+
+      # Return the combined UI elements
+      column_plots_with_headers <- do.call(tagList, columns_with_header)
+
+      return(column_plots_with_headers)
     })
 
     # signals table
     output$signals <- DT::renderDT({
       req(!errors_detected())
       create_results_table(signal_results(),
-                           interactive = TRUE)
+        interactive = TRUE
+      )
       # FIXME: interactive mode not working here?
     })
-
   })
 }

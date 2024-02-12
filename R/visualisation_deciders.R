@@ -116,16 +116,15 @@ create_map_or_table <- function(signals_agg,
 create_barplot_or_table <- function(signals_agg,
                                     category_selected,
                                     n_levels = 25,
-                                    interactive = TRUE){
-
+                                    interactive = TRUE) {
   signals_agg <- signals_agg %>%
     dplyr::filter(category == category_selected)
 
   n_levels_data <- length(unique(signals_agg$stratum))
 
-  if(n_levels_data < n_levels){
+  if (n_levels_data < n_levels) {
     plot_barchart(signals_agg, interactive = interactive)
-  }else{
+  } else {
     create_table(
       signals_agg %>%
         dplyr::select(-category) %>%
@@ -133,4 +132,31 @@ create_barplot_or_table <- function(signals_agg,
       interactive = interactive
     )
   }
+}
+
+#' Decider function whether create_map_or_table or create_barplot_or_table is used
+#'
+#' Depending on the category which should be visualised (regional variable) or non regional category such as age_group, sex, ... a map is tried for plotting or a barchart.
+#'
+#' @param signals_agg tibble, aggregated signals over n weeks with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. state and county.
+#' @param data_surveillance data.frame, surveillance linelist
+#' @param signal_category character, naming the category which should be visualised, i.e. "state","age_group","sex"
+#' @return a table or a plot depending on signal_category, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
+decider_barplot_map_table <- function(signals_agg,
+                                      data_surveillance,
+                                      signal_category,
+                                      interactive = TRUE) {
+  if (signal_category %in% c("state", "county", "community")) {
+    plot_or_table <- create_map_or_table(signals_agg,
+      data_surveillance,
+      signal_category,
+      interactive = interactive
+    )
+  } else {
+    plot_or_table <- create_barplot_or_table(signals_agg,
+      signal_category,
+      interactive = interactive
+    )
+  }
+  return(plot_or_table)
 }
