@@ -116,16 +116,15 @@ create_map_or_table <- function(signals_agg,
 create_barplot_or_table <- function(signals_agg,
                                     category_selected,
                                     n_levels = 25,
-                                    interactive = TRUE){
-
+                                    interactive = TRUE) {
   signals_agg <- signals_agg %>%
     dplyr::filter(category == category_selected)
 
   n_levels_data <- length(unique(signals_agg$stratum))
 
-  if(n_levels_data < n_levels){
+  if (n_levels_data < n_levels) {
     plot_barchart(signals_agg, interactive = interactive)
-  }else{
+  } else {
     create_table(
       signals_agg %>%
         dplyr::select(-category) %>%
