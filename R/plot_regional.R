@@ -14,18 +14,24 @@ plot_regional <- function(shape_with_signals,
 
   plot <- shape_with_signals %>%
     dplyr::mutate(n_alarms_label = dplyr::if_else(n_alarms > 0, n_alarms, NA)) %>%
-    ggplot2::ggplot(ggplot2::aes(fill = .data$cases, color = .data$n_alarms)) +
-    ggplot2::geom_sf(
-      ggplot2::aes(
-        size = 2 * .data$n_alarms,
-        text = paste0("cases: ", .data$cases, " , alarms: ", .data$n_alarms),
-        data_id = .data$NUTS_ID
-      )
-    ) +
+    ggplot2::ggplot(ggplot2::aes(fill = .data$cases)) +
+    ggplot2::geom_sf(mapping = ggplot2::aes(colour = "black"), lwd = 1.2) +
+    ggplot2::geom_sf(data = . %>% filter(any_alarms == TRUE),
+                     mapping = ggplot2::aes(colour = "red"), lwd = 1.2) +
     ggplot2::theme_void() +
-    ggplot2::scale_fill_distiller(palette = "YlGn", direction = 1) +
-    ggplot2::scale_color_distiller(palette = "Reds", direction = 1) +
-    ggplot2::scale_size_identity()
+    ggplot2::scale_fill_distiller(palette = "YlGn", direction = 1, name = "Cases") +
+    ggplot2::scale_color_manual(values = c("black", "red"),
+                                limits = c("black", "red"),
+                                labels = c("No alarms", "At least 1 alarm"),
+                                name = "") +
+    ggplot2::scale_size_identity() +
+    ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(fill = NA))) +
+    ggplot2::theme(
+      legend.title = element_text(size = 20, family = "bold"),
+      legend.text  = element_text(size = 15),
+      legend.text.align = 0
+    )
+
 
   if (interactive) {
     plot <- plotly::ggplotly(plot, tooltip = "text") %>%
@@ -48,7 +54,7 @@ plot_regional <- function(shape_with_signals,
   plot <- plot + ggplot2::geom_sf_text(ggplot2::aes(label = .data$n_alarms_label),
                                        color = "red",
                                        na.rm = TRUE
-  )
+                                       )
 
   plot
 }
