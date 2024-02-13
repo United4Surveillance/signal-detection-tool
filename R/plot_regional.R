@@ -38,7 +38,8 @@ plot_regional <- function(shape_with_signals,
         "pan2d",
         "zoom2d",
         "toggleSpikelines"
-      ))
+      )) %>%
+      plotly::style(hoveron = "fill")
 
     return(plot)
   }
