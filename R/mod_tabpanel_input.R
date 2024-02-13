@@ -15,7 +15,6 @@ mod_tabpanel_input_ui <- function(id) {
     shiny::uiOutput(ns("input_tab_ui")),
     icon = icon("viruses")
   )
-
 }
 
 
@@ -23,7 +22,7 @@ mod_tabpanel_input_ui <- function(id) {
 #' @param id,input,output,session standard \code{shiny} boilerplate
 #' @param data reactive input dataset preprocessed if no errors
 #' @param errors_detected reactive boolean, when TRUE errors on mandatory variables where detected
-mod_tabpanel_input_server <- function(id, data, errors_detected){
+mod_tabpanel_input_server <- function(id, data, errors_detected) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -51,44 +50,49 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
         return(shiny::tagList(
           # Horizontal line ----
           tags$hr(),
-
           h2("Choose the number of weeks to generate signals for"),
           shiny::uiOutput(ns("weeks_slider")),
-
-
           h2("Choose which pathogen in the dataset to check for aberrations"),
           br(),
-
           shiny::uiOutput(ns("pathogen_choices")),
-
-          shiny::div(id = "filter_input",
-                     h2("Filter dataset",
-                        shiny::actionButton(inputId = ns("add_filter"),
-                                            label = "",
-                                            icon = shiny::icon("plus")),
-                        shiny::actionButton(inputId = ns("remove_filter"),
-                                            label = "",
-                                            icon = shiny::icon("minus"))),
+          shiny::div(
+            id = "filter_input",
+            h2(
+              "Filter dataset",
+              shiny::actionButton(
+                inputId = ns("add_filter"),
+                label = "",
+                icon = shiny::icon("plus")
+              ),
+              shiny::actionButton(
+                inputId = ns("remove_filter"),
+                label = "",
+                icon = shiny::icon("minus")
+              )
+            ),
           ),
           br(),
           mod_input_filter_ui(id = ns("filter0")),
-
-
           h2("Choose stratification parameters (max. 3)"),
           br(),
-
           shiny::uiOutput(ns("strat_choices")),
+          h2("Chose an outbreak detection algorithm"),
+          span("Depending on the number of weeks you want to generate alarms for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
+          br(),
+          shiny::uiOutput(ns("algorithm_choice"))
         ))
       }
     })
 
     output$weeks_slider <- shiny::renderUI({
       shiny::req(!errors_detected())
-      shiny::sliderInput(inputId = ns("n_weeks"),
-                         label = "",
-                         value = 6,
-                         min = 1,
-                         max = 52) #TODO: make this dynamic
+      shiny::sliderInput(
+        inputId = ns("n_weeks"),
+        label = "",
+        value = 6,
+        min = 1,
+        max = 52
+      ) # TODO: make this dynamic
     })
 
     data_sub <- shiny::reactive({
@@ -105,37 +109,53 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
     ## showing options in ui
     output$pathogen_choices <- shiny::renderUI({
       shiny::req(!errors_detected())
-      return(shiny::selectInput(inputId = ns("pathogen_vars"),
-                                label = "Choose pathogen:",
-                                choices = unique(data()$pathogen))
-      )
-
+      return(shiny::selectInput(
+        inputId = ns("pathogen_vars"),
+        label = "Choose pathogen:",
+        choices = unique(data()$pathogen)
+      ))
     })
-
 
     # variable options for filter ui and strata selection
     available_var_opts <- shiny::reactive({
       shiny::req(data_sub)
       shiny::req(!errors_detected())
-      available_vars <- intersect(c("state",
-                                    "county",
-                                    "region_level1",
-                                    "region_level2",
-                                    "region_level3",
-                                    "subtype",
-                                    "age_group",
-                                    "sex"),
-                                  names(data_sub())) %>%
+      available_vars <- intersect(
+        c(
+          "state",
+          "county",
+          "region_level1",
+          "region_level2",
+          "region_level3",
+          "subtype",
+          "age_group",
+          "sex"
+        ),
+        names(data_sub())
+      ) %>%
         sort()
       available_vars
     })
 
+    output$filter_variables <- shiny::renderUI({
+      shiny::req(!errors_detected())
+      shiny::req(available_var_opts)
+      shiny::selectInput(
+        inputId = ns("filter_variable"),
+        multiple = FALSE,
+        label = "Choose variable to filter",
+        selected = "None",
+        choices = c("None", available_var_opts())
+      )
+    })
 
     # filtering ----------------------------------------------------------------
     # inital filter ui
-    filter0_reactives <- mod_input_filter_server(id = "filter0",
-                                                 data = data_sub,
-                                                 filter_opts = available_var_opts)
+    filter0_reactives <- mod_input_filter_server(
+      id = "filter0",
+      data = data_sub,
+      filter_opts = available_var_opts
+    )
     # initalize reactive values containing filter parameters
     all_filters <- shiny::reactiveValues("filter0" = filter0_reactives)
     # dummy value that connects reactives and forces reevaluation
@@ -150,16 +170,17 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
       shiny::insertUI(
         selector = "#filter_input",
         where = "afterEnd",
-        ui = mod_input_filter_ui(id = ns(new_filter_id)))
+        ui = mod_input_filter_ui(id = ns(new_filter_id))
+      )
       # add parameters
       all_filters[[new_filter_id]] <- mod_input_filter_server(
         id = new_filter_id,
         data = data_sub,
-        filter_opts = available_var_opts)
+        filter_opts = available_var_opts
+      )
       # update filter count
       n_filters(n_filters() + 1) # no real purpose except for keeping the filter count accurate
     })
-
 
     # remove last filter added
     shiny::observeEvent(input$remove_filter, {
@@ -167,14 +188,14 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
       remove_filter_id <- names(all_filters)[length(names(all_filters))]
       # remove ui
       shiny::removeUI(
-        selector = paste0("#",id, "-", remove_filter_id),
-        immediate = TRUE)
+        selector = paste0("#", id, "-", remove_filter_id),
+        immediate = TRUE
+      )
       # remove parameters
       removeReactiveValuesIndex(all_filters, remove_filter_id)
       # update filter count
       n_filters(max(0, n_filters() - 1)) # needs to be updated here to trigger filtered_data()
     })
-
 
     # apply filters to data_sub
     filtered_data <- shiny::reactive({
@@ -189,7 +210,6 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
           filter_val <- all_filters[[filter]]$filter_val()
 
           if (!is.null(filter_val)) {
-
             if (class(df[[rlang::as_name(filter_var)]]) == "Date") { # apply filter if filtering date
               df <- df %>%
                 dplyr::filter(!!filter_var %in% seq(filter_val[1], filter_val[2], "day"))
@@ -206,8 +226,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
               df <- df %>%
                 dplyr::filter(
                   is.na(!!filter_var) |
-                    !!filter_var %in% filter_val[filter_val != "N/A"])
-            } else {                                                 # otherwise
+                    !!filter_var %in% filter_val[filter_val != "N/A"]
+                )
+            } else { # otherwise
               df <- df %>%
                 dplyr::filter(!!filter_var %in% filter_val)
             }
@@ -226,53 +247,138 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
       req(!errors_detected())
       shiny::req(available_var_opts)
 
-      shiny::selectizeInput(inputId = ns("strat_vars"),
-                            label = "Parameters to stratify by:",
-                            choices = c("None",
-                                        available_var_opts()),
-                            selected = "None",
-                            multiple = TRUE,
-                            options = list(maxItems = 3))
+      shiny::selectizeInput(
+        inputId = ns("strat_vars"),
+        label = "Parameters to stratify by:",
+        choices = c(
+          "None",
+          available_var_opts()
+        ),
+        selected = "None",
+        multiple = TRUE,
+        options = list(maxItems = 3)
+      )
     })
 
     # tracks the last selection made (starts as NULL)
     last_selection <- shiny::reactiveValues(d = NULL)
 
     # updating stratification choices, removing 'None' if any is chosen
-    shiny::observeEvent(input$strat_vars, {
-      Selected = input$strat_vars
+    shiny::observeEvent(input$strat_vars,
+      {
+        Selected <- input$strat_vars
 
-      # finding lastest selection change
-      new_selection <- setdiff(Selected, last_selection$d)
+        # finding lastest selection change
+        new_selection <- setdiff(Selected, last_selection$d)
 
-      if (length(new_selection) > 0) {
-        # if lastest selection is 'None', only keep 'None'
-        if (new_selection == 'None') {
-          Selected = 'None'
-          # if latest selection is not 'None', keep everything except 'None'
-        } else {
-          Selected = Selected[Selected != 'None']
+        if (length(new_selection) > 0) {
+          # if lastest selection is 'None', only keep 'None'
+          if (new_selection == "None") {
+            Selected <- "None"
+            # if latest selection is not 'None', keep everything except 'None'
+          } else {
+            Selected <- Selected[Selected != "None"]
+          }
         }
-      }
 
-      # updating UI component
-      shiny::updateSelectizeInput(session = session,
-                                  inputId = 'strat_vars',
-                                  selected = Selected)
+        # updating UI component
+        shiny::updateSelectizeInput(
+          session = session,
+          inputId = "strat_vars",
+          selected = Selected
+        )
 
-      # updating last selection
-      last_selection$d <<- Selected
-
-    }, ignoreNULL = FALSE)
-
-    # Return list of subsetted data and parameters
-    return(
-      list(data = reactive({ filtered_data() %>% dplyr::filter(subset == TRUE) }),
-           n_weeks = shiny::reactive(input$n_weeks),
-           strat_vars = reactive({ input$strat_vars }),
-           pathogen_vars = reactive({ input$pathogen_vars }))
+        # updating last selection
+        last_selection$d <<- Selected
+      },
+      ignoreNULL = FALSE
     )
 
-  })
+    # apply signal detection on country level to the filtered data to check which algorithms are working
+    # this is checking whether there is enough training data for the algorithm to compute a baseline
+    algorithms_possible <- shiny::reactive({
+      shiny::req(filtered_data)
+      shiny::req(input$n_weeks)
 
+      signals_all_methods <- dplyr::bind_rows(purrr::map(unlist(available_algorithms()), function(algorithm) {
+        signals <- get_signals(filtered_data(),
+          method = algorithm,
+          number_of_weeks = input$n_weeks
+        )
+        if (!is.null(signals)) {
+          signals <- signals %>% dplyr::mutate(method = algorithm)
+        }
+      }))
+
+      algorithms_working <- unique(signals_all_methods$method)
+      algorithms_working_named <- available_algorithms()[unlist(available_algorithms()) %in% algorithms_working]
+
+
+      return(algorithms_working_named)
+    })
+
+    # implementing that the algorithm choice does not always move back to the default
+    # farrington when the number of weeks is changed but stays with the last selected
+    # algorithm as this algorithm is still working
+    last_selected_algorithm <- shiny::reactiveVal("farrington")
+
+    shiny::observeEvent(input$algorithm_choice, {
+      last_selected_algorithm(input$algorithm_choice)
+    })
+
+    output$algorithm_choice <- shiny::renderUI({
+      shiny::req(!errors_detected())
+      shiny::req(algorithms_possible)
+
+      selected_algorithm <- last_selected_algorithm()
+      # when last selected algorithm is no longer possible chose the first of the list
+      if (!(selected_algorithm %in% algorithms_possible()) & length(algorithms_possible()) >= 1) {
+        selected_algorithm <- algorithms_possible()[1]
+      }
+
+      if (length(algorithms_possible()) == 0) {
+        return(shiny::tagList(
+          br(),
+          HTML("<b> For the selection you chose no algorithm is possible to apply. Please reduce the number of weeks you want generate alarms for or change the filters you set. </b>"),
+          br()
+        ))
+      } else {
+        return(shiny::selectInput(
+          inputId = ns("algorithm_choice"),
+          multiple = FALSE,
+          label = "Choose an algorithm:",
+          selected = selected_algorithm,
+          choices = algorithms_possible(),
+          selectize = FALSE
+        ))
+      }
+    })
+
+    no_algorithm_possible <- shiny::reactive({
+      req(algorithms_possible)
+      if (length(algorithms_possible()) == 0) {
+        TRUE
+      } else {
+        FALSE
+      }
+    })
+
+    # Return list of subsetted data and parameters
+    return(list(
+      data = reactive({
+        dplyr::filter(filtered_data(), subset == TRUE)
+      }),
+      n_weeks = shiny::reactive(input$n_weeks),
+      strat_vars = reactive({
+        input$strat_vars
+      }),
+      pathogen_vars = reactive({
+        input$pathogen_vars
+      }),
+      method = reactive({
+        input$algorithm_choice
+      }),
+      no_algorithm_possible = shiny::reactive(no_algorithm_possible())
+    ))
+  })
 }

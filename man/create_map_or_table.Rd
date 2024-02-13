@@ -13,7 +13,7 @@ create_map_or_table(
 )
 }
 \arguments{
-\item{signals_agg}{tibble, aggregated signals over n weeks with columns number of cases, any_alarms and n_alarms}
+\item{signals_agg}{tibble, aggregated signals over n weeks with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. state and county.}
 
 \item{data_surveillance}{data.frame, surveillance linelist}
 
