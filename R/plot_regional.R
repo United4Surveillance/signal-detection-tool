@@ -13,6 +13,7 @@ plot_regional <- function(shape_with_signals,
   )
 
   plot <- shape_with_signals %>%
+    dplyr::mutate(n_alarms_label = dplyr::if_else(n_alarms > 0, n_alarms, NA)) %>%
     ggplot2::ggplot(ggplot2::aes(fill = .data$cases, color = .data$n_alarms)) +
     ggplot2::geom_sf(
       ggplot2::aes(
@@ -44,8 +45,9 @@ plot_regional <- function(shape_with_signals,
     return(plot)
   }
 
-  plot <- plot + ggplot2::geom_sf_text(ggplot2::aes(label = .data$n_alarms),
-    color = "red"
+  plot <- plot + ggplot2::geom_sf_text(ggplot2::aes(label = .data$n_alarms_label),
+                                       color = "red",
+                                       na.rm = TRUE
   )
 
   plot
