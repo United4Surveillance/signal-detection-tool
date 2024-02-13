@@ -141,6 +141,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
         filter_choices <- data_sub() %>%
           dplyr::pull(input$filter_variable) %>%
           as.character() %>%
+          tidyr::replace_na("N/A") %>%
           unique()
         filter_choices
       }
@@ -161,9 +162,15 @@ mod_tabpanel_input_server <- function(id, data, errors_detected){
         df <- data_sub()
       } else {
         filter_var <- rlang::sym(input$filter_variable)
-
-        df <- data_sub() %>%
-          dplyr::filter(!!filter_var %in% input$filter_values)
+        if ("N/A" %in% input$filter_values) {
+          df <- data_sub() %>%
+            dplyr::filter(
+              is.na(!!filter_var) |
+                !!filter_var %in% input$filter_values[input$filter_values != "N/A"])
+        } else {
+          df <- data_sub() %>%
+            dplyr::filter(!!filter_var %in% input$filter_values)
+        }
       }
       df
     })

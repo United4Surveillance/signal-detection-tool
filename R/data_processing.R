@@ -14,9 +14,8 @@ preprocess_data <- function(data) {
   data <- data %>%
     dplyr::mutate(dplyr::across(dplyr::starts_with("date"), ~ as.Date(.x, optional = T))) %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(to_lower_vars), ~ tolower(.x))) %>%
-    dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::if_else(.x == "", "unknown", .x))) %>%
-    dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::if_else(is.na(.x), "unknown", .x))) %>%
-    dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::if_else(.x == "NA", "unknown", .x))) %>%
+    dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, ""))) %>%
+    dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, "unknown"))) %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(regional_id_vars), ~ as.character(.x)))
 
   # add columns for isoyear and isoweek for each date
