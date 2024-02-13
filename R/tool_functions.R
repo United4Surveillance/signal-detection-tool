@@ -225,7 +225,7 @@ get_signals_stratified <- function(data,
 #' This function analyzes surveillance data to detect signals using the
 #' specified method.
 #'
-#' @param data A data frame containing the surveillance data.
+#' @param data A data frame containing the surveillance data preprocessed with [preprocess_data()].
 #' @param method The method to use for signal detection (currently supports
 #'   "farrington").
 #' @param stratification A character vector specifying the columns to stratify
@@ -254,7 +254,7 @@ get_signals <- function(data,
                         number_of_weeks = 52) {
   # check that input method and stratification are correct
   checkmate::assert(
-    checkmate::check_choice(method, choices = c("farrington","aeddo","ears","cusum")))
+    checkmate::check_choice(method, choices = available_algorithms()))
 
   checkmate::assert(
     checkmate::check_null(stratification),
@@ -328,13 +328,11 @@ get_signals <- function(data,
 #' @return A list containing success status (TRUE or FALSE) and a message (NULL for success, a warning, or an error).
 #'
 #' @examples
-#'
 #' # Save signals with default or custom filepath
-#' # signals <- SignalDetectionTool::get_signals(SignalDetectionTool::input_example)
-#' signals <- SignalDetectionTool::get_signals(SignalDetectionTool::input_example,
-#'   stratification = c("county", "sex", "age_group")
-#' )
-#' save_signals(signals, SignalDetectionTool::input_example)
+#' \dontrun{
+#' data <- preprocess_data(SignalDetectionTool::input_example)
+#' save_signals(SignalDetectionTool::get_signals(data), data)
+#' }
 #'
 #' @export
 save_signals <- function(signals, original_input_data, filepath = "") {
@@ -418,7 +416,11 @@ save_signals <- function(signals, original_input_data, filepath = "") {
 #'
 #' @examples
 #' # Generate a filename based on results data
-#' conjure_filename(SignalDetectionTool::get_signals(SignalDetectionTool::input_example))
+#' \dontrun{
+#' data <- preprocess_data(SignalDetectionTool::input_example)
+#' conjure_filename(SignalDetectionTool::get_signals(data))
+#' }
+#'
 #'
 #' @export
 conjure_filename <- function(data) {

@@ -28,7 +28,9 @@ mod_tabpanel_report_server <- function(id,
                                        indata,
                                        strat_vars,
                                        pathogen_vars,
-                                       errors_detected) {
+                                       method,
+                                       errors_detected,
+                                       no_algorithm_possible) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -44,6 +46,12 @@ mod_tabpanel_report_server <- function(id,
           shiny::br(),
           shiny::hr(),
           shiny::p("You can check the data in the 'Data' tab for more details on the issue.")
+        ))
+      } else if (no_algorithm_possible() == TRUE){
+        return(shiny::tagList(
+          shiny::br(),
+          shiny::h3("There is no outbreak detection algorithm which can be applied to your current settings, please change your selected settings in the input tab and try again."),
+          shiny::br()
         ))
       } else {
         return(shiny::tagList(
@@ -87,7 +95,7 @@ mod_tabpanel_report_server <- function(id,
     # Download generated report
     output$report_text <- renderText({
       paste("Generated outputs for", pathogen_vars(), " stratified ",
-            "by ", paste0(strat_vars(), collapse = ", "))
+            "by ", paste0(strat_vars(), collapse = ", "), "using ", names(available_algorithms())[available_algorithms() == method()], " as outbreak detection algorithm.")
     })
 
 
@@ -100,6 +108,7 @@ mod_tabpanel_report_server <- function(id,
         run_report(report_format = input$format,
                    data = indata(),
                    strata = strat_vars(),
+                   algo = method(),
                    interactive = input$interactive,
                    tables = input$tables,
                    # training_range, #TODO
