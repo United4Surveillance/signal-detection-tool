@@ -6,7 +6,7 @@
 #' @param data_surveillance data.frame, surveillance linelist
 #' @param region character, specifying the variable for the region to be shown should be one of ("country","state",
 #' "county","community","region_level1", "region_level2","region_level3")
-#' @param shape sf, shapefile
+#' @param shape sf, shapefile default set to internal europe shapefile nuts_shp
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @returns a table or a plot depending on whether the matching of the NUTS IDs was fully possible, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 #' @examples
@@ -20,7 +20,7 @@
 create_map_or_table <- function(signals_agg,
                                 data_surveillance,
                                 region,
-                                shape,
+                                shape = nuts_shp,
                                 interactive = TRUE) {
   checkmate::assertChoice(region, region_variable_names())
 
@@ -132,4 +132,31 @@ create_barplot_or_table <- function(signals_agg,
       interactive = interactive
     )
   }
+}
+
+#' Decider function whether create_map_or_table or create_barplot_or_table is used
+#'
+#' Depending on the category which should be visualised (regional variable) or non regional category such as age_group, sex, ... a map is tried for plotting or a barchart.
+#'
+#' @param signals_agg tibble, aggregated signals over n weeks with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. state and county.
+#' @param data_surveillance data.frame, surveillance linelist
+#' @param signal_category character, naming the category which should be visualised, i.e. "state","age_group","sex"
+#' @return a table or a plot depending on signal_category, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
+decider_barplot_map_table <- function(signals_agg,
+                                      data_surveillance,
+                                      signal_category,
+                                      interactive = TRUE) {
+  if (signal_category %in% c("state", "county", "community")) {
+    plot_or_table <- create_map_or_table(signals_agg,
+      data_surveillance,
+      signal_category,
+      interactive = interactive
+    )
+  } else {
+    plot_or_table <- create_barplot_or_table(signals_agg,
+      signal_category,
+      interactive = interactive
+    )
+  }
+  return(plot_or_table)
 }

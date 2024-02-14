@@ -8,7 +8,7 @@ create_map_or_table(
   signals_agg,
   data_surveillance,
   region,
-  shape,
+  shape = nuts_shp,
   interactive = TRUE
 )
 }
@@ -20,7 +20,7 @@ create_map_or_table(
 \item{region}{character, specifying the variable for the region to be shown should be one of ("country","state",
 "county","community","region_level1", "region_level2","region_level3")}
 
-\item{shape}{sf, shapefile}
+\item{shape}{sf, shapefile default set to internal europe shapefile nuts_shp}
 
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
 }
