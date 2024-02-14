@@ -41,8 +41,7 @@ yes_no_unknown_levels <- function() {
 }
 
 #' Variable names of the variables which have yes, no , unknown levels
-yes_no_unknown_variables <- function(){
-
+yes_no_unknown_variables <- function() {
   c(
     "hospitalization",
     "death",
@@ -73,5 +72,13 @@ region_variable_names <- function() {
     "region_level1",
     "region_level2",
     "region_level3"
+  )
+}
+
+available_algorithms <- function() {
+  c(
+    "FarringtonFlexible" = "farrington",
+    "EARS" = "ears",
+    "CUSUM" = "cusum"
   )
 }
