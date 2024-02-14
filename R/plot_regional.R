@@ -18,7 +18,7 @@ plot_regional <- function(shape_with_signals,
                                  text = paste0("Number of cases: ", cases,
                                                "<br>Number of alarms: ", n_alarms))) +
     ggplot2::geom_sf(mapping = ggplot2::aes(colour = "No alarms"), lwd = 1.2) +
-    ggplot2::geom_sf(data = . %>% filter(any_alarms == TRUE),
+    ggplot2::geom_sf(data = . %>% dplyr::filter(any_alarms == TRUE),
                      mapping = ggplot2::aes(colour = "At least 1 alarm"), lwd = 1.2) +
     ggplot2::theme_void() +
     ggplot2::scale_fill_distiller(palette = "YlGn", direction = 1, name = "Cases") +
@@ -30,8 +30,8 @@ plot_regional <- function(shape_with_signals,
     ggplot2::scale_size_identity() +
     ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(fill = NA))) +
     ggplot2::theme(
-      legend.title = element_text(size = 20, family = "bold"),
-      legend.text  = element_text(size = 15),
+      legend.title = ggplot2::element_text(size = 20, family = "bold"),
+      legend.text  = ggplot2::element_text(size = 15),
       legend.text.align = 0
     )
 
