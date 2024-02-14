@@ -54,9 +54,11 @@ plot_regional <- function(shape_with_signals,
     return(plot)
   }
 
-  plot <- plot + ggplot2::geom_sf_text(ggplot2::aes(label = .data$n_alarms_label),
-                                       color = "red",
-                                       na.rm = TRUE
+  plot <- plot + ggplot2::geom_sf_text(ggplot2::aes(label = n_alarms_label),
+                                       color  = "black",
+                                       family = "bold",
+                                       size   = 8,
+                                       na.rm  = TRUE
                                        )
 
   plot
