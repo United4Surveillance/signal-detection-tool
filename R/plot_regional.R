@@ -21,7 +21,8 @@ plot_regional <- function(shape_with_signals,
     ggplot2::geom_sf(data = . %>% dplyr::filter(any_alarms == TRUE),
                      mapping = ggplot2::aes(colour = "At least 1 alarm"), lwd = 1.2) +
     ggplot2::theme_void() +
-    ggplot2::scale_fill_distiller(palette = "YlGn", direction = 1, name = "Cases") +
+    ggplot2::scale_fill_gradientn(colours = colorRampPalette(c("#eaecf4","#304794","#1c2a58"))(8),
+                                  name = "Cases") +
     ggplot2::scale_color_manual(values = c("No alarms"        = "black",
                                            "At least 1 alarm" = "red"),
                                 limits = c("No alarms", "At least 1 alarm"),
