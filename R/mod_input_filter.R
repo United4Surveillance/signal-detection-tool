@@ -7,7 +7,7 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_input_filter_ui <- function(id){
+mod_input_filter_ui <- function(id) {
   ns <- NS(id)
 
   shiny::tagList(
@@ -26,8 +26,8 @@ mod_input_filter_ui <- function(id){
 #' input_filter Server Functions
 #'
 #' @noRd
-mod_input_filter_server <- function(id, data, filter_opts){
-  moduleServer(id, function(input, output, session){
+mod_input_filter_server <- function(id, data, filter_opts) {
+  moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
     # add date options
@@ -37,11 +37,14 @@ mod_input_filter_server <- function(id, data, filter_opts){
 
     # filter variable
     output$filter_var_ui <- shiny::renderUI({
-      shiny::selectInput(inputId = ns("filter_var_sel"),
-                         multiple = FALSE,
-                         label = "Choose variable to filter",
-                         selected = "None",
-                         choices = c("None", c(date_opts(), filter_opts())))
+      shiny::selectInput(
+        inputId = ns("filter_var_sel"),
+        multiple = FALSE,
+        label = "          ",
+        selected = "None",
+        choices = c("None", c(date_opts(), filter_opts())),
+        width = "100%"
+      )
     })
 
 
@@ -87,7 +90,8 @@ mod_input_filter_server <- function(id, data, filter_opts){
           inputId = ns("filter_val_sel"),
           multiple = TRUE,
           label = "Choose values to filter for",
-          choices = filter_choices
+          choices = filter_choices,
+          width = "40%"
         )
       }
       value_ui
@@ -109,6 +113,5 @@ mod_input_filter_server <- function(id, data, filter_opts){
       "filter_var" = shiny::reactive(input$filter_var_sel),
       "filter_val" = filter_val
     )
-
   })
 }
