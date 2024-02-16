@@ -54,6 +54,36 @@ mod_tabpanel_signals_server <- function(
         ))
       } else {
         return(shiny::tagList(
+          fluidRow(
+            column(width = 3,
+                   div(class = "value-box blue",
+                       div(class = "title", "Outbreak detection algorithm"),
+                       div(class = "value", method())
+                   )
+            ),
+            column(width = 2,
+                   div(class = "value-box blue",
+                       div(class = "title", "Number of weeks"),
+                       div(class = "value", number_of_weeks())
+                   )
+            ),
+            column(width = 2,
+                   div(class = "value-box red",
+                       div(class = "title", "Number of alarms"),
+                       div(class = "value", shiny::textOutput(ns("test")))
+                   )
+            ),
+            if(!"None" %in% strat_vars()){
+
+              column(width = 4,
+                     div(class = "value-box red",
+                         div(class = "title", "Number of alarms by stratum"),
+                         div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
+                     )
+              )
+
+              }
+            ),
           mod_plot_time_series_ui(id = ns("timeseries")),
           shiny::br(),
           shiny::h3("Plot of age group"),
@@ -98,6 +128,11 @@ mod_tabpanel_signals_server <- function(
       results
     })
 
+    signals_agg <- shiny::reactive({
+      shiny::req(signal_results)
+      aggregate_signals(signal_results(), number_of_weeks = number_of_weeks())
+    })
+
     signal_data <- shiny::reactive({
       shiny::req(!errors_detected())
       shiny::req(signal_results())
@@ -136,6 +171,31 @@ mod_tabpanel_signals_server <- function(
         interactive = TRUE
       )
       # FIXME: interactive mode not working here?
+    })
+    output$test <- shiny::renderText({
+      paste0(sum(signals_agg()$n_alarms))
+    })
+
+    output$signals_stratum <- shiny::renderUI({
+
+      signals_strat <- signals_agg() %>%
+        dplyr::group_by(category) %>%
+        dplyr::summarise(n_alarms = sum(n_alarms))
+
+      test <- c()
+
+      for(i in signals_strat$category){
+
+        n_alarms <- signals_strat %>%
+          dplyr::filter(category == i) %>%
+          dplyr::pull(n_alarms)
+
+        test <- paste0(test,
+                       paste0(i, ": ", n_alarms, "<br/>"))
+
+        }
+      shiny::HTML(test)
+
     })
   })
 }
