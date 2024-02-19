@@ -55,30 +55,32 @@ mod_tabpanel_signals_server <- function(
       } else {
         return(shiny::tagList(
           fluidRow(
+            # Creation of boxes using div
             column(width = 3,
-                   div(class = "value-box blue",
-                       div(class = "title", "Outbreak detection algorithm"),
-                       div(class = "value", method())
+                   shiny::div(class = "value-box blue",
+                       shiny::div(class = "title", "Outbreak detection algorithm"),
+                       shiny::div(class = "value", method())
                    )
             ),
             column(width = 2,
-                   div(class = "value-box blue",
-                       div(class = "title", "Number of weeks"),
-                       div(class = "value", number_of_weeks())
+                   shiny::div(class = "value-box blue",
+                       shiny::div(class = "title", "Number of weeks"),
+                       shiny::div(class = "value", number_of_weeks())
                    )
             ),
             column(width = 2,
-                   div(class = "value-box red",
-                       div(class = "title", "Number of alarms"),
-                       div(class = "value", shiny::textOutput(ns("test")))
+                   shiny::div(class = "value-box red",
+                       shiny::div(class = "title", "Number of alarms"),
+                       shiny::div(class = "value", shiny::textOutput(ns("n_alarms")))
                    )
             ),
+            # Box of alarms by stratum
             if(!"None" %in% strat_vars()){
 
               column(width = 4,
-                     div(class = "value-box red",
-                         div(class = "title", "Number of alarms by stratum"),
-                         div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
+                     shiny::div(class = "value-box red",
+                         shiny::div(class = "title", "Number of alarms by stratum"),
+                         shiny::div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
                      )
               )
 
@@ -172,7 +174,7 @@ mod_tabpanel_signals_server <- function(
       )
       # FIXME: interactive mode not working here?
     })
-    output$test <- shiny::renderText({
+    output$n_alarms <- shiny::renderText({
       paste0(sum(signals_agg()$n_alarms))
     })
 
@@ -182,7 +184,7 @@ mod_tabpanel_signals_server <- function(
         dplyr::group_by(category) %>%
         dplyr::summarise(n_alarms = sum(n_alarms))
 
-      test <- c()
+      text_output <- c()
 
       for(i in signals_strat$category){
 
@@ -190,11 +192,11 @@ mod_tabpanel_signals_server <- function(
           dplyr::filter(category == i) %>%
           dplyr::pull(n_alarms)
 
-        test <- paste0(test,
+        text_output <- paste0(text_output,
                        paste0(i, ": ", n_alarms, "<br/>"))
 
         }
-      shiny::HTML(test)
+      shiny::HTML(text_output)
 
     })
   })

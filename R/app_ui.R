@@ -54,6 +54,7 @@ golem_add_external_resources <- function() {
       path = app_sys("app/www"),
       app_title = "SignalDetectionTool"
     ),
+    # Presets for the boxes in the signals tabpanel
     tags$style(HTML("
       .value-box {
         border-radius: 3px;
