@@ -48,50 +48,85 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         ))
       } else {
         return(shiny::tagList(
-          # Horizontal line ----
-          tags$hr(),
-          h2("Choose the number of weeks to generate signals for"),
-          shiny::uiOutput(ns("weeks_slider")),
-          h2("Choose which pathogen in the dataset to check for aberrations"),
-          br(),
-          shiny::uiOutput(ns("pathogen_choices")),
-          shiny::div(
-            id = "filter_input",
-            h2(
-              "Filter dataset",
-              shiny::actionButton(
-                inputId = ns("add_filter"),
-                label = "",
-                icon = shiny::icon("plus")
-              ),
-              shiny::actionButton(
-                inputId = ns("remove_filter"),
-                label = "",
-                icon = shiny::icon("minus")
+          tags$style(
+            HTML("
+      .well {
+        margin-top: 20px; /* Adjust the value to move the wellPanel lower */
+      }
+    ")
+          ),
+          shiny::fluidRow(
+            column(
+              6,
+              shiny::wellPanel(
+                span("Dataset settings", style = "font-size:140%;color:#304794"),
+                hr(),
+                span("Pathogen", style = "font-size:100%;font-weight: bold"),
+                shiny::uiOutput(ns("pathogen_choices")),
+                br(),
+                span("Filters", style = "font-size:100%;font-weight: bold"),
+                br(),
+                span("You can chose to investigate a subset of your data according to the filters you select. When filtering by date_report you have the possibility select a specific timeperiod you want to investigate. In the timeseries visualisation only the timeperiod you selected will be shown and the outbreak detection algorithms will only train on the data from the timeperiod you selected."),
+                br(),
+                br(),
+                shiny::div(
+                  id = "filter_input",
+                  span(
+                    "Add and remove filters",
+                    shiny::actionButton(
+                      inputId = ns("add_filter"),
+                      label = "",
+                      icon = shiny::icon("plus")
+                    ),
+                    shiny::actionButton(
+                      inputId = ns("remove_filter"),
+                      label = "",
+                      icon = shiny::icon("minus")
+                    )
+                  ),
+                ),
+                br(),
+                mod_input_filter_ui(id = ns("filter0"))
               )
             ),
-          ),
-          br(),
-          mod_input_filter_ui(id = ns("filter0")),
-          h2("Choose stratification parameters (max. 3)"),
-          br(),
-          shiny::uiOutput(ns("strat_choices")),
-          h2("Chose an outbreak detection algorithm"),
-          span("Depending on the number of weeks you want to generate alarms for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
-          br(),
-          shiny::uiOutput(ns("algorithm_choice"))
+            column(
+              6,
+              shiny::wellPanel(
+                span("Signal Detection settings", style = "font-size:140%;color:#304794"),
+                hr(),
+                span("Strata", style = "font-size:100%;font-weight: bold"),
+                br(),
+                span("Select up to 3 variables you want to stratify by. Signals and visualisations will be generated for each stratum."),
+                shiny::uiOutput(ns("strat_choices")),
+                br(),
+                span("Signal Detection Period", style = "font-size:100%;font-weight: bold"),
+                br(),
+                span("Set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks."),
+                br(),
+                shiny::uiOutput(ns("weeks_selection")),
+                br(),
+                span("Signal detection algorithm", style = "font-size:100%;font-weight: bold"),
+                br(),
+                span("Depending on the number of weeks you want to generate alarms for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
+                br(),
+                shiny::uiOutput(ns("algorithm_choice"))
+              )
+            )
+          )
         ))
       }
     })
 
-    output$weeks_slider <- shiny::renderUI({
+    output$weeks_selection <- shiny::renderUI({
       shiny::req(!errors_detected())
-      shiny::sliderInput(
+      shiny::numericInput(
         inputId = ns("n_weeks"),
         label = "",
         value = 6,
         min = 1,
-        max = 52
+        max = 52,
+        step = 1,
+        width = "40%"
       ) # TODO: make this dynamic
     })
 
@@ -111,8 +146,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::req(!errors_detected())
       return(shiny::selectInput(
         inputId = ns("pathogen_vars"),
-        label = "Choose pathogen:",
-        choices = unique(data()$pathogen)
+        label = "",
+        choices = unique(data()$pathogen),
+        width = "40%"
       ))
     })
 
@@ -143,7 +179,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::selectInput(
         inputId = ns("filter_variable"),
         multiple = FALSE,
-        label = "Choose variable to filter",
+        label = "",
         selected = "None",
         choices = c("None", available_var_opts())
       )
@@ -239,14 +275,15 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
       shiny::selectizeInput(
         inputId = ns("strat_vars"),
-        label = "Parameters to stratify by:",
+        label = "",
         choices = c(
           "None",
           available_var_opts()
         ),
         selected = "None",
         multiple = TRUE,
-        options = list(maxItems = 3)
+        options = list(maxItems = 3),
+        width = "40%"
       )
     })
 
@@ -336,10 +373,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         return(shiny::selectInput(
           inputId = ns("algorithm_choice"),
           multiple = FALSE,
-          label = "Choose an algorithm:",
+          label = "",
           selected = selected_algorithm,
           choices = algorithms_possible(),
-          selectize = FALSE
+          selectize = FALSE,
+          width = "40%"
         ))
       }
     })
