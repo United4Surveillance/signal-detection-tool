@@ -15,13 +15,12 @@ plot_regional <- function(shape_with_signals,
   plot <- shape_with_signals %>%
     dplyr::mutate(n_alarms_label = dplyr::if_else(n_alarms > 0, n_alarms, NA)) %>%
     ggplot2::ggplot(ggplot2::aes(fill = cases,
-                                 text = paste0("Number of cases: ", cases,
+                                 text = paste0(NUTS_NAME,
+                                               "<br>Number of cases: ", cases,
                                                "<br>Number of alarms: ", n_alarms))) +
     ggplot2::geom_sf(mapping = ggplot2::aes(colour = "No alarms"), lwd = 1.2) +
-    ggplot2::geom_sf(data = . %>% dplyr::filter(any_alarms == TRUE),
-                     mapping = ggplot2::aes(colour = "At least 1 alarm"), lwd = 1.2) +
     ggplot2::theme_void() +
-    ggplot2::scale_fill_gradientn(colours = colorRampPalette(c("#eaecf4","#304794","#1c2a58"))(8),
+    ggplot2::scale_fill_gradientn(colours = grDevices::colorRampPalette(c("#eaecf4","#304794","#1c2a58"))(8),
                                   name = "Cases") +
     ggplot2::scale_color_manual(values = c("No alarms"        = "black",
                                            "At least 1 alarm" = "red"),
@@ -36,9 +35,17 @@ plot_regional <- function(shape_with_signals,
       legend.text.align = 0
     )
 
+  if (any(shape_with_signals$any_alarms == TRUE)) {
+    plot <- plot +
+      ggplot2::geom_sf(data = shape_with_signals %>% dplyr::filter(any_alarms == TRUE),
+                       mapping = ggplot2::aes(colour = "At least 1 alarm"), lwd = 1.2)
+  }
+
 
   if (interactive) {
     plot <- plotly::ggplotly(plot, tooltip = "text") %>%
+      plotly::style(hoveron = "fill",
+                    hoverlabel = list(bgcolor = "white")) %>%
       plotly::config(modeBarButtonsToRemove = c(
         "autoScale2d",
         "resetScale2d",
@@ -49,18 +56,18 @@ plot_regional <- function(shape_with_signals,
         "pan2d",
         "zoom2d",
         "toggleSpikelines"
-      )) %>%
-      plotly::style(hoveron = "fill")
+      ))
 
-    return(plot)
+
+  } else {
+    plot <- plot + ggplot2::geom_sf_text(ggplot2::aes(label = n_alarms_label),
+                                         color  = "black",
+                                         family = "bold",
+                                         size   = 8,
+                                         na.rm  = TRUE
+                                         )
   }
 
-  plot <- plot + ggplot2::geom_sf_text(ggplot2::aes(label = n_alarms_label),
-                                       color  = "black",
-                                       family = "bold",
-                                       size   = 8,
-                                       na.rm  = TRUE
-                                       )
 
   plot
 }
