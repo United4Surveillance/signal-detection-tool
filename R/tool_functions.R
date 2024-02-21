@@ -62,17 +62,17 @@ find_age_group <- function(age, x) {
 #' @importFrom stringr str_split_fixed str_starts str_ends str_extract_all
 age_format_check <- function(df) {
   # setting variables
-  splits   <- stringr::str_split_fixed(as.character(unique(df$age_group)),"[:punct:]", 2)
+  splits   <- stringr::str_split_fixed(as.character(unique(df$age_group)),"[^[:alnum:]]", 2)
 
   # checking if length is equidistant
-  abs_diff <- abs(as.numeric(splits[,1]) - as.numeric(splits[,2]))
+  abs_diff <- abs(as.numeric(splits[,1]) - as.numeric(splits[,2])) %>% stats::na.omit()
   equal_sizing <- (length(unique(abs_diff)) == 1)
 
   # checking whether xx-xx format is in use
   format_agegrp_xx <-
     union(
-      which(stringr::str_starts(df$age_group, "[:digit:]{1}[:punct:]")),
-      which(stringr::str_ends(df$age_group, "[:punct:][:digit:]{1}"))
+      which(stringr::str_starts(df$age_group, "[:digit:]{1}[^[:alnum:]]")),
+      which(stringr::str_ends(df$age_group, "[^[:alnum:]][:digit:]{1}"))
     )
 
   # checking whether any punctuation characters are used at either end of age_group
@@ -130,11 +130,31 @@ age_format_check <- function(df) {
 #' @importFrom plyr round_any
 #' @import dplyr
 complete_agegrp_arr <- function(df, format_check_results) {
+  # find unique elements of age_group
+  tmp_uniq_agegrp <- stringr::str_sort(unique(df$age_group), numeric = TRUE)
+
+  # check to see if there are any gaps
+  # building regex string dependent on level of punct characters found
+  regex_string <-
+    paste0("[\\",
+           format_check_results$agegrp_div)
+
+  if (!format_check_results$other_punct_char == "") {
+    regex_string <- paste0(regex_string, "\\", format_check_results$other_punct_char)
+  }
+
+  regex_string <- paste0(regex_string, "]")
+
+  # splitting the ages
+  splits <- stringr::str_split_fixed(string  = tmp_uniq_agegrp,
+                                     pattern = regex_string,
+                                     n = 2)
+
   # if there is equidistance
   if (format_check_results$equal_sizing) {
     # create sequence based on existing age_groups
     # find an example of an age group that is not NULL
-    tmp_agegrp <- df$age_group[grepl(paste0("[\\",format_check_results$agegrp_div,"]"), df$age_group)][1]
+    tmp_agegrp <- tmp_uniq_agegrp[grepl(paste0("[\\",format_check_results$agegrp_div,"]"), tmp_uniq_agegrp)][1]
 
     # get the lower and upper of the age group gap and find the range
     lower_split <- as.numeric(stringr::str_split_1(as.character(tmp_agegrp),format_check_results$agegrp_div)[1])
@@ -151,26 +171,6 @@ complete_agegrp_arr <- function(df, format_check_results) {
     seq_upper <- (seq_lower-1)[-1]
 
   } else if (!format_check_results$equal_sizing) {
-    # find unique elements of age_group
-    tmp_uniq_agegrp <- stringr::str_sort(unique(df$age_group), numeric = TRUE)
-
-    # check to see if there are any gaps
-    # building regex string dependent on level of punct characters found
-    regex_string <-
-      paste0("[\\",
-             format_check_results$agegrp_div)
-
-    if (!format_check_results$other_punct_char == "") {
-      regex_string <- paste0(regex_string, "\\", format_check_results$other_punct_char)
-    }
-
-    regex_string <- paste0(regex_string, "]")
-
-    # splitting the ages
-    splits <- stringr::str_split_fixed(string  = tmp_uniq_agegrp,
-                                       pattern = regex_string,
-                                       n = 2)
-
     # find where there are missing gaps
     dummy_fill <- data.frame(lower=1:length(tmp_uniq_agegrp)*NA,
                              upper=1:length(tmp_uniq_agegrp)*NA)
@@ -211,9 +211,13 @@ complete_agegrp_arr <- function(df, format_check_results) {
     # locate the maximum number
     max_number <- as.numeric(splits[which(splits[,2] == "")][1])
 
-    # locate max_number in agegrps and replace it with "max_number+"
-    all_agegrps <- append(all_agegrps, paste0(max_number,
-                                              format_check_results$other_punct_char))
+    # locate max_number in agegrps and replace it with "max_number{special_char}"
+    all_agegrps[grep(x = all_agegrps, pattern = max_number)] <- paste0(max_number,
+                                                                       format_check_results$other_punct_char)
+
+    # remove any items after {special_char}-symbol
+    all_agegrps <- all_agegrps[1:grep(x = all_agegrps,
+                                      pattern = paste0("\\",format_check_results$other_punct_char))]
   }
 
   return(all_agegrps)
@@ -281,7 +285,7 @@ age_groups <- function(df, break_at = NULL) {
 
   # if not the correct xx-xx format is used, insert leading 0's where necesary
   if (length(format_check_results$format_agegrp_xx) > 0) {
-    splits <- stringr::str_split_fixed(as.character(df$age_group),"[:punct:]", 2)
+    splits <- stringr::str_split_fixed(as.character(df$age_group),"[^[:alnum:]]", 2)
 
     for (item in format_check_results$format_agegrp_xx) {
       df$age_group[item] <- paste0(sprintf("%02d",as.numeric(splits[item,1])),
