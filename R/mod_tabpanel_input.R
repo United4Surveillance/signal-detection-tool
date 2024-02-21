@@ -104,6 +104,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 span("Set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks."),
                 br(),
                 shiny::uiOutput(ns("weeks_selection")),
+                shiny::textOutput(ns("text_weeks_selection")),
                 br(),
                 span("Signal detection algorithm", style = "font-size:100%;font-weight: bold"),
                 br(),
@@ -128,6 +129,15 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         step = 1,
         width = "40%"
       ) # TODO: make this dynamic
+    })
+
+    output$text_weeks_selection <- shiny::renderText({
+      shiny::req(!errors_detected())
+      shiny::req(input$n_weeks)
+
+      paste("Chosen signal detection period from",
+            max(filtered_data()$date_report) - lubridate::weeks(input$n_weeks),
+            "to", max(filtered_data()$date_report))
     })
 
     data_sub <- shiny::reactive({
