@@ -173,17 +173,6 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       available_vars
     })
 
-    output$filter_variables <- shiny::renderUI({
-      shiny::req(!errors_detected())
-      shiny::req(available_var_opts)
-      shiny::selectInput(
-        inputId = ns("filter_variable"),
-        multiple = FALSE,
-        label = "",
-        selected = "None",
-        choices = c("None", available_var_opts())
-      )
-    })
 
     # filtering ----------------------------------------------------------------
     # inital filter ui
