@@ -173,13 +173,21 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       available_vars
     })
 
+    filter_var_opts <- shiny::reactive({
+      shiny::req(available_var_opts())
+      shiny::req(data_sub())
+      date_opts <- intersect(names(data_sub()), c("date_report"))
+      all_opts <- c("None", date_opts, available_var_opts())
+      all_opts
+    })
+
 
     # filtering ----------------------------------------------------------------
     # inital filter ui
     filter0_reactives <- mod_input_filter_server(
       id = "filter0",
       data = data_sub,
-      filter_opts = available_var_opts
+      filter_opts = filter_var_opts
     )
     # initalize reactive values containing filter parameters
     all_filters <- shiny::reactiveValues("filter0" = filter0_reactives)
@@ -189,22 +197,24 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     # add filters
     shiny::observeEvent(input$add_filter, {
-      # id to add
-      new_filter_id <- paste0("filter", input$add_filter)
-      # add ui
-      shiny::insertUI(
-        selector = "#filter_input",
-        where = "afterEnd",
-        ui = mod_input_filter_ui(id = ns(new_filter_id))
-      )
-      # add parameters
-      all_filters[[new_filter_id]] <- mod_input_filter_server(
-        id = new_filter_id,
-        data = data_sub,
-        filter_opts = available_var_opts
-      )
-      # update filter count
-      n_filters(n_filters() + 1) # no real purpose except for keeping the filter count accurate
+      if (n_filters() < (length(filter_var_opts()) - 1)) {
+        # id to add
+        new_filter_id <- paste0("filter", input$add_filter)
+        # add ui
+        shiny::insertUI(
+          selector = "#filter_input",
+          where = "afterEnd",
+          ui = mod_input_filter_ui(id = ns(new_filter_id))
+        )
+        # add parameters
+        all_filters[[new_filter_id]] <- mod_input_filter_server(
+          id = new_filter_id,
+          data = data_sub,
+          filter_opts = filter_var_opts
+        )
+        # update filter count
+        n_filters(n_filters() + 1)
+      }
     })
 
     # remove last filter added

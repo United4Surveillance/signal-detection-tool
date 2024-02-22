@@ -30,11 +30,6 @@ mod_input_filter_server <- function(id, data, filter_opts) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    # add date options
-    date_opts <- shiny::reactive({
-      date_opts <- intersect(names(data()), c("date_report")) # TODO: add other options
-    })
-
     # filter variable
     output$filter_var_ui <- shiny::renderUI({
       shiny::selectInput(
@@ -42,7 +37,7 @@ mod_input_filter_server <- function(id, data, filter_opts) {
         multiple = FALSE,
         label = "          ",
         selected = "None",
-        choices = c("None", c(date_opts(), filter_opts())),
+        choices = filter_opts(),
         width = "100%"
       )
     })
