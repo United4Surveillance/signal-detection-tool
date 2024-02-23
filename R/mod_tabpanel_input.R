@@ -220,6 +220,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     # remove last filter added
     shiny::observeEvent(input$remove_filter, {
+      if (n_filters() > 0) {
       # id to remove
       remove_filter_id <- names(all_filters)[length(names(all_filters))]
       # remove ui
@@ -231,6 +232,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       removeReactiveValuesIndex(all_filters, remove_filter_id)
       # update filter count
       n_filters(max(0, n_filters() - 1)) # needs to be updated here to trigger filtered_data()
+      }
     })
 
     # apply filters to data_sub
