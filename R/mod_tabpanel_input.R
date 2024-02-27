@@ -160,6 +160,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         c(
           "state",
           "county",
+          "community",
           "region_level1",
           "region_level2",
           "region_level3",
