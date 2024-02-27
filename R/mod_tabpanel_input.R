@@ -37,15 +37,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     # ensuring that content is onlyu shown if data check returns no errors
     output$input_tab_ui <- shiny::renderUI({
       if (errors_detected() == TRUE) {
-        return(shiny::tagList(
-          shiny::br(),
-          shiny::h2("Data Format Check Failed"),
-          shiny::p("Unfortunately, the selected data does not meet the required format."),
-          shiny::p("Please make sure the data follows the correct structure and try again."),
-          shiny::br(),
-          shiny::hr(),
-          shiny::p("You can check the data in the 'Data' tab for more details on the issue.")
-        ))
+        return(datacheck_error_message)
       } else {
         return(shiny::tagList(
           tags$style(
