@@ -62,42 +62,56 @@ find_age_group <- function(age, x) {
 #' @importFrom stringr str_split_fixed str_starts str_ends str_extract_all
 age_format_check <- function(df) {
   # setting variables
-  splits   <- stringr::str_split_fixed(as.character(unique(df$age_group)),"[^[:alnum:]]", 2)
+  splits_uniq  <- stringr::str_split_fixed(as.character(unique(df$age_group)),"[^[:alnum:]]", 2)
+  splits_total <- stringr::str_split_fixed(as.character(df$age_group),"[^[:alnum:]]", 2)
 
   # checking if length is equidistant
-  abs_diff <- abs(as.numeric(splits[,1]) - as.numeric(splits[,2])) %>% stats::na.omit()
+  abs_diff <- abs(as.numeric(splits_uniq[,1]) - as.numeric(splits_uniq[,2])) %>% stats::na.omit()
   equal_sizing <- (length(unique(abs_diff)) == 1)
 
   # checking whether xx-xx format is in use
-  format_agegrp_xx <-
+  format_agegrp_xx_old <-
     union(
       which(stringr::str_starts(df$age_group, "[:digit:]{1}[^[:alnum:]]")),
       which(stringr::str_ends(df$age_group, "[^[:alnum:]][:digit:]{1}"))
     )
 
-  # checking whether any punctuation characters are used at either end of age_group
-  # if TRUE, a punctation character is used at one of the ends in an age_group
-  punct_char_check <- any(
-    c(stringr::str_starts(unique(df$age_group), "[^[:alnum:]]"),
-      stringr::str_ends(unique(df$age_group), "[^[:alnum:]]")
-    ) == TRUE
+  tmp_check <-union(
+    which(stringr::str_length(splits_total[,1]) < 2),
+    which(stringr::str_length(splits_total[,2]) < 2)
   )
 
+  format_agegrp_xx<-
+    setdiff(tmp_check,
+          which(splits_total == "", arr.ind = T)[,1])
+
   # extract which divider is used
-  # using logic that most used punctuation character is divider
-  punct_chars <- stringr::str_extract_all(string = df$age_group,
-                                          pattern = "[^[:alnum:]]",
-                                          simplify = TRUE) %>%
-    stats::aggregate(data.frame(count = .), length)
+  agegrp_div <- stringr::str_match(string  = as.character(unique(df$age_group)),
+                                   pattern = "\\d+(.*?)\\d+")[,2] %>%
+    stringr::str_subset(".+") %>% unique
 
-  # finding the main age_group divider
-  agegrp_div <- punct_chars$count[which.max(punct_chars$V1)]
+  # extract which other special characters are used and how and where
+  tmp_start <- stringr::str_extract(string  = stringr::str_sort(unique(df$age_group), numeric = T),
+                                    pattern = "(^[^[:alnum:]])")
 
-  # if more than one punct char is used, return it
-  other_punct_char <- ""
-  if (length(punct_chars$count) > 1 & punct_char_check) {
-    other_punct_char <- punct_chars$count[!punct_chars$count == agegrp_div][1]
+  tmp_end   <- stringr::str_extract(string  = stringr::str_sort(unique(df$age_group), numeric = T),
+                                    pattern = "([^[:alnum:]]$)")
+  tmp_df <- data.frame(tmp_start, tmp_end)
+
+  other_punct_char = list()
+  for (df_col in 1:ncol(tmp_df)) {
+    for (item in purrr::discard(tmp_df[,df_col],is.na)) {
+      other_punct_char[[item]] <- list(char_val     = item,
+                                       num_val      = stringr::str_extract(
+                                         string  = grep(pattern = paste0("[\\",item,"]"), x = unique(df$age_group), value = T),
+                                         pattern = "\\d+"),
+                                       # order_uniq   = which(tmp_df[,df_col] == item),
+                                       # order_total  = which(tmp_df[,df_col] == item),
+                                       placement = ifelse(df_col == 1, "start", "end")
+                                       )
+    }
   }
+
 
   # return list of formatting checks results
   return(list(agegrp_div       = agegrp_div,
@@ -137,10 +151,13 @@ complete_agegrp_arr <- function(df, format_check_results) {
   # building regex string dependent on level of punct characters found
   regex_string <-
     paste0("[\\",
-           format_check_results$agegrp_div)
+           format_check_results$agegrp_div,"")
 
-  if (!format_check_results$other_punct_char == "") {
-    regex_string <- paste0(regex_string, "\\", format_check_results$other_punct_char)
+  if (length(format_check_results$other_punct_char) > 0) {
+    #regex_string <- paste0(regex_string, "\\", format_check_results$other_punct_char)
+    for (character in names(format_check_results$other_punct_char)) {
+      regex_string <- paste0(regex_string, "\\", character)
+    }
   }
 
   regex_string <- paste0(regex_string, "]")
@@ -285,7 +302,8 @@ age_groups <- function(df, break_at = NULL) {
 
   # if not the correct xx-xx format is used, insert leading 0's where necesary
   if (length(format_check_results$format_agegrp_xx) > 0) {
-    splits <- stringr::str_split_fixed(as.character(df$age_group),"[^[:alnum:]]", 2)
+    #splits <- stringr::str_split_fixed(as.character(df$age_group),"[^[:alnum:]]", 2)
+    splits <- stringr::str_split_fixed(as.character(df$age_group),format_check_results$agegrp_div, 2)
 
     for (item in format_check_results$format_agegrp_xx) {
       df$age_group[item] <- paste0(sprintf("%02d",as.numeric(splits[item,1])),
