@@ -274,6 +274,34 @@ get_unused_variables <- function(data) {
   setdiff(colnames(data), SignalDetectionTool::input_metadata$Variable)
 }
 
+#' retrieve 'case_id's which have missing values in computationally crucial
+#' variables
+#' @param data data.frame, raw linelist of surveillance cases
+#' @returns list of column names, number of missing values and the first five
+#'   'case_id's for which values are missing
+get_missing_data <- function(data) {
+  missing_values <- lapply(check_for_missing_values(), function(x) {
+    cases_with_missing_data <- data %>%
+      dplyr::filter(is.na(!!rlang::sym(x))) %>%
+      dplyr::pull(case_id)
+    if (length(cases_with_missing_data) == 0) {
+      missing_msg <- NULL
+    } else  if (length(cases_with_missing_data) <= 5) {
+      missing_msg <- paste0(x, ": ", length(cases_with_missing_data),
+                            " cases with missing value (",
+                            paste0(cases_with_missing_data, collapse = ", "),
+                            ")")
+    } else {
+      missing_msg <- paste0(x, ": ", length(cases_with_missing_data),
+                            " cases with missing value (",
+                            paste0(cases_with_missing_data[1:5], collapse = ", "),
+                            ", ...)")
+    }
+    missing_msg
+  })
+  missing_values[!sapply(missing_values, is.null)]
+}
+
 #' check whether there is a completely empty row in provided surveillance data
 #' @param data data.frame, raw linelist of surveillance cases
 #' @returns boolean, TRUE when there was an empty row inside the data, FALSE when no empty rows
@@ -300,7 +328,7 @@ check_region_region_id_consistency <- function(data, regions) {
       region_and_region_id <- data %>%
         dplyr::distinct(!!rlang::sym(region_id), !!rlang::sym(region))
       duplicated_ids <- any(duplicated(region_and_region_id %>%
-        dplyr::select(region_id)), na.rm = T)
+                                         dplyr::select(region_id)), na.rm = T)
       if (duplicated_ids) {
         error_message <- paste0("There are several differing region names in the column ", region, " which have the same ", region_id, ". Each ", region_id, " should only match one ", region, " . Please check whether there are any typos in your ", region, " column")
         errors <- append(errors, error_message)
