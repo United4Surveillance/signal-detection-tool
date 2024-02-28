@@ -37,15 +37,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     # ensuring that content is onlyu shown if data check returns no errors
     output$input_tab_ui <- shiny::renderUI({
       if (errors_detected() == TRUE) {
-        return(shiny::tagList(
-          shiny::br(),
-          shiny::h2("Data Format Check Failed"),
-          shiny::p("Unfortunately, the selected data does not meet the required format."),
-          shiny::p("Please make sure the data follows the correct structure and try again."),
-          shiny::br(),
-          shiny::hr(),
-          shiny::p("You can check the data in the 'Data' tab for more details on the issue.")
-        ))
+        return(datacheck_error_message)
       } else {
         return(shiny::tagList(
           tags$style(
@@ -130,6 +122,17 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       ) # TODO: make this dynamic
     })
 
+    output$text_weeks_selection <- shiny::renderText({
+      shiny::req(!errors_detected())
+      shiny::req(input$n_weeks)
+
+      date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(input$n_weeks),
+                                          week_start = 1, unit = "week")
+      date_ceil  <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 7)
+
+      paste("Chosen signal detection period from", date_floor, "to", date_ceil)
+    })
+
     data_sub <- shiny::reactive({
       req(data)
       req(!errors_detected())
@@ -160,6 +163,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         c(
           "state",
           "county",
+          "community",
           "region_level1",
           "region_level2",
           "region_level3",

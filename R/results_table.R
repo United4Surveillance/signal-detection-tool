@@ -59,6 +59,12 @@ create_table <- function(data, interactive = TRUE) {
   # get which columns contain floats
   float_columns <- get_float_columns(data)
 
+  # transform NA in stratum to unknown
+  if("stratum" %in% colnames(data)){
+    data <- data %>%
+      dplyr::mutate(stratum = tidyr::replace_na(stratum, "unknown"))
+  }
+
   if (interactive == TRUE) {
     # create interactive table
     table <- DT::datatable(data)
