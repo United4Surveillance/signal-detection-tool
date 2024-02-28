@@ -104,7 +104,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 span("Set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks."),
                 br(),
                 shiny::uiOutput(ns("weeks_selection")),
-                shiny::textOutput(ns("text_weeks_selection")),
+                shiny::htmlOutput(ns("text_weeks_selection")),
                 br(),
                 span("Signal detection algorithm", style = "font-size:100%;font-weight: bold"),
                 br(),
@@ -135,9 +135,25 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::req(!errors_detected())
       shiny::req(input$n_weeks)
 
-      paste("Chosen signal detection period from",
-            max(filtered_data()$date_report) - lubridate::weeks(input$n_weeks),
-            "to", max(filtered_data()$date_report))
+      iso_week_past <- lubridate::isoweek(max(filtered_data()$date_report)-lubridate::weeks(input$n_weeks))
+      iso_year_past <- lubridate::isoyear(max(filtered_data()$date_report)-lubridate::weeks(input$n_weeks))
+
+      iso_week_present <- lubridate::isoweek(max(filtered_data()$date_report))
+      iso_year_present <- lubridate::isoyear(max(filtered_data()$date_report))
+
+      string_1 <-
+        paste("Chosen signal detection period from",
+            paste(iso_year_past,iso_week_past,sep = "-"),
+            "to",
+            paste(iso_year_present,iso_week_present,sep = "-"))
+
+      date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(input$n_weeks),
+                                          week_start = 1, unit = "week")
+      date_ceil  <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 7)
+      string_2 <-
+        paste("Chosen signal detection period from", date_floor, "to", date_ceil)
+
+      return(paste(string_1,string_2, sep = "<br>"))
     })
 
     data_sub <- shiny::reactive({
