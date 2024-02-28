@@ -135,9 +135,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::req(!errors_detected())
       shiny::req(input$n_weeks)
 
-      paste("Chosen signal detection period from",
-            max(filtered_data()$date_report) - lubridate::weeks(input$n_weeks),
-            "to", max(filtered_data()$date_report))
+      date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(input$n_weeks),
+                                          week_start = 1, unit = "week")
+      date_ceil  <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 7)
+
+      paste("Chosen signal detection period from", date_floor, "to", date_ceil)
     })
 
     data_sub <- shiny::reactive({
