@@ -101,6 +101,7 @@ mod_tabpanel_signals_server <- function(
                 }
             }
           ),
+
           uiOutput(ns("plot_table_stratas")),
           shiny::br(),
           shiny::h3(paste0("Timeseries of weekly cases on country level with signal detection applied to the last ",
