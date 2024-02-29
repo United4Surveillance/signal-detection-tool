@@ -44,6 +44,9 @@ mod_tabpanel_signals_server <- function(
         return(shiny::tagList(
           uiOutput(ns("plot_table_stratas")),
           shiny::br(),
+          shiny::h3(paste0("Timeseries of weekly cases on country level with signal detection applied to the last ",
+                           number_of_weeks(), " weeks.")),
+          plotly::plotlyOutput(ns("time_series_plot")),
           shiny::h3("Signal detection table"),
           DT::DTOutput(ns("signals"))
         ))
@@ -99,8 +102,8 @@ mod_tabpanel_signals_server <- function(
       data_n_weeks
     })
 
-    output$plot_table_stratas <- renderUI({
-      req(signal_results)
+    output$plot_table_stratas <- shiny::renderUI({
+      shiny::req(signal_results)
       plot_table_list <- list()
 
       # using the categories of the signal_results instead of strat_vars_tidy
@@ -120,31 +123,46 @@ mod_tabpanel_signals_server <- function(
           decider_barplot_map_table(signals_agg(), data(), category)
         })
         if (n_plots_tables == 1) {
-          header <- h3(paste0("Visualisation and/or table showing the number of cases in the last ", number_of_weeks(), " weeks with alarms from Signal Detection", " for the selected stratum ", paste(signal_categories, collapse = ", "), "."))
+          header <- h3(paste0("Visualisation and/or table showing the number of cases in the last ", number_of_weeks(),
+                              " weeks with alarms from Signal Detection", " for the selected stratum ",
+                              paste(signal_categories, collapse = ", "), "."))
         } else {
-          header <- h3(paste0("Visualisations and/or tables showing the number of cases in the last ", number_of_weeks(), " weeks with alarms from Signal Detection", " for the selected strata ", paste(signal_categories, collapse = ", "), "."))
+          header <- h3(paste0("Visualisations and/or tables showing the number of cases in the last ", number_of_weeks(),
+                              " weeks with alarms from Signal Detection", " for the selected strata ",
+                              paste(signal_categories, collapse = ", "), "."))
         }
+        column_plots <- shiny::fluidRow(
+          lapply(1:n_plots_tables, function(x) shiny::column(12 / n_plots_tables, plot_table_list[x]))
+        )
+        columns_with_header <- list(header, column_plots)
 
-        # in case no strata were selected (n_plots_tables == 0) we show the country timeseries
+        # Return the combined UI elements
+        column_plots_with_headers <- do.call(shiny::tagList, columns_with_header)
+
+        return(column_plots_with_headers)
+
+        # in case no strata were selected (n_plots_tables == 0) we show the country timeseries without signals
       } else {
-        plot_timeseries <- plot_time_series(signal_results(), interactive = TRUE)
-        plot_table_list[[1]] <- plot_timeseries
-        # update the n_plots_tables such that creating the column_plots below works
-        n_plots_tables <- 1
-        header <- h3(paste0("Timeseries of weekly cases on country level with signal detection applied to the last ", number_of_weeks(), " weeks."))
+        return(NULL)
       }
 
-      column_plots <- fluidRow(
-        lapply(1:n_plots_tables, function(x) column(12 / n_plots_tables, plot_table_list[x]))
+    })
+
+    # timeseries plot with non-stratisfied signals
+    output$time_series_plot <- plotly::renderPlotly({
+      shiny::req(!errors_detected())
+      shiny::req(!no_algorithm_possible())
+
+      results <- SignalDetectionTool::get_signals(
+        data = data(),
+        method = method(),
+        date_var = "date_report",
+        stratification = NULL,
+        number_of_weeks = number_of_weeks()
       )
-      columns_with_header <- list(header, column_plots)
 
-
-      # Return the combined UI elements
-      column_plots_with_headers <- do.call(tagList, columns_with_header)
-
-      return(column_plots_with_headers)
-})
+      plot_timeseries <- plot_time_series(results, interactive = TRUE)
+    })
 
     # signals table
     output$signals <- DT::renderDT({
