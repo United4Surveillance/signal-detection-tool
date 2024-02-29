@@ -18,6 +18,12 @@ preprocess_data <- function(data) {
   to_lower_vars <- intersect(colnames(data), c(yes_no_unknown_variables(), "sex"))
   # get all regional stratification variables
   regional_id_vars <- intersect(colnames(data), region_id_variable_names())
+  # get all variables that are characters and not case_id or date
+  factorization_vars <- dplyr::select(data, dplyr::where(is.character) &
+                                        !dplyr::starts_with("date") &
+                                        !dplyr::any_of(regional_id_vars) &
+                                        !case_id) %>% names
+
 
   data <- data %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(to_lower_vars), ~ tolower(.x))) %>%
@@ -25,7 +31,9 @@ preprocess_data <- function(data) {
     dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, "unknown"))) %>%
     dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, "NA"))) %>%
     dplyr::mutate(dplyr::across(dplyr::starts_with("date"), ~ as.Date(.x, optional = T))) %>%
-    dplyr::mutate(dplyr::across(dplyr::all_of(regional_id_vars), ~ as.character(.x)))
+    dplyr::mutate(dplyr::across(dplyr::all_of(regional_id_vars), ~ as.character(.x))) %>%
+    dplyr::mutate(dplyr::across(dplyr::all_of(factorization_vars), ~ as.factor(.x)))
+
 
   # add columns for isoyear and isoweek for each date
   data <- data %>%
