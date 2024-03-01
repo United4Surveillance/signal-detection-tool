@@ -178,49 +178,57 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       available_vars
     })
 
-    output$filter_variables <- shiny::renderUI({
-      shiny::req(!errors_detected())
-      shiny::req(available_var_opts)
-      shiny::selectInput(
-        inputId = ns("filter_variable"),
-        multiple = FALSE,
-        label = "",
-        selected = "None",
-        choices = c("None", available_var_opts())
-      )
+    filter_var_opts <- shiny::reactive({
+      shiny::req(available_var_opts())
+      shiny::req(data_sub())
+      date_opts <- intersect(names(data_sub()), c("date_report"))
+      all_opts <- c("None", date_opts, available_var_opts())
+      all_opts
     })
 
+
     # filtering ----------------------------------------------------------------
+    # initalize reactive values containing filter parameters
+    all_filters <- shiny::reactiveValues()
+    # value connecting reactives and forcing reevaluation + keeping track of
+    # filter count
+    n_filters <- shiny::reactiveVal(1)
+
     # inital filter ui
     filter0_reactives <- mod_input_filter_server(
       id = "filter0",
       data = data_sub,
-      filter_opts = available_var_opts
+      filter_opts = filter_var_opts(),
+      all_filters = all_filters,
+      n_filters = n_filters
     )
-    # initalize reactive values containing filter parameters
-    all_filters <- shiny::reactiveValues("filter0" = filter0_reactives)
-    # dummy value that connects reactives and forces reevaluation
-    n_filters <- shiny::reactiveVal(1)
 
+    shiny::observeEvent(lapply(filter0_reactives, function(x) do.call(x, list())), {
+      all_filters$filter0 <- filter0_reactives
+    })
 
     # add filters
     shiny::observeEvent(input$add_filter, {
-      # id to add
-      new_filter_id <- paste0("filter", input$add_filter)
-      # add ui
-      shiny::insertUI(
-        selector = "#filter_input",
-        where = "afterEnd",
-        ui = mod_input_filter_ui(id = ns(new_filter_id))
-      )
-      # add parameters
-      all_filters[[new_filter_id]] <- mod_input_filter_server(
-        id = new_filter_id,
-        data = data_sub,
-        filter_opts = available_var_opts
-      )
-      # update filter count
-      n_filters(n_filters() + 1) # no real purpose except for keeping the filter count accurate
+      if (n_filters() < (length(filter_var_opts()) - 1)) {
+        # id to add
+        new_filter_id <- paste0("filter", input$add_filter)
+        # add ui
+        shiny::insertUI(
+          selector = "#filter_input",
+          where = "afterEnd",
+          ui = mod_input_filter_ui(id = ns(new_filter_id))
+        )
+        # add parameters
+        all_filters[[new_filter_id]] <- mod_input_filter_server(
+          id = new_filter_id,
+          data = data_sub,
+          filter_opts = filter_var_opts(),
+          all_filters = all_filters,
+          n_filters = n_filters
+        )
+        # update filter count
+        n_filters(n_filters() + 1)
+      }
     })
 
     # remove last filter added
