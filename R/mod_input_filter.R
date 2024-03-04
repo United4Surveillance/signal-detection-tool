@@ -112,6 +112,7 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
         }), n_filters())
       },
       {
+        shiny::req(input$filter_var_sel)
         taken_vars <- lapply(shiny::reactiveValuesToList(all_filters), function(x) {
           do.call(x[["filter_var"]], list())
         }) %>% unlist()
