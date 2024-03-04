@@ -30,7 +30,7 @@ plot_time_series <- function(results, interactive = FALSE,
 
   col.threshold <- "#2297E6"
   col.expected  <- "#000000"
-  col.alarm     <- "#DF536B"
+  col.alarm     <- "#FF0000"
   col.training  <- "#9E9E9E"
   col.test      <- "#304794"
 
@@ -72,8 +72,8 @@ plot_time_series <- function(results, interactive = FALSE,
   # adding alarm points
   plt <- plt +
     ggplot2::geom_point(data = dplyr::filter(results, alarms == TRUE),
-                        ggplot2::aes(y = cases, shape = alarms),
-                        color = col.alarm, size = 4)
+                        ggplot2::aes(y = cases, shape = alarms, stroke = 1),
+                        color = col.alarm, size = 6)
 
   plt <- plt +
     ggplot2::scale_x_date(breaks = scales::breaks_pretty(n = 8),
