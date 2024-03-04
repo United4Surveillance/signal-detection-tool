@@ -153,13 +153,27 @@ mod_tabpanel_signals_server <- function(
       shiny::req(!errors_detected())
       shiny::req(!no_algorithm_possible())
 
+      # preparing dataset with padding
+      result_padding <- SignalDetectionTool::get_signals(
+        data = data(),
+        method = method(),
+        date_var = "date_report",
+        stratification = NULL,
+        number_of_weeks = 52
+      ) %>%
+        dplyr::ungroup() %>%
+        dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected)
+
+      # preparing dataset within actual signal detection period
       results <- SignalDetectionTool::get_signals(
         data = data(),
         method = method(),
         date_var = "date_report",
         stratification = NULL,
         number_of_weeks = number_of_weeks()
-      )
+      ) %>%
+        dplyr::arrange(year, week) %>%
+        dplyr::left_join(x = ., y  = result_padding, by = c("year", "week"))
 
       plot_timeseries <- plot_time_series(results, interactive = TRUE)
     })
