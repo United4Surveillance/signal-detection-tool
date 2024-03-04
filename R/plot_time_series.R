@@ -57,20 +57,23 @@ plot_time_series <- function(results, interactive = FALSE,
     ))) +
     ggplot2::geom_col(ggplot2::aes(y = cases, fill = set_status)) +
     ggplot2::geom_step(ggplot2::aes(y = upperbound, color = "Threshold"),
-                       linewidth = 1, direction = "hv") +
+                       linewidth = 1.3, direction = "hv") +
     ggplot2::geom_step(ggplot2::aes(y = upperbound_pad, color = "Threshold", linetype = "Test data"),
-                       linewidth = 0.3, direction = "hv") +
-    ggplot2::geom_point(data = dplyr::filter(results, alarms == TRUE),
-                        ggplot2::aes(y = cases, shape = alarms),
-                        color = col.alarm, size = 4)
+                       linewidth = 0.3, direction = "hv")
 
   if (any(!is.na(results$expected_pad))) {
     plt <- plt +
       ggplot2::geom_step(ggplot2::aes(y = expected, color = "Expected"),
-                         linewidth = 1, direction = "hv") +
+                         linewidth = 1.3, direction = "hv") +
       ggplot2::geom_step(ggplot2::aes(y = expected_pad, color = "Expected", linetype = "Training data"),
                          linewidth = 0.3, direction = "hv")
   }
+
+  # adding alarm points
+  plt <- plt +
+    ggplot2::geom_point(data = dplyr::filter(results, alarms == TRUE),
+                        ggplot2::aes(y = cases, shape = alarms),
+                        color = col.alarm, size = 4)
 
   plt <- plt +
     ggplot2::scale_x_date(breaks = scales::breaks_pretty(n = 8),
@@ -112,7 +115,7 @@ plot_time_series <- function(results, interactive = FALSE,
 
   if (interactive) {
     plt <- plotly::ggplotly(plt, tooltip = "text") %>%
-      plotly::layout(legend = list(orientation = "h", x = 0.3, y = -0.1)) %>%
+      plotly::layout(legend = list(orientation = "h", x = 0.2, y = -0.1)) %>%
       plotly::style(hoverlabel = list(bgcolor = "white")) %>%
       plotly::config(modeBarButtonsToRemove = c('autoScale2d',
                                                 # 'resetScale2d',
@@ -124,6 +127,19 @@ plot_time_series <- function(results, interactive = FALSE,
                                                 'zoom2d',
                                                 'toggleSpikelines'))
 
+    # modifying the interactive plot legend
+    plt$x$data[[1]]$name <- plt$x$data[[1]]$legendgroup <- "Test data"
+    plt$x$data[[2]]$name <- plt$x$data[[2]]$legendgroup <- "Training data"
+    plt$x$data[[3]]$name <- plt$x$data[[3]]$legendgroup <- "Threshold"
+    plt$x$data[[4]]$showlegend <- FALSE
+
+    if (any(!is.na(results$expected_pad))) {
+      plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Expected"
+      plt$x$data[[6]]$showlegend <- FALSE
+      plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Alarm"
+    } else {
+      plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Alarm"
+    }
   }
 
   return(plt)
