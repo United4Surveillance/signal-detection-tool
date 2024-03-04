@@ -60,7 +60,7 @@ create_table <- function(data, interactive = TRUE) {
   float_columns <- get_float_columns(data)
 
   # transform NA in stratum to unknown
-  if("stratum" %in% colnames(data)){
+  if("stratum" %in% colnames(data) & any(!is.na(data[["stratum"]]))) {
     data <- data %>%
       dplyr::mutate(stratum = tidyr::replace_na(stratum, "unknown"))
   }
