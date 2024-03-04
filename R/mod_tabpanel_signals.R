@@ -162,7 +162,8 @@ mod_tabpanel_signals_server <- function(
         number_of_weeks = 52
       ) %>%
         dplyr::ungroup() %>%
-        dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected)
+        dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected) %>%
+        head(n = -(number_of_weeks()-1))
 
       # preparing dataset within actual signal detection period
       results <- SignalDetectionTool::get_signals(
@@ -174,6 +175,11 @@ mod_tabpanel_signals_server <- function(
       ) %>%
         dplyr::arrange(year, week) %>%
         dplyr::left_join(x = ., y  = result_padding, by = c("year", "week"))
+
+      # adjusting padding
+      first_nonNA <- min(which(!is.na(results$upperbound)))
+      results$upperbound_pad[first_nonNA] <- results$upperbound[first_nonNA]
+      results$expected_pad[first_nonNA]   <- results$expected[first_nonNA]
 
       plot_timeseries <- plot_time_series(results, interactive = TRUE)
     })
