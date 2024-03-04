@@ -159,13 +159,29 @@ mod_tabpanel_signals_server <- function(
       shiny::req(!errors_detected())
       shiny::req(!no_algorithm_possible())
 
+      # finding available weeks to use for padding
+      available_thresholds <- list(26, 20, 14, 8, 2)
+      signals_all_timeopts <- dplyr::bind_rows(purrr::map(unlist(available_thresholds), function(timeopt) {
+        signals <- get_signals(data(),
+                               method = method(),
+                               number_of_weeks = timeopt + number_of_weeks()
+        )
+        if (!is.null(signals)) {
+          signals <- signals %>% dplyr::mutate(time_opt = timeopt)
+        }
+      }))
+
+      time_opts_working <- unique(signals_all_timeopts$time_opt)
+      time_opts_working_named <- available_thresholds[unlist(available_thresholds) %in% time_opts_working]
+      max_time_opt <- max(unlist(time_opts_working_named))
+
       # preparing dataset with padding
       result_padding <- SignalDetectionTool::get_signals(
         data = data(),
         method = method(),
         date_var = "date_report",
         stratification = NULL,
-        number_of_weeks = 52
+        number_of_weeks = (max_time_opt + number_of_weeks())
       ) %>%
         dplyr::ungroup() %>%
         dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected) %>%
