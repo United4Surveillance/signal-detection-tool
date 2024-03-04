@@ -60,6 +60,11 @@ plot_regional <- function(shape_with_signals,
       legend.text.align = 0
     )
 
+  # removing fill-legend if entire map is 1 zone, to avoid legend issues.
+  if (nrow(shape_with_signals) < 2) {
+    plot <- plot +
+      ggplot2::guides(fill = "none")
+  }
 
   if (interactive) {
 
