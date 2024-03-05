@@ -10,11 +10,17 @@
 #' @importFrom shiny NS tagList
 mod_tabpanel_signals_ui <- function(id) {
   ns <- shiny::NS(id)
-
   shiny::tabPanel(
-    "Signals",
+    title = "Signals",
+    icon = shiny::icon("wave-square"),
+    shinybusy::add_busy_spinner(
+      spin = "fading-circle",
+      color = "#304794",
+      position = "full-page",
+      height = "100px",
+      width = "100px"
+    ),
     shiny::uiOutput(ns("signals_tab_ui")),
-    icon = shiny::icon("wave-square")
   )
 }
 
@@ -41,12 +47,14 @@ mod_tabpanel_signals_server <- function(
       } else if (no_algorithm_possible() == TRUE) {
         return(algorithm_error_message)
       } else {
-        return(shiny::tagList(
-          uiOutput(ns("plot_table_stratas")),
-          shiny::br(),
-          shiny::h3("Signal detection table"),
-          DT::DTOutput(ns("signals"))
-        ))
+        return(
+          shiny::tagList(
+            uiOutput(ns("plot_table_stratas")),
+            shiny::br(),
+            shiny::h3("Signal detection table"),
+            DT::DTOutput(ns("signals"))
+          )
+        )
       }
     })
 
@@ -144,7 +152,7 @@ mod_tabpanel_signals_server <- function(
       column_plots_with_headers <- do.call(tagList, columns_with_header)
 
       return(column_plots_with_headers)
-})
+    })
 
     # signals table
     output$signals <- DT::renderDT({
