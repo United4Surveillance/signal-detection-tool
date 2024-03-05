@@ -76,8 +76,8 @@ plot_time_series <- function(results, interactive = FALSE,
                         color = col.alarm, size = 6)
 
   plt <- plt +
-    ggplot2::scale_x_date(breaks = scales::breaks_pretty(n = 8),
-                          date_labels = "%Y-%d-%m") +
+    ggplot2::scale_x_date(date_breaks = "1 month", date_labels = "%Y-%m-%d",
+                          expand = c(0,0)) +
     ggplot2::scale_y_continuous(breaks = scales::breaks_pretty(n = 10),
                                 expand = ggplot2::expansion(mult = c(0, 0.1))) +
     ggplot2::scale_shape_manual(values = c("TRUE" = 8),
@@ -88,7 +88,7 @@ plot_time_series <- function(results, interactive = FALSE,
                                labels = c("Test data", "Training data")) +
     ggplot2::scale_linetype_manual(values = c("Training data" = 1, "Test data" = 1), name = "", guide = "none") +
     ggplot2::theme(
-      legend.position   = "bottom",
+      legend.position   = "top",
       legend.background = ggplot2::element_blank(),
       legend.key  = ggplot2::element_blank(),
       legend.text = ggplot2::element_text(size = 12),
@@ -100,8 +100,9 @@ plot_time_series <- function(results, interactive = FALSE,
       panel.grid.minor.y = ggplot2::element_blank(),
 
       axis.line  = ggplot2::element_blank(),
-      axis.ticks = ggplot2::element_blank(),
+      axis.ticks.length.x = ggplot2::unit(0.25, "cm"),
       axis.text  = ggplot2::element_text(size = 12),
+      axis.text.x = ggplot2::element_text(angle = 15, hjust = 1, vjust = 1),
       axis.title.x = ggplot2::element_text(face = "bold", size = 14),
       axis.title.y = ggplot2::element_text(face = "bold", size = 14)) +
     ggplot2::guides(fill  = ggplot2::guide_legend(order = 1),
@@ -115,10 +116,10 @@ plot_time_series <- function(results, interactive = FALSE,
 
   if (interactive) {
     plt <- plotly::ggplotly(plt, tooltip = "text") %>%
-      plotly::layout(legend = list(orientation = "h", x = 0.2, y = -0.1)) %>%
+      plotly::layout(legend = list(orientation = "h", x = 0.5, y = -0.5,
+                                   yanchor = "bottom", xanchor = "center")) %>%
       plotly::style(hoverlabel = list(bgcolor = "white")) %>%
       plotly::config(modeBarButtonsToRemove = c('autoScale2d',
-                                                # 'resetScale2d',
                                                 'select2d',
                                                 'lasso2d',
                                                 'zoomIn2d',
