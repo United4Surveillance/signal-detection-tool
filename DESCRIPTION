@@ -26,6 +26,7 @@ Imports:
     scales,
     sf,
     shiny,
+    shinybusy,
     stringr,
     surveillance,
     tidyr
