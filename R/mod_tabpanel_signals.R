@@ -10,11 +10,17 @@
 #' @importFrom shiny NS tagList
 mod_tabpanel_signals_ui <- function(id) {
   ns <- shiny::NS(id)
-
   shiny::tabPanel(
-    "Signals",
+    title = "Signals",
+    icon = shiny::icon("wave-square"),
+    shinybusy::add_busy_spinner(
+      spin = "fading-circle",
+      color = "#304794",
+      position = "full-page",
+      height = "100px",
+      width = "100px"
+    ),
     shiny::uiOutput(ns("signals_tab_ui")),
-    icon = shiny::icon("wave-square")
   )
 }
 
