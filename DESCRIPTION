@@ -15,24 +15,27 @@ Imports:
     DT,
     ggplot2,
     golem,
+    grDevices,
     gt,
     ISOweek,
     lubridate,
     magrittr,
     plotly,
-    plyr,
+    purrr,
     readxl,
     rlang,
+    rmarkdown,
     scales,
     sf,
     shiny,
     shinybusy,
+    stats,
     stringr,
     surveillance,
-    tidyr
+    tidyr,
+    tools
 Suggests: 
     knitr,
-    rmarkdown,
     spelling,
     testthat (>= 3.0.0)
 VignetteBuilder: 
