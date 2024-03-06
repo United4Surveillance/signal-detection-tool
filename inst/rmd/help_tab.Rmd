@@ -12,9 +12,13 @@ The SignalDetectionTool is developed within task under the United4Surveillance (
 ### Why use the SignalDetectionTool? 
 Use this Shiny app as what it is - a tool. A tool to help bring another perspective to your disease surveillance, while also making it easy to generate reports and figures.
 
+## Input data
+This app requires specific input data formatting, which is described in detail in MS Teams.
+
 ## Workflow of the tool
 The SignalDetectionTool app is made up of several tabs, which all holds different, key properties for using the app correctly. 
-The workflow of the tool is to move from left to right, in a natural order. However, it may prove necessary to jump between the `Input` and `Signal` tabs, to achieve the right signal detection for your needs.
+The workflow of the tool is to move from left to right, in a natural order. However, it may prove necessary to jump between the `Input` and `Signals` tabs, to achieve the right signal detection for your needs.
+Additionally, the `Input`, `Signals` and `Report` tabs will be empty untill an input dataset is given.
 
 ### Data tab
 The data tab is where you provide the tool with the proper input data, to perform signal detection upon. 
@@ -28,7 +32,7 @@ Once you have selected a file, the file is read and checked by the tool. You wil
 
 In general, this feedback mechanism can, and should, be used in an iterative process. This means, that you get feedback about your data, you correct your data accordingly, and then upload it again. When all error are fixed you can stop, otherwise you can continue correcting and uploading.
 
-In the data tab, you are also presented with a table showing the data provided. If the input data did not pass the data format check, then the raw data provided is shown, otherwise a table of pre-processed data, ready for signal detection is presented and you can move on the next tab `Input`.
+In the data tab, you are also presented with a table showing the data provided. If the input data did not pass the data format check, then the raw data provided is shown, otherwise a table of pre-processed data, ready for signal detection is presented and you can move on the next tab, `Input`.
 
 ### Input tab 
 The input tab is where you can interact, manipulate and shape the input data set, to investigate for signals proper. There are multiple different features to change, which will be covered in this section.
@@ -37,10 +41,10 @@ The input tab is where you can interact, manipulate and shape the input data set
 Using this tool, it is only possible to perform signal detection upon one kind of pathogen at a time. Thus if data about multiple pathogens exist in data, one will be selected. 
 
 #### Filters
-You can choose to investigate a subset of your data according to the filters you select. When filtering upon one or more variables, whether it be choosing a specific timeperiod through `date_report` and / or selecting only the `age_group`s 00-29, then that is the subset of data used to train the outbreak detection algorithms and is shown on the timeseries visualisation.
+You can choose to investigate a subset of your data according to the filters you select. When filtering upon one or more variables, whether it be choosing a specific timeperiod through date_report and / or selecting only the age_groups 00-29, then that is the subset of data used to train the outbreak detection algorithms and is shown on the timeseries visualisation.
 
 #### Strata
-You can choose to stratify by up to three variables. Choosing a variable for stratification means that signals will be examined for each level of chosen strata(s). For example, if the variable `age_group` is one of chosen stratas, then each `age_group` level, e.g. "00-04", "05-09" etc., will be examined for signals. This strata examination will be shown both in the result table found at the bottom of the `signals` tab, and additionally, a strata-specific visualisation or table is shown on the top of the `signals` tab. Choosing a strata will not affect the timeseries visualisation in the `signals` tab.
+You can choose to stratify by up to three variables. Choosing a variable for stratification means that signals will be examined for each level of chosen strata(s). For example, if the variable age_group is one of chosen stratas, then each age_group level, e.g. "00-04", "05-09" etc., will be examined for signals. This strata examination will be shown both in the result table found at the bottom of the `Signals` tab, and additionally, a strata-specific visualisation or table is shown on the top of the `Signals` tab. Choosing a strata will not affect the timeseries visualisation in the `Signals` tab.
 
 #### Signal detection period
 Here you can set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks, which is also dependent on if any filtering is done.
@@ -50,11 +54,14 @@ Depending on the number of weeks you want to generate alarms for, and the filter
 
 Which signal detection algorithm should you choose? It depends on multiple criteria, and they all have their individual weaknesses and strengths. 
 
-### Signal tab
-
+### Signals tab
+The `Signals` tab is split into 2 / 3 "rows", depending on whether any stratas were chosen in the `Input` tab. The first row belongs to the visualisations of the respective stratas chosen. 
+The second row to a timeseries / epicurve, depicting the signal detection in the number of weeks specified in the `Input` tab.
+The third and final row display a signal detection table, which provides information on the alarms found in both the entirety of the (filtered) dataset as well as per stratification parameter.
 
 ### Report tab
-
+The `Report` tab is the final destination in the SignalDetectionTool Shiny app. Here, it is possible to produce and download a report, using the different parameter selections, filtering choices and stratifications chosen in the `Input` tab. Thus, you can customise exactly how you want your report. 
+The report can be produced to three different formats: HTML, DOCX or PDF. All come with the U4S logo and expressions, as also found throughout the Shiny app. 
 
 ## Bug reporting
 If you encounter any technical issues or bugs when using the SignalDetectionTool, please report them on [Github](https://github.com/United4Surveillance/signal-detection-evaluation-tool/issues/new/choose) by making an issue. 
