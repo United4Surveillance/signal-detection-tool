@@ -25,6 +25,7 @@ Imports:
     readxl,
     rlang,
     rmarkdown,
+    markdown,
     scales,
     sf,
     shiny,
