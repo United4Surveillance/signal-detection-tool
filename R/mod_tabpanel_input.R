@@ -122,6 +122,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       ) # TODO: make this dynamic
     })
 
+    # using shinyvalidate to ensure value between min and max
+    iv_weeks <- shinyvalidate::InputValidator$new()
+    iv_weeks$add_rule("n_weeks", shinyvalidate::sv_between(1, 52))
+    iv_weeks$enable()
+
     output$text_weeks_selection <- shiny::renderText({
       shiny::req(!errors_detected())
       shiny::req(input$n_weeks)
