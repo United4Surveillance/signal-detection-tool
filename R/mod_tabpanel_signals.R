@@ -33,6 +33,7 @@ mod_tabpanel_signals_server <- function(
     data,
     errors_detected,
     number_of_weeks,
+    number_of_weeks_input_valid,
     strat_vars,
     method,
     no_algorithm_possible) {
@@ -46,6 +47,8 @@ mod_tabpanel_signals_server <- function(
         return(datacheck_error_message)
       } else if (no_algorithm_possible() == TRUE) {
         return(algorithm_error_message)
+      } else if (!number_of_weeks_input_valid()) {
+        return(nweeks_error_message)
       } else {
         return(shiny::tagList(
           fluidRow(

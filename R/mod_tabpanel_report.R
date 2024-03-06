@@ -30,7 +30,8 @@ mod_tabpanel_report_server <- function(id,
                                        pathogen_vars,
                                        method,
                                        errors_detected,
-                                       no_algorithm_possible) {
+                                       no_algorithm_possible,
+                                       number_of_weeks_input_valid) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -41,7 +42,9 @@ mod_tabpanel_report_server <- function(id,
         return(datacheck_error_message)
       } else if (no_algorithm_possible() == TRUE){
         return(algorithm_error_message)
-      } else {
+      } else if (!number_of_weeks_input_valid()) {
+        return(nweeks_error_message)
+      }else {
         return(shiny::tagList(
           shiny::titlePanel("Download Report"),
 
