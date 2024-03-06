@@ -14,8 +14,10 @@ mod_tabpanel_help_ui <- function(id) {
       "Help",
       shiny::fluidPage(
         column(12,
-          shiny::uiOutput(ns("help_markdown")))
-      ),
+               shiny::br(),
+               shiny::h3("Table of content"),
+               shiny::uiOutput(ns("help_markdown")))
+        ),
       icon = shiny::icon("question")
       )
 
