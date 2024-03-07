@@ -4,10 +4,10 @@ subtitle: "Signal Detection Report"
 date: "Report generated on `r format(Sys.Date(), '%d %B %Y')`"
 output: 
   html_document:
-    css: "style.css"
     includes:
       before_body: "header_logo.html"
     theme: cerulean
+    css: "style.css"
     toc: true
     toc_depth: 3
     toc_float: true
@@ -24,13 +24,13 @@ params:
   data: NULL
   disease: "Pertussis"
   country: "Austria"
-  training_range: !r c(as.Date("1900-01-01"), as.Date("1901-01-01"))
-  analysis_range: !r c(as.Date("1901-01-02"), as.Date("1902-01-01"))
+  number_of_weeks: 6
   algo: "farrington"
   strata: !r c("county_id", "community_id", "sex", "age_group") 
   interactive: false
   tables: true
-  weeks: 52
+  signal_results: NULL
+  signals_agg: NULL
 
 ---
 
