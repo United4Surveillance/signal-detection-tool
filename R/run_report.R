@@ -9,6 +9,8 @@
 #' @param tables Logical. True if tables should be included in report.
 #' @param number_of_weeks number of weeks for which signals are generated
 #' @param output_file The name of the output file \link[rmarkdown]{render}
+#' @param signal_results calculated signals (for use within the app, default is NULL)
+#' @param signals_agg aggregated signals  (for use within the app, default is NULL)
 #'
 #' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 #' @export
