@@ -50,6 +50,7 @@ plot_time_series(df,
 
 
 ```{r, eval = params$tables}
+#| eval=sum(df$alarms, na.rm = TRUE) != 0
 create_results_table(df, 
                      interactive = params$interactive)
 ```

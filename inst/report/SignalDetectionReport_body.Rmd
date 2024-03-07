@@ -65,6 +65,7 @@ plot_time_series(results,
 ```
 
 ```{r}
+#| eval=sum(results$alarms, na.rm = TRUE) != 0
 create_results_table(results, interactive = params$interactive)
 ```
 
