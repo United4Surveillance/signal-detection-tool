@@ -85,9 +85,11 @@ plot_regional <- function(shape_with_signals,
         "toggleSpikelines"
       ))
   } else {
-    plot <- plot + ggplot2::geom_sf_text(
-      ggplot2::aes(label = n_alarms_label),
+    plot <- plot + ggplot2::geom_sf_label(
+      mapping = ggplot2::aes(label = n_alarms_label),
+      data = shape_with_signals,
       color = "black",
+      fill = "red",
       family = "bold",
       size = 8,
       na.rm = TRUE
