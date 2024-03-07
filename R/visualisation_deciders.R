@@ -85,9 +85,9 @@ create_map_or_table <- function(signals_agg,
       dplyr::filter(!is.na(cases))
 
     output <- plot_regional(shape_with_signals,
-      interactive = interactive,
-      toggle_alarms = toggle_alarms
-    )
+                            interactive = interactive,
+                            toggle_alarms = toggle_alarms)
+
   } else {
     output <- create_table(
       signals_agg %>%
@@ -156,6 +156,7 @@ decider_barplot_map_table <- function(signals_agg,
                                       toggle_alarms = FALSE) {
   if (signal_category %in% c("state", "county", "community")) {
     plot_or_table <- create_map_or_table(signals_agg,
+<<<<<<< HEAD
       data_surveillance,
       signal_category,
       interactive = interactive,
@@ -166,6 +167,16 @@ decider_barplot_map_table <- function(signals_agg,
       signal_category,
       interactive = interactive,
       toggle_alarms = toggle_alarms
+=======
+                                         data_surveillance,
+                                         signal_category,
+                                         interactive = interactive
+    )
+  } else {
+    plot_or_table <- create_barplot_or_table(signals_agg,
+                                             signal_category,
+                                             interactive = interactive
+>>>>>>> 163c42c (style)
     )
   }
   return(plot_or_table)
