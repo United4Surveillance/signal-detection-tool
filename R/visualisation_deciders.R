@@ -155,28 +155,19 @@ decider_barplot_map_table <- function(signals_agg,
                                       interactive = TRUE,
                                       toggle_alarms = FALSE) {
   if (signal_category %in% c("state", "county", "community")) {
-    plot_or_table <- create_map_or_table(signals_agg,
-<<<<<<< HEAD
+    plot_or_table <- create_map_or_table(
+      signals_agg,
       data_surveillance,
       signal_category,
       interactive = interactive,
       toggle_alarms = toggle_alarms
     )
   } else {
-    plot_or_table <- create_barplot_or_table(signals_agg,
+    plot_or_table <- create_barplot_or_table(
+      signals_agg,
       signal_category,
       interactive = interactive,
       toggle_alarms = toggle_alarms
-=======
-                                         data_surveillance,
-                                         signal_category,
-                                         interactive = interactive
-    )
-  } else {
-    plot_or_table <- create_barplot_or_table(signals_agg,
-                                             signal_category,
-                                             interactive = interactive
->>>>>>> 163c42c (style)
     )
   }
   return(plot_or_table)
