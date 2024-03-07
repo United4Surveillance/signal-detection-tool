@@ -3,7 +3,8 @@
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @returns either a ggplot object if static plot is chosen or a plotly object for the interactive plot
 plot_regional <- function(shape_with_signals,
-                          interactive = FALSE) {
+                          interactive = FALSE,
+                          toggle_alarms = FALSE) {
   checkmate::assertClass(shape_with_signals, "sf")
 
   checkmate::assert(
@@ -25,7 +26,7 @@ plot_regional <- function(shape_with_signals,
       any_alarms = factor(any_alarms, levels = c("No alarms", "At least 1 alarm")) # level ordering determines render ordering: black < red
     )
 
-  plot <- ggplot2::ggplot() +
+  plot <- ggplot2::ggplot(data = shape_with_signals) +
     ggplot2::geom_sf(
       data = shape_with_signals,
       mapping = ggplot2::aes(
@@ -66,6 +67,16 @@ plot_regional <- function(shape_with_signals,
       ggplot2::guides(fill = "none")
   }
 
+  if (!interactive | toggle_alarms) {
+    plot <- plot + ggplot2::geom_sf_text(
+      ggplot2::aes(label = n_alarms_label),
+      color = "black",
+      family = "bold",
+      size = 8,
+      na.rm = TRUE
+    )
+  }
+
   if (interactive) {
     plot <- plotly::ggplotly(plot, tooltip = "text") %>%
       plotly::style(
@@ -84,14 +95,6 @@ plot_regional <- function(shape_with_signals,
         "zoom2d",
         "toggleSpikelines"
       ))
-  } else {
-    plot <- plot + ggplot2::geom_sf_text(
-      ggplot2::aes(label = n_alarms_label),
-      color = "black",
-      family = "bold",
-      size = 8,
-      na.rm = TRUE
-    )
   }
 
   plot
