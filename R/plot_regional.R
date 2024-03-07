@@ -67,14 +67,14 @@ plot_regional <- function(shape_with_signals,
   }
 
   if (interactive) {
-
     plot <- plotly::ggplotly(plot, tooltip = "text") %>%
       plotly::style(
         hoveron = "fill",
         hoverlabel = list(bgcolor = "white")
       ) %>%
+      plotly::layout(xaxis = list(autorange = TRUE), yaxis = list(autorange = TRUE)) %>%
       plotly::config(modeBarButtonsToRemove = c(
-        # "autoScale2d",
+        "autoScale2d",
         "resetScale2d",
         "select2d",
         "lasso2d",
