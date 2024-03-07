@@ -416,10 +416,10 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       strat_vars = reactive({
         input$strat_vars
       }),
-      pathogen_vars = reactive({
+      pathogen_vars = shiny::reactive({
         input$pathogen_vars
       }),
-      method = reactive({
+      method = shiny::reactive({
         input$algorithm_choice
       }),
       no_algorithm_possible = shiny::reactive(no_algorithm_possible())
