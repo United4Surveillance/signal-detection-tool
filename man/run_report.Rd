@@ -11,9 +11,10 @@ run_report(
   strata = c("county_id", "community_id", "sex", "age_group"),
   interactive = TRUE,
   tables = TRUE,
-  training_range = c(as.Date("1900-01-01"), as.Date("1901-01-01")),
-  analysis_range = c(as.Date("1901-01-02"), as.Date("1902-01-01")),
-  output_file = NULL
+  number_of_weeks = 6,
+  output_file = NULL,
+  signal_results = NULL,
+  signals_agg = NULL
 )
 }
 \arguments{
@@ -30,11 +31,13 @@ the analysis. Default is NULL.}
 
 \item{tables}{Logical. True if tables should be included in report.}
 
-\item{training_range}{vector of date range for training period}
-
-\item{analysis_range}{vector of date range for analysis period}
+\item{number_of_weeks}{number of weeks for which signals are generated}
 
 \item{output_file}{The name of the output file \link[rmarkdown]{render}}
+
+\item{signal_results}{calculated signals (for use within the app, default is NULL)}
+
+\item{signals_agg}{aggregated signals  (for use within the app, default is NULL)}
 }
 \value{
 the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
@@ -50,7 +53,6 @@ run_report(report_format = "HTML",
            strata = c("county_id", "community_id", "sex", "age_group"),
            interactive = TRUE,
            tables = TRUE,
-           training_range = c(as.Date("1900-01-01"), as.Date("1901-01-01")),
-           analysis_range = c(as.Date("1901-01-02"), as.Date("1902-01-01")))
+           number_of_weeks = 6)
 }
 }
