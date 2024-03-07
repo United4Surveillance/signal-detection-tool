@@ -12,10 +12,15 @@ mod_tabpanel_report_ui <- function(id) {
 
   shiny::tabPanel(
     "Report",
-
     shiny::uiOutput(ns("report_tab_ui")),
-
-    icon = shiny::icon("download")
+    icon = shiny::icon("download"),
+    shinybusy::add_busy_spinner(
+      spin = "fading-circle",
+      color = "#304794",
+      position = "full-page",
+      height = "100px",
+      width = "100px"
+    )
   )
 
 }
@@ -30,7 +35,11 @@ mod_tabpanel_report_server <- function(id,
                                        pathogen_vars,
                                        method,
                                        errors_detected,
-                                       no_algorithm_possible) {
+                                       no_algorithm_possible,
+                                       number_of_weeks,
+                                       signal_results,
+                                       signals_agg,
+                                       signal_data) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -39,7 +48,7 @@ mod_tabpanel_report_server <- function(id,
     output$report_tab_ui <- shiny::renderUI({
       if (errors_detected() == TRUE) {
         return(datacheck_error_message)
-      } else if (no_algorithm_possible() == TRUE){
+      } else if (no_algorithm_possible() == TRUE) {
         return(algorithm_error_message)
       } else {
         return(shiny::tagList(
@@ -71,8 +80,6 @@ mod_tabpanel_report_server <- function(id,
             # Main panel for displaying outputs ----
             shiny::mainPanel(
               shiny::h1("Signal detection report"),
-              shiny::p(paste("Be aware that the generation of the report can take",
-                             "several minutes.")),
               shiny::textOutput(NS(id, "report_text"))
             )
           )
@@ -83,7 +90,9 @@ mod_tabpanel_report_server <- function(id,
     # Download generated report
     output$report_text <- renderText({
       paste("Generated outputs for", pathogen_vars(), " stratified ",
-            "by ", paste0(strat_vars(), collapse = ", "), "using ", names(available_algorithms())[available_algorithms() == method()], " as outbreak detection algorithm.")
+            "by ", paste0(strat_vars(), collapse = ", "), "using ",
+            names(available_algorithms())[available_algorithms() == method()],
+            " as outbreak detection algorithm.")
     })
 
 
@@ -94,14 +103,15 @@ mod_tabpanel_report_server <- function(id,
       },
       content = function(con) {
         run_report(report_format = input$format,
-                   data = indata(),
+                   data = signal_data(),
                    strata = strat_vars(),
-                   algo = method(),
+                   algo = available_algorithms()[available_algorithms() == method()],
                    interactive = input$interactive,
                    tables = input$tables,
-                   # training_range, #TODO
-                   # analysis_range, #TODO
-                   output_file = con)
+                   number_of_weeks = number_of_weeks(),
+                   output_file = con,
+                   signal_results = signal_results(),
+                   signals_agg = signals_agg())
       })
   })
 }

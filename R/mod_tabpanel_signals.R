@@ -162,5 +162,13 @@ mod_tabpanel_signals_server <- function(
       )
       # FIXME: interactive mode not working here?
     })
+
+    # Return list of subsetted data and parameters
+    return(list(
+      signal_results = shiny::reactive(signal_results()),
+      signals_agg = shiny::reactive(signals_agg()),
+      signal_data = shiny::reactive(signal_data())
+    ))
+
   })
 }
