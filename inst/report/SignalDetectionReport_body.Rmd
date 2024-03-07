@@ -65,8 +65,7 @@ plot_time_series(results,
 ```
 
 ```{r}
-# Waiting for bug fix 
-#create_results_table(results, interactive = params$interactive)
+create_results_table(results, interactive = params$interactive)
 ```
 
 
