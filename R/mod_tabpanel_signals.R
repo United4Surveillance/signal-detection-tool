@@ -297,8 +297,8 @@ mod_tabpanel_signals_server <- function(
       available_thresholds <- list(26, 20, 14, 8, 2)
       signals_all_timeopts <- dplyr::bind_rows(purrr::map(unlist(available_thresholds), function(timeopt) {
         signals <- get_signals(data(),
-          method = method(),
-          number_of_weeks = timeopt + number_of_weeks()
+                               method = method(),
+                               number_of_weeks = timeopt + number_of_weeks()
         )
         if (!is.null(signals)) {
           signals <- signals %>% dplyr::mutate(time_opt = timeopt)
@@ -387,10 +387,11 @@ mod_tabpanel_signals_server <- function(
     output$signals <- DT::renderDT({
       req(!errors_detected())
       create_results_table(signal_results(),
-        interactive = TRUE
+                           interactive = TRUE
       )
       # FIXME: interactive mode not working here?
     })
+
     output$n_alarms <- shiny::renderText({
       sum(signals_agg()$n_alarms)
     })
@@ -416,5 +417,14 @@ mod_tabpanel_signals_server <- function(
       }
       shiny::HTML(text_output)
     })
+
+
+    # Return list of subsetted data and parameters
+    return(list(
+      signal_results = shiny::reactive(signal_results()),
+      signals_agg = shiny::reactive(signals_agg()),
+      signal_data = shiny::reactive(signal_data())
+    ))
+
   })
 }
