@@ -14,7 +14,8 @@
 #' plot_barchart(signals_agg_sex)
 #' }
 plot_barchart <- function(signals_agg,
-                          interactive = TRUE){
+                          interactive = TRUE,
+                          toggle_alarms = FALSE){
 
   checkmate::assert(
     checkmate::check_true(interactive),
@@ -43,7 +44,6 @@ plot_barchart <- function(signals_agg,
                                                             .data$cases, .data$n_alarms)),
                       fill = "#304794",
                       linewidth = 1.2) +
-    ggplot2::geom_label(ggplot2::aes(x = stratum,  y = cases,  label = dplyr::if_else(any_alarms, n_alarms, NA)), fill = "red") +
     ggplot2::labs(x = x_label,y = "Number of cases") +
     ggplot2::scale_color_manual("",
                                 values = c("At least 1 alarm" = "red",
@@ -65,6 +65,18 @@ plot_barchart <- function(signals_agg,
       axis.title.x = ggplot2::element_text(face = "bold"),
       axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5),
       axis.title.y = ggplot2::element_text(face = "bold"))
+
+
+  if (!interactive | toggle_alarms) {
+    p <- p +
+      ggplot2::geom_text(
+        ggplot2::aes(x = stratum,  y = cases,  label = dplyr::if_else(any_alarms, n_alarms, NA)),
+        #fill   = "red",
+        color  = "black",
+        family = "bold",
+        size   = 8,
+        nudge_y = 5)
+  }
 
   if(interactive){
 
