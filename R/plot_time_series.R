@@ -24,7 +24,8 @@ plot_time_series <- function(results, interactive = FALSE,
         paste(.data$year, "-W",
               stringr::str_pad(.data$week, width = 2, pad = "0"),
               "-1", sep = "")),
-      set_status = dplyr::if_else(is.na(alarms), "Training data", "Test data")) %>%
+      set_status = dplyr::if_else(is.na(alarms), "Training data", "Test data"),
+      set_status = factor(set_status, levels = c("Training data", "Test data"))) %>%
     dplyr::arrange(date) %>%
     dplyr::slice_tail(n = number_of_weeks)
 
@@ -85,7 +86,8 @@ plot_time_series <- function(results, interactive = FALSE,
     ggplot2::scale_color_manual(values = c("Expected" = col.expected,
                                            "Threshold" = col.threshold)) +
     ggplot2::scale_fill_manual(values = c("Test data" = col.test, "Training data" = col.training),
-                               labels = c("Test data", "Training data")) +
+                               labels = c("Test data"="Signal detection period"),
+                               breaks = c("Test data")) +
     ggplot2::scale_linetype_manual(values = c("Training data" = 1, "Test data" = 1), name = "", guide = "none") +
     ggplot2::theme(
       legend.position   = "top",
@@ -129,8 +131,8 @@ plot_time_series <- function(results, interactive = FALSE,
                                                 'toggleSpikelines'))
 
     # modifying the interactive plot legend
-    plt$x$data[[1]]$name <- plt$x$data[[1]]$legendgroup <- "Test data"
-    plt$x$data[[2]]$name <- plt$x$data[[2]]$legendgroup <- "Training data"
+    plt$x$data[[1]]$showlegend <- FALSE
+    plt$x$data[[2]]$name <- plt$x$data[[2]]$legendgroup <- "Signal detection period"
     plt$x$data[[3]]$name <- plt$x$data[[3]]$legendgroup <- "Threshold"
     plt$x$data[[4]]$showlegend <- FALSE
 
