@@ -136,6 +136,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     iv_weeks <- shinyvalidate::InputValidator$new()
     iv_weeks$add_rule("n_weeks", shinyvalidate::sv_between(1, 52))
     iv_weeks$add_rule("n_weeks", shinyvalidate::sv_numeric())
+    iv_weeks$add_rule("n_weeks", shinyvalidate::sv_integer())
     iv_weeks$enable()
 
     output$text_weeks_selection <- shiny::renderText({
@@ -358,6 +359,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     algorithms_possible <- shiny::reactive({
       shiny::req(filtered_data)
       shiny::req(input$n_weeks)
+      shiny::req(iv_weeks$is_valid())
 
       signals_all_methods <- dplyr::bind_rows(purrr::map(unlist(available_algorithms()), function(algorithm) {
         signals <- get_signals(filtered_data(),
