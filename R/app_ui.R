@@ -77,12 +77,16 @@ golem_add_external_resources <- function() {
         margin-bottom: 10px;
       }
       .value-box.blue {
-        border-color: #2297E6;
-        background-color: #2297E6;
+        border-color: #304794;
+        background-color: #304794;
       }
       .value-box.red {
         border-color: #DF536B;
         background-color: #DF536B;
+      }
+      .value-box.green {
+        border-color: #23FF00;
+        background-color: #23FF00;
       }"
       )
       )
