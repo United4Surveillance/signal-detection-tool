@@ -6,6 +6,9 @@
 #' @noRd
 app_server <- function(input, output, session) {
   # Your application server logic
+  options(shiny.sanitize.errors = TRUE)
+  shinylogs::track_usage(what = "error", storage_mode = shinylogs::store_rds(path = "logs/"))
+
   mod_tabpanel_help_server("help")
 
   data_load_check_result <- mod_tabpanel_data_server("data")
