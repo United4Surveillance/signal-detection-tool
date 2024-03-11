@@ -10,6 +10,12 @@
 mod_tabpanel_data_ui <- function(id) {
   ns <- shiny::NS(id)
 
+  # custom JS/CSS
+  shiny::tags$head(
+    shiny::tags$style(src = "www/addMoreBtn.css"),
+    shiny::tags$script(src = "www/addMoreBtn.js")
+  )
+
   shiny::tabPanel(
     "Data",
     # From runExample("09_upload")
@@ -56,7 +62,7 @@ mod_tabpanel_data_ui <- function(id) {
         hr(),
         div(
           style = "border: 2px solid black; padding: 10px;",
-          htmlOutput(ns("missing_vals"))
+          shiny::uiOutput(ns("missing_vals"))
         ),
         hr(),
         h3("Uploaded dataset"),
@@ -132,12 +138,15 @@ mod_tabpanel_data_server <- function(id) {
         format_html_list(unused_vars)
       }
     })
-    output$missing_vals <- shiny::renderText({
+    output$missing_vals <- shiny::renderUI({
       missing_data <- get_missing_data(data())
       if (length(missing_data) == 0) {
         "There are no cases showing missing entries in the data."
       } else {
-        format_html_list(missing_data)
+        shiny::tagList(
+          shiny::tags$ul(missing_data), # list of spans of class 'more'
+          shiny::tags$script("addMoreBtn();") # custom JS for class 'more'
+        )
       }
     })
 

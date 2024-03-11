@@ -290,16 +290,18 @@ get_missing_data <- function(data) {
     }
     if (length(cases_with_missing_data) == 0) {
       missing_msg <- NULL
-    } else  if (length(cases_with_missing_data) <= 5) {
-      missing_msg <- paste0(x, ": ", length(cases_with_missing_data),
-                            " cases with missing value (",
-                            paste0(cases_with_missing_data, collapse = ", "),
-                            ")")
     } else {
-      missing_msg <- paste0(x, ": ", length(cases_with_missing_data),
-                            " cases with missing value (",
-                            paste0(cases_with_missing_data[1:5], collapse = ", "),
-                            ", ...)")
+      missing_msg <- shiny::tags$li(
+        shiny::tags$span(
+          class = "more",
+          paste0(
+            x, ": ", length(cases_with_missing_data),
+            " cases with missing value (",
+            paste0(cases_with_missing_data, collapse = ", "),
+            ")"
+          )
+        )
+      )
     }
     missing_msg
   })
