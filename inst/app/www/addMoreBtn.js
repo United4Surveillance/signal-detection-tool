@@ -9,7 +9,6 @@ function addMoreBtn() {
 
     $(".more").each(function() {
         var content = $(this).html();
-        console.log(content);
         if(content.length > showChar) {
             var c = content.substr(0, showChar);
             var h = content.substr(showChar, content.length - showChar);
