@@ -135,7 +135,7 @@ mod_tabpanel_data_server <- function(id) {
     output$missing_vals <- shiny::renderText({
       missing_data <- get_missing_data(data())
       if (length(missing_data) == 0) {
-        "No missing data."
+        "There are no cases showing missing entries in the data."
       } else {
         format_html_list(missing_data)
       }
