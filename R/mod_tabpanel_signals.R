@@ -10,11 +10,17 @@
 #' @importFrom shiny NS tagList
 mod_tabpanel_signals_ui <- function(id) {
   ns <- shiny::NS(id)
-
   shiny::tabPanel(
-    "Signals",
+    title = "Signals",
+    icon = shiny::icon("wave-square"),
+    shinybusy::add_busy_spinner(
+      spin = "fading-circle",
+      color = "#304794",
+      position = "full-page",
+      height = "100px",
+      width = "100px"
+    ),
     shiny::uiOutput(ns("signals_tab_ui")),
-    icon = shiny::icon("wave-square")
   )
 }
 
@@ -33,25 +39,13 @@ mod_tabpanel_signals_server <- function(
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    ## UI-portion of the tab below!
+    # UI-portion of the tab below!
     # ensuring that content is onlyu shown if data check returns no errors
     output$signals_tab_ui <- shiny::renderUI({
       if (errors_detected() == TRUE) {
-        return(shiny::tagList(
-          shiny::br(),
-          shiny::h2("Data Format Check Failed"),
-          shiny::p("Unfortunately, the selected data does not meet the required format."),
-          shiny::p("Please make sure the data follows the correct structure and try again."),
-          shiny::br(),
-          shiny::hr(),
-          shiny::p("You can check the data in the 'Data' tab for more details on the issue.")
-        ))
+        return(datacheck_error_message)
       } else if (no_algorithm_possible() == TRUE) {
-        return(shiny::tagList(
-          shiny::br(),
-          shiny::h3("There is no outbreak detection algorithm which can be applied to your current settings, please change your selected settings in the input tab and try again."),
-          shiny::br()
-        ))
+        return(algorithm_error_message)
       } else {
         return(shiny::tagList(
           fluidRow(
@@ -107,13 +101,9 @@ mod_tabpanel_signals_server <- function(
                 }
             }
           ),
-          mod_plot_time_series_ui(id = ns("timeseries")),
-          shiny::br(),
-          shiny::h3("Plot of age group"),
-          plotly:::plotlyOutput(ns("age_group")),
+          uiOutput(ns("plot_table_stratas")),
           shiny::br(),
           shiny::h3("Signal detection table"),
-          # shiny::tableOutput(ns("signals")),
           DT::DTOutput(ns("signals"))
         ))
       }
@@ -145,9 +135,7 @@ mod_tabpanel_signals_server <- function(
         stratification = strat_vars_tidy(),
         date_var = "date_report",
         number_of_weeks = number_of_weeks()
-      ) %>%
-        filter_data_last_n_weeks(number_of_weeks = number_of_weeks())
-
+      )
       results
     })
 
@@ -170,21 +158,51 @@ mod_tabpanel_signals_server <- function(
       data_n_weeks
     })
 
+    output$plot_table_stratas <- renderUI({
+      req(signal_results)
+      plot_table_list <- list()
 
-    ## TODO: interactive 'yes/no'-button and weeks slider?
-    ## TODO: apply over selected pathogens?
-    mod_plot_time_series_server(
-      id = "timeseries",
-      signals = signal_results
-    )
+      # using the categories of the signal_results instead of strat_vars_tidy
+      # because it could be that not for all selected strat_vars signals could have been generated
+      # we would still want to give this feedback to the user then, this is not implemented yet
+      signal_categories <- unique(signal_results()$category)
+      # remove the NA category which is generate when signals were generated unstratified
+      signal_categories <- signal_categories[!is.na(signal_categories)]
+      n_plots_tables <- length(signal_categories)
 
-    # agegroup plot
-    output$age_group <- plotly::renderPlotly({
-      req(!errors_detected())
-      SignalDetectionTool::plot_agegroup_by(signal_data(),
-        by_col = strat_vars_tidy()[1],
-        interactive = TRUE
+      # generating barcharts, maps or tables and header for this ui section
+      # The number of plots/tables and the header generated depends on the number of signal_categories
+      # if strata were selected by the user
+      if (n_plots_tables != 0) {
+        # populate the plot_table_list with plots/tables of each category
+        plot_table_list <- lapply(signal_categories, function(category) {
+          decider_barplot_map_table(signals_agg(), data(), category)
+        })
+        if (n_plots_tables == 1) {
+          header <- h3(paste0("Visualisation and/or table showing the number of cases in the last ", number_of_weeks(), " weeks with alarms from Signal Detection", " for the selected stratum ", paste(signal_categories, collapse = ", "), "."))
+        } else {
+          header <- h3(paste0("Visualisations and/or tables showing the number of cases in the last ", number_of_weeks(), " weeks with alarms from Signal Detection", " for the selected strata ", paste(signal_categories, collapse = ", "), "."))
+        }
+
+        # in case no strata were selected (n_plots_tables == 0) we show the country timeseries
+      } else {
+        plot_timeseries <- plot_time_series(signal_results(), interactive = TRUE)
+        plot_table_list[[1]] <- plot_timeseries
+        # update the n_plots_tables such that creating the column_plots below works
+        n_plots_tables <- 1
+        header <- h3(paste0("Timeseries of weekly cases on country level with signal detection applied to the last ", number_of_weeks(), " weeks."))
+      }
+
+      column_plots <- fluidRow(
+        lapply(1:n_plots_tables, function(x) column(12 / n_plots_tables, plot_table_list[x]))
       )
+      columns_with_header <- list(header, column_plots)
+
+
+      # Return the combined UI elements
+      column_plots_with_headers <- do.call(tagList, columns_with_header)
+
+      return(column_plots_with_headers)
     })
 
     # signals table

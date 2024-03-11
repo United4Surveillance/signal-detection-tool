@@ -12,10 +12,12 @@ mod_tabpanel_help_ui <- function(id) {
 
     shiny::tabPanel(
       "Help",
-      shiny::h1("HowTo Use This App"),
-      shiny::p("Follow the data flow in the tabs - from Data input to the Report on signal detections."),
-      shiny::br(),
-      shiny::p("Descriptions of required inputs etc."),
+      shiny::fluidPage(
+        column(12,
+               shiny::br(),
+               shiny::h3("Table of content"),
+               shiny::uiOutput(ns("help_markdown")))
+        ),
       icon = shiny::icon("question")
       )
 
@@ -27,6 +29,18 @@ mod_tabpanel_help_ui <- function(id) {
 mod_tabpanel_help_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
+
+    output$help_markdown <- shiny::renderUI({
+      shiny::HTML(
+        markdown::mark_html(
+          knitr::knit("inst/rmd/help_tab.Rmd", quiet = TRUE,
+                      encoding = "UTF-8", output = "inst/rmd/help_tab.md"),
+          output = NULL, options = list(number_sections = FALSE, toc = TRUE,
+                                        toc_float = list(collapsed = TRUE)),
+          template = FALSE
+        ))
+    })
+
   })
 }
 
