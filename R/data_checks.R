@@ -281,9 +281,13 @@ get_unused_variables <- function(data) {
 #'   'case_id's for which values are missing
 get_missing_data <- function(data) {
   missing_values <- lapply(check_for_missing_values(), function(x) {
-    cases_with_missing_data <- data %>%
-      dplyr::filter(is.na(!!rlang::sym(x))) %>%
-      dplyr::pull(case_id)
+    if (x %in% names(data)) { # only check columns that are present in the data
+      cases_with_missing_data <- data %>%
+        dplyr::filter(is.na(!!rlang::sym(x))) %>%
+        dplyr::pull(case_id)
+    } else {
+      cases_with_missing_data <- NULL
+    }
     if (length(cases_with_missing_data) == 0) {
       missing_msg <- NULL
     } else  if (length(cases_with_missing_data) <= 5) {
