@@ -35,26 +35,23 @@ plot_time_series <- function(results, interactive = FALSE,
   col.training  <- "#9E9E9E"
   col.test      <- "#304794"
 
-  plot_text <- paste0(
-    results$set_status,
-    "<br>Date: ", results$date, "<br>Observed: ", results$cases,
-    "<br>Threshold: ", round(results$upperbound_pad)
-  )
-
-  # if any expected values not NA, then `farrington` is method chosen
-  if (any(!is.na(results$expected_pad))) {
-    plot_text <- paste0(plot_text,
-                        "<br>Expected: ", round(results$expected_pad))
-  }
-
 
   plt <-
     results %>%
     ggplot2::ggplot(ggplot2::aes(x = date, group = 1, text = paste0(
-      set_status,
-      "<br>Date: ", date, "<br>Observed: ", cases,
-      "<br>Threshold: ", round(upperbound),
-      "<br>Expected: ", round(expected)
+      ifelse(set_status == "Test data", "Signal detection period", ""),
+      "<br>Date: ", date,
+      "<br>Observed: ", cases,
+      ifelse(!is.na(upperbound_pad) | !is.na(upperbound),(
+        ifelse(is.na(upperbound_pad),
+               paste0("<br>Threshold: ", round(upperbound)),
+               paste0("<br>Threshold: ", round(upperbound_pad)))
+      ), ""),
+      ifelse(!is.na(expected_pad) | !is.na(expected), (
+        ifelse(is.na(expected_pad),
+               paste0("<br>Expected: ", round(expected)),
+               paste0("<br>Expected: ", round(expected_pad)))
+      ), "")
     ))) +
     ggplot2::geom_col(ggplot2::aes(y = cases, fill = set_status)) +
     ggplot2::geom_step(ggplot2::aes(y = upperbound, color = "Threshold"),
@@ -120,7 +117,6 @@ plot_time_series <- function(results, interactive = FALSE,
     plt <- plotly::ggplotly(plt, tooltip = "text") %>%
       plotly::layout(legend = list(orientation = "h", x = 0.5, y = -0.5,
                                    yanchor = "bottom", xanchor = "center")) %>%
-      plotly::style(hoverlabel = list(bgcolor = "white")) %>%
       plotly::config(modeBarButtonsToRemove = c('autoScale2d',
                                                 'select2d',
                                                 'lasso2d',
