@@ -115,7 +115,7 @@ plot_time_series <- function(results, interactive = FALSE,
 
   if (interactive) {
     plt <- plotly::ggplotly(plt, tooltip = "text") %>%
-      plotly::layout(legend = list(orientation = "h", x = 0.5, y = -0.5,
+      plotly::layout(legend = list(orientation = "h", x = 0.5, y = -0.9,
                                    yanchor = "bottom", xanchor = "center")) %>%
       plotly::config(modeBarButtonsToRemove = c('autoScale2d',
                                                 'select2d',
