@@ -47,14 +47,65 @@ mod_tabpanel_signals_server <- function(
       } else if (no_algorithm_possible() == TRUE) {
         return(algorithm_error_message)
       } else {
-        return(
-          shiny::tagList(
-            uiOutput(ns("plot_table_stratas")),
-            shiny::br(),
-            shiny::h3("Signal detection table"),
-            DT::DTOutput(ns("signals"))
-          )
-        )
+        return(shiny::tagList(
+          fluidRow(
+            # Creation of boxes using div
+            column(width = 3,
+                   shiny::div(class = "value-box blue",
+                              shiny::div(class = "title", "Outbreak detection algorithm"),
+                              shiny::div(class = "value", method())
+                   )
+            ),
+            column(width = 2,
+                   shiny::div(class = "value-box blue",
+                              shiny::div(class = "title", "Number of weeks"),
+                              shiny::div(class = "value", number_of_weeks())
+                   )
+            ),
+            # Red box if alarms were found
+            if(sum(signals_agg()$n_alarms) > 0) {
+              column(width = 2,
+                   shiny::div(class = "value-box red",
+                              shiny::div(class = "title", "Number of alarms"),
+                              shiny::div(class = "value", shiny::textOutput(ns("n_alarms")))
+                   )
+              # Green box if no alarms were found
+              )} else{
+                column(width = 2,
+                       shiny::div(class = "value-box green",
+                                  shiny::div(class = "title", "Number of alarms"),
+                                  shiny::div(class = "value", shiny::textOutput(ns("n_alarms")))
+                       )
+                )
+
+                }
+            ,
+            # Box of alarms by stratum
+            if(!"None" %in% strat_vars()){
+              # Red box if alarms were found
+              if(sum(signals_agg()$n_alarms) > 0){
+                column(width = 4,
+                     shiny::div(class = "value-box red",
+                                shiny::div(class = "title", "Number of alarms by stratum"),
+                                shiny::div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
+                     )
+              )
+              # Green box if no alarms were found
+              } else {
+                column(width = 4,
+                       shiny::div(class = "value-box green",
+                                  shiny::div(class = "title", "Number of alarms by stratum"),
+                                  shiny::div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
+                       )
+                )
+                }
+            }
+          ),
+          uiOutput(ns("plot_table_stratas")),
+          shiny::br(),
+          shiny::h3("Signal detection table"),
+          DT::DTOutput(ns("signals"))
+        ))
       }
     })
 
@@ -161,6 +212,31 @@ mod_tabpanel_signals_server <- function(
         interactive = TRUE
       )
       # FIXME: interactive mode not working here?
+    })
+    output$n_alarms <- shiny::renderText({
+      sum(signals_agg()$n_alarms)
+    })
+
+    output$signals_stratum <- shiny::renderUI({
+
+      signals_strat <- signals_agg() %>%
+        dplyr::group_by(category) %>%
+        dplyr::summarise(n_alarms = sum(n_alarms))
+
+      text_output <- c()
+
+      for(i in signals_strat$category){
+
+        n_alarms <- signals_strat %>%
+          dplyr::filter(category == i) %>%
+          dplyr::pull(n_alarms)
+
+        text_output <- paste0(text_output,
+                       paste0(i, ": ", n_alarms, "<br/>"))
+
+        }
+      shiny::HTML(text_output)
+
     })
   })
 }
