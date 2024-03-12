@@ -10,6 +10,12 @@
 mod_tabpanel_data_ui <- function(id) {
   ns <- shiny::NS(id)
 
+  # custom JS/CSS
+  shiny::tags$head(
+    shiny::tags$style(src = "www/addMoreBtn.css"),
+    shiny::tags$script(src = "www/addMoreBtn.js")
+  )
+
   shiny::tabPanel(
     "Data",
     # From runExample("09_upload")
@@ -48,6 +54,17 @@ mod_tabpanel_data_ui <- function(id) {
           style = "border: 2px solid black; padding: 10px;",
           htmlOutput(ns("unused_vars"))
         ),
+        hr(),
+        h4("Cases which have missing data"),
+        span("In this section you receive feedback about cases for which data required for the computations is missing."),
+        hr(),
+        span("Please check if values are missing on purpose. Case IDs listed below are excluded from analysis."),
+        hr(),
+        div(
+          style = "border: 2px solid black; padding: 10px;",
+          shiny::uiOutput(ns("missing_vals"))
+        ),
+        hr(),
         h3("Uploaded dataset"),
         hr(),
         # Output: Data file ----
@@ -119,6 +136,17 @@ mod_tabpanel_data_server <- function(id) {
         "There are zero variables which are not recognised/known by the tool."
       } else {
         format_html_list(unused_vars)
+      }
+    })
+    output$missing_vals <- shiny::renderUI({
+      missing_data <- get_missing_data(data())
+      if (length(missing_data) == 0) {
+        "There are no cases showing missing entries in the data."
+      } else {
+        shiny::tagList(
+          shiny::tags$ul(missing_data), # list of spans of class 'more'
+          shiny::tags$script("addMoreBtn();") # custom JS for class 'more'
+        )
       }
     })
 
