@@ -53,7 +53,43 @@ golem_add_external_resources <- function() {
     bundle_resources(
       path = app_sys("app/www"),
       app_title = "SignalDetectionTool"
-    )
+    ),
+    # Presets for the boxes in the signals tabpanel
+    tags$style(HTML("
+      .value-box {
+        border-radius: 3px;
+        border: 1px solid #ddd;
+        background-color: #f4f4f4;
+        padding: 10px;
+        text-align: center;
+      }
+      .value-box .title {
+        font-size: 16px;
+        color: white;
+      }
+      .value-box .value {
+        font-size: 24px;
+        font-weight: bold;
+        color: white;
+      }
+      .value-box .icon {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+      .value-box.blue {
+        border-color: #304794;
+        background-color: #304794;
+      }
+      .value-box.red {
+        border-color: #DF536B;
+        background-color: #DF536B;
+      }
+      .value-box.green {
+        border-color: #23FF00;
+        background-color: #23FF00;
+      }"
+      )
+      )
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()
   )

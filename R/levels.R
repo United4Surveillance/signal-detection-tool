@@ -82,3 +82,8 @@ available_algorithms <- function() {
     "CUSUM" = "cusum"
   )
 }
+
+#' Varible names which should be checked for missing values
+check_for_missing_values <- function() {
+  c("date_report")
+}
