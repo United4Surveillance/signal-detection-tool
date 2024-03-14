@@ -44,7 +44,7 @@ mod_tabpanel_report_server <- function(id,
         return(nweeks_error_message)
       } else if (no_algorithm_possible() == TRUE){
         return(algorithm_error_message)
-      }else {
+      } else {
         return(shiny::tagList(
           shiny::titlePanel("Download Report"),
 
