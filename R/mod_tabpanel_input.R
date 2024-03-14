@@ -122,26 +122,17 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       ) # TODO: make this dynamic
     })
 
-    shiny::observeEvent(input$n_weeks, {
-      if (is.na(input$n_weeks)) {
-        shiny::updateNumericInput(
-          session = session,
-          inputId = "n_weeks",
-          value  = 6
-        )
-      }
-    })
-
     # using shinyvalidate to ensure value between min and max
     iv_weeks <- shinyvalidate::InputValidator$new()
-    iv_weeks$add_rule("n_weeks", shinyvalidate::sv_between(1, 52))
-    iv_weeks$add_rule("n_weeks", shinyvalidate::sv_numeric())
+    iv_weeks$add_rule("n_weeks", shinyvalidate::sv_required())
     iv_weeks$add_rule("n_weeks", shinyvalidate::sv_integer())
+    iv_weeks$add_rule("n_weeks", shinyvalidate::sv_between(1, 52))
     iv_weeks$enable()
 
     output$text_weeks_selection <- shiny::renderText({
       shiny::req(!errors_detected())
       shiny::req(input$n_weeks)
+      shiny::req(iv_weeks$is_valid())
 
       date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(input$n_weeks),
                                           week_start = 1, unit = "week")
