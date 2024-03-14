@@ -40,10 +40,10 @@ mod_tabpanel_report_server <- function(id,
     output$report_tab_ui <- shiny::renderUI({
       if (errors_detected() == TRUE) {
         return(datacheck_error_message)
-      } else if (no_algorithm_possible() == TRUE){
-        return(algorithm_error_message)
       } else if (!number_of_weeks_input_valid()) {
         return(nweeks_error_message)
+      } else if (no_algorithm_possible() == TRUE){
+        return(algorithm_error_message)
       }else {
         return(shiny::tagList(
           shiny::titlePanel("Download Report"),
