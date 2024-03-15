@@ -18,7 +18,7 @@ mod_input_filter_ui <- function(id) {
       tags$style(shiny::HTML(paste0("#", id, "-filter_var_ui{display:inline-block}"))),
       tags$style(shiny::HTML(paste0("#", id, "-filter_val_ui{display:inline-block; vertical-align: top;}"))),
       tags$style(shiny::HTML(paste0("#", id, "-filter_min_val_sel{display:inline-block}"))), # TODO: make these conditional html output
-      tags$style(shiny::HTML(paste0("#", id, "-filter_max_val_sel{display:inline-block}"))),
+      tags$style(shiny::HTML(paste0("#", id, "-filter_max_val_sel{display:inline-block}")))
     )
   )
 }
@@ -26,24 +26,19 @@ mod_input_filter_ui <- function(id) {
 #' input_filter Server Functions
 #'
 #' @noRd
-mod_input_filter_server <- function(id, data, filter_opts) {
+mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filters) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-
-    # add date options
-    date_opts <- shiny::reactive({
-      date_opts <- intersect(names(data()), c("date_report")) # TODO: add other options
-    })
 
     # filter variable
     output$filter_var_ui <- shiny::renderUI({
       shiny::selectInput(
         inputId = ns("filter_var_sel"),
         multiple = FALSE,
-        label = "          ",
+        label = "Choose variable to filter",
         selected = "None",
-        choices = c("None", c(date_opts(), filter_opts())),
-        width = "100%"
+        choices = filter_opts
+        # width = "100%"
       )
     })
 
@@ -90,8 +85,8 @@ mod_input_filter_server <- function(id, data, filter_opts) {
           inputId = ns("filter_val_sel"),
           multiple = TRUE,
           label = "Choose values to filter for",
-          choices = filter_choices,
-          width = "40%"
+          choices = filter_choices
+          # width = "40%"
         )
       }
       value_ui
@@ -107,6 +102,30 @@ mod_input_filter_server <- function(id, data, filter_opts) {
       }
       values
     })
+
+    # update filter_var choices depending on all_filters (n_filters is required
+    # to trigger event when a filter is removed from all_filters)
+    shiny::observeEvent(
+      {
+        c(lapply(shiny::reactiveValuesToList(all_filters), function(x) {
+          do.call(x[["filter_var"]], list())
+        }), n_filters())
+      },
+      {
+        shiny::req(input$filter_var_sel)
+        taken_vars <- lapply(shiny::reactiveValuesToList(all_filters), function(x) {
+          do.call(x[["filter_var"]], list())
+        }) %>% unlist()
+        taken_vars <- taken_vars[!taken_vars %in% c("None", input$filter_var_sel)]
+        remaining_vars <- filter_opts[!filter_opts %in% taken_vars]
+        shiny::updateSelectInput(
+          inputId = "filter_var_sel",
+          selected = input$filter_var_sel,
+          choices = remaining_vars
+        )
+      }
+    )
+
 
     # return
     list(

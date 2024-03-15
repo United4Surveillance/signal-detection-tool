@@ -18,6 +18,7 @@ preprocess_data <- function(data) {
   to_lower_vars <- intersect(colnames(data), c(yes_no_unknown_variables(), "sex"))
   # get all regional stratification variables
   regional_id_vars <- intersect(colnames(data), region_id_variable_names())
+
   # get all variables that are characters and not case_id or date
   factorization_vars <- dplyr::select(data, dplyr::where(is.character) &
                                         !sex &
@@ -25,6 +26,9 @@ preprocess_data <- function(data) {
                                         !dplyr::starts_with("date") &
                                         !dplyr::ends_with("id")) %>% names
 
+  # remove cases with missing values
+  data <- data %>%
+    dplyr::filter_at(check_for_missing_values(), dplyr::all_vars(!is.na(.)))
 
   data <- data %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(to_lower_vars), ~ tolower(.x))) %>%
