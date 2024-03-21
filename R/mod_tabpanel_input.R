@@ -96,6 +96,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
           span("Set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks."),
           br(),
           shiny::uiOutput(ns("weeks_selection")),
+          shiny::textOutput(ns("text_weeks_selection")),
           br(),
           span("Signal detection algorithm", style = "font-size:100%;font-weight: bold"),
           br(),
@@ -122,9 +123,18 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       ) # TODO: make this dynamic
     })
 
+    # using shinyvalidate to ensure value between min and max
+    iv_weeks <- shinyvalidate::InputValidator$new()
+    iv_weeks$add_rule("n_weeks", shinyvalidate::sv_required(
+      message = "This input is required to be able to choose a signal detection algorithm."))
+    iv_weeks$add_rule("n_weeks", shinyvalidate::sv_integer())
+    iv_weeks$add_rule("n_weeks", shinyvalidate::sv_between(1, 52))
+    iv_weeks$enable()
+
     output$text_weeks_selection <- shiny::renderText({
       shiny::req(!errors_detected())
       shiny::req(input$n_weeks)
+      shiny::req(iv_weeks$is_valid())
 
       date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(input$n_weeks),
                                           week_start = 1, unit = "week")
@@ -342,6 +352,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     algorithms_possible <- shiny::reactive({
       shiny::req(filtered_data)
       shiny::req(input$n_weeks)
+      shiny::req(iv_weeks$is_valid())
 
       signals_all_methods <- dplyr::bind_rows(purrr::map(unlist(available_algorithms()), function(algorithm) {
         signals <- get_signals(filtered_data(),
@@ -413,15 +424,10 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         dplyr::filter(filtered_data(), subset == TRUE)
       }),
       n_weeks = shiny::reactive(input$n_weeks),
-      strat_vars = reactive({
-        input$strat_vars
-      }),
-      pathogen_vars = reactive({
-        input$pathogen_vars
-      }),
-      method = reactive({
-        input$algorithm_choice
-      }),
+      weeks_input_valid = shiny::reactive(iv_weeks$is_valid()),
+      strat_vars = shiny::reactive({input$strat_vars}),
+      pathogen_vars = shiny::reactive({input$pathogen_vars}),
+      method = shiny::reactive({input$algorithm_choice}),
       no_algorithm_possible = shiny::reactive(no_algorithm_possible())
     ))
   })

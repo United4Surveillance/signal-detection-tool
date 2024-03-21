@@ -27,3 +27,11 @@ algorithm_error_message <- shiny::tagList(
   shiny::h3("There is no outbreak detection algorithm which can be applied to your current settings, please change your selected settings in the input tab and try again."),
   shiny::br()
 )
+
+
+nweeks_error_message <- shiny::tagList(
+  shiny::br(),
+  shiny::p("The input given to the Signal Detection Period is invalid."),
+  shiny::p("Please correct it according to the specification given in the input tab."),
+  shiny::br()
+)
