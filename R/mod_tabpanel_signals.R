@@ -162,7 +162,7 @@ mod_tabpanel_signals_server <- function(
         dplyr::filter(category == input$ts_filter_var) %>%
         dplyr::pull(stratum) %>%
         as.character() %>%
-        tidyr::replace_na("N/A") %>%
+        tidyr::replace_na("unknown") %>%
         unique()
 
       shiny::selectInput(
@@ -363,6 +363,7 @@ mod_tabpanel_signals_server <- function(
       } else{
         if (!is.null(input$ts_filter_val)) {
           results <- signals_padded() %>%
+            dplyr::mutate(stratum = dplyr::if_else(!is.na(category) & is.na(stratum),tidyr::replace_na("unknown"),stratum)) %>%
             dplyr::filter(category == input$ts_filter_var & stratum == input$ts_filter_val)}
         else{
           # we should not get inside here but for completeness
