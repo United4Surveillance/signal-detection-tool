@@ -38,8 +38,7 @@ preprocess_data <- function(data) {
     dplyr::mutate(dplyr::across(dplyr::starts_with("date"), ~ as.Date(.x, optional = T))) %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(regional_id_vars), ~ as.character(.x))) %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(yes_no_unknown_vars),
-                                ~ factor(.x, levels = unlist(yes_no_unknown_levels())) %>%
-                                  addNA(ifany = TRUE))) %>%
+                                ~ factor(.x, levels = unlist(yes_no_unknown_levels())))) %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(factorization_vars), ~ as.factor(.x)))
 
 
@@ -65,7 +64,7 @@ preprocess_data <- function(data) {
   # sex is not mandatory
   if ("sex" %in% colnames(data)) {
     data <- data %>%
-      dplyr::mutate(sex = factor(sex, levels = sex_levels()) %>% addNA(ifany = TRUE))
+      dplyr::mutate(sex = factor(sex, levels = sex_levels()))
   }
 
   data
