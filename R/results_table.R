@@ -62,7 +62,9 @@ create_table <- function(data, interactive = TRUE) {
   # transform NA in stratum to unknown
   if("stratum" %in% colnames(data) & any(!is.na(data[["category"]]))) {
     data <- data %>%
-      dplyr::mutate(stratum = tidyr::replace_na(stratum, "unknown"))
+      # those with stratification and stratum NA get transformed to unknown, those unstratified with category NA get transformed to None for the category
+      dplyr::mutate(stratum = dplyr::if_else(!is.na(category),tidyr::replace_na(stratum, "unknown"),stratum)) %>%
+      dplyr::mutate(category = dplyr::if_else(is.na(category),"None",category))
   }
 
   if (interactive == TRUE) {
