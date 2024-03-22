@@ -48,7 +48,8 @@ plot_barchart <- function(signals_agg,
     ggplot2::scale_color_manual("",
                                 values = c("At least 1 alarm" = "red",
                                            "No alarms" = "#304794")) +
-    ggplot2::scale_x_discrete(na.translate = TRUE, labels = function(x) ifelse(is.na(x), "unknown", x)) +
+    ggplot2::scale_x_discrete(na.translate = TRUE, labels = function(x) ifelse(is.na(x), "unknown", x),
+                              drop = FALSE) +
     ggplot2::scale_y_continuous(
       breaks = scales::pretty_breaks(n = 10),
       expand = ggplot2::expansion(mult = c(0, 0.1))) +
