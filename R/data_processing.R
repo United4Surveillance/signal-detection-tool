@@ -18,6 +18,14 @@ preprocess_data <- function(data) {
   to_lower_vars <- intersect(colnames(data), c(yes_no_unknown_variables(), "sex"))
   # get all regional stratification variables
   regional_id_vars <- intersect(colnames(data), region_id_variable_names())
+
+  # get all variables that are characters and not case_id or date
+  factorization_vars <- dplyr::select(data, dplyr::where(is.character) &
+                                        !sex &
+                                        !dplyr::all_of(yes_no_unknown_vars) &
+                                        !dplyr::starts_with("date") &
+                                        !dplyr::ends_with("id")) %>% names
+
   # remove cases with missing values
   data <- data %>%
     dplyr::filter_at(check_for_missing_values(), dplyr::all_vars(!is.na(.)))
@@ -28,7 +36,11 @@ preprocess_data <- function(data) {
     dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, "unknown"))) %>%
     dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, "NA"))) %>%
     dplyr::mutate(dplyr::across(dplyr::starts_with("date"), ~ as.Date(.x, optional = T))) %>%
-    dplyr::mutate(dplyr::across(dplyr::all_of(regional_id_vars), ~ as.character(.x)))
+    dplyr::mutate(dplyr::across(dplyr::all_of(regional_id_vars), ~ as.character(.x))) %>%
+    dplyr::mutate(dplyr::across(dplyr::all_of(yes_no_unknown_vars),
+                                ~ factor(.x, levels = unlist(yes_no_unknown_levels())))) %>%
+    dplyr::mutate(dplyr::across(dplyr::all_of(factorization_vars), ~ as.factor(.x)))
+
 
   # add columns for isoyear and isoweek for each date
   data <- data %>%
@@ -48,10 +60,11 @@ preprocess_data <- function(data) {
         levels = stringr::str_sort(unique(data$age_group), numeric = TRUE)
       ))
   }
+
   # sex is not mandatory
   if ("sex" %in% colnames(data)) {
     data <- data %>%
-      dplyr::mutate(sex = factor(sex))
+      dplyr::mutate(sex = factor(sex, levels = sex_levels()))
   }
 
   data
