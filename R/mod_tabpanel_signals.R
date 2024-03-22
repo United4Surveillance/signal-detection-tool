@@ -36,6 +36,7 @@ mod_tabpanel_signals_server <- function(
     number_of_weeks_input_valid,
     strat_vars,
     method,
+    agegroup_levels,
     no_algorithm_possible) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns

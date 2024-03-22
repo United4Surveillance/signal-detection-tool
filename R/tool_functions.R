@@ -369,7 +369,7 @@ age_groups <- function(df, break_at = NULL) {
   df$age_group <- factor(df$age_group,
                          levels = stringr::str_sort(all_agegroups, numeric = TRUE))
 
-  return(df)
+  return(list(df = df, agegroup_levels = all_agegroups))
 }
 
 #' Get Signals Stratified
