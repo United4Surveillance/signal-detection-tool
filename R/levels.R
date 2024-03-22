@@ -16,7 +16,7 @@ sex_levels <- function() {
     "male",
     "female",
     "diverse",
-    "unknown"
+    NA_character_
   )
 }
 
