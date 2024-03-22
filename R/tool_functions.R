@@ -151,7 +151,6 @@ complete_agegrp_arr <- function(df, format_check_results) {
            "")
 
   if (length(format_check_results$other_punct_char) > 0) {
-    #regex_string <- paste0(regex_string, "\\", format_check_results$other_punct_char)
     for (character in names(format_check_results$other_punct_char)) {
       regex_string <- paste0(regex_string, "\\", gsub(x = character, pattern = " ", replacement = ""))
     }
@@ -318,7 +317,6 @@ age_groups <- function(df, break_at = NULL) {
     }
 
     # setting up age groups ---------------------------------------------------
-
     default_break_at <- seq(5, 125, 5)
 
     if (is.null(break_at)) { # use default age groups
@@ -362,8 +360,6 @@ age_groups <- function(df, break_at = NULL) {
   if (!is.vector(all_agegroups)) {
     all_agegroups <- unique(df$age_group)
   }
-
-
 
   # converting age_group to factor ------------------------------------------
   df$age_group <- factor(df$age_group,
