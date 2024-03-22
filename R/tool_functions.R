@@ -238,7 +238,9 @@ complete_agegrp_arr <- function(df, format_check_results) {
   # if symbol is used, add it where appropriate
   # make complete string
   if (length(format_check_results$other_punct_char) > 0) {
+    max_num_inp <- NULL
     for (spc_char in names(format_check_results$other_punct_char)) {
+      # if it belong in front of or behind value
       if (format_check_results$other_punct_char[[spc_char]]$placement_in_str == "start") {
         str_element_1 <- format_check_results$other_punct_char[[spc_char]]$char_val
         str_element_2 <- format_check_results$other_punct_char[[spc_char]]$num_val
@@ -249,12 +251,35 @@ complete_agegrp_arr <- function(df, format_check_results) {
 
       agegroup_str <- paste0(str_element_1, str_element_2)
 
+      # if it is part of the first or the last number
       if (format_check_results$other_punct_char[[spc_char]]$placement_in_arr == "start") {
         all_agegrps[1] <- agegroup_str
       } else {
         all_agegrps[length(all_agegrps)+1] <- agegroup_str
+        max_num_inp <- format_check_results$other_punct_char[[spc_char]]$num_val
       }
     }
+
+    # remove potential numbers smaller and larger than number with special character attached
+    if (!is.null(max_num_inp)) {
+      # splitting the ages, only keeping numeric
+      splits_tmp <- stringr::str_split_fixed(string  = all_agegrps,
+                                         pattern = regex_string,
+                                         n = 2) %>%
+        gsub(pattern = "\\D", replacement = "")
+
+      rows_to_remove <- which(apply(splits_tmp, 2, as.numeric) > as.numeric(max_num_inp), arr.ind = T) %>%
+        as.data.frame() %>% select(row) %>% distinct %>% unlist
+
+      all_agegroups <- all_agegroups[-rows_to_remove]
+
+    }
+
+  }
+
+  # checking to see if all agegroups entities are found in the array
+  if (any(unique(df$age_group) %in% all_agegroups == FALSE)) {
+    all_agegrps <- unique(df$age_group)
   }
 
   return(all_agegrps)
@@ -322,7 +347,6 @@ age_groups <- function(df, break_at = NULL) {
 
   # if not the correct xx-xx format is used, insert leading 0's where necesary
   if (length(format_check_results$format_agegrp_xx) > 0) {
-    #splits <- stringr::str_split_fixed(as.character(df$age_group),"[^[:alnum:]]", 2)
     splits <- stringr::str_split_fixed(as.character(df$age_group),format_check_results$agegrp_div, 2)
 
     for (item in format_check_results$format_agegrp_xx) {
@@ -333,7 +357,13 @@ age_groups <- function(df, break_at = NULL) {
     }
   }
 
-  all_agegroups <- complete_agegrp_arr(df, format_check_results)
+  all_agegroups <- try(complete_agegrp_arr(df, format_check_results), silent = T)
+
+  if (!is.vector(all_agegroups)) {
+    all_agegroups <- unique(df$age_group)
+  }
+
+
 
   # converting age_group to factor ------------------------------------------
   df$age_group <- factor(df$age_group,
