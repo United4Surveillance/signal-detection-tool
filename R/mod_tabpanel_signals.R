@@ -239,7 +239,7 @@ mod_tabpanel_signals_server <- function(
 
     show_alarms <- shiny::reactive({
       shiny::req(input$alarms_trig)
-      if (input$alarms_trig == TRUE) {
+      if (input$alarms_trig == "Show number of alarms") {
         return(TRUE)
       } else {
         return(FALSE)
@@ -437,9 +437,9 @@ mod_tabpanel_signals_server <- function(
         shiny::tagList(
           shiny::br(),
           shiny::selectInput(ns("alarms_trig"),
-                             label = "Toggle alarms",
-                             choices = c(FALSE, TRUE),
-                             selected = FALSE)
+                             label = "Toggle number of alarms on / off on stratification graphs",
+                             choices = c("Don't shown number of alarms", "Show number of alarms"),
+                             selected = "Don't shown alarms")
         )
       }
     })

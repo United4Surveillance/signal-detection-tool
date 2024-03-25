@@ -82,7 +82,7 @@ plot_barchart <- function(signals_agg,
         color  = "black",
         family = "bold",
         size   = 8,
-        nudge_y = 5)
+        nudge_y = 7)
   }
 
   if(interactive){

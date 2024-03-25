@@ -34,6 +34,14 @@ plot_regional <- function(shape_with_signals,
       any_alarms = factor(any_alarms, levels = c("No alarms", "At least 1 alarm")) # level ordering determines render ordering: black < red
     )
 
+  lower_th <- ceiling(max(shape_with_signals$cases) * 0.40)
+  col_alarm_text <- shape_with_signals %>%
+    dplyr::mutate(col_var = dplyr::case_when(
+      cases <= lower_th ~ "black",
+      cases > lower_th ~ "white"
+    )) %>%
+    dplyr::pull(col_var)
+
   plot <- ggplot2::ggplot(data = shape_with_signals) +
     ggplot2::geom_sf(
       data = shape_with_signals,
@@ -78,7 +86,7 @@ plot_regional <- function(shape_with_signals,
   if (!(interactive) | toggle_alarms == TRUE) {
     plot <- plot + ggplot2::geom_sf_text(
       ggplot2::aes(label = n_alarms_label),
-      color = "black",
+      color = col_alarm_text,
       family = "bold",
       size = 8,
       na.rm = TRUE
