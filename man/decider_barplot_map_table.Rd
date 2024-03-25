@@ -8,7 +8,8 @@ decider_barplot_map_table(
   signals_agg,
   data_surveillance,
   signal_category,
-  interactive = TRUE
+  interactive = TRUE,
+  toggle_alarms = FALSE
 )
 }
 \arguments{
@@ -17,6 +18,10 @@ decider_barplot_map_table(
 \item{data_surveillance}{data.frame, surveillance linelist}
 
 \item{signal_category}{character, naming the category which should be visualised, i.e. "state","age_group","sex"}
+
+\item{interactive}{boolean identifying whether the plot should be static or interactive}
+
+\item{toggle_alarms}{boolean identifying whether the plot should showing number of alarms explicitly or only when hovering}
 }
 \value{
 a table or a plot depending on signal_category, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table

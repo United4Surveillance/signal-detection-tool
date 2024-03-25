@@ -10,6 +10,8 @@ plot_barchart(signals_agg, interactive = TRUE, toggle_alarms = FALSE)
 \item{signals_agg}{tibble, aggregated signals which can be obtained from using the function \code{\link{aggregate_signals}}. It contains the number of cases, any_alarms and n_alarms for one category, i.e. age group summed over the number of weeks used in \code{\link{aggregate_signals}}.}
 
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
+
+\item{toggle_alarms}{boolean identifying whether the plot should showing number of alarms explicitly or only when hovering}
 }
 \value{
 either a gg or plotly object

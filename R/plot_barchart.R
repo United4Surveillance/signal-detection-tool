@@ -4,6 +4,7 @@
 #'
 #' @param signals_agg tibble, aggregated signals which can be obtained from using the function \code{\link{aggregate_signals}}. It contains the number of cases, any_alarms and n_alarms for one category, i.e. age group summed over the number of weeks used in \code{\link{aggregate_signals}}.
 #' @param interactive boolean identifying whether the plot should be static or interactive
+#' @param toggle_alarms boolean identifying whether the plot should showing number of alarms explicitly or only when hovering
 #' @returns either a gg or plotly object
 #' @examples
 #' \dontrun{
@@ -20,6 +21,12 @@ plot_barchart <- function(signals_agg,
   checkmate::assert(
     checkmate::check_true(interactive),
     checkmate::check_false(interactive),
+    combine = "or"
+  )
+
+  checkmate::assert(
+    checkmate::check_true(toggle_alarms),
+    checkmate::check_false(toggle_alarms),
     combine = "or"
   )
   # current possibilities we allow for barchart plotting
@@ -67,7 +74,7 @@ plot_barchart <- function(signals_agg,
       axis.title.y = ggplot2::element_text(face = "bold"))
 
 
-  if (!interactive | toggle_alarms) {
+  if (!(interactive) | toggle_alarms == TRUE) {
     p <- p +
       ggplot2::geom_text(
         ggplot2::aes(x = stratum,  y = cases,  label = dplyr::if_else(any_alarms, n_alarms, NA)),

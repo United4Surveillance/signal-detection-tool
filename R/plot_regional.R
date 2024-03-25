@@ -1,6 +1,7 @@
 #' Plot number of cases with number of signals by region
 #' @param shape_with_signals sf shapefile, with additional columns from signals cases, n_alarms, any_alarms
 #' @param interactive boolean identifying whether the plot should be static or interactive
+#' @param toggle_alarms boolean identifying whether the plot should showing number of alarms explicitly or only when hovering
 #' @returns either a ggplot object if static plot is chosen or a plotly object for the interactive plot
 plot_regional <- function(shape_with_signals,
                           interactive = FALSE,
@@ -12,6 +13,13 @@ plot_regional <- function(shape_with_signals,
     checkmate::check_false(interactive),
     combine = "or"
   )
+
+  checkmate::assert(
+    checkmate::check_true(toggle_alarms),
+    checkmate::check_false(toggle_alarms),
+    combine = "or"
+  )
+
   shape_with_signals <- shape_with_signals %>%
     # make case numbers unique to keep plotly from combining the traces!
     # as long as the perturbation is small enough the fill color doesn't change
@@ -67,7 +75,7 @@ plot_regional <- function(shape_with_signals,
       ggplot2::guides(fill = "none")
   }
 
-  if (!interactive | toggle_alarms) {
+  if (!(interactive) | toggle_alarms == TRUE) {
     plot <- plot + ggplot2::geom_sf_text(
       ggplot2::aes(label = n_alarms_label),
       color = "black",
