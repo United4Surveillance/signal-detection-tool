@@ -1,4 +1,4 @@
-#' Get signals of surveillance's CUSUM algorithm
+#' Get signals of CUSUM algorithm with reset
 #' @param data_aggregated data.frame, aggregated data with case counts
 #' @param number_of_weeks integer, specifying number of weeks to generate alarms for
 #'
@@ -49,7 +49,7 @@ get_signals_cusum <- function(data_aggregated,
   )
 
   # run CUSUM on data
-  results <- surveillance::cusum(sts_cases, control)
+  results <- cusum_with_reset(sts_cases, control)
 
   pad <- rep(NA, num_weeks_total - number_of_weeks)
   alarms <- c(pad, results@alarm)
