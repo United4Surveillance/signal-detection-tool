@@ -2,7 +2,7 @@
 % Please edit documentation in R/cusum.R
 \name{get_signals_cusum}
 \alias{get_signals_cusum}
-\title{Get signals of surveillance's CUSUM algorithm}
+\title{Get signals of CUSUM algorithm with reset}
 \usage{
 get_signals_cusum(data_aggregated, number_of_weeks = 52)
 }
@@ -12,7 +12,7 @@ get_signals_cusum(data_aggregated, number_of_weeks = 52)
 \item{number_of_weeks}{integer, specifying number of weeks to generate alarms for}
 }
 \description{
-Get signals of surveillance's CUSUM algorithm
+Get signals of CUSUM algorithm with reset
 }
 \examples{
 \dontrun{
