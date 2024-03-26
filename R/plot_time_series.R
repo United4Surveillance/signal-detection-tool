@@ -26,16 +26,13 @@ plot_time_series <- function(results, interactive = FALSE,
       ),
       set_status = dplyr::if_else(is.na(alarms), "Training data", "Test data"),
       set_status = factor(set_status, levels = c("Training data", "Test data"))
-    ) %>%
-    dplyr::arrange(date) %>%
-    dplyr::slice_tail(n = number_of_weeks)
+    )
 
   col.threshold <- "#2297E6"
   col.expected <- "#000000"
   col.alarm <- "#FF0000"
   col.training <- "#9E9E9E"
   col.test <- "#304794"
-
 
   plt <-
     results %>%
@@ -84,7 +81,7 @@ plot_time_series <- function(results, interactive = FALSE,
 
   plt <- plt +
     ggplot2::scale_x_date(
-      date_breaks = "1 month", date_labels = "%Y-%m-%d",
+      date_breaks = "month", date_labels = "%Y-%m-%d",
       expand = c(0, 0)
     ) +
     ggplot2::scale_y_continuous(
@@ -136,11 +133,38 @@ plot_time_series <- function(results, interactive = FALSE,
     )
 
   if (interactive) {
-    plt <- plotly::ggplotly(plt, tooltip = "text") %>%
-      plotly::layout(legend = list(
-        orientation = "h", x = 0.5, y = -0.9,
-        yanchor = "bottom", xanchor = "center"
-      )) %>%
+    # finding number of weeks for signal detection period
+    # and range of dates for the last year
+    nweeks_sdp  <- results %>% dplyr::filter(set_status == "Test data") %>% nrow * 7
+    range_dates <- list(min_date = format(max(results$date) - lubridate::weeks(number_of_weeks), "%Y-%m-%d"),
+                        max_date = format(max(results$date, "%Y-%m-%d")))
+
+    plt <- plotly::ggplotly(plt, tooltip = "text", dynamicTicks = TRUE) %>%
+      plotly::layout(
+        xaxis = list(
+          type = "date",
+          autorange = FALSE,
+          range = list(
+            lubridate::as_datetime(range_dates$min_date),
+            lubridate::as_datetime(range_dates$max_date)
+          ),
+          rangeslider   = list(
+            range = list(c(as.Date(range_dates$min_date), as.Date(range_dates$max_date))),
+            visible = TRUE, type = "date", thickness = 0.10),
+          rangeselector = list(
+            buttons = list(
+              list(count=nweeks_sdp, label="SDP", step="day", stepmode="backward"),
+              list(count=1, label="1m", step="month", stepmode="backward"),
+              list(count=6, label="6m", step="month", stepmode="backward"),
+              list(count=1, label="1y", step="year", stepmode="backward"),
+              list(step="all")
+              )
+            )
+          ),
+        legend = list(
+          orientation = "h", x = 0.5, y = -0.9,
+          yanchor = "bottom", xanchor = "center")
+      ) %>%
       plotly::config(modeBarButtonsToRemove = c(
         "autoScale2d",
         "select2d",
@@ -161,11 +185,14 @@ plot_time_series <- function(results, interactive = FALSE,
     if (any(!is.na(results$expected_pad))) {
       plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Expected"
       plt$x$data[[6]]$showlegend <- FALSE
-      plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Alarm"
+      if (any(results$alarms == TRUE, na.rm = TRUE)) {
+        plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Alarm"
+      }
     } else {
-      plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Alarm"
+      if (any(results$alarms == TRUE, na.rm = TRUE)) {
+        plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Alarm"
+      }
     }
   }
-
   return(plt)
 }
