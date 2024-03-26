@@ -50,9 +50,13 @@ You can choose to stratify by up to three variables. Choosing a variable for str
 Here you can set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks, which is also dependent on if any filtering is done.
 
 #### Signal detection algorithm
-Depending on the number of weeks you want to generate alarms for, and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your setting, with respects for the individual needs of training data of the different algorithms.
+Depending on the number of weeks you want to generate alarms for, and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your setting, with respects for the individual needs of training data of the different algorithms.  
 
-Which signal detection algorithm should you choose? It depends on multiple criteria, and they all have their individual weaknesses and strengths. 
+In the following we call the training period the time period which is used to fit the parameters of the algorithms. This time period is given by your selection of date_report (Filters section) and the Signal detection period. If you select the time period 01-01-2020 until 31-12-2021 in the Filters section and select six weeks for the signal detection period the training period will be from 01-01-2020 until 22-11-2021 (six weeks before 31-12-2021). If you do not set any filter for date_report in the Filters section then the full time period of your dataset minus the Signal Detection Period will be used to fit the parameters.
+
+Which signal detection algorithm should you choose? It depends on multiple criteria, and they all have their individual weaknesses and strengths.  
+
+CUSUM (cumulative sum) is an algorithm which detects shifts in the mean of a time series. It accumulates deviations of the observed case counts from the mean case count and once this accumulation has reached a value above a defined tolerance an alarm is triggered. After an alarm was triggered the cumulative sum is set to zero and the algorithm restarts. As CUSUM accumulates the deviations over time it is more sensitive to small and moderate shifts in the case count. The mean case count is computed on all case counts of the training period. CUSUM does not account for seasonality as it just computes a mean over all case counts.
 
 ### Signals tab
 The `Signals` tab is split into 2 / 3 "rows", depending on whether any stratas were chosen in the `Input` tab. The first row belongs to the visualisations of the respective stratas chosen. 
