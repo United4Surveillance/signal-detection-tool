@@ -56,6 +56,11 @@ In the following we call the training period the time period which is used to fi
 
 Which signal detection algorithm should you choose? It depends on multiple criteria, and they all have their individual weaknesses and strengths.  
 
+**CUSUM**
+- does not model time trend
+- does not model seasonality
+- cusum can compute the baseline theoretically on only one time point in the past but for a good baseline more historic data should be used
+
 CUSUM (cumulative sum) is an algorithm which detects shifts in the mean of a time series. It accumulates deviations of the observed case counts from the mean case count and once this accumulation has reached a value above a defined tolerance an alarm is triggered. After an alarm was triggered the cumulative sum is set to zero and the algorithm restarts. As CUSUM accumulates the deviations over time it is more sensitive to small and moderate shifts in the case count. The mean case count is computed on all case counts of the training period. CUSUM does not account for seasonality as it just computes a mean over all case counts.
 
 **Farrington Flexible**
@@ -63,10 +68,10 @@ CUSUM (cumulative sum) is an algorithm which detects shifts in the mean of a tim
 - models seasonality
 - needs more historic data (78 time points) to compute a baseline
 
-The Farrington Flexible is an algorithm which uses a generalised linear model (GLM) to model the observed case count. In addition to a time trend terms for seasonality are also included in this model. For the computation of the baseline past very high case counts (potential outbreaks) are downweighted so that they don't shift the baseline upwards. Furthermore the past 26 time points before the current time point are excluded from the baseline to avoid reducing sensitivity when an outbreak has recently started before the current time point. The algorithm needs at least 78 time points (1.5 years when time points are weeks) of data in the past to calibrate the baseline.  
+The Farrington Flexible uses a generalised linear model (GLM) to model the observed case count. In addition to a time trend terms for seasonality are also included in this model. For the computation of the baseline past very high case counts (potential outbreaks) are downweighted so that they don't shift the baseline upwards. Furthermore the past 26 time points before the current time point are excluded from the baseline to avoid reducing sensitivity when an outbreak has recently started before the current time point. The algorithm needs at least 78 time points (1.5 years when time points are weeks) of data in the past to calibrate the baseline.  
 
 **EARS**
-- doe not model time trend
+- does not model time trend
 - does not model seasonality
 - needs only 7 time points of historic data 
 
