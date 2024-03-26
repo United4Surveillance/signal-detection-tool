@@ -54,6 +54,20 @@ Depending on the number of weeks you want to generate alarms for, and the filter
 
 Which signal detection algorithm should you choose? It depends on multiple criteria, and they all have their individual weaknesses and strengths. 
 
+**Farrington Flexible**
+- models time trend
+- models seasonality
+- needs more historic data (78 time points) to compute a baseline
+
+The Farrington Flexible is an algorithm which uses a generalised linear model (GLM) to model the observed case count. In addition to a time trend terms for seasonality are also included in this model. For the computation of the baseline past very high case counts (potential outbreaks) are downweighted so that they don't shift the baseline upwards. Furthermore the past 26 time points before the current time point are excluded from the baseline to avoid reducing sensitivity when an outbreak has recently started before the current time point. The algorithm needs at least 78 time points (1.5 years when time points are weeks) of data in the past to calibrate the baseline.  
+
+**EARS**
+- doe not model time trend
+- does not model seasonality
+- needs only 7 time points of historic data 
+
+The EARS (Early Aberration Reporting System) algorithm uses a window-based approach for outbreak detection. For the EARS C1 algorithm implemented in this tool mean and standard deviation are computed from the cases observed in the last 7 time points before the current time point. These parameters are used to compute a threshold based on the quantiles of the normal distribution. When the observed case count is above the computed threshold an alarm is raised. Because of the short time interval considered, EARS does not take into account seasonality and time trends. The baseline is computed using only the last 7 time points.
+
 ### Signals tab
 The `Signals` tab is split into 2 / 3 "rows", depending on whether any stratas were chosen in the `Input` tab. The first row belongs to the visualisations of the respective stratas chosen. 
 The second row to a timeseries / epicurve, depicting the signal detection in the number of weeks specified in the `Input` tab.
