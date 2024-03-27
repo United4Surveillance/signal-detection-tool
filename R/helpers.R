@@ -11,3 +11,16 @@ get_region_from_region_id <- function(region_id){
 get_region_id_from_region <- function(region){
   paste0(region,"_id")
 }
+
+#' Function to retrieve name from named vector given its value
+#' Can be used to retrieve the "pretty" names to show to the user and in the background work with the values
+#' @param value character, value of the named list, i.e. "farrington"
+#' @param named_vector named vector
+#' @return character, name of the named_vector corresponding to value
+#' @examples
+#' \dontrun{
+#' get_name_by_value("farrington",available_algorithms())
+#' }
+get_name_by_value <- function(value, named_vector){
+  names(named_vector)[which(named_vector == value)]
+}

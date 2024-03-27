@@ -58,7 +58,7 @@ mod_tabpanel_signals_server <- function(
               shiny::div(
                 class = "value-box blue",
                 shiny::div(class = "title", "Outbreak detection algorithm"),
-                shiny::div(class = "value", method())
+                shiny::div(class = "value", get_name_by_value(method(),available_algorithms()))
               )
             ),
             column(
