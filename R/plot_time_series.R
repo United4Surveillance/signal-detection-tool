@@ -135,7 +135,7 @@ plot_time_series <- function(results, interactive = FALSE,
   if (interactive) {
     # finding number of weeks for signal detection period
     # and range of dates for the last year
-    nweeks_sdp  <- results %>% dplyr::filter(set_status == "Test data") %>% nrow * 7
+    nweeks_sdp  <- results %>% dplyr::filter(set_status == "Test data") %>% nrow
     range_dates <- list(min_date = format(max(results$date) - lubridate::weeks(number_of_weeks), "%Y-%m-%d"),
                         max_date = format(max(results$date, "%Y-%m-%d")))
 
@@ -153,11 +153,11 @@ plot_time_series <- function(results, interactive = FALSE,
             visible = TRUE, type = "date", thickness = 0.10),
           rangeselector = list(
             buttons = list(
-              list(count=nweeks_sdp, label="SDP", step="day", stepmode="backward"),
-              list(count=1, label="1m", step="month", stepmode="backward"),
-              list(count=6, label="6m", step="month", stepmode="backward"),
-              list(count=1, label="1y", step="year", stepmode="backward"),
-              list(step="all")
+              list(count=nweeks_sdp * 7, label="Signal detection period", step="day", stepmode="backward"),
+              list(count=1, label="1 month", step="month", stepmode="backward"),
+              list(count=6, label="6 months", step="month", stepmode="backward"),
+              list(count=1, label="1 year", step="year", stepmode="backward"),
+              list(step="all", label = "All time points")
               )
             )
           ),
