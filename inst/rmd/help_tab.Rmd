@@ -61,7 +61,8 @@ Which signal detection algorithm should you choose? It depends on multiple crite
 - does not model seasonality
 - cusum can compute the baseline theoretically on only one time point in the past but for a good baseline more historic data should be used
 
-CUSUM (cumulative sum) is an algorithm which detects shifts in the mean of a time series. It accumulates deviations of the observed case counts from the mean case count and once this accumulation has reached a value above a defined tolerance an alarm is triggered. After an alarm was triggered the cumulative sum is set to zero and the algorithm restarts. As CUSUM accumulates the deviations over time it is more sensitive to small and moderate shifts in the case count. The mean case count is computed on all case counts of the training period. CUSUM does not account for seasonality as it just computes a mean over all case counts.
+CUSUM (cumulative sum) is an algorithm which detects shifts in the mean of a time series. It accumulates deviations of the observed case counts from the mean case count and once this accumulation has reached a value above a defined tolerance an alarm is triggered. After an alarm was triggered the cumulative sum is set to zero and the algorithm restarts. As CUSUM accumulates the deviations over time it is more sensitive to small and moderate shifts in the case count. The mean case count is computed on all case counts of the training period. CUSUM does not account for seasonality as it just computes a mean over all case counts.  
+CUSUM was originally developed by E. S. Page and typically used in industry for monitoring change detection. Rossi et al. (1999) serves as reference in the public health context. 
 
 **Farrington Flexible**
 - models time trend
@@ -69,13 +70,15 @@ CUSUM (cumulative sum) is an algorithm which detects shifts in the mean of a tim
 - needs more historic data (78 time points) to compute a baseline
 
 The Farrington Flexible uses a generalised linear model (GLM) to model the observed case count. In addition to a time trend terms for seasonality are also included in this model. For the computation of the baseline past very high case counts (potential outbreaks) are downweighted so that they don't shift the baseline upwards. Furthermore the past 26 time points before the current time point are excluded from the baseline to avoid reducing sensitivity when an outbreak has recently started before the current time point. The algorithm needs at least 78 time points (1.5 years when time points are weeks) of data in the past to calibrate the baseline.  
+Farrington Flexible (Noufaily et al. 2012) is an improved version of the classic Farrington algorithm (Farrington et al. 1996). In this tool the implementation from the R package surveillance is used which is illustrated in Salmon et al. (2016).
 
 **EARS**
 - does not model time trend
 - does not model seasonality
 - needs only 7 time points of historic data 
 
-The EARS (Early Aberration Reporting System) algorithm uses a window-based approach for outbreak detection. For the EARS C1 algorithm implemented in this tool mean and standard deviation are computed from the cases observed in the last 7 time points before the current time point. These parameters are used to compute a threshold based on the quantiles of the normal distribution. When the observed case count is above the computed threshold an alarm is raised. Because of the short time interval considered, EARS does not take into account seasonality and time trends. The baseline is computed using only the last 7 time points.
+The EARS (Early Aberration Reporting System) algorithm uses a window-based approach for outbreak detection. For the EARS C1 algorithm implemented in this tool mean and standard deviation are computed from the cases observed in the last 7 time points before the current time point. These parameters are used to compute a threshold based on the quantiles of the normal distribution. When the observed case count is above the computed threshold an alarm is raised. Because of the short time interval considered, EARS does not take into account seasonality and time trends. The baseline is computed using only the last 7 time points.  
+EARS was developed by CDC and published in Hutwagner et al. (2003). 
 
 ### Signals tab
 The `Signals` tab is split into 2 / 3 "rows", depending on whether any stratas were chosen in the `Input` tab. The first row belongs to the visualisations of the respective stratas chosen. 
