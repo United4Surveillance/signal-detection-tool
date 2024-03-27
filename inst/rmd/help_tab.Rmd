@@ -64,13 +64,13 @@ Which signal detection algorithm should you choose? It depends on multiple crite
 CUSUM (cumulative sum) is an algorithm which detects shifts in the mean of a time series. It accumulates deviations of the observed case counts from the mean case count and once this accumulation has reached a value above a defined tolerance an alarm is triggered. After an alarm was triggered the cumulative sum is set to zero and the algorithm restarts. As CUSUM accumulates the deviations over time it is more sensitive to small and moderate shifts in the case count. The mean case count is computed on all case counts of the training period. CUSUM does not account for seasonality as it just computes a mean over all case counts.  
 CUSUM was originally developed by E. S. Page and typically used in industry for monitoring change detection. Rossi et al. (1999) serves as reference in the public health context. 
 
-**Farrington Flexible**
+**FarringtonFlexible**
 - models time trend
 - models seasonality
 - needs more historic data (78 time points) to compute a baseline
 
-The Farrington Flexible uses a generalised linear model (GLM) to model the observed case count. In addition to a time trend terms for seasonality are also included in this model. For the computation of the baseline past very high case counts (potential outbreaks) are downweighted so that they don't shift the baseline upwards. Furthermore the past 26 time points before the current time point are excluded from the baseline to avoid reducing sensitivity when an outbreak has recently started before the current time point. The algorithm needs at least 78 time points (1.5 years when time points are weeks) of data in the past to calibrate the baseline.  
-Farrington Flexible (Noufaily et al. 2012) is an improved version of the classic Farrington algorithm (Farrington et al. 1996). In this tool the implementation from the R package surveillance is used which is illustrated in Salmon et al. (2016).
+The FarringtonFlexible uses a generalised linear model (GLM) to model the observed case count. In addition to a time trend terms for seasonality are also included in this model. For the computation of the baseline past very high case counts (potential outbreaks) are downweighted so that they don't shift the baseline upwards. Furthermore the past 26 time points before the current time point are excluded from the baseline to avoid reducing sensitivity when an outbreak has recently started before the current time point. The algorithm needs at least 78 time points (1.5 years when time points are weeks) of data in the past to calibrate the baseline.  
+FarringtonFlexible (Noufaily et al. 2012) is an improved version of the classic Farrington algorithm (Farrington et al. 1996). In this tool the implementation from the R package surveillance is used which is illustrated in Salmon et al. (2016).
 
 **EARS**
 - does not model time trend
