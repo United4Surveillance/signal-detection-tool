@@ -1,6 +1,6 @@
 #' Renders signal detection report
 #'
-#' @param report_format format of the report: HTML, DOCX or PDF
+#' @param report_format format of the report: HTML or DOCX
 #' @param data data.frame containing surveillance data in linelist format
 #' @param algo algorithm to be used
 #' @param strata A character vector specifying the columns to stratify
@@ -42,7 +42,7 @@ run_report <- function(
 
   # Check inputs ---------------------------------------------------------------
   checkmate::assert_choice(report_format,
-                           choices = c("HTML", "DOCX", "PDF"),
+                           choices = c("HTML", "DOCX"),
                            null.ok = FALSE)
 
   checkmate::assert_choice(algo,

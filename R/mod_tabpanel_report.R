@@ -66,7 +66,7 @@ mod_tabpanel_report_server <- function(id,
 
               # Input: Choose dataset ----
               shiny::selectInput(NS(id, "format"), "Choose a format:",
-                                 choices = c("HTML", "DOCX", "PDF")),
+                                 choices = c("HTML", "DOCX")),
 
               shiny::checkboxInput(NS(id, "interactive"),
                                    "Interactive HTML",
