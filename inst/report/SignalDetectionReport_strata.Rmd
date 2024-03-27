@@ -46,12 +46,16 @@ plot_time_series(df,
                  number_of_weeks = 52 * dplyr::n_distinct(df$stratum),
                  interactive = FALSE) + 
   ggplot2::facet_wrap(~stratum, ncol = 2)
+
 ```
 
 
 ```{r, eval = params$tables}
 #| eval=sum(df$alarms, na.rm = TRUE) != 0
-create_results_table(df, 
+create_results_table(df %>% 
+                       dplyr::select(-upperbound_pad, 
+                                     -expected_pad, 
+                                     -first_alarm_nonNA), 
                      interactive = params$interactive)
 ```
 
