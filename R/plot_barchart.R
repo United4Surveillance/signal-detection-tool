@@ -82,7 +82,7 @@ plot_barchart <- function(signals_agg,
         color  = "black",
         family = "bold",
         size   = 8,
-        nudge_y = 7)
+        nudge_y = (max(signals_agg$cases) / 20))
   }
 
   if(interactive){

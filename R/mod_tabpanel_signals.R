@@ -438,8 +438,8 @@ mod_tabpanel_signals_server <- function(
           shiny::br(),
           shiny::selectInput(ns("alarms_trig"),
                              label = "Toggle number of alarms on / off on stratification graphs",
-                             choices = c("Don't shown number of alarms", "Show number of alarms"),
-                             selected = "Don't shown alarms")
+                             choices = c("Don't show number of alarms", "Show number of alarms"),
+                             selected = "Show number of alarms")
         )
       }
     })
