@@ -45,14 +45,14 @@ plot_time_series <- function(results, interactive = FALSE,
       "<br>Observed: ", cases,
       ifelse(!is.na(upperbound_pad) | !is.na(upperbound), (
         ifelse(is.na(upperbound_pad),
-          paste0("<br>Threshold: ", round(upperbound)),
-          paste0("<br>Threshold: ", round(upperbound_pad))
+          paste0("<br>Threshold: ", round(upperbound, 1)),
+          paste0("<br>Threshold: ", round(upperbound_pad, 1))
         )
       ), ""),
       ifelse(!is.na(expected_pad) | !is.na(expected), (
         ifelse(is.na(expected_pad),
-          paste0("<br>Expected: ", round(expected)),
-          paste0("<br>Expected: ", round(expected_pad))
+          paste0("<br>Expected: ", round(expected, 1)),
+          paste0("<br>Expected: ", round(expected_pad, 1))
         )
       ), "")
     ))) +
