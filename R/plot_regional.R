@@ -1,9 +1,11 @@
 #' Plot number of cases with number of signals by region
 #' @param shape_with_signals sf shapefile, with additional columns from signals cases, n_alarms, any_alarms
 #' @param interactive boolean identifying whether the plot should be static or interactive
+#' @param toggle_alarms boolean identifying whether the plot should showing number of alarms explicitly or only when hovering
 #' @returns either a ggplot object if static plot is chosen or a plotly object for the interactive plot
 plot_regional <- function(shape_with_signals,
-                          interactive = FALSE) {
+                          interactive = FALSE,
+                          toggle_alarms = FALSE) {
   checkmate::assertClass(shape_with_signals, "sf")
 
   checkmate::assert(
@@ -11,6 +13,13 @@ plot_regional <- function(shape_with_signals,
     checkmate::check_false(interactive),
     combine = "or"
   )
+
+  checkmate::assert(
+    checkmate::check_true(toggle_alarms),
+    checkmate::check_false(toggle_alarms),
+    combine = "or"
+  )
+
   shape_with_signals <- shape_with_signals %>%
     # make case numbers unique to keep plotly from combining the traces!
     # as long as the perturbation is small enough the fill color doesn't change
@@ -25,7 +34,15 @@ plot_regional <- function(shape_with_signals,
       any_alarms = factor(any_alarms, levels = c("No alarms", "At least 1 alarm")) # level ordering determines render ordering: black < red
     )
 
-  plot <- ggplot2::ggplot() +
+  lower_th <- ceiling(max(shape_with_signals$cases) * 0.40)
+  col_alarm_text <- shape_with_signals %>%
+    dplyr::mutate(col_var = dplyr::case_when(
+      cases <= lower_th ~ "black",
+      cases > lower_th ~ "white"
+    )) %>%
+    dplyr::pull(col_var)
+
+  plot <- ggplot2::ggplot(data = shape_with_signals) +
     ggplot2::geom_sf(
       data = shape_with_signals,
       mapping = ggplot2::aes(
@@ -66,6 +83,16 @@ plot_regional <- function(shape_with_signals,
       ggplot2::guides(fill = "none")
   }
 
+  if (!(interactive) | toggle_alarms == TRUE) {
+    plot <- plot + ggplot2::geom_sf_text(
+      ggplot2::aes(label = n_alarms_label),
+      color = col_alarm_text,
+      family = "bold",
+      size = 8,
+      na.rm = TRUE
+    )
+  }
+
   if (interactive) {
     plot <- plotly::ggplotly(plot, tooltip = "text") %>%
       plotly::style(
@@ -84,14 +111,6 @@ plot_regional <- function(shape_with_signals,
         "zoom2d",
         "toggleSpikelines"
       ))
-  } else {
-    plot <- plot + ggplot2::geom_sf_text(
-      ggplot2::aes(label = n_alarms_label),
-      color = "black",
-      family = "bold",
-      size = 8,
-      na.rm = TRUE
-    )
   }
 
   plot

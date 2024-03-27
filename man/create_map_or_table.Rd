@@ -9,7 +9,8 @@ create_map_or_table(
   data_surveillance,
   region,
   shape = nuts_shp,
-  interactive = TRUE
+  interactive = TRUE,
+  toggle_alarms = FALSE
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ create_map_or_table(
 \item{shape}{sf, shapefile default set to internal europe shapefile nuts_shp}
 
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
+
+\item{toggle_alarms}{boolean identifying whether the plot should showing number of alarms explicitly or only when hovering}
 }
 \value{
 a table or a plot depending on whether the matching of the NUTS IDs was fully possible, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table

@@ -4,12 +4,14 @@
 \alias{plot_regional}
 \title{Plot number of cases with number of signals by region}
 \usage{
-plot_regional(shape_with_signals, interactive = FALSE)
+plot_regional(shape_with_signals, interactive = FALSE, toggle_alarms = FALSE)
 }
 \arguments{
 \item{shape_with_signals}{sf shapefile, with additional columns from signals cases, n_alarms, any_alarms}
 
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
+
+\item{toggle_alarms}{boolean identifying whether the plot should showing number of alarms explicitly or only when hovering}
 }
 \value{
 either a ggplot object if static plot is chosen or a plotly object for the interactive plot

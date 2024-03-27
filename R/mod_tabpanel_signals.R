@@ -115,7 +115,8 @@ mod_tabpanel_signals_server <- function(
               }
             }
           ),
-          uiOutput(ns("plot_table_stratas")),
+          shiny::uiOutput(ns("alarm_button")),
+          shiny::uiOutput(ns("plot_table_stratas")),
           shiny::br(),
           shiny::h3(paste0(
             "Timeseries of weekly cases with signal detection applied to the last ",
@@ -236,6 +237,16 @@ mod_tabpanel_signals_server <- function(
       data_n_weeks
     })
 
+    show_alarms <- shiny::reactive({
+      shiny::req(input$alarms_trig)
+      if (input$alarms_trig == "Show number of alarms") {
+        return(TRUE)
+      } else {
+        return(FALSE)
+      }
+    })
+
+
     output$plot_table_stratas <- shiny::renderUI({
       shiny::req(signal_results)
       plot_table_list <- list()
@@ -254,7 +265,7 @@ mod_tabpanel_signals_server <- function(
       if (n_plots_tables != 0) {
         # populate the plot_table_list with plots/tables of each category
         plot_table_list <- lapply(signal_categories, function(category) {
-          decider_barplot_map_table(signals_agg(), data(), category)
+          decider_barplot_map_table(signals_agg(), data(), category, toggle_alarms = show_alarms())
         })
         if (n_plots_tables == 1) {
           header <- h3(paste0(
@@ -272,6 +283,8 @@ mod_tabpanel_signals_server <- function(
         column_plots <- shiny::fluidRow(
           lapply(1:n_plots_tables, function(x) shiny::column(12 / n_plots_tables, plot_table_list[x]))
         )
+
+
         columns_with_header <- list(header, column_plots)
 
         # Return the combined UI elements
@@ -416,5 +429,20 @@ mod_tabpanel_signals_server <- function(
       }
       shiny::HTML(text_output)
     })
+
+    output$alarm_button <- shiny::renderUI({
+      req(!errors_detected())
+
+      if (length(strat_vars_tidy()) > 0) {
+        shiny::tagList(
+          shiny::br(),
+          shiny::selectInput(ns("alarms_trig"),
+                             label = "Toggle number of alarms on / off on stratification graphs",
+                             choices = c("Don't show number of alarms", "Show number of alarms"),
+                             selected = "Show number of alarms")
+        )
+      }
+    })
+
   })
 }
