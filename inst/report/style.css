@@ -4,8 +4,18 @@
     border-bottom: 1px solid #ddd;
   }
 
+h1 { color: #304898; }
+h2 { color: #304898; }
+h3 { color: #304898; }
+h4 { color: #304898; }
+
+.list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
+    background-color: #304898;
+}
+
 th {
   background-color: #304898;
     color: white;
 }
 </style>
+
