@@ -18,7 +18,7 @@ run_report(
 )
 }
 \arguments{
-\item{report_format}{format of the report: HTML, DOCX or PDF}
+\item{report_format}{format of the report: HTML or DOCX}
 
 \item{data}{data.frame containing surveillance data in linelist format}
 
