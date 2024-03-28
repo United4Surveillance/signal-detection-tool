@@ -1,73 +1,80 @@
 
 ```{r}
-df <- results_strata %>% 
-  dplyr::filter(category %in% strat)
-
-strat_text <- dplyr::case_when(strat == "county_id" ~ "county ID",
-                               strat == "community_id" ~ "community ID",
-                               strat == "age_group" ~ "agegroup",
+strat_text <- dplyr::case_when(strat == "age_group" ~ "agegroup",
                                TRUE ~ strat)
+
 ```
 
 
 ## Signals stratified by `r strat_text`
 
 ```{r, results='asis'}
-results_analysis <- df %>% 
-  dplyr::filter(!is.na(alarms))
+results_analysis <- signals_agg %>% 
+  dplyr::filter(any_alarms, 
+                category %in% strat)
 
 stringr::str_glue(
-  "When stratifiying by {strat_text} the {params$algo} algorithm detects ", 
-  "{sum(results_analysis$alarm)} signals in the analysis period ", 
-  "{params$training_range[1]} - {params$training_range[2]}.")
+  "When stratifiying by {strat_text} the {names(params$algo)} algorithm detects ", 
+  "{sum(results_analysis$n_alarms)} signals in the signal detection period.")
+```
+
+```{r}
+#| fig.cap=paste0("Number of ", params$disease, " cases and signals stratified by ", strat_text, ", ", params$country),
+#| out.width="100%"
+decider_barplot_map_table(signals_agg, 
+                          data, 
+                          strat,
+                          interactive = params$interactive)
+```
+
+```{r}
+df <- signal_results %>% 
+  dplyr::filter(category %in% strat)
+
+eval_ts_facet <- ((dplyr::n_distinct(df$stratum) <= 12))
+p_height <- ceiling(dplyr::n_distinct(df$stratum)/2) * 2
+txt <- NULL
 ```
 
 
 ```{r}
-#| fig.cap=paste0("Number of ", params$disease, " cases by week and signals stratified by ", strat_text, ", ", params$country)
-plot_time_series(df, 
-                 number_of_weeks = params$weeks,
-                 interactive = params$interactive)
+#| eval = eval_ts_facet,
+#| fig.cap=paste0("Number of ", params$disease, " cases by week and signals stratified by ", strat_text, ", ", params$country),
+#| fig.dim = c(8, p_height),
+#| fig.fullwidth=TRUE
+plot_time_series(df,
+                 number_of_weeks = 52 * dplyr::n_distinct(df$stratum),
+                 interactive = FALSE) + 
+  ggplot2::facet_wrap(~stratum, ncol = 2)
+
 ```
 
+
+
+`r if (params$tables) "### Signal Detection Table"`
 
 ```{r}
-#| eval = strat=="sex",
-#| fig.cap=paste0("Number of ", params$disease, " cases by agegroup stratified by sex, ", params$country)
+#| eval= params$tables
 
-plot_agegroup_by(age_groups(data) %>% 
-                   dplyr::mutate(sex = factor(sex)), by_col = strat, 
-                 interactive = params$interactive) #quick fix for factor problem 
-```
+if (sum(df$alarms, na.rm = TRUE) != 0) {
+  create_results_table(df %>% 
+                       dplyr::select(-upperbound_pad, 
+                                     -expected_pad, 
+                                     -first_alarm_nonNA), 
+                     interactive = params$interactive)
+} else {
+  txt <- "No signals were detected."
+}
 
 
-```{r}
-#| eval = strat=="county_id",
-#| fig.cap=paste0("Number of ", params$disease, " cases and signals stratified by county ID, ", params$country)
-
-plot_regional(data, 
-              df, 
-              nuts_shp, 
-              country_id = unique(data$country_id), 
-              regional_level = "county", 
-              interactive =  params$interactive)
 ```
 
 ```{r}
-#| eval = strat=="community_id",
-#| fig.cap=paste0("Number of ", params$disease, " cases and signals stratified by community ID, ", params$country)
+#|results = "asis"
+#|eval= params$tables & is.character(txt)
 
-plot_regional(data, 
-              df, 
-              nuts_shp, 
-              country_id = unique(data$country_id), 
-              regional_level = "community", 
-              interactive =  params$interactive)
-```
+cat(txt)
 
-
-```{r, eval = params$tables}
-create_results_table(df, interactive = params$interactive)
 ```
 
 
