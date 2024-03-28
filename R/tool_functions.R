@@ -192,7 +192,6 @@ get_signals_stratified <- function(data,
         sub_data <- data %>% dplyr::filter(.data[[category]] == stratum)
       }
 
-
       # aggregate data
       sub_data_agg <- sub_data %>%
         aggregate_data(date_var = date_var) %>%
@@ -200,7 +199,20 @@ get_signals_stratified <- function(data,
 
 
       # run selected algorithm
-      results <- fun(sub_data_agg, number_of_weeks)
+      if(nrow(sub_data) == 0){
+        # don't run algorithm on those strata with 0 cases created by factors
+        results <- sub_data_agg %>%
+          # set alarms to FALSE for the timeperiod alarms are generated for in the other present levels
+          # logically the alarms column should also contain NA but later on computations are based on when the first alarm appears and when giving 0 timeseries to the algorithms they also put FALSE to the alarms column thus it is consistent
+          # upperbound and expected to NA
+          dplyr::mutate(alarms = dplyr::if_else(dplyr::row_number() > (nrow(results) - number_of_weeks + 1), FALSE, NA)) %>%
+          dplyr::mutate(upperbound = NA,
+                        expected = NA)
+
+      }else{
+        results <- fun(sub_data_agg, number_of_weeks)
+      }
+
 
       if (is.null(results)) {
         warning(paste0(
