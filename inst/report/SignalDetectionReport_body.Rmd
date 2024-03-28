@@ -58,26 +58,41 @@ results_analysis <- signal_results %>%
 stringr::str_glue(
   "In the signal detection period - last {params$number_of_weeks} weeks available in the data - ", 
   "there where {sum(results_analysis$cases)} cases of {params$disease} in {params$country}. ",
-  "Using the {params$algo} algorithm {sum(results_analysis$alarm)} signals where detected.")
+  "Using the {names(params$algo)} algorithm {sum(results_analysis$alarm)} signals where detected.")
 ```
 
 
 ```{r}
 #| fig.cap=paste0("Number of ", params$disease, " cases by week and signals, ", params$country),
 #| out.width="100%"
-
 plot_time_series(signal_results %>% 
                    dplyr::filter(is.na(category)),
                  interactive = params$interactive)
 ```
 
-```{r}
+## Signal Detection Table
 
-#| eval=sum(results_analysis$alarms, na.rm = TRUE) != 0
-create_results_table(signal_results %>% 
-                       dplyr::filter(is.na(category)), 
+```{r}
+txt <- NULL
+
+if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
+  create_results_table(signal_results %>% 
+                       dplyr::filter(is.na(category)) %>% 
+                       dplyr::select(-upperbound_pad, 
+                                     -expected_pad, 
+                                     -first_alarm_nonNA), 
                      interactive = params$interactive)
+} else {
+  txt <- "No signals were detected."
+}
+
 
 ```
 
+```{r, results='asis'}
+#|eval = is.character(txt)
+
+cat(txt)
+
+```
 

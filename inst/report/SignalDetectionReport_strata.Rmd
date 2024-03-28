@@ -14,7 +14,7 @@ results_analysis <- signals_agg %>%
                 category %in% strat)
 
 stringr::str_glue(
-  "When stratifiying by {strat_text} the {params$algo} algorithm detects ", 
+  "When stratifiying by {strat_text} the {names(params$algo)} algorithm detects ", 
   "{sum(results_analysis$n_alarms)} signals in the signal detection period.")
 ```
 
@@ -33,7 +33,7 @@ df <- signal_results %>%
 
 eval_ts_facet <- ((dplyr::n_distinct(df$stratum) <= 12))
 p_height <- ceiling(dplyr::n_distinct(df$stratum)/2) * 2
-
+txt <- NULL
 ```
 
 
@@ -50,13 +50,31 @@ plot_time_series(df,
 ```
 
 
+
+`r if (params$tables) "### Signal Detection Table"`
+
 ```{r}
-#| eval=sum(df$alarms, na.rm = TRUE) != 0 & params$tables
-create_results_table(df %>% 
+#| eval= params$tables
+
+if (sum(df$alarms, na.rm = TRUE) != 0) {
+  create_results_table(df %>% 
                        dplyr::select(-upperbound_pad, 
                                      -expected_pad, 
                                      -first_alarm_nonNA), 
                      interactive = params$interactive)
+} else {
+  txt <- "No signals were detected."
+}
+
+
+```
+
+```{r}
+#|results = "asis"
+#|eval= params$tables & is.character(txt)
+
+cat(txt)
+
 ```
 
 
