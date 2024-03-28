@@ -52,7 +52,7 @@ mod_tabpanel_report_server <- function(id,
         return(datacheck_error_message)
       } else if (!number_of_weeks_input_valid()) {
         return(nweeks_error_message)
-      } else if (no_algorithm_possible() == TRUE){
+      } else if (no_algorithm_possible() == TRUE) {
         return(algorithm_error_message)
       } else {
         return(shiny::tagList(
@@ -83,7 +83,6 @@ mod_tabpanel_report_server <- function(id,
 
             # Main panel for displaying outputs ----
             shiny::mainPanel(
-              shiny::h1("Signal detection report"),
               shiny::textOutput(NS(id, "report_text"))
             )
           )
@@ -93,8 +92,9 @@ mod_tabpanel_report_server <- function(id,
 
     # Download generated report
     output$report_text <- renderText({
-      paste("Generated outputs for", pathogen_vars(), " stratified ",
-            "by ", paste0(strat_vars(), collapse = ", "), "using ",
+      paste("Generates report for", pathogen_vars(), " stratified ",
+            "by ", paste0(strat_vars(), collapse = ", "), "for the last",
+            number_of_weeks(), " weeks using ",
             names(available_algorithms())[available_algorithms() == method()],
             " as outbreak detection algorithm.")
     })
