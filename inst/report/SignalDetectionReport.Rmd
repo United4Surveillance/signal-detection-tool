@@ -1,7 +1,8 @@
 ---
 title: "`r params$disease` - `r params$country`"
 subtitle: "Signal Detection Report"
-date: "Report generated on `r format(Sys.Date(), '%d %B %Y')`"
+date: "Report generated on `r lubridate::stamp('28 April 2022', locale = 'en', orders = 'dmy')(Sys.Date())`"
+lang: "en"
 output: 
   html_document:
     includes:
@@ -15,9 +16,7 @@ output:
     self-contained: true
   word_document:
     reference_docx: "template.docx"
-    toc: true
   pdf_document:
-    toc: true
     includes:
       in_header: "preamble.tex"
 params: 
