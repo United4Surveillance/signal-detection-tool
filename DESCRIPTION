@@ -35,7 +35,8 @@ Imports:
     stringr,
     surveillance,
     tidyr,
-    tools
+    tools,
+    forcats
 Suggests: 
     knitr,
     spelling,

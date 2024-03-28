@@ -24,3 +24,41 @@ get_region_id_from_region <- function(region){
 get_name_by_value <- function(value, named_vector){
   names(named_vector)[which(named_vector == value)]
 }
+
+#' Create a factor out of the stratum column with transforming NA to unknown
+#' @param signals_agg tibble or data.frame, aggregated signals over n weeks with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}} for only one category.
+#'
+#' @return tibble with stratum column being a factor
+#' @examples
+#' \dontrun{
+#' data <- data.frame(
+#'   year = 2020:2023,
+#'   week = 1:4,
+#'   cases = 10:13,
+#'   any_alarms = c(TRUE, FALSE, TRUE, FALSE),
+#'   n_alarms = c(0, 2, 0, 1),
+#'   category = c("sex", "sex", "sex", "sex"),
+#'   stratum = c("female", "male", "diverse", NA)
+#' )
+#' create_factor_with_unknown(data)
+#' }
+create_factor_with_unknown <- function(signals_agg) {
+
+  category <- unique(signals_agg$category)
+  stopifnot(length(category) == 1)
+  # age_group should be added later as well
+  if (category == "sex") {
+    category_levels <- paste0(category, "_levels")
+    signals_agg <- signals_agg %>%
+      dplyr::mutate(stratum = factor(stratum, levels = do.call(category_levels, list())))
+  } else {
+    signals_agg <- signals_agg %>%
+      dplyr::mutate(stratum = factor(stratum))
+  }
+  signals_agg <- signals_agg %>%
+    dplyr::mutate(stratum = forcats::fct_na_value_to_level(stratum, level = "unknown"))
+
+  signals_agg
+}
+
+
