@@ -28,6 +28,12 @@ plot_time_series <- function(results, interactive = FALSE,
       set_status = factor(set_status, levels = c("Training data", "Test data"))
     )
 
+  if (!interactive) {
+    results <- results %>%
+      dplyr::arrange(date) %>%
+      dplyr::slice_tail(n = number_of_weeks)
+  }
+
   col.threshold <- "#2297E6"
   col.expected <- "#000000"
   col.alarm <- "#FF0000"
