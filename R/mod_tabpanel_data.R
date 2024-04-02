@@ -56,9 +56,9 @@ mod_tabpanel_data_ui <- function(id) {
         ),
         hr(),
         h4("Cases which have missing data"),
-        span("In this section you receive feedback about cases for which data required for the computations is missing."),
+        span(paste0("In this section you receive feedback about cases for which data required for the computations is missing and will thus be removed. The following variables are checked for missingness: ",check_for_missing_values(), ". If any of these variables have a missing value the case is removed.")),
         hr(),
-        span("Please check if values are missing on purpose. Case IDs listed below are excluded from analysis."),
+        span("Please check if values are missing on purpose, otherwise please correct the data uploaded. Case IDs listed below are excluded from analysis."),
         hr(),
         div(
           style = "border: 2px solid black; padding: 10px;",
