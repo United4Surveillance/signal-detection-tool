@@ -2,10 +2,10 @@
 % Please edit documentation in R/levels.R
 \name{sex_levels}
 \alias{sex_levels}
-\title{Allowed levels for sex in preprocessed surveillance data}
+\title{Allowed levels for sex in preprocessed surveillance data used for all calculations}
 \usage{
 sex_levels()
 }
 \description{
-Allowed levels for sex in preprocessed surveillance data
+Allowed levels for sex in preprocessed surveillance data used for all calculations
 }

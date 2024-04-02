@@ -10,7 +10,7 @@ sex_raw_levels <- function() {
   )
 }
 
-#' Allowed levels for sex in preprocessed surveillance data
+#' Allowed levels for sex in preprocessed surveillance data used for all calculations
 sex_levels <- function() {
   c(
     "male",
@@ -31,7 +31,7 @@ yes_no_unknown_raw_levels <- function() {
   )
 }
 
-#' Allowed levels for variables with yes, no, unknown levels in preprocessed surveillance data
+#' Allowed levels for variables with yes, no, unknown levels in preprocessed surveillance data used for calculations
 yes_no_unknown_levels <- function() {
   c(
     "yes",
