@@ -166,7 +166,7 @@ create_results_table <- function(data,
   return(create_table(data, interactive))
 }
 
-#' Creates a table with the aggregated signal detection results
+#' Creates a table with the aggregated stratified signal detection results for one category and orders the strata by the factor levels
 #'
 #' This function creates a table based on aggregated signal results which were stratified. It
 #' expects the aggregated signals input to only have one category. It converts certain columns

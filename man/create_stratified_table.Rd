@@ -2,7 +2,7 @@
 % Please edit documentation in R/results_table.R
 \name{create_stratified_table}
 \alias{create_stratified_table}
-\title{Creates a table with the aggregated signal detection results}
+\title{Creates a table with the aggregated stratified signal detection results for one category and orders the strata by the factor levels}
 \usage{
 create_stratified_table(signals_agg, interactive = TRUE)
 }
