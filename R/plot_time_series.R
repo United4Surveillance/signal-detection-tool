@@ -34,6 +34,19 @@ plot_time_series <- function(results, interactive = FALSE,
       dplyr::slice_tail(n = number_of_weeks)
   }
 
+  # finding number of weeks for signal detection period
+  # and dates for the last year and for the signal detection period
+  nweeks_sdp  <- results %>% dplyr::filter(set_status == "Test data") %>% nrow
+  range_dates_year <- list(min_date = format(max(results$date) - lubridate::weeks(number_of_weeks), "%Y-%m-%d"),
+                           max_date = format(max(results$date, "%Y-%m-%d")))
+  range_dates_sdp  <- list(min_date = as.Date(max(results$date) - lubridate::weeks(nweeks_sdp-1)),
+                      max_date = as.Date(max(results$date)))
+
+  bgcolor_df <- data.frame(name  = c("bg_white", "bg_sdp"),
+                           start = as.Date(c(min(results$date), range_dates_sdp$min_date)),
+                           end   = as.Date(c(range_dates_sdp$min_date, range_dates_sdp$max_date)),
+                           stringsAsFactors = FALSE)
+
   col.threshold <- "#2297E6"
   col.expected <- "#000000"
   col.alarm <- "#FF0000"
@@ -139,23 +152,17 @@ plot_time_series <- function(results, interactive = FALSE,
     )
 
   if (interactive) {
-    # finding number of weeks for signal detection period
-    # and range of dates for the last year
-    nweeks_sdp  <- results %>% dplyr::filter(set_status == "Test data") %>% nrow
-    range_dates <- list(min_date = format(max(results$date) - lubridate::weeks(number_of_weeks), "%Y-%m-%d"),
-                        max_date = format(max(results$date, "%Y-%m-%d")))
-
     plt <- plotly::ggplotly(plt, tooltip = "text", dynamicTicks = TRUE) %>%
       plotly::layout(
         xaxis = list(
           type = "date",
           autorange = FALSE,
           range = list(
-            lubridate::as_datetime(range_dates$min_date),
-            lubridate::as_datetime(range_dates$max_date)
+            lubridate::as_datetime(range_dates_year$min_date),
+            lubridate::as_datetime(range_dates_year$max_date)
           ),
           rangeslider   = list(
-            range = list(c(as.Date(range_dates$min_date), as.Date(range_dates$max_date))),
+            range = list(c(as.Date(range_dates_year$min_date), as.Date(range_dates_year$max_date))),
             visible = TRUE, type = "date", thickness = 0.10),
           rangeselector = list(
             buttons = list(
