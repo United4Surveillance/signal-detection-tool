@@ -65,7 +65,7 @@ preprocess_data <- function(data) {
       dplyr::mutate(sex = factor(sex, levels = sex_levels()))
   }
 
-  data
+  return(list(data = data, agegroup_levels = agegroup_levels))
 }
 
 #' Aggregates case data by year and week
