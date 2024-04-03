@@ -21,7 +21,7 @@ preprocess_data <- function(data) {
 
   # get all variables that are characters and not case_id or date
   factorization_vars <- dplyr::select(data, dplyr::where(is.character) &
-                                        !sex &
+                                        !dplyr::any_of(c("sex", "age_group")) &
                                         !dplyr::all_of(yes_no_unknown_vars) &
                                         !dplyr::starts_with("date") &
                                         !dplyr::ends_with("id")) %>% names
@@ -54,12 +54,10 @@ preprocess_data <- function(data) {
     ))
 
   # age or age_group is mandatory thus we need to check whether column present in data
-  if ("age_group" %in% colnames(data)) {
-    data <- data %>%
-      dplyr::mutate(age_group = factor(age_group,
-        levels = stringr::str_sort(unique(data$age_group), numeric = TRUE)
-      ))
-  }
+  # or else create age_group from age
+  output <- age_groups(data)
+  data <- output$df
+  agegroup_levels <- output$agegroup_levels
 
   # sex is not mandatory
   if ("sex" %in% colnames(data)) {
@@ -67,7 +65,7 @@ preprocess_data <- function(data) {
       dplyr::mutate(sex = factor(sex, levels = sex_levels()))
   }
 
-  data
+  return(list(data = data, agegroup_levels = agegroup_levels))
 }
 
 #' Aggregates case data by year and week
