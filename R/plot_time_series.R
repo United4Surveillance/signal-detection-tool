@@ -72,6 +72,14 @@ plot_time_series <- function(results, interactive = FALSE,
         )
       ), "")
     ))) +
+    ggplot2::geom_rect(data = bgcolor_df, inherit.aes = FALSE,
+                       ggplot2::aes(x = NULL, y = NULL,
+                                    xmin = start, xmax = end,
+                                    fill = name),
+                       ymin = 0, ymax = plyr::round_any(x = max(results$cases),
+                                                        f = ceiling,
+                                                        accuracy = 50),
+                       colour = "white", linewidth = 0.5, alpha = 0.2) +
     ggplot2::geom_col(ggplot2::aes(y = cases, fill = set_status)) +
     ggplot2::geom_step(ggplot2::aes(y = upperbound, color = "Threshold"),
       linewidth = 1.3, direction = "hv"
@@ -116,7 +124,8 @@ plot_time_series <- function(results, interactive = FALSE,
       "Threshold" = col.threshold
     )) +
     ggplot2::scale_fill_manual(
-      values = c("Test data" = col.test, "Training data" = col.training),
+      values = c("Test data" = col.test, "Training data" = col.training,
+                 "bg_white" = "white", "bg_sdp" = "#2297E6"),
       labels = c("Test data" = "Signal detection period"),
       breaks = c("Test data")
     ) +
