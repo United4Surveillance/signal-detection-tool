@@ -132,11 +132,6 @@ mod_tabpanel_data_server <- function(id) {
       data_preprocessed_ls()$agegroup_levels
     })
 
-
-    observeEvent(levels_agegroups(), {
-      print(stringr::str_sort(levels_agegroups(), numeric = TRUE))
-    })
-
     output$errors <- renderText({
       if (!errors_detected()) {
         "All columns with correct column name have the right type and values."
