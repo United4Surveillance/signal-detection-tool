@@ -47,6 +47,13 @@ plot_time_series <- function(results, interactive = FALSE,
                            end   = as.Date(c(range_dates_sdp$min_date, range_dates_sdp$max_date)),
                            stringsAsFactors = FALSE)
 
+  # function for finding the ymax value
+  custom_round_up <- function(x, levels=c(1, 2, 5, 10)) {
+    if(length(x) != 1) stop("'x' must be of length 1")
+
+    10^floor(log10(x)) * levels[[which(x <= 10^floor(log10(x)) * levels)[[1]]]]
+  }
+
   col.threshold <- "#2297E6"
   col.expected <- "#000000"
   col.alarm <- "#FF0000"
@@ -78,7 +85,7 @@ plot_time_series <- function(results, interactive = FALSE,
                                     fill = name),
                        ymin = 0, ymax = plyr::round_any(x = max(results$cases),
                                                         f = ceiling,
-                                                        accuracy = 50),
+                                                        accuracy = custom_round_up(max(results$cases))),
                        colour = "white", linewidth = 0.5, alpha = 0.2) +
     ggplot2::geom_col(ggplot2::aes(y = cases, fill = set_status)) +
     ggplot2::geom_step(ggplot2::aes(y = upperbound, color = "Threshold"),
