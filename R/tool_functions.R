@@ -49,17 +49,15 @@ find_age_group <- function(age, x) {
 #'   \item{agegrp_div}{The most frequently used punctuation character, which serves as the divider in age groups.}
 #'   \item{other_punct_character}{Any other punctuation character used. Also used as logical indicator.}
 #'   \item{equal_sizing}{Logical indicating whether the lengths of age groups are equidistant.}
-#'   \item{format_agegrp_xx}{Indices of entries in 'age_group' following the "xx-xx" format.}
+#'   \item{format_agegrp_xx}{Indices of entries in 'age_group' not following the "xx-xx" format.}
 #'
 #' @examples
 #' \dontrun{
 #' # Example usage:
-#' data_frame <- data.frame(age_group = c("01-05", "6-10", "11-15", "16-20"))
+#' data_frame <- data.frame(age = c(2, 5, 15, 16), age_group = c("01-05", "6-10", "11-15", "16-20"))
 #' check_results <- age_format_check(data_frame)
 #' print(check_results)
 #' }
-#'
-#' @importFrom stringr str_split_fixed str_starts str_ends str_extract_all
 age_format_check <- function(df) {
   # setting variables
   splits_uniq  <- stringr::str_split_fixed(as.character(unique(df$age_group)),"[^[:alnum:]]", 2)
@@ -131,14 +129,10 @@ age_format_check <- function(df) {
 #' @examples
 #' \dontrun{
 #' # Example usage:
-#' data_frame <- data.frame(age_group = c("01-05", "6-10", "11-15", "16-20"))
-#' format_check_results <- list(equal_sizing = TRUE, agegrp_div = "-", punct_char_check = FALSE)
+#' data_frame <- data.frame(age = c(2, 5, 15, 16), age_group = c("01-05", "6-10", "11-15", "16-20"))
+#' format_check_results <- list(equal_sizing = TRUE, agegrp_div = "-", other_punct_char = list(), format_agegrp_xx = 2)
 #' complete_agegrp_arr(data_frame, format_check_results)
 #' }
-#'
-#' @importFrom stringr str_split_1 str_sort
-#' @importFrom plyr round_any
-#' @import dplyr
 complete_agegrp_arr <- function(df, format_check_results) {
   # find unique elements of age_group
   tmp_uniq_agegrp <- stringr::str_sort(unique(df$age_group), numeric = TRUE)
@@ -355,10 +349,6 @@ age_groups <- function(df, break_at = NULL) {
   }
 
   all_agegroups <- complete_agegrp_arr(df, format_check_results)
-
-  # if (!is.vector(all_agegroups)) {
-  #   all_agegroups <- unique(df$age_group)
-  # }
 
   # converting age_group to factor ------------------------------------------
   df$age_group <- factor(df$age_group,

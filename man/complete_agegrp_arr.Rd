@@ -21,9 +21,8 @@ It is particularly useful for completing missing age groups in datasets
 \examples{
 \dontrun{
 # Example usage:
-data_frame <- data.frame(age_group = c("01-05", "6-10", "11-15", "16-20"))
-format_check_results <- list(equal_sizing = TRUE, agegrp_div = "-", punct_char_check = FALSE)
+data_frame <- data.frame(age = c(2, 5, 15, 16), age_group = c("01-05", "6-10", "11-15", "16-20"))
+format_check_results <- list(equal_sizing = TRUE, agegrp_div = "-", other_punct_char = list(), format_agegrp_xx = 2)
 complete_agegrp_arr(data_frame, format_check_results)
 }
-
 }
