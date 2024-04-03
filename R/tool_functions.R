@@ -270,14 +270,14 @@ complete_agegrp_arr <- function(df, format_check_results) {
       rows_to_remove <- which(apply(splits_tmp, 2, as.numeric) > as.numeric(max_num_inp), arr.ind = T) %>%
         as.data.frame() %>% select(row) %>% distinct %>% unlist
 
-      all_agegroups <- all_agegroups[-rows_to_remove]
+      all_agegrps <- all_agegrps[-rows_to_remove]
 
     }
 
   }
 
   # checking to see if all agegroups entities are found in the array
-  if (any(unique(df$age_group) %in% all_agegroups == FALSE)) {
+  if (any(unique(df$age_group) %in% all_agegrps == FALSE)) {
     all_agegrps <- unique(df$age_group)
   }
 
@@ -354,11 +354,11 @@ age_groups <- function(df, break_at = NULL) {
     }
   }
 
-  all_agegroups <- try(complete_agegrp_arr(df, format_check_results), silent = T)
+  all_agegroups <- complete_agegrp_arr(df, format_check_results)
 
-  if (!is.vector(all_agegroups)) {
-    all_agegroups <- unique(df$age_group)
-  }
+  # if (!is.vector(all_agegroups)) {
+  #   all_agegroups <- unique(df$age_group)
+  # }
 
   # converting age_group to factor ------------------------------------------
   df$age_group <- factor(df$age_group,

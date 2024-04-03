@@ -21,7 +21,7 @@ preprocess_data <- function(data) {
 
   # get all variables that are characters and not case_id or date
   factorization_vars <- dplyr::select(data, dplyr::where(is.character) &
-                                        !sex &
+                                        !dplyr::any_of(c("sex", "age_group")) &
                                         !dplyr::all_of(yes_no_unknown_vars) &
                                         !dplyr::starts_with("date") &
                                         !dplyr::ends_with("id")) %>% names
