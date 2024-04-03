@@ -83,7 +83,10 @@ EARS was developed by CDC and published in Hutwagner et al. (2003).
 ### Signals tab
 The `Signals` tab is split into 2 / 3 "rows", depending on whether any stratas were chosen in the `Input` tab. The first row belongs to the visualisations of the respective stratas chosen. 
 The second row to a timeseries / epicurve, depicting the signal detection in the number of weeks specified in the `Input` tab.
-The third and final row display a signal detection table, which provides information on the alarms found in both the entirety of the (filtered) dataset as well as per stratification parameter.
+The third and final row display a signal detection table, which provides information on the alarms found in both the entirety of the (filtered) dataset as well as per stratification parameter. 
+
+#### Stratification visualisation 
+When one of the strata about regions (state, county or community) is selected in the `Input` tab the app tries to provide a map visualisation. This currently only works if there are NUTS codes provided in the data using the corresponding _id columns (i.e. county_id) and these NUTS ids all match the shapefile which is used in the app. When your data has cases with missing region (NA or unknown) during the signal detection timeperiod a map with additional text is shown which gives you information about these cases with missing region. In case you did not provide NUTS ids or some NUTS ids are not matching no map visualisation is currently possible and you will see a table with the results instead of a map. 
 
 ### Report tab
 The `Report` tab is the final destination in the SignalDetectionTool Shiny app. Here, it is possible to produce and download a report, using the different parameter selections, filtering choices and stratifications chosen in the `Input` tab. Thus, you can customise exactly how you want your report. 
