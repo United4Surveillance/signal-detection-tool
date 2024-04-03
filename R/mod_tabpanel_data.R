@@ -114,22 +114,12 @@ mod_tabpanel_data_server <- function(id) {
     })
 
     # when there were no errors apply preprocessing to data
-    data_preprocessed_ls <- shiny::reactive({
+    data_preprocessed <- shiny::reactive({
       if (!errors_detected()) {
         preprocess_data(data())
       } else {
         data()
       }
-    })
-
-    data_preprocessed <- shiny::reactive({
-      shiny::req(data_preprocessed_ls())
-      data_preprocessed_ls()$data
-    })
-
-    levels_agegroups <- shiny::reactive({
-      shiny::req(data_preprocessed_ls())
-      data_preprocessed_ls()$agegroup_levels
     })
 
     output$errors <- renderText({
@@ -173,8 +163,6 @@ mod_tabpanel_data_server <- function(id) {
 
     # Return a reactive preprocessed data from this server that can be passed
     # along to subsequent tab modules
-    return(list(data = data_preprocessed,
-                errors_detected = errors_detected,
-                agegroup_levels = levels_agegroups))
+    return(list(data = data_preprocessed, errors_detected = errors_detected))
   })
 }
