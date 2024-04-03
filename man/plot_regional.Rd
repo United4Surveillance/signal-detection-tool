@@ -4,10 +4,17 @@
 \alias{plot_regional}
 \title{Plot number of cases with number of signals by region}
 \usage{
-plot_regional(shape_with_signals, interactive = FALSE, toggle_alarms = FALSE)
+plot_regional(
+  shape_with_signals,
+  signals_agg_unknown_region = NULL,
+  interactive = FALSE,
+  toggle_alarms = FALSE
+)
 }
 \arguments{
 \item{shape_with_signals}{sf shapefile, with additional columns from signals cases, n_alarms, any_alarms}
+
+\item{signals_agg_unknown_region}{tibble default NULL, if not NULL tibble containing only the row for signals_agg for the missing regions (is.na(stratum)) with the columns cases and n_alarms which are used for creating the annotation text below the map}
 
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
 
