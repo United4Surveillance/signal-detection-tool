@@ -283,6 +283,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 )
             } else if (class(data()[[filter_var]]) == "factor") {    # apply filter for factors (dropping levels)
               df <- df %>%
+                dplyr::filter(!!filter_var %in% filter_val) %>%
                 dplyr::mutate(!!filter_var := factor(!!filter_var, levels = filter_val))
             } else { # otherwise
               df <- df %>%
