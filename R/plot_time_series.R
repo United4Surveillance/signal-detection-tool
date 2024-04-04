@@ -132,7 +132,7 @@ plot_time_series <- function(results, interactive = FALSE,
     )) +
     ggplot2::scale_fill_manual(
       values = c("Test data" = col.test, "Training data" = col.training,
-                 "bg_white" = "white", "bg_sdp" = "#2297E6"),
+                 "bg_white" = "white", "bg_sdp" = col.threshold),
       labels = c("Test data" = "Signal detection period"),
       breaks = c("Test data")
     ) +
