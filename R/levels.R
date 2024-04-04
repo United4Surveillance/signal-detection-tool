@@ -10,14 +10,9 @@ sex_raw_levels <- function() {
   )
 }
 
-#' Allowed levels for sex in preprocessed surveillance data
+#' Allowed levels for sex in preprocessed surveillance data used for all calculations
 sex_levels <- function() {
-  c(
-    "male",
-    "female",
-    "diverse",
-    NA_character_
-  )
+  app_cache_env$sex_levels
 }
 
 #' Allowed levels for variables with yes, no, unknown levels in raw surveillance data
@@ -31,7 +26,7 @@ yes_no_unknown_raw_levels <- function() {
   )
 }
 
-#' Allowed levels for variables with yes, no, unknown levels in preprocessed surveillance data
+#' Allowed levels for variables with yes, no, unknown levels in preprocessed surveillance data used for calculations
 yes_no_unknown_levels <- function() {
   c(
     "yes",
@@ -86,4 +81,8 @@ available_algorithms <- function() {
 #' Varible names which should be checked for missing values
 check_for_missing_values <- function() {
   c("date_report")
+}
+
+age_group_levels <- function(){
+  app_cache_env$age_group_levels
 }

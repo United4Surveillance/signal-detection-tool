@@ -37,10 +37,12 @@ plot_barchart <- function(signals_agg,
                         subtype = "Subtype",
                         sex = "Sex")
 
-  stratum_name <- unique(signals_agg$category)
-  stopifnot(length(stratum_name) == 1)
+  category <- unique(signals_agg$category)
+  stopifnot(length(category) == 1)
 
-  x_label <- x_axis_labels[stratum_name]
+  x_label <- x_axis_labels[category]
+
+  signals_agg <- create_factor_with_unknown(signals_agg)
 
   p <- ggplot2::ggplot(data = signals_agg) +
     ggplot2::geom_bar(stat = "identity",

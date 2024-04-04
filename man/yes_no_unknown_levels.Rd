@@ -2,10 +2,10 @@
 % Please edit documentation in R/levels.R
 \name{yes_no_unknown_levels}
 \alias{yes_no_unknown_levels}
-\title{Allowed levels for variables with yes, no, unknown levels in preprocessed surveillance data}
+\title{Allowed levels for variables with yes, no, unknown levels in preprocessed surveillance data used for calculations}
 \usage{
 yes_no_unknown_levels()
 }
 \description{
-Allowed levels for variables with yes, no, unknown levels in preprocessed surveillance data
+Allowed levels for variables with yes, no, unknown levels in preprocessed surveillance data used for calculations
 }

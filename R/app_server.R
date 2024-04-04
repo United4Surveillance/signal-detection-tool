@@ -24,7 +24,6 @@ app_server <- function(input, output, session) {
     strat_vars = datinput$strat_vars,
     errors_detected = data_load_check_result$errors_detected,
     method = datinput$method,
-    agegroup_levels = data_load_check_result$agegroup_levels,
     no_algorithm_possible = datinput$no_algorithm_possible
   )
 

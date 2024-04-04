@@ -1,4 +1,3 @@
-
 #' Get the numeric columns that are not integer columns
 #'
 #' This function takes a data frame as input and returns the names of columns
@@ -56,16 +55,9 @@ create_table <- function(data, interactive = TRUE) {
     checkmate::check_false(interactive),
     combine = "or"
   )
+
   # get which columns contain floats
   float_columns <- get_float_columns(data)
-
-  # transform NA in stratum to unknown
-  if("stratum" %in% colnames(data) & any(!is.na(data[["category"]]))) {
-    data <- data %>%
-      # those with stratification and stratum NA get transformed to unknown, those unstratified with category NA get transformed to None for the category
-      dplyr::mutate(stratum = dplyr::if_else(!is.na(category),tidyr::replace_na(stratum, "unknown"),stratum)) %>%
-      dplyr::mutate(category = dplyr::if_else(is.na(category),"None",category))
-  }
 
   if (interactive == TRUE) {
     # create interactive table
@@ -119,17 +111,16 @@ convert_columns_integer <- function(data, columns_to_convert) {
   return(data)
 }
 
-#' Create a results table with optional filtering
+#' Create the signal detection results table with optional filtering
 #'
 #' This function creates a results table based on the input data frame. It can
 #' filter the data based on the `positive_only` parameter and converts certain
-#' columns to integers for styling purposes.
+#' columns to integers for styling purposes. This table is used to show all signal detection results for different stratifications together in one table
 #'
 #' @param data A data frame.
 #' @param interactive Logical indicating whether to create an interactive
 #'   DataTable (default is TRUE).
-#' @param positive_only Logical indicating whether to filter only positive cases
-#'   (default is TRUE).
+#' @param positive_only Logical indicating whether to filter only those signal results where an alarm was generated (default is TRUE).
 #'
 #' @return An interactive DataTable or a static gt table, depending on the value
 #'   of `interactive`.
@@ -137,11 +128,13 @@ convert_columns_integer <- function(data, columns_to_convert) {
 #'
 #' @examples
 #' \dontrun{
-#' data <- data.frame(year = 2020:2022,
-#'                    week = 1:3,
-#'                    cases = 10:12,
-#'                    alarms = c(TRUE, FALSE, TRUE),
-#'                    upperbound = c(15, NA, 14))
+#' data <- data.frame(
+#'   year = 2020:2022,
+#'   week = 1:3,
+#'   cases = 10:12,
+#'   alarms = c(TRUE, FALSE, TRUE),
+#'   upperbound = c(15, NA, 14)
+#' )
 #' create_results_table(data)
 #' }
 create_results_table <- function(data,
@@ -162,10 +155,61 @@ create_results_table <- function(data,
   # convert for styling later on
   data <- convert_columns_integer(data, c("year", "week", "cases"))
 
+  data <- data %>%
+    dplyr::mutate(category = dplyr::if_else(is.na(category), "None", category))
+
   data <- data %>% dplyr::filter(!is.na(.data$upperbound))
   if (positive_only) {
     data <- data %>% dplyr::filter(.data$alarms == TRUE)
   }
 
   return(create_table(data, interactive))
+}
+
+#' Creates a table with the aggregated stratified signal detection results for one category and orders the strata by the factor levels
+#'
+#' This function creates a table based on aggregated signal results which were stratified. It
+#' expects the aggregated signals input to only have one category. It converts certain columns
+#' to integers and the stratum column to factor with NA converted to unknown for styling
+#' purposes. This table is used to show stratified signal results for one category, i.e. sex
+#' and results for all the strata no matter whether there are alarms or not.
+#'
+#' @param signals_agg A tibble or data frame.
+#' @param interactive Logical indicating whether to create an interactive
+#'   DataTable (default is TRUE).
+#'
+#' @return An interactive DataTable or a static gt table, depending on the value
+#'   of `interactive`.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' data <- data.frame(
+#'   year = 2020:2023,
+#'   week = 1:4,
+#'   cases = 10:13,
+#'   any_alarms = c(TRUE, FALSE, TRUE, FALSE),
+#'   n_alarms = c(0, 2, 0, 1),
+#'   category = c("sex", "sex", "sex", "sex"),
+#'   stratum = c("female", "male", "diverse", NA)
+#' )
+#' create_stratified_table(data)
+#' }
+create_stratified_table <- function(signals_agg,
+                                    interactive = TRUE) {
+  checkmate::assert(
+    checkmate::check_true(interactive),
+    checkmate::check_false(interactive),
+    combine = "or"
+  )
+
+  category <- unique(signals_agg$category)
+  stopifnot(length(category) == 1)
+  signals_agg <- signals_agg %>% convert_columns_integer(c("cases", "n_alarms"))
+
+  signals_agg <- create_factor_with_unknown(signals_agg)
+  signals_agg <- signals_agg %>%
+    dplyr::arrange(stratum)
+
+  return(create_table(signals_agg, interactive))
 }
