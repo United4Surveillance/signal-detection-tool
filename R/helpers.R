@@ -47,7 +47,7 @@ create_factor_with_unknown <- function(signals_agg) {
   category <- unique(signals_agg$category)
   stopifnot(length(category) == 1)
   # age_group should be added later as well
-  if (category == "sex") {
+  if (category == "sex"| category == "age_group") {
     category_levels <- paste0(category, "_levels")
     signals_agg <- signals_agg %>%
       dplyr::mutate(stratum = factor(stratum, levels = do.call(category_levels, list())))
@@ -55,8 +55,12 @@ create_factor_with_unknown <- function(signals_agg) {
     signals_agg <- signals_agg %>%
       dplyr::mutate(stratum = factor(stratum))
   }
-  signals_agg <- signals_agg %>%
-    dplyr::mutate(stratum = forcats::fct_na_value_to_level(stratum, level = "unknown"))
+  # it is an open issue #347 on forcats that unknown levels are added even when no NA was there
+  # thus write code for workaround
+  if(any(is.na(signals_agg$stratum))){
+    signals_agg <- signals_agg %>%
+      dplyr::mutate(stratum = forcats::fct_na_value_to_level(stratum, level = "unknown"))
+  }
 
   signals_agg
 }
