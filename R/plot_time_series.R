@@ -206,22 +206,24 @@ plot_time_series <- function(results, interactive = FALSE,
       ))
 
     # modifying the interactive plot legend
-    plt$x$data[[1]]$showlegend <- FALSE
-    plt$x$data[[2]]$showlegend <- FALSE
+    plt$x$data[[1]]$showlegend <-
+      plt$x$data[[2]]$showlegend <- FALSE
+    plt$x$data[[1]]$hoverinfo  <-
+      plt$x$data[[2]]$hoverinfo  <- 'skip'
     plt$x$data[[3]]$showlegend <- FALSE
-    plt$x$data[[4]]$name <- plt$x$data[[2]]$legendgroup <- "Signal detection period"
-    plt$x$data[[5]]$name <- plt$x$data[[3]]$legendgroup <- "Threshold"
+    plt$x$data[[4]]$name <- plt$x$data[[4]]$legendgroup <- "Signal detection period"
+    plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Threshold"
     plt$x$data[[6]]$showlegend <- FALSE
 
     if (any(!is.na(results$expected_pad))) {
-      plt$x$data[[7]]$name <- plt$x$data[[5]]$legendgroup <- "Expected"
+      plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Expected"
       plt$x$data[[8]]$showlegend <- FALSE
       if (any(results$alarms == TRUE, na.rm = TRUE)) {
-        plt$x$data[[9]]$name <- plt$x$data[[7]]$legendgroup <- "Alarm"
+        plt$x$data[[9]]$name <- plt$x$data[[9]]$legendgroup <- "Alarm"
       }
     } else {
       if (any(results$alarms == TRUE, na.rm = TRUE)) {
-        plt$x$data[[7]]$name <- plt$x$data[[5]]$legendgroup <- "Alarm"
+        plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Alarm"
       }
     }
   }
