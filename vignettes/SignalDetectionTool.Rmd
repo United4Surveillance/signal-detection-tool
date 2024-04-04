@@ -53,14 +53,6 @@ knitr::kable(input_metadata, format = "html")
 data <- preprocess_data(input_example)
 ```
 
-### Plotting the time series
-
-```{r}
-results <- get_signals(data)
-
-plot_time_series(results, interactive = TRUE)
-plot_time_series(results, number_of_weeks = 10)
-```
 
 ### Creating tables 
 
