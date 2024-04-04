@@ -350,9 +350,12 @@ age_groups <- function(df, break_at = NULL) {
 
   all_agegroups <- complete_agegrp_arr(df, format_check_results)
 
+  # store the age groups in the environment
+  app_cache_env$age_group_levels <- stringr::str_sort(all_agegroups, numeric = TRUE)
+
   # converting age_group to factor ------------------------------------------
   df$age_group <- factor(df$age_group,
-                         levels = stringr::str_sort(all_agegroups, numeric = TRUE))
+                         levels = app_cache_env$age_group_levels)
 
   return(list(df = df, agegroup_levels = all_agegroups))
 }

@@ -285,6 +285,16 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
               df <- df %>%
                 dplyr::filter(!!filter_var %in% filter_val) %>%
                 dplyr::mutate(!!filter_var := factor(!!filter_var, levels = filter_val))
+              # update the factor levels in app_cache_env
+              if(filter_var == "sex"){
+                sex_order <- c("male","female","diverse")
+                sorted_filter_val <- filter_val[match(sex_order, filter_val)]
+                app_cache_env$sex_levels <- sorted_filter_val
+              }
+              if(filter_var == "age_group"){
+                sorted_filter_val <- stringr::str_sort(filter_val, numeric = TRUE)
+                app_cache_env$age_group_levels <- sorted_filter_val
+              }
             } else { # otherwise
               df <- df %>%
                 dplyr::filter(!!filter_var %in% filter_val)

@@ -1,3 +1,20 @@
+# Initialize a new environment for caching or app-wide data storage
+initialize_cache_env <- function() {
+  # if (exists("app_cache_env", where = .package:SignalDetectionTool, mode = "environment")) {
+  #   rm(list = "app_cache_env", envir = .package:SignalDetectionTool)
+  # }
+  app_cache_env <- new.env()
+  app_cache_env$sex_levels <- c("male", "female", "diverse", NA_character_)
+  app_cache_env$age_group_levels <- c("00-04", "05-09", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90-94", "95-99", "100-104", "105-109", NA_character_)
+
+  app_cache_env
+
+}
+
+# initialize the set values for the app_cache_env
+app_cache_env <- initialize_cache_env()
+
+
 #' Access files in the current app
 #'
 #' NOTE: If you manually change your package name in the DESCRIPTION,
