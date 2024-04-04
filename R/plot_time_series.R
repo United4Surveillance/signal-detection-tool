@@ -34,6 +34,26 @@ plot_time_series <- function(results, interactive = FALSE,
       dplyr::slice_tail(n = number_of_weeks)
   }
 
+  # finding number of weeks for signal detection period
+  # and dates for the last year and for the signal detection period
+  nweeks_sdp  <- results %>% dplyr::filter(set_status == "Test data") %>% nrow
+  range_dates_year <- list(min_date = format(max(results$date) - lubridate::weeks(number_of_weeks), "%Y-%m-%d"),
+                           max_date = format(max(results$date, "%Y-%m-%d")))
+  range_dates_sdp  <- list(min_date = as.Date(max(results$date) - lubridate::weeks(nweeks_sdp-1)),
+                      max_date = as.Date(max(results$date)))
+
+  bgcolor_df <- data.frame(name  = c("bg_white", "bg_sdp"),
+                           start = as.Date(c(min(results$date), range_dates_sdp$min_date)),
+                           end   = as.Date(c(range_dates_sdp$min_date, range_dates_sdp$max_date)),
+                           stringsAsFactors = FALSE)
+
+  # function for finding the ymax value
+  custom_round_up <- function(x, levels=c(1, 2, 5, 10)) {
+    if(length(x) != 1) stop("'x' must be of length 1")
+
+    10^floor(log10(x)) * levels[[which(x <= 10^floor(log10(x)) * levels)[[1]]]]
+  }
+
   col.threshold <- "#2297E6"
   col.expected <- "#000000"
   col.alarm <- "#FF0000"
@@ -59,6 +79,14 @@ plot_time_series <- function(results, interactive = FALSE,
         )
       ), "")
     ))) +
+    ggplot2::geom_rect(data = bgcolor_df, inherit.aes = FALSE,
+                       ggplot2::aes(x = NULL, y = NULL,
+                                    xmin = start, xmax = end,
+                                    fill = name),
+                       ymin = 0, ymax = plyr::round_any(x = max(results$cases),
+                                                        f = ceiling,
+                                                        accuracy = custom_round_up(max(results$cases))),
+                       colour = "white", linewidth = 0.5, alpha = 0.2) +
     ggplot2::geom_col(ggplot2::aes(y = cases, fill = set_status)) +
     ggplot2::geom_step(ggplot2::aes(y = upperbound, color = "Threshold"),
       linewidth = 1.3, direction = "hv"
@@ -103,7 +131,8 @@ plot_time_series <- function(results, interactive = FALSE,
       "Threshold" = col.threshold
     )) +
     ggplot2::scale_fill_manual(
-      values = c("Test data" = col.test, "Training data" = col.training),
+      values = c("Test data" = col.test, "Training data" = col.training,
+                 "bg_white" = "white", "bg_sdp" = col.threshold),
       labels = c("Test data" = "Signal detection period"),
       breaks = c("Test data")
     ) +
@@ -139,23 +168,17 @@ plot_time_series <- function(results, interactive = FALSE,
     )
 
   if (interactive) {
-    # finding number of weeks for signal detection period
-    # and range of dates for the last year
-    nweeks_sdp  <- results %>% dplyr::filter(set_status == "Test data") %>% nrow
-    range_dates <- list(min_date = format(max(results$date) - lubridate::weeks(number_of_weeks), "%Y-%m-%d"),
-                        max_date = format(max(results$date, "%Y-%m-%d")))
-
     plt <- plotly::ggplotly(plt, tooltip = "text", dynamicTicks = TRUE) %>%
       plotly::layout(
         xaxis = list(
           type = "date",
           autorange = FALSE,
           range = list(
-            lubridate::as_datetime(range_dates$min_date),
-            lubridate::as_datetime(range_dates$max_date)
+            lubridate::as_datetime(range_dates_year$min_date),
+            lubridate::as_datetime(range_dates_year$max_date)
           ),
           rangeslider   = list(
-            range = list(c(as.Date(range_dates$min_date), as.Date(range_dates$max_date))),
+            range = list(c(as.Date(range_dates_year$min_date), as.Date(range_dates_year$max_date))),
             visible = TRUE, type = "date", thickness = 0.10),
           rangeselector = list(
             buttons = list(
@@ -169,7 +192,7 @@ plot_time_series <- function(results, interactive = FALSE,
           ),
         legend = list(
           orientation = "h", x = 0.5, y = -0.9,
-          yanchor = "bottom", xanchor = "center")
+          yanchor = "top", xanchor = "center")
       ) %>%
       plotly::config(modeBarButtonsToRemove = c(
         "autoScale2d",
@@ -183,20 +206,24 @@ plot_time_series <- function(results, interactive = FALSE,
       ))
 
     # modifying the interactive plot legend
-    plt$x$data[[1]]$showlegend <- FALSE
-    plt$x$data[[2]]$name <- plt$x$data[[2]]$legendgroup <- "Signal detection period"
-    plt$x$data[[3]]$name <- plt$x$data[[3]]$legendgroup <- "Threshold"
-    plt$x$data[[4]]$showlegend <- FALSE
+    plt$x$data[[1]]$showlegend <-
+      plt$x$data[[2]]$showlegend <- FALSE
+    plt$x$data[[1]]$hoverinfo  <-
+      plt$x$data[[2]]$hoverinfo  <- 'skip'
+    plt$x$data[[3]]$showlegend <- FALSE
+    plt$x$data[[4]]$name <- plt$x$data[[4]]$legendgroup <- "Signal detection period"
+    plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Threshold"
+    plt$x$data[[6]]$showlegend <- FALSE
 
     if (any(!is.na(results$expected_pad))) {
-      plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Expected"
-      plt$x$data[[6]]$showlegend <- FALSE
+      plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Expected"
+      plt$x$data[[8]]$showlegend <- FALSE
       if (any(results$alarms == TRUE, na.rm = TRUE)) {
-        plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Alarm"
+        plt$x$data[[9]]$name <- plt$x$data[[9]]$legendgroup <- "Alarm"
       }
     } else {
       if (any(results$alarms == TRUE, na.rm = TRUE)) {
-        plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Alarm"
+        plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Alarm"
       }
     }
   }
