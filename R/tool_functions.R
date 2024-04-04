@@ -190,7 +190,7 @@ complete_agegrp_arr <- function(df, format_check_results) {
       }
     }
 
-    dummy_fill <- filter(dummy_fill, !is.na(lower))
+    dummy_fill <- dummy_fill %>% dplyr::filter(!is.na(lower))
 
     # create the sequence levels
     seq_lower <- c(splits[,1],(dummy_fill$lower+1)) %>% stringr::str_sort(., numeric = TRUE) %>%
@@ -262,7 +262,7 @@ complete_agegrp_arr <- function(df, format_check_results) {
         gsub(pattern = "\\D", replacement = "")
 
       rows_to_remove <- which(apply(splits_tmp, 2, as.numeric) > as.numeric(max_num_inp), arr.ind = T) %>%
-        as.data.frame() %>% select(row) %>% distinct %>% unlist
+        as.data.frame() %>% dplyr::select(row) %>% dplyr::distinct() %>% unlist
 
       all_agegrps <- all_agegrps[-rows_to_remove]
 
