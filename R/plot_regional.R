@@ -1,9 +1,11 @@
 #' Plot number of cases with number of signals by region
 #' @param shape_with_signals sf shapefile, with additional columns from signals cases, n_alarms, any_alarms
+#' @param signals_agg_unknown_region tibble default NULL, if not NULL tibble containing only the row for signals_agg for the missing regions (is.na(stratum)) with the columns cases and n_alarms which are used for creating the annotation text below the map
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of alarms explicitly or only when hovering
 #' @returns either a ggplot object if static plot is chosen or a plotly object for the interactive plot
 plot_regional <- function(shape_with_signals,
+                          signals_agg_unknown_region = NULL,
                           interactive = FALSE,
                           toggle_alarms = FALSE) {
   checkmate::assertClass(shape_with_signals, "sf")
@@ -77,6 +79,17 @@ plot_regional <- function(shape_with_signals,
       legend.text.align = 0
     )
 
+  # creating text if cases missing region > 0
+  text_region_missing <- NULL
+  if(!is.null(signals_agg_unknown_region) & nrow(signals_agg_unknown_region) > 0){
+    text_region_missing <- paste0(signals_agg_unknown_region$cases, " case",ifelse(signals_agg_unknown_region$cases > 1,"s "," "),"from unknown region with \n",signals_agg_unknown_region$n_alarms, " alarm",ifelse(signals_agg_unknown_region$n_alarms > 1,"s",""),".\n")
+    if(!interactive){
+      plot <- plot +
+        ggplot2::labs(caption = text_region_missing) +
+        ggplot2::theme(plot.caption = ggplot2::element_text(size = 14, hjust = 0.5))
+    }
+  }
+
   # removing fill-legend if entire map is 1 zone, to avoid legend issues.
   if (nrow(shape_with_signals) < 2) {
     plot <- plot +
@@ -94,7 +107,17 @@ plot_regional <- function(shape_with_signals,
   }
 
   if (interactive) {
-    plot <- plotly::ggplotly(plot, tooltip = "text") %>%
+    plot <- plotly::ggplotly(plot, tooltip = "text")
+
+    if(!is.null(text_region_missing)){
+      plot <- plot %>%
+        plotly::layout(annotations = list(text = text_region_missing,
+                                          x = 0.5, y = 0,
+                                          xref = "paper", yref = "paper",
+                                          showarrow = FALSE,
+                                          align = "center"))
+    }
+    plot <- plot %>%
       plotly::style(
         hoveron = "fill",
         hoverlabel = list(bgcolor = "white")

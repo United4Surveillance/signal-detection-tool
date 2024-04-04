@@ -71,7 +71,9 @@ create_map_or_table <- function(signals_agg,
       dplyr::semi_join(shape, by = c("stratum" = "NUTS_ID"))
 
     # check whether all NUTS_ids are found in the shapefile
-    n_NUTS_signals <- dplyr::n_distinct(signals_agg_map$stratum)
+    # when there is a mismatch only because of cases with NA region then this is still a match and
+    # in the map we show with a caption/annotation the number of cases and alarms for them
+    n_NUTS_signals <- dplyr::n_distinct(setdiff(signals_agg_map$stratum, NA))
     n_NUTS_matching <- dplyr::n_distinct(signals_with_matching_NUTS$stratum)
 
     if (n_NUTS_matching == n_NUTS_signals) {
@@ -84,10 +86,17 @@ create_map_or_table <- function(signals_agg,
       dplyr::left_join(signals_agg_map, by = c("NUTS_ID" = "stratum")) %>%
       dplyr::filter(!is.na(cases))
 
-    output <- plot_regional(shape_with_signals,
-                            interactive = interactive,
-                            toggle_alarms = toggle_alarms)
+    # computation of tibble for the information about the cases with NA region
+    # only show the unknown information when there were more than 0 cases
+    # NA can still be there even when cases = 0 because when it was there in general in the dataset it is added as level
+    signals_agg_unknown_region <- signals_agg_map %>%
+      dplyr::filter(is.na(stratum) & cases > 0)
 
+    output <- plot_regional(shape_with_signals,
+      signals_agg_unknown_region,
+      interactive = interactive,
+      toggle_alarms = toggle_alarms
+    )
   } else {
     output <- create_table(
       signals_agg %>%
