@@ -1,7 +1,7 @@
 ---
 title: "`r params$disease` - `r params$country`"
 subtitle: "Signal Detection Report"
-date: "Report generated on `r lubridate::stamp('28 April 2022', locale = 'en', orders = 'dmy')(Sys.Date())`"
+date: "Report generated on `r lubridate::stamp('28 April 2022', locale = ifelse(grepl('en_US.UTF-8', Sys.getlocale(), ignore.case = TRUE), 'en_US.UTF-8', Sys.getlocale('LC_TIME')), orders = 'dmy')(Sys.Date())`"
 lang: "en"
 output: 
   html_document:
