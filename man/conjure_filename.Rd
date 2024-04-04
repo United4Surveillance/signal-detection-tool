@@ -22,5 +22,4 @@ data <- preprocess_data(SignalDetectionTool::input_example)
 conjure_filename(SignalDetectionTool::get_signals(data))
 }
 
-
 }
