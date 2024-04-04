@@ -6,7 +6,7 @@ Authors@R:
 Description: PKG_DESC.
 License: MIT + file LICENSE
 Depends: 
-    R (>= 2.10)
+    R (>= 4.0.2)
 Imports: 
     aeddo (>= 0.1.1),
     checkmate (>= 2.3.1),
