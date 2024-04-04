@@ -409,7 +409,7 @@ age_groups <- function(df, break_at = NULL) {
     levels = app_cache_env$age_group_levels
   )
 
-  return(list(df = df, agegroup_levels = all_agegroups))
+  return(df)
 }
 
 #' Get Signals Stratified

@@ -57,9 +57,7 @@ preprocess_data <- function(data) {
 
   # age or age_group is mandatory thus we need to check whether column present in data
   # or else create age_group from age
-  output <- age_groups(data)
-  data <- output$df
-  agegroup_levels <- output$agegroup_levels
+  data <- age_groups(data)
 
   # sex is not mandatory
   if ("sex" %in% colnames(data)) {
