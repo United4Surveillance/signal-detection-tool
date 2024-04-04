@@ -90,6 +90,17 @@ mod_tabpanel_data_server <- function(id) {
     # set maximum file size to 50MB
     options(shiny.maxRequestSize = 50 * 1024^2)
 
+    # Reactive environment holder
+    #app_cache_env <- shiny::reactiveVal(initialize_cache_env())
+
+    shiny::observeEvent(input$file1, {
+      print("here")
+      # Reset the environment upon new file upload
+      app_cache_env$sex_levels <- c("male", "female", "diverse", NA_character_)
+      app_cache_env$age_group_levels <- c("00-04", "05-09", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90-94", "95-99", "100-104", "105-109", NA_character_)
+      #print(app_cache_env$age_group_levels)
+    })
+
     # Load data
     data <- shiny::reactive({
       # input$file1 will be NULL initially. After the user selects
@@ -97,6 +108,10 @@ mod_tabpanel_data_server <- function(id) {
       # or all rows if selected, will be shown.
 
       req(input$file1)
+
+      app_cache_env$sex_levels <- c("male", "female", "diverse", NA_character_)
+      app_cache_env$age_group_levels <- c("00-04", "05-09", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90-94", "95-99", "100-104", "105-109", NA_character_)
+
       # check on the filetype
       ext <- tools::file_ext(input$file1$name)
       validate(need(ext == "csv" | ext == "xlsx" | ext == "xls", "Please upload a csv, xlsx or xls file"))
