@@ -36,6 +36,27 @@ find_age_group <- function(age, x) {
   }
 }
 
+#' Creation of age_group levels from different formats of the age_group column
+#'
+#' This function returns a character vector with age_group levels based on the data provided.
+#' It uses the age_format_check() and complete_agegrp_arr() functions to create the levels
+#'
+#' @param df A data frame containing an 'age_group' variable.
+#' @return character vector containing all age_group levels
+#'
+#' @examples
+#' \dontrun{
+#' # Example usage:
+#' data_frame <- data.frame(age = c(2, 6, 16), age_group = c("01-05", "6-10", "16-20"))
+#' create_age_group_levels(data_frame)
+#' }
+create_age_group_levels <- function(df) {
+  format_check_results <- age_format_check(df)
+  all_agegroups <- complete_agegrp_arr(df, format_check_results)
+  age_group_levels <- stringr::str_sort(all_agegroups, numeric = TRUE)
+
+  age_group_levels
+}
 #' Age Group Format Check
 #'
 #' This function checks the format of the 'age_group' variable in the given data frame. It performs several checks including:
@@ -60,59 +81,75 @@ find_age_group <- function(age, x) {
 #' }
 age_format_check <- function(df) {
   # setting variables
-  splits_uniq  <- stringr::str_split_fixed(as.character(unique(df$age_group)),"[^[:alnum:]]", 2)
-  splits_total <- stringr::str_split_fixed(as.character(df$age_group),"[^[:alnum:]]", 2)
-  min_num <- as.numeric(splits_uniq) %>% stats::na.omit() %>% min()
-  max_num <- as.numeric(splits_uniq) %>% stats::na.omit() %>% max()
+  splits_uniq <- stringr::str_split_fixed(as.character(unique(df$age_group)), "[^[:alnum:]]", 2)
+  splits_total <- stringr::str_split_fixed(as.character(df$age_group), "[^[:alnum:]]", 2)
+  min_num <- as.numeric(splits_uniq) %>%
+    stats::na.omit() %>%
+    min()
+  max_num <- as.numeric(splits_uniq) %>%
+    stats::na.omit() %>%
+    max()
 
   # checking if length is equidistant
-  abs_diff <- abs(as.numeric(splits_uniq[,1]) - as.numeric(splits_uniq[,2])) %>% stats::na.omit()
+  abs_diff <- abs(as.numeric(splits_uniq[, 1]) - as.numeric(splits_uniq[, 2])) %>% stats::na.omit()
   equal_sizing <- (length(unique(abs_diff)) == 1)
 
   # checking whether xx-xx format is in use
-  tmp_check <-union(
-    which(stringr::str_length(splits_total[,1]) < 2),
-    which(stringr::str_length(splits_total[,2]) < 2)
+  tmp_check <- union(
+    which(stringr::str_length(splits_total[, 1]) < 2),
+    which(stringr::str_length(splits_total[, 2]) < 2)
   )
 
-  format_agegrp_xx<-
-    setdiff(tmp_check,
-            which(splits_total == "", arr.ind = TRUE)[,1])
+  format_agegrp_xx <-
+    setdiff(
+      tmp_check,
+      which(splits_total == "", arr.ind = TRUE)[, 1]
+    )
 
   # extract which divider is used
-  agegrp_div <- stringr::str_match(string  = as.character(unique(df$age_group)),
-                                   pattern = "\\d+(.*?)\\d+")[,2] %>%
-    stringr::str_subset(".+") %>% unique
+  agegrp_div <- stringr::str_match(
+    string = as.character(unique(df$age_group)),
+    pattern = "\\d+(.*?)\\d+"
+  )[, 2] %>%
+    stringr::str_subset(".+") %>%
+    unique()
 
   # extract which other special characters are used and how and where
-  tmp_start <- stringr::str_extract(string  = stringr::str_sort(unique(df$age_group), numeric = TRUE),
-                                    pattern = "(^[^[:alnum:]])")
+  tmp_start <- stringr::str_extract(
+    string = stringr::str_sort(unique(df$age_group), numeric = TRUE),
+    pattern = "(^[^[:alnum:]])"
+  )
 
-  tmp_end   <- stringr::str_extract(string  = stringr::str_sort(unique(df$age_group), numeric = TRUE),
-                                    pattern = "([^[:alnum:]]$)")
+  tmp_end <- stringr::str_extract(
+    string = stringr::str_sort(unique(df$age_group), numeric = TRUE),
+    pattern = "([^[:alnum:]]$)"
+  )
   tmp_df <- data.frame(tmp_start, tmp_end)
 
-  other_punct_char = list()
+  other_punct_char <- list()
   for (df_col in 1:ncol(tmp_df)) {
-    for (item in purrr::discard(tmp_df[,df_col],is.na)) {
-      num_val      = stringr::str_extract(
-        string  = grep(pattern = paste0("[\\",item,"]"), x = unique(df$age_group), value = TRUE),
-        pattern = "\\d+")
+    for (item in purrr::discard(tmp_df[, df_col], is.na)) {
+      num_val <- stringr::str_extract(
+        string  = grep(pattern = paste0("[\\", item, "]"), x = unique(df$age_group), value = TRUE),
+        pattern = "\\d+"
+      )
 
-      other_punct_char[[item]] <- list(char_val     = item,
-                                       num_val      = num_val,
-                                       placement_in_arr = ifelse(num_val == min_num, "start", "end"),
-                                       placement_in_str = ifelse(df_col == 1, "start", "end")
+      other_punct_char[[item]] <- list(
+        char_val = item,
+        num_val = num_val,
+        placement_in_arr = ifelse(num_val == min_num, "start", "end"),
+        placement_in_str = ifelse(df_col == 1, "start", "end")
       )
     }
   }
 
   # return list of formatting checks results
-  return(list(agegrp_div       = agegrp_div,
-              other_punct_char = other_punct_char,
-              equal_sizing     = equal_sizing,
-              format_agegrp_xx = format_agegrp_xx)
-  )
+  return(list(
+    agegrp_div = agegrp_div,
+    other_punct_char = other_punct_char,
+    equal_sizing = equal_sizing,
+    format_agegrp_xx = format_agegrp_xx
+  ))
 }
 
 
@@ -140,9 +177,11 @@ complete_agegrp_arr <- function(df, format_check_results) {
   # check to see if there are any gaps
   # building regex string dependent on level of punct characters found
   regex_string <-
-    paste0("[\\",
-           gsub(x = format_check_results$agegrp_div, pattern = " ", replacement = ""),
-           "")
+    paste0(
+      "[\\",
+      gsub(x = format_check_results$agegrp_div, pattern = " ", replacement = ""),
+      ""
+    )
 
   if (length(format_check_results$other_punct_char) > 0) {
     for (character in names(format_check_results$other_punct_char)) {
@@ -153,50 +192,58 @@ complete_agegrp_arr <- function(df, format_check_results) {
   regex_string <- paste0(regex_string, "]")
 
   # splitting the ages, only keeping numeric
-  splits <- stringr::str_split_fixed(string  = tmp_uniq_agegrp,
-                                     pattern = regex_string,
-                                     n = 2) %>%
+  splits <- stringr::str_split_fixed(
+    string = tmp_uniq_agegrp,
+    pattern = regex_string,
+    n = 2
+  ) %>%
     gsub(pattern = "\\D", replacement = "")
 
   # if there is equidistance
   if (format_check_results$equal_sizing) {
     # create sequence based on existing age_groups
     # find an example of an age group that is not NULL
-    tmp_agegrp <- tmp_uniq_agegrp[grepl(paste0("[\\",format_check_results$agegrp_div,"]"), tmp_uniq_agegrp)][1]
+    tmp_agegrp <- tmp_uniq_agegrp[grepl(paste0("[\\", format_check_results$agegrp_div, "]"), tmp_uniq_agegrp)][1]
 
     # get the lower and upper of the age group gap and find the range
-    lower_split <- as.numeric(stringr::str_split_1(as.character(tmp_agegrp),format_check_results$agegrp_div)[1])
-    upper_split <- as.numeric(stringr::str_split_1(as.character(tmp_agegrp),format_check_results$agegrp_div)[2])
+    lower_split <- as.numeric(stringr::str_split_1(as.character(tmp_agegrp), format_check_results$agegrp_div)[1])
+    upper_split <- as.numeric(stringr::str_split_1(as.character(tmp_agegrp), format_check_results$agegrp_div)[2])
     split_range <- plyr::round_any(upper_split - lower_split, accuracy = 5)
 
     # find the maximum age in relation to the age group gap
-    max_data_rounded <- plyr::round_any(x = max(df$age),
-                                        accuracy = split_range,
-                                        f = ceiling)
+    max_data_rounded <- plyr::round_any(
+      x = max(df$age),
+      accuracy = split_range,
+      f = ceiling
+    )
 
     # make sequences
-    seq_lower <- seq(0,max_data_rounded,split_range)
-    seq_upper <- (seq_lower-1)[-1]
-
+    seq_lower <- seq(0, max_data_rounded, split_range)
+    seq_upper <- (seq_lower - 1)[-1]
   } else if (!format_check_results$equal_sizing) {
     # find where there are missing gaps
-    dummy_fill <- data.frame(lower=1:length(tmp_uniq_agegrp)*NA,
-                             upper=1:length(tmp_uniq_agegrp)*NA)
+    dummy_fill <- data.frame(
+      lower = 1:length(tmp_uniq_agegrp) * NA,
+      upper = 1:length(tmp_uniq_agegrp) * NA
+    )
 
-    for (i in 2:length(splits[,1])) {
-      if (as.numeric(splits[i,1]) - as.numeric(splits[i-1,2]) > 1) {
-        dummy_fill[i,1] <- as.numeric(splits[i-1,2])
-        dummy_fill[i,2] <- as.numeric(splits[i,1])
+    for (i in 2:length(splits[, 1])) {
+      if (as.numeric(splits[i, 1]) - as.numeric(splits[i - 1, 2]) > 1) {
+        dummy_fill[i, 1] <- as.numeric(splits[i - 1, 2])
+        dummy_fill[i, 2] <- as.numeric(splits[i, 1])
       }
     }
 
     dummy_fill <- dummy_fill %>% dplyr::filter(!is.na(lower))
 
     # create the sequence levels
-    seq_lower <- c(splits[,1],(dummy_fill$lower+1)) %>% stringr::str_sort(., numeric = TRUE) %>%
+    seq_lower <- c(splits[, 1], (dummy_fill$lower + 1)) %>%
+      stringr::str_sort(., numeric = TRUE) %>%
       as.numeric()
-    seq_upper <- c(splits[,2],(dummy_fill$upper-1)) %>% .[nzchar(.,keepNA = FALSE)] %>%
-      stringr::str_sort(., numeric = TRUE) %>% as.numeric()
+    seq_upper <- c(splits[, 2], (dummy_fill$upper - 1)) %>%
+      .[nzchar(., keepNA = FALSE)] %>%
+      stringr::str_sort(., numeric = TRUE) %>%
+      as.numeric()
   }
 
   # correcting for NAs
@@ -223,9 +270,10 @@ complete_agegrp_arr <- function(df, format_check_results) {
 
   # combine to create the complete age group array
   # adding leading zeros on <10 ages
-  all_agegrps <- paste0(sprintf("%02d",seq_lower),
-                        format_check_results$agegrp_div,
-                        sprintf("%02d",seq_upper)
+  all_agegrps <- paste0(
+    sprintf("%02d", seq_lower),
+    format_check_results$agegrp_div,
+    sprintf("%02d", seq_upper)
   )
 
   # if symbol is used, add it where appropriate
@@ -248,7 +296,7 @@ complete_agegrp_arr <- function(df, format_check_results) {
       if (format_check_results$other_punct_char[[spc_char]]$placement_in_arr == "start") {
         all_agegrps[1] <- agegroup_str
       } else {
-        all_agegrps[length(all_agegrps)+1] <- agegroup_str
+        all_agegrps[length(all_agegrps) + 1] <- agegroup_str
         max_num_inp <- format_check_results$other_punct_char[[spc_char]]$num_val
       }
     }
@@ -256,18 +304,21 @@ complete_agegrp_arr <- function(df, format_check_results) {
     # remove potential numbers smaller and larger than number with special character attached
     if (!is.null(max_num_inp)) {
       # splitting the ages, only keeping numeric
-      splits_tmp <- stringr::str_split_fixed(string  = all_agegrps,
-                                             pattern = regex_string,
-                                             n = 2) %>%
+      splits_tmp <- stringr::str_split_fixed(
+        string = all_agegrps,
+        pattern = regex_string,
+        n = 2
+      ) %>%
         gsub(pattern = "\\D", replacement = "")
 
       rows_to_remove <- which(apply(splits_tmp, 2, as.numeric) > as.numeric(max_num_inp), arr.ind = T) %>%
-        as.data.frame() %>% dplyr::select(row) %>% dplyr::distinct() %>% unlist
+        as.data.frame() %>%
+        dplyr::select(row) %>%
+        dplyr::distinct() %>%
+        unlist()
 
       all_agegrps <- all_agegrps[-rows_to_remove]
-
     }
-
   }
 
   # checking to see if all agegroups entities are found in the array
@@ -330,7 +381,6 @@ age_groups <- function(df, break_at = NULL) {
 
     # move age_group to correct position
     df <- df %>% dplyr::relocate(age_group, .after = age)
-
   }
 
   # conducting format enquires
@@ -338,13 +388,14 @@ age_groups <- function(df, break_at = NULL) {
 
   # if not the correct xx-xx format is used, insert leading 0's where necesary
   if (length(format_check_results$format_agegrp_xx) > 0) {
-    splits <- stringr::str_split_fixed(as.character(df$age_group),format_check_results$agegrp_div, 2)
+    splits <- stringr::str_split_fixed(as.character(df$age_group), format_check_results$agegrp_div, 2)
 
     for (item in format_check_results$format_agegrp_xx) {
-      df$age_group[item] <- paste0(sprintf("%02d",as.numeric(splits[item,1])),
-                                   format_check_results$agegrp_div,
-                                   sprintf("%02d",as.numeric(splits[item,2])))
-
+      df$age_group[item] <- paste0(
+        sprintf("%02d", as.numeric(splits[item, 1])),
+        format_check_results$agegrp_div,
+        sprintf("%02d", as.numeric(splits[item, 2]))
+      )
     }
   }
 
@@ -355,7 +406,8 @@ age_groups <- function(df, break_at = NULL) {
 
   # converting age_group to factor ------------------------------------------
   df$age_group <- factor(df$age_group,
-                         levels = app_cache_env$age_group_levels)
+    levels = app_cache_env$age_group_levels
+  )
 
   return(list(df = df, agegroup_levels = all_agegroups))
 }
@@ -426,30 +478,28 @@ get_signals_stratified <- function(data,
   # get min and max date of the whole dataset before stratification
   # stratified aggregated data can be filled up with 0s until min and max date
   # of the full dataset
-  if(is.null(date_start)){
+  if (is.null(date_start)) {
     date_start <- min(data[[date_var]], na.rm = TRUE)
   }
-  if(is.null(date_end)){
+  if (is.null(date_end)) {
     date_end <- max(data[[date_var]], na.rm = TRUE)
   }
 
   # Loop through each category
   for (category in stratification_columns) {
-
-    if(is.factor(data[, category])){
+    if (is.factor(data[, category])) {
       # adding the NAs to also calculate signals for them
       strata <- levels(addNA(data[, category], ifany = TRUE))
-    }
-    else{
-      strata <- unique(data[, category])  # character is supported as well
+    } else {
+      strata <- unique(data[, category]) # character is supported as well
     }
 
     # iterate over all strata and run algorithm
     for (stratum in strata) {
       # when stratum is NA filter needs to be done differently otherwise the NA stratum is lost
-      if(is.na(stratum)){
+      if (is.na(stratum)) {
         sub_data <- data %>% dplyr::filter(is.na(.data[[category]]))
-      } else{
+      } else {
         sub_data <- data %>% dplyr::filter(.data[[category]] == stratum)
       }
 
@@ -460,17 +510,18 @@ get_signals_stratified <- function(data,
 
 
       # run selected algorithm
-      if(nrow(sub_data) == 0){
+      if (nrow(sub_data) == 0) {
         # don't run algorithm on those strata with 0 cases created by factors
         results <- sub_data_agg %>%
           # set alarms to FALSE for the timeperiod alarms are generated for in the other present levels
           # logically the alarms column should also contain NA but later on computations are based on when the first alarm appears and when giving 0 timeseries to the algorithms they also put FALSE to the alarms column thus it is consistent
           # upperbound and expected to NA
           dplyr::mutate(alarms = dplyr::if_else(dplyr::row_number() > (nrow(results) - number_of_weeks + 1), FALSE, NA)) %>%
-          dplyr::mutate(upperbound = NA,
-                        expected = NA)
-
-      }else{
+          dplyr::mutate(
+            upperbound = NA,
+            expected = NA
+          )
+      } else {
         results <- fun(sub_data_agg, number_of_weeks)
       }
 
@@ -528,7 +579,8 @@ get_signals <- function(data,
                         number_of_weeks = 52) {
   # check that input method and stratification are correct
   checkmate::assert(
-    checkmate::check_choice(method, choices = available_algorithms()))
+    checkmate::check_choice(method, choices = available_algorithms())
+  )
 
   checkmate::assert(
     checkmate::check_null(stratification),
@@ -557,9 +609,9 @@ get_signals <- function(data,
     fun <- get_signals_farringtonflexible
   } else if (method == "aeddo") {
     fun <- get_signals_aeddo
-  } else if (method == "ears"){
+  } else if (method == "ears") {
     fun <- get_signals_ears
-  } else if (method == "cusum"){
+  } else if (method == "cusum") {
     fun <- get_signals_cusum
   }
 
@@ -571,7 +623,7 @@ get_signals <- function(data,
 
     results <- fun(data_agg, number_of_weeks)
 
-    if(!is.null(results)){
+    if (!is.null(results)) {
       results <- results %>%
         dplyr::mutate(category = NA, stratum = NA)
     }
@@ -694,7 +746,6 @@ save_signals <- function(signals, original_input_data, filepath = "") {
 #' data <- preprocess_data(SignalDetectionTool::input_example)
 #' conjure_filename(SignalDetectionTool::get_signals(data))
 #' }
-#'
 #'
 #' @export
 conjure_filename <- function(data) {
