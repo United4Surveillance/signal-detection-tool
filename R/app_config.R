@@ -1,3 +1,9 @@
+app_cache_env <- new.env()
+app_cache_env$sex_levels <- c("male", "female", "diverse", NA_character_)
+app_cache_env$age_group_levels <- c("00-04", "05-09", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90-94", "95-99", "100-104", "105-109", NA_character_)
+
+
+
 #' Access files in the current app
 #'
 #' NOTE: If you manually change your package name in the DESCRIPTION,
@@ -23,18 +29,17 @@ app_sys <- function(...) {
 #'
 #' @noRd
 get_golem_config <- function(
-  value,
-  config = Sys.getenv(
-    "GOLEM_CONFIG_ACTIVE",
-    Sys.getenv(
-      "R_CONFIG_ACTIVE",
-      "default"
-    )
-  ),
-  use_parent = TRUE,
-  # Modify this if your config file is somewhere else
-  file = app_sys("golem-config.yml")
-) {
+    value,
+    config = Sys.getenv(
+      "GOLEM_CONFIG_ACTIVE",
+      Sys.getenv(
+        "R_CONFIG_ACTIVE",
+        "default"
+      )
+    ),
+    use_parent = TRUE,
+    # Modify this if your config file is somewhere else
+    file = app_sys("golem-config.yml")) {
   config::get(
     value = value,
     config = config,

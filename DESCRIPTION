@@ -25,7 +25,7 @@ Imports:
     readxl (>= 1.4.1),
     rlang (>= 1.1.1),
     rmarkdown (>= 2.20),
-    markdown (>= 1.12),
+    markdown (>= 1.8),
     scales (>= 1.2.1),
     sf (>= 1.0.9),
     shiny (>= 1.8.0),
@@ -35,11 +35,12 @@ Imports:
     stringr (>= 1.5.0),
     surveillance (>= 1.21.0),
     tidyr (>= 1.2.1),
-    tools
+    tools,
+    forcats (>= 1.0.0)
 Suggests: 
     knitr (>= 1.42),
     spelling (>= 2.3.0),
-    testthat (>= 3.0.0)
+    testthat (>= 3.1.5)
 VignetteBuilder: 
     knitr
 Config/testthat/edition: 3

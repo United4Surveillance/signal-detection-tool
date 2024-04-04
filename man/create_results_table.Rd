@@ -2,7 +2,7 @@
 % Please edit documentation in R/results_table.R
 \name{create_results_table}
 \alias{create_results_table}
-\title{Create a results table with optional filtering}
+\title{Create the signal detection results table with optional filtering}
 \usage{
 create_results_table(data, interactive = TRUE, positive_only = TRUE)
 }
@@ -12,8 +12,7 @@ create_results_table(data, interactive = TRUE, positive_only = TRUE)
 \item{interactive}{Logical indicating whether to create an interactive
 DataTable (default is TRUE).}
 
-\item{positive_only}{Logical indicating whether to filter only positive cases
-(default is TRUE).}
+\item{positive_only}{Logical indicating whether to filter only those signal results where an alarm was generated (default is TRUE).}
 }
 \value{
 An interactive DataTable or a static gt table, depending on the value
@@ -22,15 +21,17 @@ An interactive DataTable or a static gt table, depending on the value
 \description{
 This function creates a results table based on the input data frame. It can
 filter the data based on the `positive_only` parameter and converts certain
-columns to integers for styling purposes.
+columns to integers for styling purposes. This table is used to show all signal detection results for different stratifications together in one table
 }
 \examples{
 \dontrun{
-data <- data.frame(year = 2020:2022,
-                   week = 1:3,
-                   cases = 10:12,
-                   alarms = c(TRUE, FALSE, TRUE),
-                   upperbound = c(15, NA, 14))
+data <- data.frame(
+  year = 2020:2022,
+  week = 1:3,
+  cases = 10:12,
+  alarms = c(TRUE, FALSE, TRUE),
+  upperbound = c(15, NA, 14)
+)
 create_results_table(data)
 }
 }

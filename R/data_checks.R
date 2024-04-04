@@ -135,7 +135,7 @@ check_type_and_value_optional_variables <- function(data) {
       errors <- append(errors, "sex is not a character")
     } else {
       if (!check_character_levels(tolower(data$sex), sex_raw_levels())) {
-        errors <- append(errors, paste0("Sex does not have the required levels ", paste(unlist(sex_levels()), collapse = ", ")))
+        errors <- append(errors, paste0("Sex does not have the required levels ", paste(unlist(setdiff(sex_raw_levels(),c("",NA_character_))), collapse = ", ")))
       }
     }
   }
@@ -249,7 +249,7 @@ check_type_and_value_yes_no_unknown <- function(data, var) {
     errors <- append(errors, paste0(var, " is not a character"))
   } else {
     if (!check_character_levels(tolower(data[[var]]), yes_no_unknown_raw_levels())) {
-      error_message <- paste0(var, " does not have the required levels ", paste(unlist(yes_no_unknown_levels()), collapse = ", "))
+      error_message <- paste0(var, " does not have the required levels ", paste(unlist(setdiff(yes_no_unknown_raw_levels(),c("",NA_character_))), collapse = ", "))
       errors <- append(errors, error_message)
     }
   }

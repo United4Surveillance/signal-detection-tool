@@ -47,65 +47,65 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }
     ")
           ),
-    shiny::fluidRow(
-      column(
-        6,
-        shiny::wellPanel(
-          span("Dataset settings", style = "font-size:140%;color:#304794"),
-          hr(),
-          span("Pathogen", style = "font-size:100%;font-weight: bold"),
-          shiny::uiOutput(ns("pathogen_choices")),
-          br(),
-          span("Filters", style = "font-size:100%;font-weight: bold"),
-          br(),
-          span("You can chose to investigate a subset of your data according to the filters you select. When filtering by date_report you have the possibility select a specific timeperiod you want to investigate. In the timeseries visualisation only the timeperiod you selected will be shown and the outbreak detection algorithms will only train on the data from the timeperiod you selected."),
-          br(),
-          br(),
-          shiny::div(
-            id = "filter_input",
-            span(
-              "Add and remove filters",
-              shiny::actionButton(
-                inputId = ns("add_filter"),
-                label = "",
-                icon = shiny::icon("plus")
-              ),
-              shiny::actionButton(
-                inputId = ns("remove_filter"),
-                label = "",
-                icon = shiny::icon("minus")
+          shiny::fluidRow(
+            column(
+              6,
+              shiny::wellPanel(
+                span("Dataset settings", style = "font-size:140%;color:#304794"),
+                hr(),
+                span("Pathogen", style = "font-size:100%;font-weight: bold"),
+                shiny::uiOutput(ns("pathogen_choices")),
+                br(),
+                span("Filters", style = "font-size:100%;font-weight: bold"),
+                br(),
+                span("You can chose to investigate a subset of your data according to the filters you select. When filtering by date_report you have the possibility select a specific timeperiod you want to investigate. In the timeseries visualisation only the timeperiod you selected will be shown and the outbreak detection algorithms will only train on the data from the timeperiod you selected."),
+                br(),
+                br(),
+                shiny::div(
+                  id = "filter_input",
+                  span(
+                    "Add and remove filters",
+                    shiny::actionButton(
+                      inputId = ns("add_filter"),
+                      label = "",
+                      icon = shiny::icon("plus")
+                    ),
+                    shiny::actionButton(
+                      inputId = ns("remove_filter"),
+                      label = "",
+                      icon = shiny::icon("minus")
+                    )
+                  ),
+                ),
+                br(),
+                mod_input_filter_ui(id = ns("filter0"))
               )
             ),
-          ),
-          br(),
-          mod_input_filter_ui(id = ns("filter0"))
-        )
-      ),
-      column(
-        6,
-        shiny::wellPanel(
-          span("Signal Detection settings", style = "font-size:140%;color:#304794"),
-          hr(),
-          span("Strata", style = "font-size:100%;font-weight: bold"),
-          br(),
-          span("Select up to 3 variables you want to stratify by. Signals and visualisations will be generated for each stratum."),
-          shiny::uiOutput(ns("strat_choices")),
-          br(),
-          span("Signal Detection Period", style = "font-size:100%;font-weight: bold"),
-          br(),
-          span("Set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks."),
-          br(),
-          shiny::uiOutput(ns("weeks_selection")),
-          shiny::textOutput(ns("text_weeks_selection")),
-          br(),
-          span("Signal detection algorithm", style = "font-size:100%;font-weight: bold"),
-          br(),
-          span("Depending on the number of weeks you want to generate alarms for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
-          br(),
-          shiny::uiOutput(ns("algorithm_choice"))
-        )
-      )
-    )
+            column(
+              6,
+              shiny::wellPanel(
+                span("Signal Detection settings", style = "font-size:140%;color:#304794"),
+                hr(),
+                span("Strata", style = "font-size:100%;font-weight: bold"),
+                br(),
+                span("Select up to 3 variables you want to stratify by. Signals and visualisations will be generated for each stratum."),
+                shiny::uiOutput(ns("strat_choices")),
+                br(),
+                span("Signal Detection Period", style = "font-size:100%;font-weight: bold"),
+                br(),
+                span("Set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks."),
+                br(),
+                shiny::uiOutput(ns("weeks_selection")),
+                shiny::textOutput(ns("text_weeks_selection")),
+                br(),
+                span("Signal detection algorithm", style = "font-size:100%;font-weight: bold"),
+                br(),
+                span("Depending on the number of weeks you want to generate alarms for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
+                br(),
+                shiny::uiOutput(ns("algorithm_choice"))
+              )
+            )
+          )
         ))
       }
     })
@@ -126,7 +126,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     # using shinyvalidate to ensure value between min and max
     iv_weeks <- shinyvalidate::InputValidator$new()
     iv_weeks$add_rule("n_weeks", shinyvalidate::sv_required(
-      message = "This input is required to be able to choose a signal detection algorithm."))
+      message = "This input is required to be able to choose a signal detection algorithm."
+    ))
     iv_weeks$add_rule("n_weeks", shinyvalidate::sv_integer())
     iv_weeks$add_rule("n_weeks", shinyvalidate::sv_between(1, 52))
     iv_weeks$enable()
@@ -137,8 +138,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::req(iv_weeks$is_valid())
 
       date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(input$n_weeks),
-                                          week_start = 1, unit = "week")
-      date_ceil  <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 7)
+        week_start = 1, unit = "week"
+      )
+      date_ceil <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 7)
 
       paste("Chosen signal detection period from", date_floor, "to", date_ceil)
     })
@@ -265,6 +267,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }))
       df <- data_sub()
       n_filters() # triggers reevaluation whenever a filter is removed
+      # resetting the levels to the original values
+      # when filters are removed or new dataset is uploaded then they are reset
+      app_cache_env$sex_levels <- c("male", "female", "diverse", NA_character_)
+      app_cache_env$age_group_levels <- create_age_group_levels(df)
+
       for (filter in names(all_filters)) {
         if (all_filters[[filter]]$filter_var() != "None") {
           filter_var <- rlang::sym(all_filters[[filter]]$filter_var())
@@ -281,10 +288,20 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                   is.na(!!filter_var) |
                     !!filter_var %in% filter_val[filter_val != "N/A"]
                 )
-            } else if (class(data()[[filter_var]]) == "factor") {    # apply filter for factors (dropping levels)
+            } else if (class(data()[[filter_var]]) == "factor") { # apply filter for factors (dropping levels)
               df <- df %>%
                 dplyr::filter(!!filter_var %in% filter_val) %>%
                 dplyr::mutate(!!filter_var := factor(!!filter_var, levels = filter_val))
+              # update the factor levels in app_cache_env
+              if (filter_var == "sex") {
+                sex_order <- c("male", "female", "diverse")
+                sorted_filter_val <- filter_val[match(sex_order, filter_val)]
+                app_cache_env$sex_levels <- sorted_filter_val
+              }
+              if (filter_var == "age_group") {
+                sorted_filter_val <- stringr::str_sort(filter_val, numeric = TRUE)
+                app_cache_env$age_group_levels <- sorted_filter_val
+              }
             } else { # otherwise
               df <- df %>%
                 dplyr::filter(!!filter_var %in% filter_val)
@@ -322,33 +339,33 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     # updating stratification choices, removing 'None' if any is chosen
     shiny::observeEvent(input$strat_vars,
-                        {
-                          Selected <- input$strat_vars
+      {
+        Selected <- input$strat_vars
 
-                          # finding lastest selection change
-                          new_selection <- setdiff(Selected, last_selection$d)
+        # finding lastest selection change
+        new_selection <- setdiff(Selected, last_selection$d)
 
-                          if (length(new_selection) > 0) {
-                            # if lastest selection is 'None', only keep 'None'
-                            if (new_selection == "None") {
-                              Selected <- "None"
-                              # if latest selection is not 'None', keep everything except 'None'
-                            } else {
-                              Selected <- Selected[Selected != "None"]
-                            }
-                          }
+        if (length(new_selection) > 0) {
+          # if lastest selection is 'None', only keep 'None'
+          if (new_selection == "None") {
+            Selected <- "None"
+            # if latest selection is not 'None', keep everything except 'None'
+          } else {
+            Selected <- Selected[Selected != "None"]
+          }
+        }
 
-                          # updating UI component
-                          shiny::updateSelectizeInput(
-                            session = session,
-                            inputId = "strat_vars",
-                            selected = Selected
-                          )
+        # updating UI component
+        shiny::updateSelectizeInput(
+          session = session,
+          inputId = "strat_vars",
+          selected = Selected
+        )
 
-                          # updating last selection
-                          last_selection$d <<- Selected
-                        },
-                        ignoreNULL = FALSE
+        # updating last selection
+        last_selection$d <<- Selected
+      },
+      ignoreNULL = FALSE
     )
 
     # apply signal detection on country level to the filtered data to check which algorithms are working
@@ -358,10 +375,15 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::req(input$n_weeks)
       shiny::req(iv_weeks$is_valid())
 
+      # checking whether data has any rows after filtering
+      if (nrow(filtered_data()) < 1) {
+        return(NULL)
+      }
+
       signals_all_methods <- dplyr::bind_rows(purrr::map(unlist(available_algorithms()), function(algorithm) {
         signals <- get_signals(filtered_data(),
-                               method = algorithm,
-                               number_of_weeks = input$n_weeks
+          method = algorithm,
+          number_of_weeks = input$n_weeks
         )
         if (!is.null(signals)) {
           signals <- signals %>% dplyr::mutate(method = algorithm)
@@ -429,9 +451,15 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }),
       n_weeks = shiny::reactive(input$n_weeks),
       weeks_input_valid = shiny::reactive(iv_weeks$is_valid()),
-      strat_vars = shiny::reactive({input$strat_vars}),
-      pathogen_vars = shiny::reactive({input$pathogen_vars}),
-      method = shiny::reactive({input$algorithm_choice}),
+      strat_vars = shiny::reactive({
+        input$strat_vars
+      }),
+      pathogen_vars = shiny::reactive({
+        input$pathogen_vars
+      }),
+      method = shiny::reactive({
+        input$algorithm_choice
+      }),
       no_algorithm_possible = shiny::reactive(no_algorithm_possible())
     ))
   })
