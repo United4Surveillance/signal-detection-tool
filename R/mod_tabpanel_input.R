@@ -375,6 +375,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::req(input$n_weeks)
       shiny::req(iv_weeks$is_valid())
 
+      # checking whether data has any rows after filtering
+      if (nrow(filtered_data()) < 1) {
+        return(NULL)
+      }
+
       signals_all_methods <- dplyr::bind_rows(purrr::map(unlist(available_algorithms()), function(algorithm) {
         signals <- get_signals(filtered_data(),
           method = algorithm,
