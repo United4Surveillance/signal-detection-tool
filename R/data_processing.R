@@ -21,10 +21,10 @@ preprocess_data <- function(data) {
 
   # get all variables that are characters and not case_id or date
   factorization_vars <- dplyr::select(data, dplyr::where(is.character) &
-                                        !dplyr::any_of(c("sex", "age_group")) &
-                                        !dplyr::all_of(yes_no_unknown_vars) &
-                                        !dplyr::starts_with("date") &
-                                        !dplyr::ends_with("id")) %>% names
+    !dplyr::any_of(c("sex", "age_group")) &
+    !dplyr::all_of(yes_no_unknown_vars) &
+    !dplyr::starts_with("date") &
+    !dplyr::ends_with("id")) %>% names()
 
   # remove cases with missing values
   data <- data %>%
@@ -37,8 +37,10 @@ preprocess_data <- function(data) {
     dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, "NA"))) %>%
     dplyr::mutate(dplyr::across(dplyr::starts_with("date"), ~ as.Date(.x, optional = T))) %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(regional_id_vars), ~ as.character(.x))) %>%
-    dplyr::mutate(dplyr::across(dplyr::all_of(yes_no_unknown_vars),
-                                ~ factor(.x, levels = unlist(yes_no_unknown_levels())))) %>%
+    dplyr::mutate(dplyr::across(
+      dplyr::all_of(yes_no_unknown_vars),
+      ~ factor(.x, levels = unlist(yes_no_unknown_levels()))
+    )) %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(factorization_vars), ~ as.factor(.x)))
 
 
@@ -107,10 +109,9 @@ aggregate_data <- function(data,
 #' }
 #' @export
 aggregate_signals <- function(signals, number_of_weeks) {
-
   signals %>%
     filter_data_last_n_weeks(number_of_weeks = number_of_weeks) %>%
-    dplyr::group_by(category,stratum) %>%
+    dplyr::group_by(category, stratum) %>%
     dplyr::summarise(
       cases = sum(cases, na.rm = T),
       any_alarms = any(alarms, na.rm = T),
@@ -230,7 +231,7 @@ filter_data_last_n_weeks <- function(data_agg,
   )
 
   data_agg %>%
-    dplyr::group_by(category,stratum) %>%
+    dplyr::group_by(category, stratum) %>%
     dplyr::arrange(year, week) %>%
     dplyr::slice_tail(n = number_of_weeks) %>%
     dplyr::ungroup()
