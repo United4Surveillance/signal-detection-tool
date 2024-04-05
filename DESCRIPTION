@@ -1,6 +1,6 @@
 Package: SignalDetectionTool
 Title: PKG_TITLE
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
     person("AUTHOR_FIRST", "AUTHOR_LAST", , "AUTHOR@MAIL.COM", role = c("cre", "aut"))
 Description: PKG_DESC.
