@@ -154,11 +154,12 @@ create_results_table <- function(data,
   # Somehow columns are of type double when the should be integers
   # convert for styling later on
   data <- convert_columns_integer(data, c("year", "week", "cases"))
-
+  #browser()
   data <- data %>%
-    dplyr::mutate(category = dplyr::if_else(is.na(category), "None", category))
+    dplyr::mutate(category = dplyr::if_else(is.na(category), "None", category)) %>%
+    dplyr::rename(threshold = upperbound)
 
-  data <- data %>% dplyr::filter(!is.na(.data$upperbound))
+  data <- data %>% dplyr::filter(!is.na(threshold))
   if (positive_only) {
     data <- data %>% dplyr::filter(.data$alarms == TRUE)
   }
