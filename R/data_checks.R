@@ -62,7 +62,7 @@ check_presence_mandatory_variables <- function(data) {
 
   # age is not mandatory as age or age_group can be given and thus
   # checked seperately
-  mandatory_columns <- input_metadata %>%
+  mandatory_columns <- SignalDetectionTool::input_metadata %>%
     dplyr::filter(Mandatory == "YES") %>%
     dplyr::pull("Variable")
 
