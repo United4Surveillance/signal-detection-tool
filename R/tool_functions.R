@@ -9,6 +9,7 @@
 #' \dontrun{
 #' find_age_group(5, c(0, 5, 10, 99)) # would result in "05-09"
 #' find_age_group(12, c(0, 5, 15, 99)) # would result in "05-14"
+#' find_age_group(NA, c(0, 5, 15, 99)) # would result in NA
 #' }
 find_age_group <- function(age, x) {
   intervals <- length(x) # number of age groups
@@ -18,19 +19,24 @@ find_age_group <- function(age, x) {
       group <- paste0(x[i], "+")
       return(group)
     }
-    if ((x[i] <= age) & (age < x[i + 1])) {
-      if (age < 10 | x[i] < 10) { # zero padding
-        group <- paste(paste0(0, x[i]),
-          ifelse(x[i + 1] - 1 < 10,
-            paste0(0, x[i + 1] - 1),
-            x[i + 1] - 1
-          ),
-          sep = "-"
-        )
-        return(group)
-      } else {
-        group <- paste(x[i], x[i + 1] - 1, sep = "-")
-        return(group)
+    if (is.na(age)){
+      group <- NA_character_
+      return(group)
+    } else{
+      if ((x[i] <= age) & (age < x[i + 1])) {
+        if (age < 10 | x[i] < 10) { # zero padding
+          group <- paste(paste0(0, x[i]),
+                         ifelse(x[i + 1] - 1 < 10,
+                                paste0(0, x[i + 1] - 1),
+                                x[i + 1] - 1
+                         ),
+                         sep = "-"
+          )
+          return(group)
+        } else {
+          group <- paste(x[i], x[i + 1] - 1, sep = "-")
+          return(group)
+        }
       }
     }
   }
@@ -212,7 +218,7 @@ complete_agegrp_arr <- function(df, format_check_results) {
 
     # find the maximum age in relation to the age group gap
     max_data_rounded <- plyr::round_any(
-      x = max(df$age),
+      x = max(df$age, na.rm = T),
       accuracy = split_range,
       f = ceiling
     )
