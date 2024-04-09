@@ -37,7 +37,7 @@ mod_tabpanel_data_ui <- function(id) {
       mainPanel(
         h3("Data check results"),
         h4("Correct type and values of the columns in your data"),
-        span("In this section you receive feedback about the correct type and values of all columns in your data where the column name was written correctly. Columns which are not written in the way it is required by the SOP are not checked for correctness."),
+        span("In this section you receive feedback about the correct type and values of all columns in your data where the column name was written correctly. Columns which are not written in the way it is required by the SOP are not checked for correctness. If there is an error in this section you need to first fix it to be able to use the tool."),
         hr(),
         div(
           style = "border: 2px solid black; padding: 10px;",
@@ -45,9 +45,9 @@ mod_tabpanel_data_ui <- function(id) {
         ), # Display errors output
         hr(), # Horizontal line for visual separation
         h4("Columns in your dataset which were not checked for correctness and will not be used by the Signal Detection Tool"),
-        span("In this section you receive feedback about columns which are not recognised by this tool. These can be columns which have a wrong column name as they do not match the predefined names in the SOP. Furthermore additional columns you provided in your dataset which we did not predefine are shown here."),
+        span("In this section you receive feedback about columns which are not recognised/are currently not used by this tool. These can be columns with a wrong column name which does not match the predefined names in the SOP but also additional columns you provided which are not part of the SOP. You can still continue using the app even when there are notifications in this section."),
         hr(),
-        span("Please check the column names shown and correct them where necessary."),
+        span("Please check the column names shown and correct those which should match column names defined in the SOP. The additional columns you provided can stay."),
         span("After you corrected the columns please upload your data again for verification."),
         hr(),
         div(
@@ -56,7 +56,7 @@ mod_tabpanel_data_ui <- function(id) {
         ),
         hr(),
         h4("Cases which have missing data"),
-        span(paste0("In this section you receive feedback about cases for which data required for the computations is missing and will thus be removed. The following variables are checked for missingness: ",check_for_missing_values(), ". If any of these variables have a missing value the case is removed.")),
+        span(paste0("In this section you receive feedback about cases for which data required for the computations is missing and will thus be removed for all analysis. The following variables are checked for missingness: ",check_for_missing_values(), ". If any of these variables have a missing value the case is removed for all analysis.")),
         hr(),
         span("Please check if values are missing on purpose, otherwise please correct the data uploaded. Case IDs listed below are excluded from analysis."),
         hr(),
@@ -133,7 +133,7 @@ mod_tabpanel_data_server <- function(id) {
       # get additional variables
       unused_vars <- get_unused_variables(data())
       if (length(unused_vars) == 0) {
-        "There are zero variables which are not recognised/known by the tool."
+        "All columns in your dataset are recognised by the tool."
       } else {
         format_html_list(unused_vars)
       }
