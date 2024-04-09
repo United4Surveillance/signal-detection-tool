@@ -14,8 +14,8 @@ results_analysis <- signals_agg %>%
                 category %in% strat)
 
 stringr::str_glue(
-  "When stratifiying by {strat_text} the {names(params$algo)} algorithm detects ", 
-  "{sum(results_analysis$n_alarms)} signals in the signal detection period.")
+  "When stratifying by {strat_text}, the {names(params$algo)} algorithm detects ", 
+  "{sum(results_analysis$n_alarms)} signal{ifelse(sum(results_analysis$n_alarms) == 1, '', 's')} in the signal detection period.")
 ```
 
 ```{r}
