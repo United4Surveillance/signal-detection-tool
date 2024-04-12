@@ -36,7 +36,8 @@ Imports:
     surveillance (>= 1.21.0),
     tidyr (>= 1.2.1),
     tools,
-    forcats (>= 1.0.0)
+    forcats (>= 1.0.0),
+    plyr (>= 1.8.8)
 Suggests: 
     knitr (>= 1.42),
     spelling (>= 2.3.0),
