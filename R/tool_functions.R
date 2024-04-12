@@ -19,18 +19,18 @@ find_age_group <- function(age, x) {
       group <- paste0(x[i], "+")
       return(group)
     }
-    if (is.na(age)){
+    if (is.na(age)) {
       group <- NA_character_
       return(group)
-    } else{
+    } else {
       if ((x[i] <= age) & (age < x[i + 1])) {
         if (age < 10 | x[i] < 10) { # zero padding
           group <- paste(paste0(0, x[i]),
-                         ifelse(x[i + 1] - 1 < 10,
-                                paste0(0, x[i + 1] - 1),
-                                x[i + 1] - 1
-                         ),
-                         sep = "-"
+            ifelse(x[i + 1] - 1 < 10,
+              paste0(0, x[i + 1] - 1),
+              x[i + 1] - 1
+            ),
+            sep = "-"
           )
           return(group)
         } else {
