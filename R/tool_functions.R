@@ -9,6 +9,7 @@
 #' \dontrun{
 #' find_age_group(5, c(0, 5, 10, 99)) # would result in "05-09"
 #' find_age_group(12, c(0, 5, 15, 99)) # would result in "05-14"
+#' find_age_group(NA, c(0, 5, 15, 99)) # would result in NA
 #' }
 find_age_group <- function(age, x) {
   intervals <- length(x) # number of age groups
@@ -18,19 +19,24 @@ find_age_group <- function(age, x) {
       group <- paste0(x[i], "+")
       return(group)
     }
-    if ((x[i] <= age) & (age < x[i + 1])) {
-      if (age < 10 | x[i] < 10) { # zero padding
-        group <- paste(paste0(0, x[i]),
-          ifelse(x[i + 1] - 1 < 10,
-            paste0(0, x[i + 1] - 1),
-            x[i + 1] - 1
-          ),
-          sep = "-"
-        )
-        return(group)
-      } else {
-        group <- paste(x[i], x[i + 1] - 1, sep = "-")
-        return(group)
+    if (is.na(age)) {
+      group <- NA_character_
+      return(group)
+    } else {
+      if ((x[i] <= age) & (age < x[i + 1])) {
+        if (age < 10 | x[i] < 10) { # zero padding
+          group <- paste(paste0(0, x[i]),
+            ifelse(x[i + 1] - 1 < 10,
+              paste0(0, x[i + 1] - 1),
+              x[i + 1] - 1
+            ),
+            sep = "-"
+          )
+          return(group)
+        } else {
+          group <- paste(x[i], x[i + 1] - 1, sep = "-")
+          return(group)
+        }
       }
     }
   }
@@ -172,7 +178,10 @@ age_format_check <- function(df) {
 #' }
 complete_agegrp_arr <- function(df, format_check_results) {
   # find unique elements of age_group
+  # remove NA from the unique age_groups for the whole process and add it later again
   tmp_uniq_agegrp <- stringr::str_sort(unique(df$age_group), numeric = TRUE)
+  tmp_uniq_agegrp <- stats::na.omit(tmp_uniq_agegrp)
+
 
   # check to see if there are any gaps
   # building regex string dependent on level of punct characters found
@@ -205,21 +214,34 @@ complete_agegrp_arr <- function(df, format_check_results) {
     # find an example of an age group that is not NULL
     tmp_agegrp <- tmp_uniq_agegrp[grepl(paste0("[\\", format_check_results$agegrp_div, "]"), tmp_uniq_agegrp)][1]
 
-    # get the lower and upper of the age group gap and find the range
+    # get the lower and upper of the age group gap using the first age_group and find the range
     lower_split <- as.numeric(stringr::str_split_1(as.character(tmp_agegrp), format_check_results$agegrp_div)[1])
     upper_split <- as.numeric(stringr::str_split_1(as.character(tmp_agegrp), format_check_results$agegrp_div)[2])
     split_range <- plyr::round_any(upper_split - lower_split, accuracy = 5)
 
-    # find the maximum age in relation to the age group gap
-    max_data_rounded <- plyr::round_any(
-      x = max(df$age),
-      accuracy = split_range,
-      f = ceiling
-    )
+    if ("age" %in% colnames(df)) {
+      # find the maximum age in relation to the age group gap
+      max_age <- max(df$age, na.rm = T)
+      max_data_rounded <- plyr::round_any(
+        x = max_age,
+        accuracy = split_range,
+        f = ceiling
+      )
+    } else {
+      # age is not mandatory also only age_group can be in the dataset
+      # then take the largest age_group as maximum age
+      max_data_rounded <- as.numeric(max(splits))
+      max_age <- max_data_rounded
+    }
+
 
     # make sequences
     seq_lower <- seq(0, max_data_rounded, split_range)
     seq_upper <- (seq_lower - 1)[-1]
+    if (max_age >= seq_lower[length(seq_lower)]) {
+      # add the last missing upper seq which is lost and needed because we have max_age in this age_group
+      seq_upper <- c(seq_upper, seq_upper[length(seq_upper)] + split_range)
+    }
   } else if (!format_check_results$equal_sizing) {
     # find where there are missing gaps
     dummy_fill <- data.frame(
@@ -228,6 +250,7 @@ complete_agegrp_arr <- function(df, format_check_results) {
     )
 
     for (i in 2:length(splits[, 1])) {
+      # compare the start of the next split with the end of the previous to identify gaps
       if (as.numeric(splits[i, 1]) - as.numeric(splits[i - 1, 2]) > 1) {
         dummy_fill[i, 1] <- as.numeric(splits[i - 1, 2])
         dummy_fill[i, 2] <- as.numeric(splits[i, 1])
@@ -237,6 +260,7 @@ complete_agegrp_arr <- function(df, format_check_results) {
     dummy_fill <- dummy_fill %>% dplyr::filter(!is.na(lower))
 
     # create the sequence levels
+    # if new age groups were created add them and put them in the correct order
     seq_lower <- c(splits[, 1], (dummy_fill$lower + 1)) %>%
       stringr::str_sort(., numeric = TRUE) %>%
       as.numeric()
@@ -249,7 +273,6 @@ complete_agegrp_arr <- function(df, format_check_results) {
   # correcting for NAs
   if (any(is.na(seq_lower))) {
     if (which(is.na(seq_lower)) == 1) {
-      # seq_lower <- seq_lower %>% replace(is.na(.), 0)
       seq_lower[1] <- 0
     }
     seq_lower <- stats::na.omit(seq_lower)
@@ -320,8 +343,13 @@ complete_agegrp_arr <- function(df, format_check_results) {
       all_agegrps <- all_agegrps[-rows_to_remove]
     }
   }
+  # adding back NAs when there were any
+  if (any(is.na(df$age_group))) {
+    all_agegrps <- c(all_agegrps, NA_character_)
+  }
 
   # checking to see if all agegroups entities are found in the array
+  # if not all are present just use the original age_groups in the data
   if (any(unique(df$age_group) %in% all_agegrps == FALSE)) {
     all_agegrps <- unique(df$age_group)
   }
@@ -369,19 +397,22 @@ age_groups <- function(df, break_at = NULL) {
       set <- c(0, break_at)
     }
 
+
+    if (!checkmate::test_integerish(df$age)) { # check for integer, it is sufficient that they are whole numbers does not need to be of type integer, i.e. is.integer(3) would give FALSE
+      stop("Type of age is not integer")
+    }
     # assigning age group  ----------------------------------------------------
-
     for (i in 1:nrow(df)) { # assign age group to every age in data frame
-
-      if (is.integer(df$age) != TRUE) { # check for integer
-        stop("Type of age is not integer")
-      }
       df$age_group[i] <- find_age_group(df$age[i], set)
     }
 
     # move age_group to correct position
     df <- df %>% dplyr::relocate(age_group, .after = age)
   }
+
+  # remove leading or trailing whitespaces from age_group
+  df <- df %>%
+    dplyr::mutate(age_group = trimws(age_group))
 
   # conducting format enquires
   format_check_results <- age_format_check(df)
