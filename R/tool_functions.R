@@ -208,6 +208,9 @@ complete_agegrp_arr <- function(df, format_check_results) {
   ) %>%
     gsub(pattern = "\\D", replacement = "")
 
+  # remove rows of only NA or empty
+  splits <- splits[!apply(is.na(splits) | splits == "", 1, all),]
+
   # if there is equidistance
   if (format_check_results$equal_sizing) {
     # create sequence based on existing age_groups
@@ -397,10 +400,10 @@ age_groups <- function(df, break_at = NULL) {
       set <- c(0, break_at)
     }
 
-
     if (!checkmate::test_integerish(df$age)) { # check for integer, it is sufficient that they are whole numbers does not need to be of type integer, i.e. is.integer(3) would give FALSE
       stop("Type of age is not integer")
     }
+
     # assigning age group  ----------------------------------------------------
     for (i in 1:nrow(df)) { # assign age group to every age in data frame
       df$age_group[i] <- find_age_group(df$age[i], set)
