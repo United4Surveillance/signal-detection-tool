@@ -8,7 +8,15 @@
 #' @importFrom shiny shinyApp
 #' @importFrom golem with_golem_options
 run_app <- function(
-  onStart = NULL,
+  onStart = function() {
+      cat("Warnings are turned off\n")
+      options(warn = -1)
+
+      onStop(function() {
+        options(warn = 0)
+        cat("Warnings turned on\n")
+      })
+    },
   options = list(),
   enableBookmarking = NULL,
   uiPattern = "/",
