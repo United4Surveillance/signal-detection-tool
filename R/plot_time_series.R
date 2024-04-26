@@ -38,7 +38,7 @@ plot_time_series <- function(results, interactive = FALSE,
   # and dates for the last year and for the signal detection period
   nweeks_sdp  <- results %>% dplyr::filter(set_status == "Test data") %>% nrow
   range_dates_year <- list(min_date = format(max(results$date) - lubridate::weeks(number_of_weeks), "%Y-%m-%d"),
-                           max_date = format(max(results$date, "%Y-%m-%d")))
+                           max_date = format(max(results$date), "%Y-%m-%d"))
   range_dates_sdp  <- list(min_date = as.Date(max(results$date) - lubridate::weeks(nweeks_sdp-1)),
                       max_date = as.Date(max(results$date)))
 
