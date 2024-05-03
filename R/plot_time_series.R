@@ -120,7 +120,7 @@ plot_time_series <- function(results, interactive = FALSE,
       expand = c(0, 0)
     ) +
     ggplot2::scale_y_continuous(
-      breaks = scales::breaks_pretty(n = 10),
+      breaks = scales::breaks_pretty(n = 5),
       expand = ggplot2::expansion(mult = c(0, 0.1))
     ) +
     ggplot2::scale_shape_manual(
