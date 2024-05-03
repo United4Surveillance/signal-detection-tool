@@ -36,9 +36,10 @@ plot_time_series <- function(results, interactive = FALSE,
 
   # finding number of weeks for signal detection period
   # and dates for the last year and for the signal detection period
-  nweeks_sdp  <- results %>% dplyr::filter(set_status == "Test data") %>% nrow
+  nweeks_sdp  <- results %>% dplyr::filter(set_status == "Test data") %>%
+    {nrow(.) / dplyr::n_distinct(results$stratum)} %>% round()
   range_dates_year <- list(min_date = format(max(results$date) - lubridate::weeks(number_of_weeks), "%Y-%m-%d"),
-                           max_date = format(max(results$date, "%Y-%m-%d")))
+                           max_date = format(max(results$date), "%Y-%m-%d"))
   range_dates_sdp  <- list(min_date = as.Date(max(results$date) - lubridate::weeks(nweeks_sdp-1)),
                       max_date = as.Date(max(results$date)))
 
@@ -119,7 +120,7 @@ plot_time_series <- function(results, interactive = FALSE,
       expand = c(0, 0)
     ) +
     ggplot2::scale_y_continuous(
-      breaks = scales::breaks_pretty(n = 10),
+      breaks = scales::breaks_pretty(n = 5),
       expand = ggplot2::expansion(mult = c(0, 0.1))
     ) +
     ggplot2::scale_shape_manual(
