@@ -1,14 +1,15 @@
 # SignalDetectionTool 0.1.1
 * Updated `timeseries()` to show the blue background, signifying signal detection period, correctly, when using `facet_grid` for strata in report. 
 * Improved general readability of `timeseries` plot, when used in relation to `facet`.
+* Correcting text specifying the chosen signal detection period in Input tab.
 
 # SignalDetectionTool 0.1.0
 
-* First version of the tool provided to piloting countries
-* Data Check, Input parameter, Signal and Report Tab are implemented
-* SignalDetection Algorithms FarringtonFlexible, EARS and CUSUM with reset are implemented
-* Interactivity in the Signal tab is realised using plotly and additional shiny buttons
-* User can download a doxc or html report in the Report tab
+* First version of the tool provided to piloting countries.
+* Data Check, Input parameter, Signal and Report Tab are implemented.
+* SignalDetection Algorithms FarringtonFlexible, EARS and CUSUM with reset are implemented.
+* Interactivity in the Signal tab is realised using plotly and additional shiny buttons.
+* User can download a doxc or html report in the Report tab.
 
 # SignalDetectionTool 0.0.0.9000
 

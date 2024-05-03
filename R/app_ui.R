@@ -13,18 +13,27 @@ app_ui <- function(request) {
       # Application title
       ## Logo and headertext
       shiny::titlePanel( shiny::div(
-        shiny::column(width = 10, shiny::h1("United4Surveillance Signal Detection Tool")),
-        shiny::column(width = 2, shiny::tags$img(src = "www/U4S-BLUE-200x87.png"))),
+        shiny::column(width = 8, shiny::h1("United4Surveillance Signal Detection Tool")),
+        shiny::column(width = 2, shiny::tags$img(src = "www/U4S-BLUE-200x87.png", style = "padding-bottom: 20px;")),
+        shiny::column(width = 2, shiny::tags$img(src = "www/EN_V_Co-funded_by_POS.png", height = 95, width = "auto"))),
         windowTitle="U4S Signal Detection"
       ),
+      shiny::fluidRow(
+        shiny::column(width = 12,
+                      shiny::tabsetPanel(
+                        mod_tabpanel_help_ui("help"),
+                        mod_tabpanel_data_ui("data"),
+                        mod_tabpanel_input_ui("input"),
+                        mod_tabpanel_signals_ui("signals"),
+                        mod_tabpanel_report_ui("report"),
+                        selected = "Data"
+                      ))
+      ),
 
-      shiny::tabsetPanel(
-        mod_tabpanel_help_ui("help"),
-        mod_tabpanel_data_ui("data"),
-        mod_tabpanel_input_ui("input"),
-        mod_tabpanel_signals_ui("signals"),
-        mod_tabpanel_report_ui("report"),
-        selected = "Data"
+      # EU Disclaimer
+      shiny::tags$footer(
+        shiny::p("Co-funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union. Neither the European Union nor the granting authority can be held responsible for them."),
+        style = "text-align: center; font-style: italic; font-size: 12px; padding-top: 20px; padding-bottom: 20px;"
       )
 
 
