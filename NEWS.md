@@ -1,3 +1,7 @@
+# SignalDetectionTool 0.1.1
+* Updated `timeseries()` to show the blue background, signifying signal detection period, correctly, when using `facet_grid` for strata in report. 
+* Improved general readability of `timeseries` plot, when used in relation to `facet`.
+
 # SignalDetectionTool 0.1.0
 
 * First version of the tool provided to piloting countries
