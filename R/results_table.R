@@ -56,12 +56,28 @@ create_table <- function(data, interactive = TRUE) {
     combine = "or"
   )
 
+  data <- data %>% dplyr::select(Year=year, Week=week, Category=category, Stratum=stratum, Cases=cases, Threshold=threshold, Expected=expected)
+  data <- data %>%
+    mutate(Category = as.factor(Category), Stratum = as.factor(Stratum),
+           Threshold = round(Threshold, digits = 2), Expected = round(Expected, digits = 2))
   # get which columns contain floats
   float_columns <- get_float_columns(data)
 
   if (interactive == TRUE) {
     # create interactive table
-    table <- DT::datatable(data)
+    table <- DT::datatable(data, class = 'cell-border stripe hover', rownames = FALSE,
+                           filter = 'bottom',
+                           extensions = 'Buttons',
+                           selection = 'single',
+                           options = list(
+                             pageLength = 10,
+                             dom = 'tfrBip',
+                             buttons = c('copy', 'csv', 'excel','pdf'),
+                             initComplete = DT::JS(
+                               "function(settings, json) {",
+                               "$(this.api().table().header()).css({'background-color': '#304794', 'color': '#fff'});",
+                               "}")
+                           ))
     if (length(float_columns)) {
       table <- table %>% DT::formatRound(float_columns, 2)
     }
