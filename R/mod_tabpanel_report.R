@@ -9,10 +9,8 @@
 #' @importFrom shiny NS tagList
 mod_tabpanel_report_ui <- function(id) {
   ns <- shiny::NS(id)
-
   shiny::tabPanel(
-    "Report",
-    shiny::uiOutput(ns("report_tab_ui")),
+    title = "Report",
     icon = shiny::icon("download"),
     shinybusy::add_busy_spinner(
       spin = "fading-circle",
@@ -20,9 +18,9 @@ mod_tabpanel_report_ui <- function(id) {
       position = "full-page",
       height = "100px",
       width = "100px"
-    )
+    ),
+    shiny::uiOutput(ns("report_tab_ui"))
   )
-
 }
 
 
