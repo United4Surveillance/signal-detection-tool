@@ -90,6 +90,16 @@ mod_tabpanel_report_server <- function(id,
       }
     })
 
+    shiny::observeEvent(input$format, {
+      if (input$format == "HTML") {
+        print("show")
+        shinyjs::show(id = "interactive")
+      } else {
+        print("hide")
+        shinyjs::hide(id = "interactive")
+      }
+    })
+
     # Download generated report
     output$report_text <- renderText({
       paste("Generates report for", pathogen_vars(), " stratified ",
