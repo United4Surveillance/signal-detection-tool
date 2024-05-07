@@ -2,6 +2,7 @@
 * Updated `timeseries()` to show the blue background, signifying signal detection period, correctly, when using `facet_grid` for strata in report. 
 * Improved general readability of `timeseries` plot, when used in relation to `facet`.
 * Correcting text specifying the chosen signal detection period in Input tab.
+* Added additional data checks for age_group column and provided more detailed format requirement in description.md. Implemented `is_age_group_format()`, `is_last_age_group_format()` and `check_type_and_value_age_group()`.
 
 # SignalDetectionTool 0.1.0
 
