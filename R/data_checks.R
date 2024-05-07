@@ -101,10 +101,9 @@ check_type_and_value_mandatory_variables <- function(data) {
     }
   }
   if ("age_group" %in% data_columns) {
-    if (!checkmate::test_character(data$age_group)) {
-      errors <- append(errors, "age_group is not a character")
-    } # TODO add check that there are only numbers empty spaces and - but no characters
+    errors <- append(errors, check_type_and_value_age_group(data))
   }
+
   if ("country" %in% data_columns) {
     if (!checkmate::test_character(data$country)) {
       errors <- append(errors, "country is not a character")
@@ -249,12 +248,43 @@ check_type_and_value_yes_no_unknown <- function(data, var) {
     errors <- append(errors, paste0(var, " is not a character"))
   } else {
     if (!check_character_levels(tolower(data[[var]]), yes_no_unknown_raw_levels())) {
-      error_message <- paste0(var, " does not have the required levels ", paste(unlist(setdiff(yes_no_unknown_raw_levels(),c("",NA_character_))), collapse = ", "))
+      error_message <- paste0(var, " does not have the required levels ", paste(unlist(setdiff(yes_no_unknown_raw_levels(), c("", NA_character_))), collapse = ", "))
       errors <- append(errors, error_message)
     }
   }
   errors
 }
+
+#' Checking type and values of the age_group column
+#' @param data data.frame, raw linelist of surveillance cases
+#' @returns list, empty when no errors occured or filled with error messages
+check_type_and_value_age_group <- function(data) {
+  errors <- list()
+
+  if (!checkmate::test_character(data$age_group)) {
+    errors <- append(errors, "Age group is not a character.")
+  } else {
+    # check whether age_group contains only digits and allowed separators
+    if (!is_age_group_format(data$age_group)) {
+      errors <- append(errors, "Age group does not follow the required format containing only digits and special characters < - — _ +")
+    }
+    # check that last age_group follows the format either using xxsepxx (sep being the separator used) or xx+ but no other format
+    else {
+      age_format <- age_format_check(data)
+      # check that only one type of 'main' separator is used, i.e. not allowed c("31-35",36_40")
+      if (length(age_format$agegrp_div) > 1) {
+        errors <- append(errors, paste0("More than one separator is used for age_group. Please decide for one of these ", paste0(age_format$agegrp_div, collapse = ","), " separators."))
+      }
+
+      if (!is_last_age_group_format(data$age_group)) {
+        errors <- append(errors, "The last/oldest age group does not follow the required format. Allowed is either digit+ or digit separator digit.")
+      }
+    }
+  }
+  errors
+}
+
+
 
 #' Helper function to check for presence of age variable or instead age_group
 #' @param data_columns vector, column names of raw surveillance linelist
@@ -344,6 +374,43 @@ check_region_region_id_consistency <- function(data, regions) {
   errors
 }
 
+
+#' checking age_group column only containing digits, separators and <
+#' @param col character vector, vector containing age groups to check
+#' @returns boolean, when TRUE all values of col are in the required format, when FALSE at least one is not in required format
+#' @examples
+#' \dontrun{
+#' is_age_group_format(c("<30","30-35","40-45","45+")) # Should return TRUE
+#' is_age_group_format(c("below_one","one_to_five")) # Should return FALSE
+#' is_age_group_format(c("<30","30-35","40/45","45+")) # Should return FALSE
+#' }
+is_age_group_format <- function(col) {
+  all(grepl("^<?\\d{1,}[-_—+]?\\d{0,}$", col) | is.na(col) | col == "" | col == "unknown" | col == "NA")
+}
+
+#' checking the format of the last/biggest age group to follow the format digit separator digit or digit+
+#' @param col character vector, vector containing age groups to check
+#' @returns boolean, when TRUE the largest age group of col is in the required format, when FALSE it is not in required format
+#' @examples
+#' \dontrun{
+#' is_last_age_group_format(c("<30","30_35","40_45","45+")) # Should return TRUE
+#' is_last_age_group_format(c("<30","30-35","40-45","45-50")) # Should return TRUE
+#' is_last_age_group_format(c("<30","30-35","40-45","45-")) # Should return FALSE
+#' is_last_age_group_format(c("<30","30-35","40-45","45")) # Should return FALSE
+#' }
+is_last_age_group_format <- function(col) {
+  # get the last/oldest age_group from the data
+  age <- unlist(stringr::str_extract_all(col, "\\d+"))
+  age <- as.numeric(age)
+  max_age <- max(age, na.rm = TRUE)
+  max_age_str <- as.character(max_age)
+
+  # Find all age groups that contain the maximum age, this could also be 70-80 and 80+ but both are fine
+  final_age_groups <- col[grep(max_age_str, col)]
+  # regex checking format being only allowed format
+  # digit sep digit or digit+
+  all(grepl("^\\d{1,}[-_—]\\d{1,}$|^\\d{1,}[+]$", final_age_groups))
+}
 
 
 #' checking YYYYY-mm-dd format of date variables
