@@ -414,21 +414,30 @@ is_last_age_group_format <- function(col) {
 
 
 #' checking YYYYY-mm-dd format of date variables
-#' @param date_var character, date variable to check
-#' @returns boolean, when TRUE all values of date_var are in the required format, when FALSE at least one is not in required format
-is_ISO8601 <- function(date_var) {
+#' @param date_col character vector, vector containing dates to check
+#' @returns boolean, when TRUE all values of date_col are in the required format, when FALSE at least one is not in required format
+#' @examples
+#' \dontrun{
+#' is_ISO8601(c("2023-04-01","2022-12-31"))
+#' }
+is_ISO8601 <- function(date_col) {
   # need to allow empty entries inside the data variable
-  all(grepl("^\\d{4}-\\d{2}-\\d{2}$", date_var) | is.na(date_var) | date_var == "" | date_var == "unknown" | date_var == "NA")
+  all(grepl("^\\d{4}-\\d{2}-\\d{2}$", date_col) | is.na(date_col) | date_col == "" | date_col == "unknown" | date_col == "NA")
 }
 
 #' detailed check of date variables
 #' check that months are numbers between 01-12 and days are from 01-31
-#' @param date_var character, date variable to check
-#' @returns boolean, when TRUE all values of date_var are in the required format, when FALSE at least one is not in required format
-is_ISO8601_detailed <- function(date_var) {
+#' @param date_col character vector, vector containing dates to check
+#' @returns boolean, when TRUE all values of date_col are in the required format, when FALSE at least one is not in required format
+#' @examples
+#' \dontrun{
+#' is_ISO8601_detailed(c("2023-04-01","2022-12-32")) # Should return FALSE
+#' is_ISO8601_detailed(c("2023-04-01","2022-12-31")) # Should return TRUE
+#' }
+is_ISO8601_detailed <- function(date_col) {
   pattern <- "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
 
-  all(grepl(pattern, date_var) | is.na(date_var) | date_var == "" | date_var == "unknown" | date_var == "NA")
+  all(grepl(pattern, date_col) | is.na(date_col) | date_col == "" | date_col == "unknown" | date_col == "NA")
 }
 
 #' Retrieveing which columns in the dataset only contain missing values
