@@ -27,8 +27,8 @@ check_raw_surveillance_data <- function(data) {
   errors_optional <- check_type_and_value_optional_variables(data)
 
   # checking consistency of all region and corresponding id variables provided
-  regions_available <- intersect(colnames(data),region_variable_names())
-  errors_consistency_region <- check_region_region_id_consistency(data,regions_available)
+  regions_available <- intersect(colnames(data), region_variable_names())
+  errors_consistency_region <- check_region_region_id_consistency(data, regions_available)
 
   errors <- c(errors, errors_mandatory, errors_optional, errors_consistency_region)
 
@@ -135,7 +135,7 @@ check_type_and_value_optional_variables <- function(data) {
       errors <- append(errors, "sex is not a character")
     } else {
       if (!check_character_levels(tolower(data$sex), sex_raw_levels())) {
-        errors <- append(errors, paste0("Sex does not have the required levels ", paste(unlist(setdiff(sex_raw_levels(),c("",NA_character_))), collapse = ", ")))
+        errors <- append(errors, paste0("Sex does not have the required levels ", paste(unlist(setdiff(sex_raw_levels(), c("", NA_character_))), collapse = ", ")))
       }
     }
   }
@@ -334,7 +334,7 @@ check_region_region_id_consistency <- function(data, regions) {
       region_and_region_id <- data %>%
         dplyr::distinct(!!rlang::sym(region_id), !!rlang::sym(region))
       duplicated_ids <- any(duplicated(region_and_region_id %>%
-                                         dplyr::select(region_id)), na.rm = T)
+        dplyr::select(region_id)), na.rm = T)
       if (duplicated_ids) {
         error_message <- paste0("There are several differing region names in the column ", region, " which have the same ", region_id, ". Each ", region_id, " should only match one ", region, " . Please check whether there are any typos in your ", region, " column")
         errors <- append(errors, error_message)
