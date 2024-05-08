@@ -41,7 +41,7 @@ mod_tabpanel_signals_server <- function(
     ns <- session$ns
 
     # UI-portion of the tab below!
-    # ensuring that content is onlyu shown if data check returns no errors
+    # ensuring that content is only shown if data check returns no errors
     output$signals_tab_ui <- shiny::renderUI({
       if (errors_detected() == TRUE) {
         return(datacheck_error_message)
@@ -139,7 +139,7 @@ mod_tabpanel_signals_server <- function(
       shiny::req(!(length(unique(strat_vars())) == 1 & strat_vars() == "None")) # only show the filter button when strata were selected
       shiny::selectInput(
         inputId = ns("ts_filter_var"),
-        label = "Chose stratum",
+        label = "Choose stratum",
         choices = c(strat_vars(), "None"),
         selected = "None"
       )
