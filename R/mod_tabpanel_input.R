@@ -9,11 +9,17 @@
 #' @importFrom shiny NS tagList
 mod_tabpanel_input_ui <- function(id) {
   ns <- shiny::NS(id)
-
   shiny::tabPanel(
-    "Input parameters",
-    shiny::uiOutput(ns("input_tab_ui")),
-    icon = icon("viruses")
+    icon = icon("viruses"),
+    title = "Input parameters",
+    shinybusy::add_busy_spinner(
+      spin = "fading-circle",
+      color = "#304794",
+      position = "full-page",
+      height = "100px",
+      width = "100px"
+    ),
+    shiny::uiOutput(ns("input_tab_ui"))
   )
 }
 
