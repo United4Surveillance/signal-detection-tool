@@ -3,6 +3,7 @@
 * Improved general readability of `timeseries` plot, when used in relation to `facet`.
 * Correcting text specifying the chosen signal detection period in Input tab.
 * Added spinner indicating that the app is busy to all tabs.
+* Interactive HTML option is now only available if format HTML is selected.
 
 # SignalDetectionTool 0.1.0
 

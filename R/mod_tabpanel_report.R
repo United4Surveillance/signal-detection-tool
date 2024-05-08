@@ -66,12 +66,12 @@ mod_tabpanel_report_server <- function(id,
               shiny::selectInput(NS(id, "format"), "Choose a format:",
                                  choices = c("HTML", "DOCX")),
 
-              shiny::checkboxInput(NS(id, "interactive"),
-                                   "Interactive HTML",
-                                   value = TRUE),
-
               shiny::checkboxInput(NS(id, "tables"),
                                    "Include tables (stratifications)",
+                                   value = TRUE),
+
+              shiny::checkboxInput(NS(id, "interactive"),
+                                   "Interactive HTML",
                                    value = TRUE),
 
               # Button
@@ -85,6 +85,14 @@ mod_tabpanel_report_server <- function(id,
             )
           )
         ))
+      }
+    })
+
+    shiny::observeEvent(input$format, {
+      if (input$format == "HTML") {
+        shinyjs::show(id = "interactive")
+      } else {
+        shinyjs::hide(id = "interactive")
       }
     })
 
