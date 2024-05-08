@@ -55,22 +55,26 @@ create_table <- function(data, interactive = TRUE) {
     checkmate::check_false(interactive),
     combine = "or"
   )
-
-  data <- data %>% dplyr::select(Year=year, Week=week, Category=category, Stratum=stratum, Cases=cases, Threshold=threshold, Expected=expected)
+  data <- data %>% dplyr::select(-one_of("alarms"))
+  data <- data %>% rename_all(~str_to_title(.x))
   data <- data %>%
-    mutate(Category = as.factor(Category), Stratum = as.factor(Stratum),
-           Threshold = round(Threshold, digits = 2), Expected = round(Expected, digits = 2))
+    mutate(across(where(is.double), round, digits=2)) %>%
+    mutate(across(where(is.character), as.factor)) %>%
+    relocate(where(is.factor))
+
   # get which columns contain floats
   float_columns <- get_float_columns(data)
 
   if (interactive == TRUE) {
     # create interactive table
     table <- DT::datatable(data, class = 'cell-border stripe hover', rownames = FALSE,
-                           filter = 'bottom',
-                           extensions = 'Buttons',
+                           filter = list(position='bottom', plain = TRUE),
+                           extensions = c('Buttons','RowGroup'),
                            selection = 'single',
                            options = list(
                              pageLength = 10,
+                             rowGroup = list(dataSrc = 0),
+                             columnDefs = list(list(visible=FALSE, targets=0)),
                              dom = 'tfrBip',
                              buttons = c('copy', 'csv', 'excel','pdf'),
                              initComplete = DT::JS(
@@ -78,17 +82,31 @@ create_table <- function(data, interactive = TRUE) {
                                "$(this.api().table().header()).css({'background-color': '#304794', 'color': '#fff'});",
                                "}")
                            ))
+    if("Any_alarms" %in% colnames(data)){
+      table <- table %>% DT::formatStyle(
+        'Any_alarms',
+        target = 'row',
+        backgroundColor = DT::styleEqual(c(TRUE), c('#ff8282'))
+      )
+    }
     if (length(float_columns)) {
       table <- table %>% DT::formatRound(float_columns, 2)
     }
   } else {
     # create static table for reports
+    data <- data %>% mutate(id = 1:nrow(data)) %>%
+      pivot_wider(names_from = Category, values_from = Stratum) %>%
+      dplyr::select(-id) %>%
+      mutate(across(where(is.character), as.factor)) %>%
+      relocate(where(is.factor))
+
     table <- data %>%
       gt::gt() %>%
       gt::tab_options(
         column_labels.padding = gt::px(3),
         column_labels.font.weight = "bold"
-      )
+      ) %>%
+      gt::opt_stylize(style = 5, color = "blue")
     if (length(float_columns)) {
       table <- table %>% gt::fmt_number(columns = float_columns)
     }
@@ -226,7 +244,7 @@ create_stratified_table <- function(signals_agg,
 
   signals_agg <- create_factor_with_unknown(signals_agg)
   signals_agg <- signals_agg %>%
-    dplyr::arrange(stratum)
+    dplyr::arrange(desc(n_alarms))
 
   return(create_table(signals_agg, interactive))
 }
