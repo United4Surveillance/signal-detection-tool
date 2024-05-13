@@ -20,7 +20,7 @@ mod_tabpanel_signals_ui <- function(id) {
       height = "100px",
       width = "100px"
     ),
-    shiny::uiOutput(ns("signals_tab_ui")),
+    shiny::uiOutput(ns("signals_tab_ui"))
   )
 }
 

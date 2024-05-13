@@ -17,8 +17,15 @@ mod_tabpanel_data_ui <- function(id) {
   )
 
   shiny::tabPanel(
-    "Data",
-    # From runExample("09_upload")
+    title = "Data",
+    icon = icon("file"),
+    shinybusy::add_busy_spinner(
+      spin = "fading-circle",
+      color = "#304794",
+      position = "full-page",
+      height = "100px",
+      width = "100px"
+    ),
     shiny::h2("Load Data"),
     shiny::sidebarLayout(
       shiny::sidebarPanel(
@@ -70,8 +77,7 @@ mod_tabpanel_data_ui <- function(id) {
         # Output: Data file ----
         DT::dataTableOutput(ns("contents"))
       )
-    ),
-    icon = icon("file")
+    )
   )
 }
 

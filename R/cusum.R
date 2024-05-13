@@ -213,5 +213,5 @@ algo.cusum_with_reset <- function(disProgObj, control = list(range = range, k = 
 #' Copied from the code of the surveillance package and adapted for algo.cusum_with_reset
 #' @export
 cusum_with_reset <- function(sts, control = list(range = range, k = 1.04, h = 2.26, m = NULL, trans = "standard", alpha = NULL), ...) {
-  surveillance::wrap.algo(sts, algo = "algo.cusum_with_reset", control = control, ...)
+  surveillance::wrap.algo(sts, algo = algo.cusum_with_reset, control = control, ...)
 }

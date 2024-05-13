@@ -2,7 +2,9 @@
 * Updated `timeseries()` to show the blue background, signifying signal detection period, correctly, when using `facet_grid` for strata in report. 
 * Improved general readability of `timeseries` plot, when used in relation to `facet`.
 * Correcting text specifying the chosen signal detection period in Input tab.
-* Stripping leading and trailing whitespaces from all columns of the input data in `preprocess_data()`
+* Added spinner indicating that the app is busy to all tabs.
+* Interactive HTML option is now only available if format HTML is selected.
+* Stripping leading and trailing whitespaces from all columns of the input data in `preprocess_data()`.
 
 # SignalDetectionTool 0.1.0
 
