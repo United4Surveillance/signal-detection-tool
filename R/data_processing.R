@@ -12,7 +12,7 @@
 preprocess_data <- function(data) {
   # remove completely empty columns from the dataset
   data <- remove_empty_columns(data)
-  # Convert the date columns to date format
+
   yes_no_unknown_vars <- intersect(colnames(data), yes_no_unknown_variables())
   # get all variables present in the data which might need transformation tolower
   to_lower_vars <- intersect(colnames(data), c(yes_no_unknown_variables(), "sex"))
@@ -31,6 +31,8 @@ preprocess_data <- function(data) {
     dplyr::filter_at(check_for_missing_values(), dplyr::all_vars(!is.na(.)))
 
   data <- data %>%
+    # strip trailing or leading whitespaces
+    dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ stringr::str_trim(.x))) %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(to_lower_vars), ~ tolower(.x))) %>%
     dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, ""))) %>%
     dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, "unknown"))) %>%
