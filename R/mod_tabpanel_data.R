@@ -97,6 +97,7 @@ mod_tabpanel_data_server <- function(id) {
     options(shiny.maxRequestSize = 50 * 1024^2)
 
     data <- shiny::reactive({
+      data_temp <- NULL
       if(get_golem_config("readDB")){
         data_temp <- data_db()
       }
