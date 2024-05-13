@@ -36,6 +36,9 @@ Installation from a local repository:
 ## Input data
 The tool accepts data in the predefined format described in the description.md in /data/input. 
 
+### Internal data connection
+If you want to establish an internal data connection rather than manual file input, you have to define a function called 'readDB' that returns a data.frame in the format described above. We suggest to implement this function in an R script called 'internal.R' in the '/R' folder, because this file will not be uploaded to the github repository. Make sure not to upload any sensitive information to the github repository. Furthermore, you have to set the parameter 'readDB' to TRUE in the 'golem-config.yml' in the '/inst' folder.
+
 ## Output
 The tool produces signals based on the given input data. Signals are listed in a human readable output file, the format is described in description.md in data/output/ and in an interactive report together with the surveillance data.
 

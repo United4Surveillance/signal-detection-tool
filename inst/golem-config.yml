@@ -2,7 +2,10 @@ default:
   golem_name: SignalDetectionTool
   golem_version: 0.0.0.9000
   app_prod: no
+  readDB: FALSE
 production:
   app_prod: yes
+  readDB: FALSE
 dev:
   golem_wd: !expr golem::pkg_path()
+  readDB: FALSE

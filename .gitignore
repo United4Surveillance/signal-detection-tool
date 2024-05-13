@@ -68,3 +68,6 @@ rsconnect/
 inst/doc
 /doc/
 /Meta/
+
+# Internal files for reading the local database
+/R/internal.R

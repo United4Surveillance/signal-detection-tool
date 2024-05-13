@@ -96,8 +96,27 @@ mod_tabpanel_data_server <- function(id) {
     # set maximum file size to 50MB
     options(shiny.maxRequestSize = 50 * 1024^2)
 
-    # Load data
     data <- shiny::reactive({
+      if(get_golem_config("readDB")){
+        data_temp <- data_db()
+      }
+      if(is.null(data_temp)){
+        data_temp <- data_csv()
+        }
+      data_temp
+    })
+
+
+    data_db <- shiny::reactive({
+      if(exists('read_db', where='package:SignalDetectionTool', mode='function')){
+        read_db()
+      } else {
+        NULL
+      }
+
+      })
+    # Load data
+    data_csv <- shiny::reactive({
       # input$file1 will be NULL initially. After the user selects
       # and uploads a file, head of that data file by default,
       # or all rows if selected, will be shown.
@@ -108,6 +127,7 @@ mod_tabpanel_data_server <- function(id) {
       validate(need(ext == "csv" | ext == "xlsx" | ext == "xls", "Please upload a csv, xlsx or xls file"))
       # read data
       read_csv_or_excel(input$file1$name, input$file1$datapath)
+
     })
 
     errors <- shiny::reactive({
