@@ -129,6 +129,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       ) # TODO: make this dynamic
     })
 
+    outputOptions(output, "weeks_selection", suspendWhenHidden = FALSE)
+
     # using shinyvalidate to ensure value between min and max
     iv_weeks <- shinyvalidate::InputValidator$new()
     iv_weeks$add_rule("n_weeks", shinyvalidate::sv_required(
@@ -151,6 +153,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
       paste("Chosen signal detection period from", date_floor, "to", date_ceil)
     })
+
+    outputOptions(output, "text_weeks_selection", suspendWhenHidden = FALSE)
 
     data_sub <- shiny::reactive({
       req(data)
@@ -334,7 +338,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
           "None",
           available_var_opts()
         ),
-        selected = "None",
+        selected = get_golem_config("strata"),#c("county","age_group","sex"),
         multiple = TRUE,
         options = list(maxItems = 3),
         width = "40%"
@@ -441,6 +445,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         ))
       }
     })
+
+    outputOptions(output, "algorithm_choice", suspendWhenHidden = FALSE)
 
     no_algorithm_possible <- shiny::reactive({
       req(algorithms_possible)

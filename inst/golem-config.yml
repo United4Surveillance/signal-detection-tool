@@ -3,6 +3,7 @@ default:
   golem_version: 0.0.0.9000
   app_prod: no
   readDB: FALSE
+  strata: ['None']
 production:
   app_prod: yes
   readDB: FALSE
