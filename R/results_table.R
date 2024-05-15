@@ -120,7 +120,7 @@ convert_columns_integer <- function(data, columns_to_convert) {
 #' @param data A data frame.
 #' @param interactive Logical indicating whether to create an interactive
 #'   DataTable (default is TRUE).
-#' @param positive_only Logical indicating whether to filter only those signal results where an alarm was generated (default is TRUE).
+#' @param positive_only Logical indicating whether to filter only those signal results where a signal was generated (default is TRUE).
 #'
 #' @return An interactive DataTable or a static gt table, depending on the value
 #'   of `interactive`.
@@ -175,7 +175,7 @@ create_results_table <- function(data,
 #' expects the aggregated signals input to only have one category. It converts certain columns
 #' to integers and the stratum column to factor with NA converted to unknown for styling
 #' purposes. This table is used to show stratified signal results for one category, i.e. sex
-#' and results for all the strata no matter whether there are alarms or not.
+#' and results for all the strata no matter whether there are signals or not.
 #'
 #' @param signals_agg A tibble or data frame.
 #' @param interactive Logical indicating whether to create an interactive

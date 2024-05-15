@@ -4,7 +4,7 @@
 #'
 #' @param signals_agg tibble, aggregated signals which can be obtained from using the function \code{\link{aggregate_signals}}. It contains the number of cases, any_alarms and n_alarms for one category, i.e. age group summed over the number of weeks used in \code{\link{aggregate_signals}}.
 #' @param interactive boolean identifying whether the plot should be static or interactive
-#' @param toggle_alarms boolean identifying whether the plot should showing number of alarms explicitly or only when hovering
+#' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @returns either a gg or plotly object
 #' @examples
 #' \dontrun{

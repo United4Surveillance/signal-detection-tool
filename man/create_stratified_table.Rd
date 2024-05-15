@@ -21,7 +21,7 @@ This function creates a table based on aggregated signal results which were stra
 expects the aggregated signals input to only have one category. It converts certain columns
 to integers and the stratum column to factor with NA converted to unknown for styling
 purposes. This table is used to show stratified signal results for one category, i.e. sex
-and results for all the strata no matter whether there are alarms or not.
+and results for all the strata no matter whether there are signals or not.
 }
 \examples{
 \dontrun{
