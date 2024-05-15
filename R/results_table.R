@@ -55,38 +55,41 @@ create_table <- function(data, interactive = TRUE) {
     checkmate::check_false(interactive),
     combine = "or"
   )
-  data <- data %>% dplyr::select(-one_of("alarms"))
-  data <- data %>% rename_all(~str_to_title(.x))
+  data <- data %>% dplyr::select(-tidyselect::one_of("alarms"))
+  data <- data %>% dplyr::rename_all(~ stringr::str_to_title(.x))
   data <- data %>%
-    mutate(across(where(is.double), round, digits=2)) %>%
-    mutate(across(where(is.character), as.factor)) %>%
-    relocate(where(is.factor))
+    dplyr::mutate(dplyr::across(tidyselect::where(is.double), round, digits = 2)) %>%
+    dplyr::mutate(dplyr::across(tidyselect::where(is.character), as.factor)) %>%
+    dplyr::relocate(tidyselect::where(is.factor))
 
   # get which columns contain floats
   float_columns <- get_float_columns(data)
 
   if (interactive == TRUE) {
     # create interactive table
-    table <- DT::datatable(data, class = 'cell-border stripe hover', rownames = FALSE,
-                           filter = list(position='bottom', plain = TRUE),
-                           extensions = c('Buttons','RowGroup'),
-                           selection = 'single',
-                           options = list(
-                             pageLength = 10,
-                             rowGroup = list(dataSrc = 0),
-                             columnDefs = list(list(visible=FALSE, targets=0)),
-                             dom = 'tfrBip',
-                             buttons = c('copy', 'csv', 'excel','pdf'),
-                             initComplete = DT::JS(
-                               "function(settings, json) {",
-                               "$(this.api().table().header()).css({'background-color': '#304794', 'color': '#fff'});",
-                               "}")
-                           ))
-    if("Any_alarms" %in% colnames(data)){
+    table <- DT::datatable(data,
+      class = "cell-border stripe hover", rownames = FALSE,
+      filter = list(position = "bottom", plain = TRUE),
+      extensions = c("Buttons", "RowGroup"),
+      selection = "single",
+      options = list(
+        pageLength = 10,
+        rowGroup = list(dataSrc = 0),
+        columnDefs = list(list(visible = FALSE, targets = 0)),
+        dom = "tfrBip",
+        buttons = c("copy", "csv", "excel", "pdf"),
+        initComplete = DT::JS(
+          "function(settings, json) {",
+          "$(this.api().table().header()).css({'background-color': '#304794', 'color': '#fff'});",
+          "}"
+        )
+      )
+    )
+    if ("Any_alarms" %in% colnames(data)) {
       table <- table %>% DT::formatStyle(
-        'Any_alarms',
-        target = 'row',
-        backgroundColor = DT::styleEqual(c(TRUE), c('#ff8282'))
+        "Any_alarms",
+        target = "row",
+        backgroundColor = DT::styleEqual(c(TRUE), c("#ff8282"))
       )
     }
     if (length(float_columns)) {
@@ -94,11 +97,12 @@ create_table <- function(data, interactive = TRUE) {
     }
   } else {
     # create static table for reports
-    data <- data %>% mutate(id = 1:nrow(data)) %>%
-      pivot_wider(names_from = Category, values_from = Stratum) %>%
+    data <- data %>%
+      dplyr::mutate(id = 1:nrow(data)) %>%
+      tidyr::pivot_wider(names_from = Category, values_from = Stratum) %>%
       dplyr::select(-id) %>%
-      mutate(across(where(is.character), as.factor)) %>%
-      relocate(where(is.factor))
+      dplyr::mutate(dplyr::across(tidyselect::where(is.character), as.factor)) %>%
+      dplyr::relocate(tidyselect::where(is.factor))
 
     table <- data %>%
       gt::gt() %>%
@@ -188,7 +192,7 @@ create_results_table <- function(data,
   # Somehow columns are of type double when the should be integers
   # convert for styling later on
   data <- convert_columns_integer(data, c("year", "week", "cases"))
-  #browser()
+  # browser()
   data <- data %>%
     dplyr::mutate(category = dplyr::if_else(is.na(category), "None", category)) %>%
     dplyr::rename(threshold = upperbound)
@@ -244,7 +248,7 @@ create_stratified_table <- function(signals_agg,
 
   signals_agg <- create_factor_with_unknown(signals_agg)
   signals_agg <- signals_agg %>%
-    dplyr::arrange(desc(n_alarms))
+    dplyr::arrange(dplyr::desc(n_alarms))
 
   return(create_table(signals_agg, interactive))
 }

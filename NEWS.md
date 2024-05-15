@@ -2,6 +2,9 @@
 * Updated `timeseries()` to show the blue background, signifying signal detection period, correctly, when using `facet_grid` for strata in report. 
 * Improved general readability of `timeseries` plot, when used in relation to `facet`.
 * Correcting text specifying the chosen signal detection period in Input tab.
+* Changes appearance of all tables, removes rownames and alarm column, more concise grouping
+* Adds filter and export functionality to all tables
+* Adds highlighting and sorting to strata tables
 
 # SignalDetectionTool 0.1.0
 
