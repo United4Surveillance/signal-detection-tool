@@ -48,15 +48,15 @@ plot_barchart <- function(signals_agg,
     ggplot2::geom_bar(stat = "identity",
                       mapping = ggplot2::aes(x = stratum,
                                              y = cases,
-                                             color = dplyr::if_else(any_alarms, "At least 1 alarm","No alarms"),
-                                             text = sprintf("Number of cases: %.0f \nNumber of alarms: %.0f",
+                                             color = dplyr::if_else(any_alarms, "At least 1 signal","No signals"),
+                                             text = sprintf("Number of cases: %.0f \nNumber of signals: %.0f",
                                                             .data$cases, .data$n_alarms)),
                       fill = "#304794",
                       linewidth = 1.2) +
     ggplot2::labs(x = x_label,y = "Number of cases") +
     ggplot2::scale_color_manual("",
-                                values = c("At least 1 alarm" = "red",
-                                           "No alarms" = "#304794")) +
+                                values = c("At least 1 signal" = "red",
+                                           "No signals" = "#304794")) +
     ggplot2::scale_x_discrete(na.translate = TRUE, labels = function(x) ifelse(is.na(x), "unknown", x),
                               drop = FALSE) +
     ggplot2::scale_y_continuous(

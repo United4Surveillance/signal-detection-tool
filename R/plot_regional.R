@@ -32,8 +32,8 @@ plot_regional <- function(shape_with_signals,
     dplyr::ungroup() %>%
     dplyr::mutate(
       n_alarms_label = dplyr::if_else(n_alarms > 0, n_alarms, NA),
-      any_alarms = dplyr::if_else(any_alarms, "At least 1 alarm", "No alarms"),
-      any_alarms = factor(any_alarms, levels = c("No alarms", "At least 1 alarm")) # level ordering determines render ordering: black < red
+      any_alarms = dplyr::if_else(any_alarms, "At least 1 signal", "No signals"),
+      any_alarms = factor(any_alarms, levels = c("No signals", "At least 1 signal")) # level ordering determines render ordering: black < red
     )
 
   lower_th <- ceiling(max(shape_with_signals$cases) * 0.40)
@@ -53,7 +53,7 @@ plot_regional <- function(shape_with_signals,
         text = paste0(
           NUTS_NAME,
           "<br>Number of cases: ", round(cases, 0), # show actual case numbers
-          "<br>Number of alarms: ", n_alarms
+          "<br>Number of signals: ", n_alarms
         )
       ),
       lwd = 1.2
@@ -66,8 +66,8 @@ plot_regional <- function(shape_with_signals,
     ) +
     ggplot2::scale_color_manual(
       values = c(
-        "No alarms" = "black",
-        "At least 1 alarm" = "red"
+        "No signals" = "black",
+        "At least 1 signal" = "red"
       ),
       name = ""
     ) +
@@ -82,7 +82,11 @@ plot_regional <- function(shape_with_signals,
   # creating text if cases missing region > 0
   text_region_missing <- NULL
   if(!is.null(signals_agg_unknown_region) & nrow(signals_agg_unknown_region) > 0){
-    text_region_missing <- paste0(signals_agg_unknown_region$cases, " case",ifelse(signals_agg_unknown_region$cases > 1,"s "," "),"from unknown region with \n",signals_agg_unknown_region$n_alarms, " alarm",ifelse(signals_agg_unknown_region$n_alarms > 1,"s",""),".\n")
+    text_region_missing <- paste0(signals_agg_unknown_region$cases, " case",
+                                  ifelse(signals_agg_unknown_region$cases > 1,"s "," "),
+                                  "from unknown region with \n",signals_agg_unknown_region$n_alarms,
+                                  " signal",
+                                  ifelse(signals_agg_unknown_region$n_alarms > 1,"s",""),".\n")
     if(!interactive){
       plot <- plot +
         ggplot2::labs(caption = text_region_missing) +
