@@ -157,12 +157,14 @@ create_results_table <- function(data,
   #browser()
   data <- data %>%
     dplyr::mutate(category = dplyr::if_else(is.na(category), "None", category)) %>%
-    dplyr::rename(threshold = upperbound)
+    dplyr::rename(threshold = upperbound, signals = alarms)
 
   data <- data %>% dplyr::filter(!is.na(threshold))
   if (positive_only) {
-    data <- data %>% dplyr::filter(.data$alarms == TRUE)
+    data <- data %>% dplyr::filter(.data$signals == TRUE)
   }
+
+
 
   return(create_table(data, interactive))
 }
@@ -210,7 +212,8 @@ create_stratified_table <- function(signals_agg,
 
   signals_agg <- create_factor_with_unknown(signals_agg)
   signals_agg <- signals_agg %>%
-    dplyr::arrange(stratum)
+    dplyr::arrange(stratum) %>%
+    dplyr::rename(signals = alarms)
 
   return(create_table(signals_agg, interactive))
 }
