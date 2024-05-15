@@ -2,7 +2,7 @@
 #' @param shape_with_signals sf shapefile, with additional columns from signals cases, n_alarms, any_alarms
 #' @param signals_agg_unknown_region tibble default NULL, if not NULL tibble containing only the row for signals_agg for the missing regions (is.na(stratum)) with the columns cases and n_alarms which are used for creating the annotation text below the map
 #' @param interactive boolean identifying whether the plot should be static or interactive
-#' @param toggle_alarms boolean identifying whether the plot should showing number of alarms explicitly or only when hovering
+#' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @returns either a ggplot object if static plot is chosen or a plotly object for the interactive plot
 plot_regional <- function(shape_with_signals,
                           signals_agg_unknown_region = NULL,
