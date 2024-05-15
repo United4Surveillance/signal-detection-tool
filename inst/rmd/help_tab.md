@@ -50,7 +50,7 @@ You can choose to stratify by up to three variables. Choosing a variable for str
 Here you can set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks, which is also dependent on if any filtering is done.
 
 #### Signal detection algorithm
-Depending on the number of weeks you want to generate alarms for, and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your setting, with respects for the individual needs of training data of the different algorithms.  
+Depending on the number of weeks you want to generate signals for, and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your setting, with respects for the individual needs of training data of the different algorithms.  
 
 In the following we call the training period the time period which is used to fit the parameters of the algorithms. This time period is given by your selection of date_report (Filters section) and the Signal detection period. If you select the time period 01-01-2020 until 31-12-2021 in the Filters section and select six weeks for the signal detection period the training period will be from 01-01-2020 until 22-11-2021 (six weeks before 31-12-2021). If you do not set any filter for date_report in the Filters section then the full time period of your dataset minus the Signal Detection Period will be used to fit the parameters.
 
@@ -61,7 +61,7 @@ Which signal detection algorithm should you choose? It depends on multiple crite
 - does not model seasonality
 - cusum can compute the baseline theoretically on only one time point in the past but for a good baseline more historic data should be used
 
-CUSUM (cumulative sum) is an algorithm which detects shifts in the mean of a time series. It accumulates deviations of the observed case counts from the mean case count and once this accumulation has reached a value above a defined tolerance an alarm is triggered. After an alarm was triggered the cumulative sum is set to zero and the algorithm restarts. As CUSUM accumulates the deviations over time it is more sensitive to small and moderate shifts in the case count. The mean case count is computed on all case counts of the training period. CUSUM does not account for seasonality as it just computes a mean over all case counts.  
+CUSUM (cumulative sum) is an algorithm which detects shifts in the mean of a time series. It accumulates deviations of the observed case counts from the mean case count and once this accumulation has reached a value above a defined tolerance a signal is triggered. After a signal was triggered the cumulative sum is set to zero and the algorithm restarts. As CUSUM accumulates the deviations over time it is more sensitive to small and moderate shifts in the case count. The mean case count is computed on all case counts of the training period. CUSUM does not account for seasonality as it just computes a mean over all case counts.  
 CUSUM was originally developed by E. S. Page and typically used in industry for monitoring change detection. Rossi et al. (1999) serves as reference in the public health context. 
 
 **FarringtonFlexible**
@@ -77,16 +77,16 @@ FarringtonFlexible (Noufaily et al. 2012) is an improved version of the classic 
 - does not model seasonality
 - needs only 7 time points of historic data 
 
-The EARS (Early Aberration Reporting System) algorithm uses a window-based approach for outbreak detection. For the EARS C1 algorithm implemented in this tool mean and standard deviation are computed from the cases observed in the last 7 time points before the current time point. These parameters are used to compute a threshold based on the quantiles of the normal distribution. When the observed case count is above the computed threshold an alarm is raised. Because of the short time interval considered, EARS does not take into account seasonality and time trends. The baseline is computed using only the last 7 time points.  
+The EARS (Early Aberration Reporting System) algorithm uses a window-based approach for outbreak detection. For the EARS C1 algorithm implemented in this tool mean and standard deviation are computed from the cases observed in the last 7 time points before the current time point. These parameters are used to compute a threshold based on the quantiles of the normal distribution. When the observed case count is above the computed threshold a signal is raised. Because of the short time interval considered, EARS does not take into account seasonality and time trends. The baseline is computed using only the last 7 time points.  
 EARS was developed by CDC and published in Hutwagner et al. (2003). 
 
 ### Signals tab
 The `Signals` tab is split into 2 / 3 "rows", depending on whether any stratas were chosen in the `Input` tab. The first row belongs to the visualisations of the respective stratas chosen. 
 The second row to a timeseries / epicurve, depicting the signal detection in the number of weeks specified in the `Input` tab.
-The third and final row display a signal detection table, which provides information on the alarms found in both the entirety of the (filtered) dataset as well as per stratification parameter. 
+The third and final row display a signal detection table, which provides information on the signals found in both the entirety of the (filtered) dataset as well as per stratification parameter. 
 
 #### Stratification visualisation 
-When one of the strata about regions (state, county or community) is selected in the `Input` tab the app tries to provide a map visualisation. This currently only works if there are NUTS codes provided in the data using the corresponding _id columns (i.e. county_id) and these NUTS ids all match the shapefile which is used in the app. When your data has cases with missing region (NA or unknown) during the signal detection timeperiod a map with additional text is shown which gives you information about these cases with missing region. In case you did not provide NUTS ids or some NUTS ids are not matching no map visualisation is currently possible and you will see a table with the results instead of a map. 
+When one of the strata about regions (state, county or community) is selected in the `Input` tab the app tries to provide a map visualisation. This currently only works if there are NUTS codes provided in the data using the corresponding _id columns (i.e. county_id) and these NUTS ids all match the shapefile which is used in the app. When your data has cases with missing region during the signal detection timeperiod a map with additional text is shown which gives you information about these cases with missing/unknown region. In case you did not provide NUTS ids or some NUTS ids are not matching no map visualisation is currently possible and you will see a table with the results instead of a map. 
 
 ### Report tab
 The `Report` tab is the final destination in the SignalDetectionTool Shiny app. Here, it is possible to produce and download a report, using the different parameter selections, filtering choices and stratifications chosen in the `Input` tab. Thus, you can customise exactly how you want your report. 
