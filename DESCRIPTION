@@ -1,25 +1,20 @@
 Package: SignalDetectionTool
-Title: A tool for automated signal detection used in infectious disease surveillance
+Title: Automated Signal Detection for Infectious Disease Surveillance
 Version: 0.1.0
 Authors@R: 
     c(
+    person("Ann Christin", "Vietor", email = "VietorA@rki.de" ,role = c("aut","cre")),
     person("Aapo" , "Juutinen", role = c("aut")),
     person("Alena", "Chalupka" , role = c("aut")),
     person("Alexander", "Ullrich" , role = c("aut")),
-    person("Ann Christin", "Vietor", role = c("aut")),
-    person("Jacob Elskaer" ,"Mollerup", role = c("aut")),
+    person("Jacob Elskær" ,"Mollerup", role = c("aut")),
     person("Lukas", "Richter", role = c("aut")),
     person("Moritz", "Bach", role = c("aut")),
     person("Norbert", "Handra", role = c("aut")),
     person("Oskari", "Luomala", role = c("aut")),
     person("Tomas", "Martin-Bertelsen", role = c("aut"))
     )
-Description: An interactive shiny app for signal detection of infectious disease surveillance data on national level. This app allows the user to explore and investigate the signals generated and the corresponding time series. The package includes:
- - possibility for the user to upload csv or Excel file
- - data check making sure the data is in the right format
- - flexible user settings such as different outbreak detection algorithms, time periods, stratifications and filters
- - visualisation of signal detection results as bar charts, maps, tables and time series
- - possibility to generate a report with results
+Description: An interactive shiny app for signal detection of infectious disease surveillance data. This app allows the user to investigate generated signals and corresponding surveillance time series. It includes upload of csv or Excel files, data checks, possibility to set parameters for signal detection, visualisation of results and generation of reports.
 License: MIT + file LICENSE
 Depends: 
     R (>= 4.0.2)
