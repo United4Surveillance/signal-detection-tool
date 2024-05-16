@@ -30,6 +30,7 @@ Imports:
     sf (>= 1.0.9),
     shiny (>= 1.8.0),
     shinybusy (>= 0.3.1),
+    shinyjs (>= 2.1.0),
     shinyvalidate (>= 0.1.3),
     stats,
     stringr (>= 1.5.0),

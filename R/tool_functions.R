@@ -413,10 +413,6 @@ age_groups <- function(df, break_at = NULL) {
     df <- df %>% dplyr::relocate(age_group, .after = age)
   }
 
-  # remove leading or trailing whitespaces from age_group
-  df <- df %>%
-    dplyr::mutate(age_group = trimws(age_group))
-
   # conducting format enquires
   format_check_results <- age_format_check(df)
 

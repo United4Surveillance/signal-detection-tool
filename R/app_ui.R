@@ -10,6 +10,7 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Your application UI logic
     shiny::fluidPage(
+      shinyjs::useShinyjs(),
       # Application title
       ## Logo and headertext
       shiny::titlePanel( shiny::div(
