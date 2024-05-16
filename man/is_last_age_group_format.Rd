@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_checks.R
 \name{is_last_age_group_format}
 \alias{is_last_age_group_format}
-\title{checking the format of the last/biggest age group to follow the format digit separator digit or digit+}
+\title{checking the format of the last/biggest age group to follow the format digit separator digit, digit+ or >digit}
 \usage{
 is_last_age_group_format(col)
 }
@@ -13,12 +13,13 @@ is_last_age_group_format(col)
 boolean, when TRUE the largest age group of col is in the required format, when FALSE it is not in required format
 }
 \description{
-checking the format of the last/biggest age group to follow the format digit separator digit or digit+
+checking the format of the last/biggest age group to follow the format digit separator digit, digit+ or >digit
 }
 \examples{
 \dontrun{
 is_last_age_group_format(c("<30","30_35","40_45","45+")) # Should return TRUE
 is_last_age_group_format(c("<30","30-35","40-45","45-50")) # Should return TRUE
+is_last_age_group_format(c("<30","30-35","40-45",">45")) # Should return TRUE
 is_last_age_group_format(c("<30","30-35","40-45","45-")) # Should return FALSE
 is_last_age_group_format(c("<30","30-35","40-45","45")) # Should return FALSE
 }
