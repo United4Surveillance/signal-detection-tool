@@ -58,7 +58,7 @@ mod_tabpanel_signals_server <- function(
               shiny::div(
                 class = "value-box blue",
                 shiny::div(class = "title", "Outbreak detection algorithm"),
-                shiny::div(class = "value", get_name_by_value(method(),available_algorithms()))
+                shiny::div(class = "value", get_name_by_value(method(), available_algorithms()))
               )
             ),
             column(
@@ -69,50 +69,29 @@ mod_tabpanel_signals_server <- function(
                 shiny::div(class = "value", number_of_weeks())
               )
             ),
-            # Red box if signals were found
-            if (sum(signals_agg()$n_alarms) > 0) {
+           # Box of total alarms
+            # Red box if alarms were found, green if no alarms
               column(
                 width = 2,
                 shiny::div(
-                  class = "value-box red",
-                  shiny::div(class = "title", "Number of signals"),
+                  class = ifelse(sum(signals_agg()$n_alarms) > 0,
+                                 "value-box red", "value-box green"),
+                  shiny::div(class = "title", "Number of alarms"),
                   shiny::div(class = "value", shiny::textOutput(ns("n_alarms")))
                 )
-                # Green box if no signals were found
-              )
-            } else {
-              column(
-                width = 2,
-                shiny::div(
-                  class = "value-box green",
-                  shiny::div(class = "title", "Number of signals"),
-                  shiny::div(class = "value", shiny::textOutput(ns("n_alarms")))
-                )
-              )
-            },
-            # Box of signals by stratum
+              ),
+            # Box of alarms by stratum
             if (!"None" %in% strat_vars()) {
-              # Red box if signals were found
-              if (sum(signals_agg()$n_alarms) > 0) {
-                column(
-                  width = 4,
-                  shiny::div(
-                    class = "value-box red",
-                    shiny::div(class = "title", "Number of signals by stratum"),
-                    shiny::div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
-                  )
+              # Red box if alarms were found, green if no alarms
+              column(
+                width = 4,
+                shiny::div(
+                 class = ifelse(sum(signals_agg()$n_alarms) > 0,
+                                 "value-box red", "value-box green"),
+                  shiny::div(class = "title", "Number of alarms by stratum"),
+                  shiny::div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
                 )
-                # Green box if no signals were found
-              } else {
-                column(
-                  width = 4,
-                  shiny::div(
-                    class = "value-box green",
-                    shiny::div(class = "title", "Number of signals by stratum"),
-                    shiny::div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
-                  )
-                )
-              }
+              )
             }
           ),
           shiny::uiOutput(ns("alarm_button")),
