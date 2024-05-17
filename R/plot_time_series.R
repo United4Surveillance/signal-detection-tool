@@ -34,19 +34,16 @@ plot_time_series <- function(results, interactive = FALSE,
       dplyr::slice_tail(n = number_of_weeks)
   }
 
-  # finding number of weeks for signal detection period
-  # and dates for the last year and for the signal detection period
-  nweeks_sdp  <- results %>% dplyr::filter(set_status == "Test data") %>%
-    {nrow(.) / dplyr::n_distinct(results$stratum)} %>% round()
-  range_dates_year <- list(min_date = format(max(results$date) - lubridate::weeks(number_of_weeks), "%Y-%m-%d"),
-                           max_date = format(max(results$date), "%Y-%m-%d"))
-  range_dates_sdp  <- list(min_date = as.Date(max(results$date) - lubridate::weeks(nweeks_sdp-1)),
-                      max_date = as.Date(max(results$date)))
 
-  bgcolor_df <- data.frame(name  = c("bg_white", "bg_sdp"),
-                           start = as.Date(c(min(results$date), range_dates_sdp$min_date)),
-                           end   = as.Date(c(range_dates_sdp$min_date, range_dates_sdp$max_date)),
-                           stringsAsFactors = FALSE)
+  # Find dates for the training period and _signal _detection _period (test data)
+  # and for the last ~year (`number_of_weeks` period).
+  period_dates_df <- results %>% dplyr::group_by(set_status) %>%
+    dplyr::summarise(start = min(date), end = max(date) + lubridate::days(7))
+  range_dates_data <- with(period_dates_df, c(min(start), max(end)))
+  range_dates_year <- max(period_dates_df$end) - lubridate::weeks(c(number_of_weeks, 0))
+  # signal detection period in number of days
+  ndays_sdp <- dplyr::filter(period_dates_df, set_status == "Test data") %>%
+    {difftime(.$end, .$start, units = "days")} %>% as.numeric()
 
   # function for finding the ymax value
   custom_round_up <- function(x, levels=c(1, 2, 5, 10)) {
@@ -80,10 +77,10 @@ plot_time_series <- function(results, interactive = FALSE,
         )
       ), "")
     ))) +
-    ggplot2::geom_rect(data = bgcolor_df, inherit.aes = FALSE,
+    ggplot2::geom_rect(data = period_dates_df, inherit.aes = FALSE,
                        ggplot2::aes(x = NULL, y = NULL,
                                     xmin = start, xmax = end,
-                                    fill = name),
+                                    fill = paste0("bg_", set_status)),
                        ymin = 0, ymax = plyr::round_any(x = max(results$cases),
                                                         f = ceiling,
                                                         accuracy = custom_round_up(max(results$cases))),
@@ -133,7 +130,7 @@ plot_time_series <- function(results, interactive = FALSE,
     )) +
     ggplot2::scale_fill_manual(
       values = c("Test data" = col.test, "Training data" = col.training,
-                 "bg_white" = "white", "bg_sdp" = col.threshold),
+                 "bg_Training data" = "white", "bg_Test data" = col.threshold),
       labels = c("Test data" = "Signal detection period"),
       breaks = c("Test data")
     ) +
@@ -174,16 +171,14 @@ plot_time_series <- function(results, interactive = FALSE,
         xaxis = list(
           type = "date",
           autorange = FALSE,
-          range = list(
-            lubridate::as_datetime(range_dates_year$min_date),
-            lubridate::as_datetime(range_dates_year$max_date)
+          range = range_dates_year,
+          rangeslider = list(
+            range = range_dates_data,
+            visible = TRUE, type = "date", thickness = 0.10
           ),
-          rangeslider   = list(
-            range = list(c(as.Date(range_dates_year$min_date), as.Date(range_dates_year$max_date))),
-            visible = TRUE, type = "date", thickness = 0.10),
           rangeselector = list(
             buttons = list(
-              list(count=nweeks_sdp * 7, label="Signal detection period", step="day", stepmode="backward"),
+              list(count=ndays_sdp, label="Signal detection period", step="day", stepmode="backward"),
               list(count=1, label="1 month", step="month", stepmode="backward"),
               list(count=6, label="6 months", step="month", stepmode="backward"),
               list(count=1, label="1 year", step="year", stepmode="backward"),
