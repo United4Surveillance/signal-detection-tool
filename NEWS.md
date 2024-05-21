@@ -8,6 +8,7 @@
 * Added spinner indicating that the app is busy to all tabs.
 * Interactive HTML option is now only available if format HTML is selected.
 * Stripping leading and trailing whitespaces from all columns of the input data in `preprocess_data()`.
+* Unified wording of "Signals"; changed all instances of "Alarms" to "Signals".
 
 # SignalDetectionTool 0.1.0
 
