@@ -125,7 +125,7 @@ plot_time_series <- function(results, interactive = FALSE,
     ) +
     ggplot2::scale_shape_manual(
       values = c("TRUE" = 8),
-      labels = c("TRUE" = "signal")
+      labels = c("TRUE" = "Signal")
     ) +
     ggplot2::scale_color_manual(values = c(
       "Expected" = col.expected,

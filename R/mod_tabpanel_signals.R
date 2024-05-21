@@ -354,7 +354,7 @@ mod_tabpanel_signals_server <- function(
         dplyr::arrange(category, stratum, year, week) %>%
         dplyr::left_join(x = ., y = result_padding, by = c("category", "stratum", "year", "week"))
 
-      # adjusting padding that the first upperbound which is calculated in the  is set to the last upperbound padding such that no jump in the visualisation occurs
+      # adjusting padding that the first upperbound which is calculated in the signals is set to the last upperbound padding such that no jump in the visualisation occurs
       results <- results %>%
         dplyr::group_by(category, stratum) %>%
         dplyr::mutate(first_timepoint_alarms = min(which(!is.na(alarms)))) %>%
