@@ -6,7 +6,7 @@
 #' the aeddo algorithm to detect potential outbreaks.
 #'
 #' @param data_aggregated data.frame, aggregated data with case counts
-#' @param number_of_weeks integer, specifying the number of weeks to generate alarms for
+#' @param number_of_weeks integer, specifying the number of weeks to generate signals for
 #' @param population_size The population size for the aeddo algorithm. Default is 1.
 #' @inheritParams aeddo::aeddo
 #'

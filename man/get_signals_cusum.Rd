@@ -9,7 +9,7 @@ get_signals_cusum(data_aggregated, number_of_weeks = 52)
 \arguments{
 \item{data_aggregated}{data.frame, aggregated data with case counts}
 
-\item{number_of_weeks}{integer, specifying number of weeks to generate alarms for}
+\item{number_of_weeks}{integer, specifying number of weeks to generate signals for}
 }
 \description{
 Get signals of CUSUM algorithm with reset
