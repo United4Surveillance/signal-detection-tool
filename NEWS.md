@@ -4,6 +4,7 @@
 * Updated `timeseries()` to show the blue background, signifying signal detection period, correctly, when using `facet_grid` for strata in report. 
 * Improved general readability of `timeseries` plot, when used in relation to `facet`.
 * Correcting text specifying the chosen signal detection period in Input tab.
+* Added additional data checks for age_group column and provided more detailed format requirement in description.md. Implemented `is_age_group_format()`, `is_last_age_group_format()` and `check_type_and_value_age_group()`.
 * Added spinner indicating that the app is busy to all tabs.
 * Interactive HTML option is now only available if format HTML is selected.
 * Stripping leading and trailing whitespaces from all columns of the input data in `preprocess_data()`.
