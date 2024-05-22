@@ -62,6 +62,7 @@ plot_time_series <- function(results, interactive = FALSE,
 
     10^floor(log10(x)) * levels[[which(x <= 10^floor(log10(x)) * levels)[[1]]]]
   }
+  ymax_data <- max(c(results$cases, results$upperbound), na.rm = TRUE)
 
   col.threshold <- "#2297E6"
   col.expected <- "#000000"
@@ -94,9 +95,7 @@ plot_time_series <- function(results, interactive = FALSE,
                        ggplot2::aes(x = NULL, y = NULL,
                                     xmin = start, xmax = end,
                                     fill = paste0("bg_", set_status)),
-                       ymin = 0, ymax = plyr::round_any(x = max(results$cases, na.rm = TRUE),
-                                                        f = ceiling,
-                                                        accuracy = custom_round_up(max(results$cases, na.rm = TRUE))),
+                       ymin = 0, ymax = custom_round_up(ymax_data),
                        colour = "white", linewidth = 0.5, alpha = 0.2) +
     ggplot2::geom_col(
       ggplot2::aes(x = date + half_week, # center bars around mid-week
