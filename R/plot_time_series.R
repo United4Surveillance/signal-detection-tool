@@ -1,7 +1,11 @@
 #' Plot time-series based on the results of Farrington Flexible
 #'
+#' Static plots (default) are only based on the dates of the latest
+#' `number_of_weeks` weeks. Interactive plots are based on all data, but default
+#' zoom on `number_of_weeks` weeks.
+#'
 #' @param results data returned by the get_signals_farringtonflexible()
-#' @param interactive if TRUE, interactive plot is returned
+#' @param interactive if TRUE, interactive plot is returned; FALSE (default), static plot.
 #' @param number_of_weeks number of weeks to be covered in the plot
 #'
 #' @return either a gg or plotly object
@@ -28,27 +32,28 @@ plot_time_series <- function(results, interactive = FALSE,
       set_status = factor(set_status, levels = c("Training data", "Test data"))
     )
 
+  # Periods - ends on the first date in the following week, [start; end)
+  # Dates for the latest ~year (`number_of_weeks` period).
+  range_dates_year <- max(results$date) - lubridate::weeks(c(number_of_weeks, 0) - 1)
+
+  # Static plots should be based only on the latest `number_of_weeks` weeks
   if (!interactive) {
     results <- results %>%
-      dplyr::arrange(date) %>%
-      dplyr::slice_tail(n = number_of_weeks)
+      dplyr::filter(date >= range_dates_year[1])
   }
 
-  # Dates for the training period and _signal _detection _period (test data)
+  # Dates for the training period and _signal _detection _period (test data period)
   period_dates_df <- results %>% dplyr::group_by(set_status) %>%
     dplyr::summarise(start = min(date), end = max(date) + lubridate::days(7))
-  # number of days in signal detection period
+  # number of days in _signal _detection _period
   ndays_sdp <- dplyr::filter(period_dates_df, set_status == "Test data") %>%
     {difftime(.$end, .$start, units = "days")} %>% as.numeric()
-  # Add extra dummy row to results to end threshold line (geom_step) with a
-  #   horizontal segment till end of final week
+  # Add dummy week to `results` to end the threshold line by a
+  #   horizontal segment (geom_step) in the final week
   results <- results %>%
-    dplyr::filter(date == max(date)) %>%
+    dplyr::filter(date == max(date)) %>% # final week-date
     dplyr::mutate(cases = NA, alarms = NA, date = date + lubridate::days(7)) %>%
     dplyr::bind_rows(results, .)
-  # dates for the latest ~year (`number_of_weeks` period).
-  range_dates_year <- max(results$date) - lubridate::weeks(c(number_of_weeks, 0))
-
 
   # function for finding the ymax value for rectangle background
   #   (plotly does not work with ymax=Inf)

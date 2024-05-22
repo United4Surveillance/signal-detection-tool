@@ -43,7 +43,7 @@ txt <- NULL
 #| fig.dim = c(8, p_height),
 #| fig.fullwidth=TRUE
 plot_time_series(df,
-                 number_of_weeks = 52 * dplyr::n_distinct(df$stratum),
+                 number_of_weeks = 52,
                  interactive = FALSE) + 
   ggplot2::facet_wrap(~stratum, ncol = 2, scales = "free_y") +
   ggplot2::scale_x_date(
