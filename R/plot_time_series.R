@@ -34,18 +34,24 @@ plot_time_series <- function(results, interactive = FALSE,
       dplyr::slice_tail(n = number_of_weeks)
   }
 
-
-  # Find dates for the training period and _signal _detection _period (test data)
-  # and for the last ~year (`number_of_weeks` period).
+  # Dates for the training period and _signal _detection _period (test data)
   period_dates_df <- results %>% dplyr::group_by(set_status) %>%
     dplyr::summarise(start = min(date), end = max(date) + lubridate::days(7))
-  range_dates_data <- with(period_dates_df, c(min(start), max(end)))
-  range_dates_year <- max(period_dates_df$end) - lubridate::weeks(c(number_of_weeks, 0))
-  # signal detection period in number of days
+  # number of days in signal detection period
   ndays_sdp <- dplyr::filter(period_dates_df, set_status == "Test data") %>%
     {difftime(.$end, .$start, units = "days")} %>% as.numeric()
+  # Add extra dummy row to results to end threshold line (geom_step) with a
+  #   horizontal segment till end of final week
+  results <- results %>%
+    dplyr::filter(date == max(date)) %>%
+    dplyr::mutate(cases = NA, alarms = NA, date = date + lubridate::days(7)) %>%
+    dplyr::bind_rows(results, .)
+  # dates for the latest ~year (`number_of_weeks` period).
+  range_dates_year <- max(results$date) - lubridate::weeks(c(number_of_weeks, 0))
 
-  # function for finding the ymax value
+
+  # function for finding the ymax value for rectangle background
+  #   (plotly does not work with ymax=Inf)
   custom_round_up <- function(x, levels=c(1, 2, 5, 10)) {
     if(length(x) != 1) stop("'x' must be of length 1")
 
@@ -57,6 +63,8 @@ plot_time_series <- function(results, interactive = FALSE,
   col.alarm <- "#FF0000"
   col.training <- "#9E9E9E"
   col.test <- "#304794"
+
+  half_week <- lubridate::days(3)
 
   plt <-
     results %>%
@@ -81,15 +89,19 @@ plot_time_series <- function(results, interactive = FALSE,
                        ggplot2::aes(x = NULL, y = NULL,
                                     xmin = start, xmax = end,
                                     fill = paste0("bg_", set_status)),
-                       ymin = 0, ymax = plyr::round_any(x = max(results$cases),
+                       ymin = 0, ymax = plyr::round_any(x = max(results$cases, na.rm = TRUE),
                                                         f = ceiling,
-                                                        accuracy = custom_round_up(max(results$cases))),
+                                                        accuracy = custom_round_up(max(results$cases, na.rm = TRUE))),
                        colour = "white", linewidth = 0.5, alpha = 0.2) +
-    ggplot2::geom_col(ggplot2::aes(y = cases, fill = set_status)) +
+    ggplot2::geom_col(
+      ggplot2::aes(x = date + half_week, # center bars around mid-week
+                   y = cases, fill = set_status)
+    ) +
     ggplot2::geom_step(ggplot2::aes(y = upperbound, color = "Threshold"),
       linewidth = 1.3, direction = "hv"
     ) +
-    ggplot2::geom_step(ggplot2::aes(y = upperbound_pad, color = "Threshold", linetype = "Test data"),
+    ggplot2::geom_step(
+      ggplot2::aes(y = upperbound_pad, color = "Threshold", linetype = "Test data"),
       linewidth = 0.3, direction = "hv"
     )
 
@@ -107,7 +119,7 @@ plot_time_series <- function(results, interactive = FALSE,
   plt <- plt +
     ggplot2::geom_point(
       data = dplyr::filter(results, alarms == TRUE),
-      ggplot2::aes(y = cases, shape = alarms, stroke = 1),
+      ggplot2::aes(x = date + half_week, y = cases, shape = alarms, stroke = 1),
       color = col.alarm, size = 6
     )
 
@@ -173,8 +185,9 @@ plot_time_series <- function(results, interactive = FALSE,
           autorange = FALSE,
           range = range_dates_year,
           rangeslider = list(
-            range = range_dates_data,
-            visible = TRUE, type = "date", thickness = 0.10
+            range = range(results$date),
+            visible = TRUE,
+            thickness = 0.10
           ),
           rangeselector = list(
             buttons = list(
