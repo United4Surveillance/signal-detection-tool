@@ -202,7 +202,8 @@ create_results_table <- function(data,
     data <- data %>% dplyr::filter(.data$signals == TRUE)
   }
 
-
+  data <- data %>%
+    dplyr::select(-signals)
 
   return(create_table(data, interactive))
 }
@@ -250,8 +251,7 @@ create_stratified_table <- function(signals_agg,
 
   signals_agg <- create_factor_with_unknown(signals_agg)
   signals_agg <- signals_agg %>%
-    dplyr::arrange(dplyr::desc(n_alarms)) %>%
-    dplyr::rename(signals = alarms)
+    dplyr::arrange(dplyr::desc(n_alarms))
 
   return(create_table(signals_agg, interactive))
 }
