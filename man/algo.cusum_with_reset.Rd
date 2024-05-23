@@ -2,7 +2,7 @@
 % Please edit documentation in R/cusum.R
 \name{algo.cusum_with_reset}
 \alias{algo.cusum_with_reset}
-\title{Implementation of the CUSUM algorithm retrieved from the surveillance package and adapted so that after an alarm was triggered the cusum is set to 0
+\title{Implementation of the CUSUM algorithm retrieved from the surveillance package and adapted so that after a signal was triggered the cusum is set to 0
 For parameter specification refer to the surveillance algo.cusum description}
 \usage{
 algo.cusum_with_reset(
@@ -12,6 +12,6 @@ algo.cusum_with_reset(
 )
 }
 \description{
-Implementation of the CUSUM algorithm retrieved from the surveillance package and adapted so that after an alarm was triggered the cusum is set to 0
+Implementation of the CUSUM algorithm retrieved from the surveillance package and adapted so that after a signal was triggered the cusum is set to 0
 For parameter specification refer to the surveillance algo.cusum description
 }

@@ -5,7 +5,16 @@
 \title{Run the Shiny Application}
 \usage{
 run_app(
-  onStart = NULL,
+  onStart = function() {
+     cat("Warnings are turned off\\n")
+     options(warn = -1)
+ 
+       onStop(function() {
+         options(warn = 0)
+        
+    cat("Warnings turned on\\n")
+     })
+ },
   options = list(),
   enableBookmarking = NULL,
   uiPattern = "/",

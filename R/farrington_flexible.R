@@ -1,6 +1,6 @@
 #' Get signals of surveillance's farringtonFlexible algorithm
 #' @param data_aggregated data.frame, aggregated data with case counts
-#' @param number_of_weeks integer, specifying number of weeks to generate alarms for
+#' @param number_of_weeks integer, specifying number of weeks to generate signals for
 #'
 #' @examples
 #' \dontrun{

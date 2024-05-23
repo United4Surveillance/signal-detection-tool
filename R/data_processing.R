@@ -12,7 +12,7 @@
 preprocess_data <- function(data) {
   # remove completely empty columns from the dataset
   data <- remove_empty_columns(data)
-  # Convert the date columns to date format
+
   yes_no_unknown_vars <- intersect(colnames(data), yes_no_unknown_variables())
   # get all variables present in the data which might need transformation tolower
   to_lower_vars <- intersect(colnames(data), c(yes_no_unknown_variables(), "sex"))
@@ -31,6 +31,8 @@ preprocess_data <- function(data) {
     dplyr::filter_at(check_for_missing_values(), dplyr::all_vars(!is.na(.)))
 
   data <- data %>%
+    # strip trailing or leading whitespaces
+    dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ stringr::str_trim(.x))) %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(to_lower_vars), ~ tolower(.x))) %>%
     dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, ""))) %>%
     dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, "unknown"))) %>%
@@ -93,10 +95,10 @@ aggregate_data <- function(data,
 #' Aggregate cases and signals over the number of weeks.
 
 #' First the signals are filtered to obtain the signals for the last n weeks
-#' aggregating the number of cases observed, create variable any alarm generated and the aggregate the number of alarms
+#' aggregating the number of cases observed, create variable any signal generated and the aggregate the number of signals
 
-#' @param signals tibble, output of the \code{\link{get_signals}} function with number of cases and alarm per week, year
-#' @param number_of_weeks integer, specifying the number of weeks we want to aggregate the number of cases and the generated alarms
+#' @param signals tibble, output of the \code{\link{get_signals}} function with number of cases and signal per week, year
+#' @param number_of_weeks integer, specifying the number of weeks we want to aggregate the number of cases and the generated signals
 #' @returns tibble, with one line per groups containing the number of cases, any_alarms and n_alarms
 #' @examples
 #' \dontrun{
@@ -218,7 +220,7 @@ add_rows_missing_dates <- function(data, date_start = NULL, date_end = NULL) {
 }
 
 #' Filter the data so that only the data of the last n weeks are returned
-#' This function can be used to filter for those last n weeks where alarms were generated. For this we could use is.na(alarms) but because it might happen that algorithms generate NA for an alarm this function is the safer option.
+#' This function can be used to filter for those last n weeks where signals were generated.
 #' @param data_agg data.frame, aggregated surveillance or signals dataset, where aggregated means no linelist but cases or signals per week, year
 #' @param number_of_weeks integer, specifying the number of weeks from the most recent week we want to filter the data for
 #' @returns data.frame, aggregated data of last n weeks

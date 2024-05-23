@@ -9,11 +9,17 @@
 #' @importFrom shiny NS tagList
 mod_tabpanel_input_ui <- function(id) {
   ns <- shiny::NS(id)
-
   shiny::tabPanel(
-    "Input parameters",
-    shiny::uiOutput(ns("input_tab_ui")),
-    icon = icon("viruses")
+    icon = icon("viruses"),
+    title = "Input parameters",
+    shinybusy::add_busy_spinner(
+      spin = "fading-circle",
+      color = "#304794",
+      position = "full-page",
+      height = "100px",
+      width = "100px"
+    ),
+    shiny::uiOutput(ns("input_tab_ui"))
   )
 }
 
@@ -100,7 +106,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 br(),
                 span("Signal detection algorithm", style = "font-size:100%;font-weight: bold"),
                 br(),
-                span("Depending on the number of weeks you want to generate alarms for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
+                span("Depending on the number of weeks you want to generate signals for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
                 br(),
                 shiny::uiOutput(ns("algorithm_choice"))
               )
@@ -420,7 +426,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       if (length(algorithms_possible()) == 0) {
         return(shiny::tagList(
           br(),
-          HTML("<b> For the selection you chose no algorithm is possible to apply. Please reduce the number of weeks you want generate alarms for or change the filters you set. </b>"),
+          HTML("<b> For the selection you chose no algorithm is possible to apply. Please reduce the number of weeks you want generate signals for or change the filters you set. </b>"),
           br()
         ))
       } else {

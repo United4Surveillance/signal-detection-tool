@@ -3,7 +3,7 @@
 \name{filter_data_last_n_weeks}
 \alias{filter_data_last_n_weeks}
 \title{Filter the data so that only the data of the last n weeks are returned
-This function can be used to filter for those last n weeks where alarms were generated. For this we could use is.na(alarms) but because it might happen that algorithms generate NA for an alarm this function is the safer option.}
+This function can be used to filter for those last n weeks where signals were generated.}
 \usage{
 filter_data_last_n_weeks(data_agg, number_of_weeks)
 }
@@ -17,5 +17,5 @@ data.frame, aggregated data of last n weeks
 }
 \description{
 Filter the data so that only the data of the last n weeks are returned
-This function can be used to filter for those last n weeks where alarms were generated. For this we could use is.na(alarms) but because it might happen that algorithms generate NA for an alarm this function is the safer option.
+This function can be used to filter for those last n weeks where signals were generated.
 }

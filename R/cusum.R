@@ -1,6 +1,6 @@
 #' Get signals of CUSUM algorithm with reset
 #' @param data_aggregated data.frame, aggregated data with case counts
-#' @param number_of_weeks integer, specifying number of weeks to generate alarms for
+#' @param number_of_weeks integer, specifying number of weeks to generate signals for
 #'
 #' @examples
 #' \dontrun{
@@ -71,7 +71,7 @@ get_signals_cusum <- function(data_aggregated,
   return(data_aggregated)
 }
 
-#' Implementation of the CUSUM algorithm retrieved from the surveillance package and adapted so that after an alarm was triggered the cusum is set to 0
+#' Implementation of the CUSUM algorithm retrieved from the surveillance package and adapted so that after a signal was triggered the cusum is set to 0
 #' For parameter specification refer to the surveillance algo.cusum description
 #' @export
 algo.cusum_with_reset <- function(disProgObj, control = list(range = range, k = 1.04, h = 2.26, m = NULL, trans = "standard", alpha = NULL)) {
@@ -213,5 +213,5 @@ algo.cusum_with_reset <- function(disProgObj, control = list(range = range, k = 
 #' Copied from the code of the surveillance package and adapted for algo.cusum_with_reset
 #' @export
 cusum_with_reset <- function(sts, control = list(range = range, k = 1.04, h = 2.26, m = NULL, trans = "standard", alpha = NULL), ...) {
-  surveillance::wrap.algo(sts, algo = "algo.cusum_with_reset", control = control, ...)
+  surveillance::wrap.algo(sts, algo = algo.cusum_with_reset, control = control, ...)
 }

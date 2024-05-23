@@ -5,15 +5,21 @@
 \title{detailed check of date variables
 check that months are numbers between 01-12 and days are from 01-31}
 \usage{
-is_ISO8601_detailed(date_var)
+is_ISO8601_detailed(date_col)
 }
 \arguments{
-\item{date_var}{character, date variable to check}
+\item{date_col}{character vector, vector containing dates to check}
 }
 \value{
-boolean, when TRUE all values of date_var are in the required format, when FALSE at least one is not in required format
+boolean, when TRUE all values of date_col are in the required format, when FALSE at least one is not in required format
 }
 \description{
 detailed check of date variables
 check that months are numbers between 01-12 and days are from 01-31
+}
+\examples{
+\dontrun{
+is_ISO8601_detailed(c("2023-04-01","2022-12-32")) # Should return FALSE
+is_ISO8601_detailed(c("2023-04-01","2022-12-31")) # Should return TRUE
+}
 }
