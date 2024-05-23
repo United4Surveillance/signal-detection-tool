@@ -51,70 +51,35 @@ mod_tabpanel_signals_server <- function(
         return(algorithm_error_message)
       } else {
         return(shiny::tagList(
-          fluidRow(
-            # Creation of boxes using div
-            column(
-              width = 3,
-              shiny::div(
-                class = "value-box blue",
-                shiny::div(class = "title", "Outbreak detection algorithm"),
-                shiny::div(class = "value", get_name_by_value(method(),available_algorithms()))
-              )
-            ),
-            column(
-              width = 2,
-              shiny::div(
-                class = "value-box blue",
-                shiny::div(class = "title", "Number of weeks"),
-                shiny::div(class = "value", number_of_weeks())
-              )
-            ),
-            # Red box if alarms were found
-            if (sum(signals_agg()$n_alarms) > 0) {
-              column(
-                width = 2,
-                shiny::div(
-                  class = "value-box red",
-                  shiny::div(class = "title", "Number of alarms"),
-                  shiny::div(class = "value", shiny::textOutput(ns("n_alarms")))
-                )
-                # Green box if no alarms were found
-              )
-            } else {
-              column(
-                width = 2,
-                shiny::div(
-                  class = "value-box green",
-                  shiny::div(class = "title", "Number of alarms"),
-                  shiny::div(class = "value", shiny::textOutput(ns("n_alarms")))
-                )
-              )
-            },
+          bslib::layout_column_wrap(
+            width = 1/3,
+            height = 200,
+             bslib::value_box(
+                theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
+                title = "Outbreak detection algorithm",
+                value = get_name_by_value(method(),available_algorithms())
+              ),
+              bslib::value_box(
+                theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
+                title = "Number of weeks",
+                value = number_of_weeks()
+              ),bslib::layout_column_wrap(
+                width = 1,
+                heights_equal = "row",
+                bslib::value_box(
+                  theme = bslib::value_box_theme(bg = dplyr::if_else(sum(signals_agg()$n_alarms) > 0, "#DF536B", "#23FF00") , fg = "#FFFFFF"),
+                  title = "Number of alarms",
+                  value = shiny::textOutput(ns("n_alarms"))
+                ),
             # Box of alarms by stratum
             if (!"None" %in% strat_vars()) {
-              # Red box if alarms were found
-              if (sum(signals_agg()$n_alarms) > 0) {
-                column(
-                  width = 4,
-                  shiny::div(
-                    class = "value-box red",
-                    shiny::div(class = "title", "Number of alarms by stratum"),
-                    shiny::div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
-                  )
+                  bslib::value_box(
+                    theme = bslib::value_box_theme(bg = dplyr::if_else(sum(signals_agg()$n_alarms) > 0, "#DF536B", "#23FF00") , fg = "#FFFFFF"),
+                    title = "Number of alarms by stratum",
+                    value = shiny::htmlOutput(ns("signals_stratum"))
                 )
-                # Green box if no alarms were found
-              } else {
-                column(
-                  width = 4,
-                  shiny::div(
-                    class = "value-box green",
-                    shiny::div(class = "title", "Number of alarms by stratum"),
-                    shiny::div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
-                  )
-                )
-              }
             }
-          ),
+          )),
           shiny::uiOutput(ns("alarm_button")),
           shiny::uiOutput(ns("plot_table_stratas")),
           shiny::br(),
@@ -265,8 +230,14 @@ mod_tabpanel_signals_server <- function(
       if (n_plots_tables != 0) {
         # populate the plot_table_list with plots/tables of each category
         plot_table_list <- lapply(signal_categories, function(category) {
-          decider_barplot_map_table(signals_agg(), data(), category, toggle_alarms = show_alarms())
-        })
+          plot <- decider_barplot_map_table(signals_agg(), data(), category, toggle_alarms = show_alarms())
+          bslib::card(
+            width = "auto",
+            bslib::card_header(category),
+            bslib::card_body(plot)
+          )
+
+          })
         if (n_plots_tables == 1) {
           header <- h3(paste0(
             "Visualisation and/or table showing the number of cases in the last ", number_of_weeks(),

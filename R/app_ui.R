@@ -9,13 +9,15 @@ app_ui <- function(request) {
     # Leave this function for adding external resources
     golem_add_external_resources(),
     # Your application UI logic
-    shiny::fluidPage(
+    bslib::page_fluid(
       # Application title
       ## Logo and headertext
       shiny::titlePanel( shiny::div(
+        shiny::fluidRow(
         shiny::column(width = 8, shiny::h1("United4Surveillance Signal Detection Tool")),
         shiny::column(width = 2, shiny::tags$img(src = "www/U4S-BLUE-200x87.png", style = "padding-bottom: 20px;")),
         shiny::column(width = 2, shiny::tags$img(src = "www/EN_V_Co-funded_by_POS.png", height = 95, width = "auto"))),
+      ),
         windowTitle="U4S Signal Detection"
       ),
       shiny::fluidRow(
