@@ -55,14 +55,23 @@ plot_time_series <- function(results, interactive = FALSE,
     dplyr::mutate(cases = NA, alarms = NA, date = date + lubridate::days(7)) %>%
     dplyr::bind_rows(results, .)
 
-  # function for finding the ymax value for rectangle background
+  # function for finding the ymax value
   #   (plotly does not work with ymax=Inf)
   custom_round_up <- function(x, levels=c(1, 2, 5, 10)) {
     if(length(x) != 1) stop("'x' must be of length 1")
 
     10^floor(log10(x)) * levels[[which(x <= 10^floor(log10(x)) * levels)[[1]]]]
   }
-  ymax_data <- max(c(results$cases, results$upperbound), na.rm = TRUE)
+  # local ymax for plotly zoom on x-axis
+  results <- results %>%
+    dplyr::mutate(ymax = purrr::map_int(
+      pmax(cases * dplyr::if_else(alarms, 1.1, 1, missing = 1),
+           # * 1.1 to make space for signal markers on case-bars
+           upperbound, upperbound_pad,
+           1, na.rm = TRUE),
+      custom_round_up))
+  # ymax overall for rectangle background
+  ymax_data <- max(results$ymax)
 
   col.threshold <- "#2297E6"
   col.expected <- "#000000"
@@ -203,6 +212,12 @@ plot_time_series <- function(results, interactive = FALSE,
               )
             )
           ),
+        yaxis = list(range = c(0,
+                               results %>%
+                                 # pick the default x-range view
+                                 dplyr::filter(date >= range_dates_year[1]) %>%
+                                 dplyr::select(ymax) %>% max() )
+        ),
         legend = list(
           orientation = "h", x = 0.5, y = -0.9,
           yanchor = "top", xanchor = "center")
@@ -217,6 +232,36 @@ plot_time_series <- function(results, interactive = FALSE,
         "zoom2d",
         "toggleSpikelines"
       ))
+
+    # Dynamically adapt ymax of the interactive plot based on the x-axis zoom.
+    ## JavaScript callback function using htmlwidgets::onRender() to listen for
+    ## the plotly_relayout event when x-axis range is adjusted.
+    ## Since it is client-side it should also work in HTML-reports.
+    update_yaxis <- function(plot) {
+      plot %>%
+        htmlwidgets::onRender("
+          function(el, x, data) {
+            el.on('plotly_relayout', function(eventdata) {
+              var x_range = eventdata['xaxis.range'];
+              if(x_range) {
+                console.log(`x_range: ${x_range}`);
+                var x_min = x_range[0];
+                var x_max = x_range[1];
+                var max_y_in_view =
+                  Math.max.apply(null, data.filter(function(d, i) {
+                    if(i == 1) {console.log({date:d.date, x_min:x_min, truth:d.date >= x_min});}
+                    return d.date >= x_min && d.date <= x_max;
+                    }).map(d => d.ymax)
+                  );
+                console.log(`max_y_in_view: ${max_y_in_view}`);
+                Plotly.relayout(el, {'yaxis.range': [0, max_y_in_view]});
+              }
+            });
+          }
+      ", data = dplyr::select(results, date, ymax))
+    }
+    # Update the plot with dynamic y-axis adjustment
+    plt <- update_yaxis(plt)
 
     # modifying the interactive plot legend
     plt$x$data[[1]]$showlegend <-
