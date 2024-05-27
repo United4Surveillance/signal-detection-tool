@@ -12,7 +12,7 @@ create_results_table(data, interactive = TRUE, positive_only = TRUE)
 \item{interactive}{Logical indicating whether to create an interactive
 DataTable (default is TRUE).}
 
-\item{positive_only}{Logical indicating whether to filter only those signal results where an alarm was generated (default is TRUE).}
+\item{positive_only}{Logical indicating whether to filter only those signal results where a signal was generated (default is TRUE).}
 }
 \value{
 An interactive DataTable or a static gt table, depending on the value

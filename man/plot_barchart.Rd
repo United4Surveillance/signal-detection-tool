@@ -11,7 +11,7 @@ plot_barchart(signals_agg, interactive = TRUE, toggle_alarms = FALSE)
 
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
 
-\item{toggle_alarms}{boolean identifying whether the plot should showing number of alarms explicitly or only when hovering}
+\item{toggle_alarms}{boolean identifying whether the plot should showing number of signals explicitly or only when hovering}
 }
 \value{
 either a gg or plotly object

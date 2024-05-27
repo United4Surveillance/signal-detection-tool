@@ -8,7 +8,7 @@
 #' "county","community","region_level1", "region_level2","region_level3")
 #' @param shape sf, shapefile default set to internal europe shapefile nuts_shp
 #' @param interactive boolean identifying whether the plot should be static or interactive
-#' @param toggle_alarms boolean identifying whether the plot should showing number of alarms explicitly or only when hovering
+#' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @returns a table or a plot depending on whether the matching of the NUTS IDs was fully possible, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 #' @examples
 #' \dontrun{
@@ -72,7 +72,7 @@ create_map_or_table <- function(signals_agg,
 
     # check whether all NUTS_ids are found in the shapefile
     # when there is a mismatch only because of cases with NA region then this is still a match and
-    # in the map we show with a caption/annotation the number of cases and alarms for them
+    # in the map we show with a caption/annotation the number of cases and signals for them
     n_NUTS_signals <- dplyr::n_distinct(setdiff(signals_agg_map$stratum, NA))
     n_NUTS_matching <- dplyr::n_distinct(signals_with_matching_NUTS$stratum)
 
@@ -109,12 +109,12 @@ create_map_or_table <- function(signals_agg,
 
 #' Decider function to create barplot or table of aggregated cases with signals
 
-#' Depending on the number of unique levels to visualise it is decided whether a barplot or a table is shown. The aggregated number of cases for each stratum and whether any alarm are shown.
+#' Depending on the number of unique levels to visualise it is decided whether a barplot or a table is shown. The aggregated number of cases for each stratum and whether any signal are shown.
 #' @param signals_agg tibble, aggregated signals over n weeks with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. age_group and county.
 #' @param category_selected the category from the signals_agg we want to visualise
 #' @param n_levels the threshold for the number of levels from which we decide when a table is generated instead of a barchart visualisation
 #' @param interactive boolean identifying whether the plot should be static or interactive
-#' @param toggle_alarms boolean identifying whether the plot should showing number of alarms explicitly or only when hovering
+#' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @returns a table or a plot depending on whether number of unique levels for the category to visualise, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 #' @examples
 #' \dontrun{
@@ -152,7 +152,7 @@ create_barplot_or_table <- function(signals_agg,
 #' @param data_surveillance data.frame, surveillance linelist
 #' @param signal_category character, naming the category which should be visualised, i.e. "state","age_group","sex"
 #' @param interactive boolean identifying whether the plot should be static or interactive
-#' @param toggle_alarms boolean identifying whether the plot should showing number of alarms explicitly or only when hovering
+#' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @return a table or a plot depending on signal_category, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 decider_barplot_map_table <- function(signals_agg,
                                       data_surveillance,

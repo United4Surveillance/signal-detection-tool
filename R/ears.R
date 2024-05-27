@@ -1,6 +1,6 @@
 #' Get signals of surveillance's EARS algorithm
 #' @param data_aggregated data.frame, aggregated data with case counts
-#' @param number_of_weeks integer, specifying number of weeks to generate alarms for
+#' @param number_of_weeks integer, specifying number of weeks to generate signals for
 #' @param method string indicating which method to use: one of "C1", "C2", "C3"
 #'
 #' @examples

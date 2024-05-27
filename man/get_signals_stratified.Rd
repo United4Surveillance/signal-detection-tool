@@ -28,7 +28,7 @@ stratify the data by.}
 
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 
-\item{number_of_weeks}{integer, specifying number of weeks to generate alarms for.}
+\item{number_of_weeks}{integer, specifying number of weeks to generate signals for.}
 }
 \value{
 A tibble containing the results of the signal detection analysis

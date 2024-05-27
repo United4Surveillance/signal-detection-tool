@@ -30,11 +30,13 @@ test_that("Age group column is added correctly", {
   expect_true(all.equal.character(age_groups(input_data_correct %>% dplyr::select(-age_group)), output_data))
 })
 
+
+test_data_1 <- data.frame(
+  age = c(1, 5, 35, 67, NA),
+  age_group = c("00-04", "05-09", "35-39", "65-69", NA_character_)
+)
+
 test_that("age_groups function works correctly with NA", {
-  test_data_1 <- data.frame(
-    age = c(1, 5, 35, 67, NA),
-    age_group = c("00-04", "05-09", "35-39", "65-69", NA_character_)
-  )
   expect_no_error(age_groups(test_data_1))
   expect_equal(levels(age_groups(test_data_1)$age_group), c(
     "00-04", "05-09", "10-14", "15-19", "20-24", "25-29",

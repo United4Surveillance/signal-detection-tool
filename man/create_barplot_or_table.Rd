@@ -3,7 +3,7 @@
 \name{create_barplot_or_table}
 \alias{create_barplot_or_table}
 \title{Decider function to create barplot or table of aggregated cases with signals
-Depending on the number of unique levels to visualise it is decided whether a barplot or a table is shown. The aggregated number of cases for each stratum and whether any alarm are shown.}
+Depending on the number of unique levels to visualise it is decided whether a barplot or a table is shown. The aggregated number of cases for each stratum and whether any signal are shown.}
 \usage{
 create_barplot_or_table(
   signals_agg,
@@ -22,14 +22,14 @@ create_barplot_or_table(
 
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
 
-\item{toggle_alarms}{boolean identifying whether the plot should showing number of alarms explicitly or only when hovering}
+\item{toggle_alarms}{boolean identifying whether the plot should showing number of signals explicitly or only when hovering}
 }
 \value{
 a table or a plot depending on whether number of unique levels for the category to visualise, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 }
 \description{
 Decider function to create barplot or table of aggregated cases with signals
-Depending on the number of unique levels to visualise it is decided whether a barplot or a table is shown. The aggregated number of cases for each stratum and whether any alarm are shown.
+Depending on the number of unique levels to visualise it is decided whether a barplot or a table is shown. The aggregated number of cases for each stratum and whether any signal are shown.
 }
 \examples{
 \dontrun{

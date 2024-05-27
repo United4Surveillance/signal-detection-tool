@@ -69,46 +69,46 @@ mod_tabpanel_signals_server <- function(
                 shiny::div(class = "value", number_of_weeks())
               )
             ),
-            # Red box if alarms were found
+            # Red box if signals were found
             if (sum(signals_agg()$n_alarms) > 0) {
               column(
                 width = 2,
                 shiny::div(
                   class = "value-box red",
-                  shiny::div(class = "title", "Number of alarms"),
+                  shiny::div(class = "title", "Number of signals"),
                   shiny::div(class = "value", shiny::textOutput(ns("n_alarms")))
                 )
-                # Green box if no alarms were found
+                # Green box if no signals were found
               )
             } else {
               column(
                 width = 2,
                 shiny::div(
                   class = "value-box green",
-                  shiny::div(class = "title", "Number of alarms"),
+                  shiny::div(class = "title", "Number of signals"),
                   shiny::div(class = "value", shiny::textOutput(ns("n_alarms")))
                 )
               )
             },
-            # Box of alarms by stratum
+            # Box of signals by stratum
             if (!"None" %in% strat_vars()) {
-              # Red box if alarms were found
+              # Red box if signals were found
               if (sum(signals_agg()$n_alarms) > 0) {
                 column(
                   width = 4,
                   shiny::div(
                     class = "value-box red",
-                    shiny::div(class = "title", "Number of alarms by stratum"),
+                    shiny::div(class = "title", "Number of signals by stratum"),
                     shiny::div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
                   )
                 )
-                # Green box if no alarms were found
+                # Green box if no signals were found
               } else {
                 column(
                   width = 4,
                   shiny::div(
                     class = "value-box green",
-                    shiny::div(class = "title", "Number of alarms by stratum"),
+                    shiny::div(class = "title", "Number of signals by stratum"),
                     shiny::div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
                   )
                 )
@@ -239,7 +239,7 @@ mod_tabpanel_signals_server <- function(
 
     show_alarms <- shiny::reactive({
       shiny::req(input$alarms_trig)
-      if (input$alarms_trig == "Show number of alarms") {
+      if (input$alarms_trig == "Show number of signals") {
         return(TRUE)
       } else {
         return(FALSE)
@@ -270,13 +270,13 @@ mod_tabpanel_signals_server <- function(
         if (n_plots_tables == 1) {
           header <- h3(paste0(
             "Visualisation and/or table showing the number of cases in the last ", number_of_weeks(),
-            " weeks with alarms from Signal Detection", " for the selected stratum ",
+            " weeks with signals from Signal Detection", " for the selected stratum ",
             paste(signal_categories, collapse = ", "), "."
           ))
         } else {
           header <- h3(paste0(
             "Visualisations and/or tables showing the number of cases in the last ", number_of_weeks(),
-            " weeks with alarms from Signal Detection", " for the selected strata ",
+            " weeks with signals from Signal Detection", " for the selected strata ",
             paste(signal_categories, collapse = ", "), "."
           ))
         }
@@ -411,7 +411,7 @@ mod_tabpanel_signals_server <- function(
 
     output$signals_stratum <- shiny::renderUI({
       signals_strat <- signals_agg() %>%
-        dplyr::filter(!is.na(category)) %>% # for stratified results remove the unstratified alarms
+        dplyr::filter(!is.na(category)) %>% # for stratified results remove the unstratified signals
         dplyr::group_by(category) %>%
         dplyr::summarise(n_alarms = sum(n_alarms)) %>%
         dplyr::ungroup()
@@ -438,9 +438,9 @@ mod_tabpanel_signals_server <- function(
         shiny::tagList(
           shiny::br(),
           shiny::selectInput(ns("alarms_trig"),
-                             label = "Toggle number of alarms on / off on stratification graphs",
-                             choices = c("Don't show number of alarms", "Show number of alarms"),
-                             selected = "Show number of alarms")
+                             label = "Toggle number of signals on / off on stratification graphs",
+                             choices = c("Don't show number of signals", "Show number of signals"),
+                             selected = "Show number of signals")
         )
       }
     })

@@ -55,24 +55,62 @@ create_table <- function(data, interactive = TRUE) {
     checkmate::check_false(interactive),
     combine = "or"
   )
+  data <- data %>% dplyr::select(-tidyselect::one_of("alarms"))
+  data <- data %>% dplyr::rename_all(~ stringr::str_to_title(.x))
+  data <- data %>%
+    dplyr::mutate(dplyr::across(tidyselect::where(is.double), round, digits = 2)) %>%
+    dplyr::mutate(dplyr::across(tidyselect::where(is.character), as.factor)) %>%
+    dplyr::relocate(tidyselect::where(is.factor))
 
   # get which columns contain floats
   float_columns <- get_float_columns(data)
 
   if (interactive == TRUE) {
     # create interactive table
-    table <- DT::datatable(data)
+    table <- DT::datatable(data,
+      class = "cell-border stripe hover", rownames = FALSE,
+      filter = list(position = "bottom", plain = TRUE),
+      extensions = c("Buttons", "RowGroup"),
+      selection = "single",
+      options = list(
+        pageLength = 10,
+        rowGroup = list(dataSrc = 0),
+        columnDefs = list(list(visible = FALSE, targets = 0)),
+        dom = "tfrBip",
+        buttons = c("copy", "csv", "excel", "pdf"),
+        initComplete = DT::JS(
+          "function(settings, json) {",
+          "$(this.api().table().header()).css({'background-color': '#304794', 'color': '#fff'});",
+          "}"
+        )
+      )
+    )
+    if ("Any_alarms" %in% colnames(data)) {
+      table <- table %>% DT::formatStyle(
+        "Any_alarms",
+        target = "row",
+        backgroundColor = DT::styleEqual(c(TRUE), c("#ff8282"))
+      )
+    }
     if (length(float_columns)) {
       table <- table %>% DT::formatRound(float_columns, 2)
     }
   } else {
     # create static table for reports
+    data <- data %>%
+      dplyr::mutate(id = 1:nrow(data)) %>%
+      tidyr::pivot_wider(names_from = Category, values_from = Stratum) %>%
+      dplyr::select(-id) %>%
+      dplyr::mutate(dplyr::across(tidyselect::where(is.character), as.factor)) %>%
+      dplyr::relocate(tidyselect::where(is.factor))
+
     table <- data %>%
       gt::gt() %>%
       gt::tab_options(
         column_labels.padding = gt::px(3),
         column_labels.font.weight = "bold"
-      )
+      ) %>%
+      gt::opt_stylize(style = 5, color = "blue")
     if (length(float_columns)) {
       table <- table %>% gt::fmt_number(columns = float_columns)
     }
@@ -120,7 +158,7 @@ convert_columns_integer <- function(data, columns_to_convert) {
 #' @param data A data frame.
 #' @param interactive Logical indicating whether to create an interactive
 #'   DataTable (default is TRUE).
-#' @param positive_only Logical indicating whether to filter only those signal results where an alarm was generated (default is TRUE).
+#' @param positive_only Logical indicating whether to filter only those signal results where a signal was generated (default is TRUE).
 #'
 #' @return An interactive DataTable or a static gt table, depending on the value
 #'   of `interactive`.
@@ -154,15 +192,17 @@ create_results_table <- function(data,
   # Somehow columns are of type double when the should be integers
   # convert for styling later on
   data <- convert_columns_integer(data, c("year", "week", "cases"))
-  #browser()
+  # browser()
   data <- data %>%
     dplyr::mutate(category = dplyr::if_else(is.na(category), "None", category)) %>%
-    dplyr::rename(threshold = upperbound)
+    dplyr::rename(threshold = upperbound, signals = alarms)
 
   data <- data %>% dplyr::filter(!is.na(threshold))
   if (positive_only) {
-    data <- data %>% dplyr::filter(.data$alarms == TRUE)
+    data <- data %>% dplyr::filter(.data$signals == TRUE)
   }
+
+
 
   return(create_table(data, interactive))
 }
@@ -173,7 +213,7 @@ create_results_table <- function(data,
 #' expects the aggregated signals input to only have one category. It converts certain columns
 #' to integers and the stratum column to factor with NA converted to unknown for styling
 #' purposes. This table is used to show stratified signal results for one category, i.e. sex
-#' and results for all the strata no matter whether there are alarms or not.
+#' and results for all the strata no matter whether there are signals or not.
 #'
 #' @param signals_agg A tibble or data frame.
 #' @param interactive Logical indicating whether to create an interactive
@@ -210,7 +250,8 @@ create_stratified_table <- function(signals_agg,
 
   signals_agg <- create_factor_with_unknown(signals_agg)
   signals_agg <- signals_agg %>%
-    dplyr::arrange(stratum)
+    dplyr::arrange(dplyr::desc(n_alarms)) %>%
+    dplyr::rename(signals = alarms)
 
   return(create_table(signals_agg, interactive))
 }

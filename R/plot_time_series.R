@@ -125,7 +125,7 @@ plot_time_series <- function(results, interactive = FALSE,
     ) +
     ggplot2::scale_shape_manual(
       values = c("TRUE" = 8),
-      labels = c("TRUE" = "Alarm")
+      labels = c("TRUE" = "Signal")
     ) +
     ggplot2::scale_color_manual(values = c(
       "Expected" = col.expected,
@@ -220,11 +220,11 @@ plot_time_series <- function(results, interactive = FALSE,
       plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Expected"
       plt$x$data[[8]]$showlegend <- FALSE
       if (any(results$alarms == TRUE, na.rm = TRUE)) {
-        plt$x$data[[9]]$name <- plt$x$data[[9]]$legendgroup <- "Alarm"
+        plt$x$data[[9]]$name <- plt$x$data[[9]]$legendgroup <- "Signal"
       }
     } else {
       if (any(results$alarms == TRUE, na.rm = TRUE)) {
-        plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Alarm"
+        plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Signal"
       }
     }
   }

@@ -20,7 +20,7 @@ get_signals_aeddo(
 \arguments{
 \item{data_aggregated}{data.frame, aggregated data with case counts}
 
-\item{number_of_weeks}{integer, specifying the number of weeks to generate alarms for}
+\item{number_of_weeks}{integer, specifying the number of weeks to generate signals for}
 
 \item{population_size}{The population size for the aeddo algorithm. Default is 1.}
 
