@@ -5,6 +5,7 @@
 * Added spinner indicating that the app is busy to all tabs.
 * Interactive HTML option is now only available if format HTML is selected.
 * Stripping leading and trailing whitespaces from all columns of the input data in `preprocess_data()`.
+* Fixing that the Help Tab works when installing package from binary.
 
 # SignalDetectionTool 0.1.0
 
