@@ -10,17 +10,18 @@
 mod_tabpanel_help_ui <- function(id) {
   ns <- shiny::NS(id)
 
-    shiny::tabPanel(
-      "Help",
-      shiny::fluidPage(
-        column(12,
-               shiny::br(),
-               shiny::h3("Table of content"),
-               shiny::uiOutput(ns("help_markdown")))
-        ),
-      icon = shiny::icon("question")
+  shiny::tabPanel(
+    "Help",
+    shiny::fluidPage(
+      column(
+        12,
+        shiny::br(),
+        shiny::h3("Table of content"),
+        shiny::uiOutput(ns("help_markdown"))
       )
-
+    ),
+    icon = shiny::icon("question")
+  )
 }
 
 #' tabpanel "help" Server Functions
@@ -30,17 +31,16 @@ mod_tabpanel_help_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    output$help_markdown <- shiny::renderUI({
-      shiny::HTML(
-        markdown::mark_html(
-          knitr::knit("inst/rmd/help_tab.Rmd", quiet = TRUE,
-                      encoding = "UTF-8", output = "inst/rmd/help_tab.md"),
-          output = NULL, options = list(number_sections = FALSE, toc = TRUE,
-                                        toc_float = list(collapsed = TRUE)),
-          template = FALSE
-        ))
-    })
+    rmd_path <- system.file("rmd/help_tab.Rmd", package = "SignalDetectionTool")
+    # Knit the R Markdown file to a temporary Markdown file
+    md_path_temp <- tempfile(fileext = ".md")
+    knitr::knit(input = rmd_path, output = md_path_temp, quiet = TRUE, encoding = "UTF-8")
 
+    # Convert the Markdown file to HTML
+    html_content <- markdown::mark_html(md_path_temp, output = NULL, options = list(toc = TRUE, number_sections = FALSE), template = FALSE)
+
+    output$help_markdown <- shiny::renderUI({
+      shiny::HTML(html_content)
+    })
   })
 }
-
