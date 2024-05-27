@@ -2,25 +2,22 @@
 % Please edit documentation in R/results_table.R
 \name{create_results_table}
 \alias{create_results_table}
-\title{Create the signal detection results table with optional filtering}
+\title{Create the signal detection results table showing all signals found}
 \usage{
-create_results_table(data, interactive = TRUE, positive_only = TRUE)
+create_results_table(data, interactive = TRUE)
 }
 \arguments{
 \item{data}{A data frame.}
 
 \item{interactive}{Logical indicating whether to create an interactive
 DataTable (default is TRUE).}
-
-\item{positive_only}{Logical indicating whether to filter only those signal results where a signal was generated (default is TRUE).}
 }
 \value{
 An interactive DataTable or a static gt table, depending on the value
   of `interactive`.
 }
 \description{
-This function creates a results table based on the input data frame. It can
-filter the data based on the `positive_only` parameter and converts certain
+This function creates a results table based on the input data frame. It converts certain
 columns to integers for styling purposes. This table is used to show all signal detection results for different stratifications together in one table
 }
 \examples{
