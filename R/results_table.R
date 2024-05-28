@@ -149,14 +149,16 @@ convert_columns_integer <- function(data, columns_to_convert) {
   return(data)
 }
 
-#' Create the signal detection results table showing all signals found
+#' Create the signal detection results table with optional filtering
 #'
-#' This function creates a results table based on the input data frame. It converts certain
+#' This function creates a results table based on the input data frame. It can
+#' filter the data based on the `positive_only` parameter and converts certain
 #' columns to integers for styling purposes. This table is used to show all signal detection results for different stratifications together in one table
 #'
 #' @param data A data frame.
 #' @param interactive Logical indicating whether to create an interactive
 #'   DataTable (default is TRUE).
+#' @param positive_only Logical indicating whether to filter only those signal results where a signal was generated (default is TRUE).
 #'
 #' @return An interactive DataTable or a static gt table, depending on the value
 #'   of `interactive`.
@@ -174,10 +176,16 @@ convert_columns_integer <- function(data, columns_to_convert) {
 #' create_results_table(data)
 #' }
 create_results_table <- function(data,
-                                 interactive = TRUE) {
+                                 interactive = TRUE,
+                                 positive_only = TRUE) {
   checkmate::assert(
     checkmate::check_true(interactive),
     checkmate::check_false(interactive),
+    combine = "or"
+  )
+  checkmate::assert(
+    checkmate::check_true(positive_only),
+    checkmate::check_false(positive_only),
     combine = "or"
   )
 
@@ -187,12 +195,15 @@ create_results_table <- function(data,
   # browser()
   data <- data %>%
     dplyr::mutate(category = dplyr::if_else(is.na(category), "None", category)) %>%
-    dplyr::rename(threshold = upperbound)
+    dplyr::rename(threshold = upperbound, signals = alarms)
+
+  data <- data %>% dplyr::filter(!is.na(threshold))
+  if (positive_only) {
+    data <- data %>% dplyr::filter(.data$signals == TRUE)
+  }
 
   data <- data %>%
-    dplyr::filter(!is.na(threshold)) %>%
-    dplyr::filter(alarms) %>%
-    dplyr::select(-alarms)
+    dplyr::select(-signals)
 
   return(create_table(data, interactive))
 }
