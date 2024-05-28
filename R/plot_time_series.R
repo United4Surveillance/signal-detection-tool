@@ -1,11 +1,11 @@
 #' Plot time-series based on the results of Farrington Flexible
 #'
 #' Static plots (default) are only based on the dates of the latest
-#' `number_of_weeks` weeks. Interactive plots are based on all data, but default
-#' zoom on `number_of_weeks` weeks.
+#' `number_of_weeks` weeks. Interactive plots are based on all data, but zoom in
+#' by default on the latest `number_of_weeks` weeks.
 #'
 #' @param results data returned by the get_signals_farringtonflexible()
-#' @param interactive if TRUE, interactive plot is returned; FALSE (default), static plot.
+#' @param interactive logical, if TRUE, interactive plot is returned; default, static plot.
 #' @param number_of_weeks number of weeks to be covered in the plot
 #'
 #' @return either a gg or plotly object
@@ -244,16 +244,13 @@ plot_time_series <- function(results, interactive = FALSE,
             el.on('plotly_relayout', function(eventdata) {
               var x_range = eventdata['xaxis.range'];
               if(x_range) {
-                console.log(`x_range: ${x_range}`);
                 var x_min = x_range[0];
                 var x_max = x_range[1];
                 var max_y_in_view =
-                  Math.max.apply(null, data.filter(function(d, i) {
-                    if(i == 1) {console.log({date:d.date, x_min:x_min, truth:d.date >= x_min});}
-                    return d.date >= x_min && d.date <= x_max;
+                  Math.max.apply(null, data.filter(function(d) {
+                      return d.date >= x_min && d.date <= x_max;
                     }).map(d => d.ymax)
                   );
-                console.log(`max_y_in_view: ${max_y_in_view}`);
                 Plotly.relayout(el, {'yaxis.range': [0, max_y_in_view]});
               }
             });
