@@ -191,6 +191,7 @@ plot_time_series <- function(results, interactive = FALSE,
     )
 
   if (interactive) {
+    range_dates_all <- range(results$date)
     plt <- plotly::ggplotly(plt, tooltip = "text", dynamicTicks = TRUE) %>%
       plotly::layout(
         xaxis = list(
@@ -198,7 +199,7 @@ plot_time_series <- function(results, interactive = FALSE,
           autorange = FALSE,
           range = range_dates_year,
           rangeslider = list(
-            range = range(results$date),
+            range = range_dates_all,
             visible = TRUE,
             thickness = 0.10
           ),
@@ -233,21 +234,34 @@ plot_time_series <- function(results, interactive = FALSE,
         "toggleSpikelines"
       ))
 
-    # Dynamically adapt ymax of the interactive plot based on the x-axis zoom.
-    ## JavaScript callback function using htmlwidgets::onRender() to listen for
-    ## the plotly_relayout event when x-axis range is adjusted.
-    ## Since it is client-side it should also work in HTML-reports.
-    update_yaxis <- function(plot) {
-      plot %>%
-        htmlwidgets::onRender("
-          function(el, x, data) {
+    # JavaScript callback function using htmlwidgets::onRender() to listen for
+    # the plotly_relayout event when x-axis range is adjusted.
+    # Since it is client-side also works in HTML-reports. Two purposes:
+    # 1. Dynamically adapt ymax of the interactive plot based on the x-axis zoom.
+    # 2. Fix to plotly rangeselector step="all", which extends x-axis into
+    ##   the future, when signal markers are present. See
+    ##   https://github.com/United4Surveillance/signal-detection-tool/issues/231
+    update_axes <- function(plot) {
+        htmlwidgets::onRender(plot, "
+          function(el, x, jsondata) {
             el.on('plotly_relayout', function(eventdata) {
+              var x_autorange = eventdata['xaxis.autorange'];
+              if(x_autorange === true) {
+                // correct possible plotly-auto-extended x-axis
+                // use a copy of full date range to avoid modification
+                var data_xrange = [...jsondata['date_range']];
+                Plotly.relayout(el, {'xaxis.rangeslider.range': data_xrange,
+                                     'xaxis.range': data_xrange});
+              }
+
               var x_range = eventdata['xaxis.range'];
+                // undefined when x_autorange is true
               if(x_range) {
+                // adapt ymax on y-axis to zoomed data
                 var x_min = x_range[0];
                 var x_max = x_range[1];
                 var max_y_in_view =
-                  Math.max.apply(null, data.filter(function(d) {
+                  Math.max.apply(null, jsondata['results'].filter(function(d) {
                       return d.date >= x_min && d.date <= x_max;
                     }).map(d => d.ymax)
                   );
@@ -255,10 +269,12 @@ plot_time_series <- function(results, interactive = FALSE,
               }
             });
           }
-      ", data = dplyr::select(results, date, ymax))
+      ", data = list(results = dplyr::select(results, date, ymax),
+                     date_range = range_dates_all)
+      )
     }
-    # Update the plot with dynamic y-axis adjustment
-    plt <- update_yaxis(plt)
+    # Update the plot with dynamic y-axis adjustment and x-axis bugfix
+    plt <- update_axes(plt)
 
     # modifying the interactive plot legend
     plt$x$data[[1]]$showlegend <-
