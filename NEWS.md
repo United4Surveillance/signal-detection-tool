@@ -1,3 +1,6 @@
+* Made table appearance for interactive and static tables consistent using new dependency `flextable`
+* Recodes NAs in signal tables to 'unknown'
+
 # SignalDetectionTool 0.1.1
 
 * Several bug fixes concerning `age_groups()` function. Fixed that NA in age column is dealt with correctly in age_group, fixed that when no age column is provided in the dataset function still works and further details making the function more robust. 
