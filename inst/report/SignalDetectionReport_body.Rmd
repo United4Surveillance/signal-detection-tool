@@ -55,10 +55,11 @@ results_analysis <- signal_results %>%
   dplyr::filter(is.na(category), 
                 !is.na(alarms))
 
+
 stringr::str_glue(
   "In the signal detection period - last {params$number_of_weeks} weeks available in the data - ", 
   "there were {sum(results_analysis$cases)} cases of {params$disease} in {params$country}. ",
-  "Using the {names(params$algo)} algorithm {sum(results_analysis$alarm)} signal{ifelse(sum(results_analysis$n_alarms) == 1, '', 's')} {ifelse(sum(results_analysis$n_alarms) == 1, ' was', ' were')} detected.")
+  "Using the {names(params$algo)} algorithm {sum(results_analysis$alarms)} signal{ifelse(sum(results_analysis$n_alarms) == 1, '', 's')} {ifelse(sum(results_analysis$n_alarms) == 1, ' was', ' were')} detected.")
 ```
 
 
