@@ -73,6 +73,8 @@ preprocess_data <- function(data) {
 #' Aggregates case data by year and week
 #' @param data data.frame, linelist of cases to be aggregated
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' data <- preprocess_data(input_example) %>% aggregate_data()
