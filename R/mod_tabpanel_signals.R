@@ -399,7 +399,7 @@ mod_tabpanel_signals_server <- function(
     # signals table
     output$signals <- DT::renderDT({
       req(!errors_detected())
-      create_results_table(signal_results(),
+      create_and_format_signals_table(signal_results(),
                            interactive = TRUE
       )
       # FIXME: interactive mode not working here?

@@ -15,6 +15,7 @@
 * Stripping leading and trailing whitespaces from all columns of the input data in `preprocess_data()`.
 * Unified wording of "Signals"; changed all instances of "Alarms" to "Signals".
 * Fixing that the Help Tab works when installing package from binary.
+* Seperating the formating of signal detection results tables from preprocessing in seperate functions. Renaming the functions such that the functionality provided by former `create_results_table()` is now `create_and_format_signals_table()` and `create_stratified_table()` is now `create_and_format_signals_agg_table()`.
 
 # SignalDetectionTool 0.1.0
 
