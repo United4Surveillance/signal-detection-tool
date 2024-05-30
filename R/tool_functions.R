@@ -594,8 +594,7 @@ get_signals_stratified <- function(data,
 #'
 #' @examples
 #' \dontrun{
-#' data <- read.csv("data/input/input.csv")
-#' results <- get_signals(data,
+#' results <- get_signals(preprocess_data(input_example),
 #'   method = "farrington",
 #'   stratification = c("county", "sex")
 #' )
