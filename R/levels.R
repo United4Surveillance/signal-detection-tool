@@ -78,6 +78,19 @@ available_algorithms <- function() {
   )
 }
 
+pretty_variable_names <- function() {
+  list(
+    age_group = "Age group",
+    subtype = "Subtype",
+    sex = "Sex",
+    hospitalization = "Hospitalization",
+    occupation = "Occupation",
+    place_of_infection = "Place of infection",
+    death = "Death",
+    vaccination = "Vaccination"
+  )
+}
+
 #' Varible names which should be checked for missing values
 check_for_missing_values <- function() {
   c("date_report")
