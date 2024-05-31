@@ -52,8 +52,16 @@ create_factor_with_unknown <- function(signals_agg) {
     signals_agg <- signals_agg %>%
       dplyr::mutate(stratum = factor(stratum, levels = do.call(category_levels, list())))
   } else {
-    signals_agg <- signals_agg %>%
-      dplyr::mutate(stratum = factor(stratum))
+    # if it is a yes no variable order it
+    if(all(signals_agg$stratum %in% yes_no_unknown_levels())){
+      signals_agg <- signals_agg %>%
+        dplyr::mutate(stratum = factor(stratum, levels = yes_no_unknown_levels()))
+    # otherwise just create a factor without special ordering
+    }else{
+      signals_agg <- signals_agg %>%
+        dplyr::mutate(stratum = factor(stratum))
+    }
+
   }
   # it is an open issue #347 on forcats that unknown levels are added even when no NA was there
   # thus write code for workaround

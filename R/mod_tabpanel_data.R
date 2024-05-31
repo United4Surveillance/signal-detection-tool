@@ -51,10 +51,10 @@ mod_tabpanel_data_ui <- function(id) {
           htmlOutput(ns("errors"))
         ), # Display errors output
         hr(), # Horizontal line for visual separation
-        h4("Columns in your dataset which were not checked for correctness and will not be used by the Signal Detection Tool"),
-        span("In this section you receive feedback about columns which are not recognised/are currently not used by this tool. These can be columns with a wrong column name which does not match the predefined names in the SOP but also additional columns you provided which are not part of the SOP. You can still continue using the app even when there are notifications in this section."),
+        h4("Columns in your dataset which were not checked for correctness"),
+        span("In this section you receive feedback about columns which are not checked by the tool. These can be columns with a wrong column name that does not match the predefined names in the SOP, as well as additional columns you provided which are not part of the SOP. You can still continue using the app even when there are notifications in this section."),
         hr(),
-        span("Please check the column names shown and correct those which should match column names defined in the SOP. The additional columns you provided can stay."),
+        span("Please check the column names shown and correct those which should match column names defined in the SOP. The additional columns you provided can stay and can be used in stratification and filters."),
         span("After you corrected the columns please upload your data again for verification."),
         hr(),
         div(
