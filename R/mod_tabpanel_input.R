@@ -178,24 +178,15 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     available_var_opts <- shiny::reactive({
       shiny::req(data_sub)
       shiny::req(!errors_detected())
-      available_vars <- intersect(
-        c(
-          "state",
-          "county",
-          "community",
-          "region_level1",
-          "region_level2",
-          "region_level3",
-          "subtype",
-          "age_group",
-          "sex"
-        ),
-        names(data_sub())
-      ) %>%
+      available_vars <- data_sub() %>%
+        dplyr::select(where(is.character)|where(is.factor)) %>%
+        dplyr::select(-pathogen, -dplyr::all_of(dplyr::ends_with("_id"))) %>%
+        names() %>%
         sort()
       available_vars
     })
 
+    # adding date_report to the possible filter vars
     filter_var_opts <- shiny::reactive({
       shiny::req(available_var_opts())
       shiny::req(data_sub())

@@ -515,6 +515,7 @@ get_signals_stratified <- function(data,
     date_end <- max(data[[date_var]], na.rm = TRUE)
   }
 
+  i <- 0
   # Loop through each category
   for (category in stratification_columns) {
     if (is.factor(data[, category])) {
@@ -526,6 +527,7 @@ get_signals_stratified <- function(data,
 
     # iterate over all strata and run algorithm
     for (stratum in strata) {
+      i <- i + 1
       # when stratum is NA filter needs to be done differently otherwise the NA stratum is lost
       if (is.na(stratum)) {
         sub_data <- data %>% dplyr::filter(is.na(.data[[category]]))
@@ -568,7 +570,7 @@ get_signals_stratified <- function(data,
         )
       }
       # Store the results in the list
-      category_results[[stratum]] <- results
+      category_results[[i]] <- results
     }
   }
 
