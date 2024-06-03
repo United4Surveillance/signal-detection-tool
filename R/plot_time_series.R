@@ -55,21 +55,17 @@ plot_time_series <- function(results, interactive = FALSE,
     dplyr::mutate(cases = NA, alarms = NA, date = date + lubridate::days(7)) %>%
     dplyr::bind_rows(results, .)
 
-  # function for finding the ymax value
+  # function to find a nice-looking ymax value for y-axis range
   #   (plotly does not work with ymax=Inf)
-  custom_round_up <- function(x, levels=c(1, 2, 5, 10)) {
-    if(length(x) != 1) stop("'x' must be of length 1")
-
-    10^floor(log10(x)) * levels[[which(x <= 10^floor(log10(x)) * levels)[[1]]]]
-  }
-  # local ymax for plotly zoom on x-axis
+  custom_round_up <- function(x) max(pretty(c(0, x)))
+  # compute local ymax for plotly adaptive y-axis when zooming in on x-axis
   results <- results %>%
-    dplyr::mutate(ymax = purrr::map_int(
-      pmax(cases * dplyr::if_else(alarms, 1.1, 1, missing = 1),
-           # * 1.1 to make space for signal markers on case-bars
-           upperbound, upperbound_pad,
-           1, na.rm = TRUE),
-      custom_round_up))
+    dplyr::rowwise() %>%
+    dplyr::mutate(ymax = custom_round_up(c(
+      cases * dplyr::if_else(alarms, 1.1, 1, missing = 1),
+                 # 1.1 to add space for signal-* on top-edge of case-number bars
+      upperbound, upperbound_pad, 1)
+    ))
   # ymax overall for rectangle background
   ymax_data <- max(results$ymax)
 
@@ -104,7 +100,7 @@ plot_time_series <- function(results, interactive = FALSE,
                        ggplot2::aes(x = NULL, y = NULL,
                                     xmin = start, xmax = end,
                                     fill = paste0("bg_", set_status)),
-                       ymin = 0, ymax = custom_round_up(ymax_data),
+                       ymin = 0, ymax = ymax_data,
                        colour = "white", linewidth = 0.5, alpha = 0.2) +
     ggplot2::geom_col(
       ggplot2::aes(x = date + half_week, # center bars around mid-week
