@@ -197,6 +197,8 @@ plot_time_series <- function(results, interactive = FALSE,
           rangeslider = list(
             range = range_dates_all,
             visible = TRUE,
+            yaxis = list(range = c(0, ymax_data),
+                         rangemode = "fixed"), # so we always can see the big picture in the rangeslider plot
             thickness = 0.10
           ),
           rangeselector = list(
