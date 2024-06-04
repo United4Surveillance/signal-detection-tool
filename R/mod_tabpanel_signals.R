@@ -69,26 +69,26 @@ mod_tabpanel_signals_server <- function(
                 shiny::div(class = "value", number_of_weeks())
               )
             ),
-           # Box of total alarms
-            # Red box if alarms were found, green if no alarms
+           # Box of signals in total
+            # Red box if signals were found, green if no signals
               column(
                 width = 2,
                 shiny::div(
                   class = ifelse(sum(signals_agg()$n_alarms) > 0,
                                  "value-box red", "value-box green"),
-                  shiny::div(class = "title", "Number of alarms"),
+                  shiny::div(class = "title", "Number of signals"),
                   shiny::div(class = "value", shiny::textOutput(ns("n_alarms")))
                 )
               ),
-            # Box of alarms by stratum
+            # Box of signals by stratum
             if (!"None" %in% strat_vars()) {
-              # Red box if alarms were found, green if no alarms
+              # Red box if signals were found, green if no signals
               column(
                 width = 4,
                 shiny::div(
                  class = ifelse(sum(signals_agg()$n_alarms) > 0,
                                  "value-box red", "value-box green"),
-                  shiny::div(class = "title", "Number of alarms by stratum"),
+                  shiny::div(class = "title", "Number of signals by stratum"),
                   shiny::div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
                 )
               )
