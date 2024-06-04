@@ -21,15 +21,28 @@ plot_time_series <- function(results, interactive = FALSE,
                              number_of_weeks = 52) {
   results <- results %>%
     dplyr::mutate(
-      date = ISOweek::ISOweek2date(
-        paste(.data$year, "-W",
-          stringr::str_pad(.data$week, width = 2, pad = "0"),
-          "-1",
-          sep = ""
-        )
-      ),
-      set_status = dplyr::if_else(is.na(alarms), "Training data", "Test data"),
-      set_status = factor(set_status, levels = c("Training data", "Test data"))
+      isoweek = paste0(.data$year, "-W",
+                       stringr::str_pad(.data$week, width = 2, pad = "0")),
+      date = ISOweek::ISOweek2date(paste0(.data$isoweek, "-1")),
+      set_status = dplyr::if_else(is.na(.data$alarms), "Training data", "Test data"),
+      set_status = factor(.data$set_status, levels = c("Training data", "Test data")),
+      hover_text = paste0(
+        ifelse(.data$set_status == "Test data", "Signal detection period", ""),
+        "<br>Week: ", .data$isoweek,
+        "<br>Observed: ", .data$cases,
+        ifelse(!is.na(.data$upperbound_pad) | !is.na(.data$upperbound), (
+          ifelse(is.na(.data$upperbound_pad),
+                 paste0("<br>Threshold: ", round(.data$upperbound, 1)),
+                 paste0("<br>Threshold: ", round(.data$upperbound_pad, 1))
+          )
+        ), ""),
+        ifelse(!is.na(.data$expected_pad) | !is.na(.data$expected), (
+          ifelse(is.na(.data$expected_pad),
+                 paste0("<br>Expected: ", round(.data$expected, 1)),
+                 paste0("<br>Expected: ", round(.data$expected_pad, 1))
+          )
+        ), "")
+      )
     )
 
   # Periods - ends on the first date in the following week, [start; end)
@@ -39,20 +52,25 @@ plot_time_series <- function(results, interactive = FALSE,
   # Static plots should be based only on the latest `number_of_weeks` weeks
   if (!interactive) {
     results <- results %>%
-      dplyr::filter(date >= range_dates_year[1])
+      dplyr::filter(.data$date >= .env$range_dates_year[1])
   }
 
   # Dates for the training period and _signal _detection _period (test data period)
-  period_dates_df <- results %>% dplyr::group_by(set_status) %>%
-    dplyr::summarise(start = min(date), end = max(date) + lubridate::days(7))
+  period_dates_df <- results %>% dplyr::group_by(.data$set_status) %>%
+    dplyr::summarise(start = min(.data$date),
+                     end = max(.data$date) + lubridate::days(7))
   # number of days in _signal _detection _period
-  ndays_sdp <- dplyr::filter(period_dates_df, set_status == "Test data") %>%
+  ndays_sdp <- dplyr::filter(period_dates_df,
+                             .data$set_status == "Test data") %>%
     {difftime(.$end, .$start, units = "days")} %>% as.numeric()
   # Add dummy week to `results` to end the threshold line by a
   #   horizontal segment (geom_step) in the final week
   results <- results %>%
-    dplyr::filter(date == max(date)) %>% # final week-date
-    dplyr::mutate(cases = NA, alarms = NA, date = date + lubridate::days(7)) %>%
+    dplyr::filter(date == max(.data$date)) %>% # final week-date
+    dplyr::mutate(cases = NA, alarms = NA,
+                  date = .data$date + lubridate::days(7),
+                  hover_text = "" # don't show misleading hover at dummy data
+    ) %>%
     dplyr::bind_rows(results, .)
 
   # function to find a nice-looking ymax value for y-axis range
@@ -62,9 +80,9 @@ plot_time_series <- function(results, interactive = FALSE,
   results <- results %>%
     dplyr::rowwise() %>%
     dplyr::mutate(ymax = custom_round_up(c(
-      cases * dplyr::if_else(alarms, 1.1, 1, missing = 1),
+      .data$cases * dplyr::if_else(.data$alarms, 1.1, 1, missing = 1),
                  # 1.1 to add space for signal-* on top-edge of case-number bars
-      upperbound, upperbound_pad, 1)
+      .data$upperbound, .data$upperbound_pad, 1)
     ))
   # ymax overall for rectangle background
   ymax_data <- max(results$ymax)
@@ -79,23 +97,7 @@ plot_time_series <- function(results, interactive = FALSE,
 
   plt <-
     results %>%
-    ggplot2::ggplot(ggplot2::aes(x = date, group = 1, text = paste0(
-      ifelse(set_status == "Test data", "Signal detection period", ""),
-      "<br>Date: ", date,
-      "<br>Observed: ", cases,
-      ifelse(!is.na(upperbound_pad) | !is.na(upperbound), (
-        ifelse(is.na(upperbound_pad),
-          paste0("<br>Threshold: ", round(upperbound, 1)),
-          paste0("<br>Threshold: ", round(upperbound_pad, 1))
-        )
-      ), ""),
-      ifelse(!is.na(expected_pad) | !is.na(expected), (
-        ifelse(is.na(expected_pad),
-          paste0("<br>Expected: ", round(expected, 1)),
-          paste0("<br>Expected: ", round(expected_pad, 1))
-        )
-      ), "")
-    ))) +
+    ggplot2::ggplot(ggplot2::aes(x = date, group = 1, text = hover_text)) +
     ggplot2::geom_rect(data = period_dates_df, inherit.aes = FALSE,
                        ggplot2::aes(x = NULL, y = NULL,
                                     xmin = start, xmax = end,
@@ -214,7 +216,7 @@ plot_time_series <- function(results, interactive = FALSE,
                                results %>%
                                  # pick the default x-range view
                                  dplyr::filter(date >= range_dates_year[1]) %>%
-                                 dplyr::select(ymax) %>% max() )
+                                 dplyr::select("ymax") %>% max() )
         ),
         legend = list(
           orientation = "h", x = 0.5, y = -0.9,
@@ -266,7 +268,7 @@ plot_time_series <- function(results, interactive = FALSE,
               }
             });
           }
-      ", data = list(results = dplyr::select(results, date, ymax),
+      ", data = list(results = dplyr::select(results, c("date", "ymax")),
                      date_range = range_dates_all)
       )
     }
