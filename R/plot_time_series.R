@@ -203,7 +203,6 @@ plot_time_series <- function(results, interactive = FALSE,
           ),
           rangeselector = list(
             buttons = list(
-              list(count=ndays_sdp, label="Signal detection period", step="day", stepmode="backward"),
               list(count=1, label="1 month", step="month", stepmode="backward"),
               list(count=6, label="6 months", step="month", stepmode="backward"),
               list(count=1, label="1 year", step="year", stepmode="backward"),
