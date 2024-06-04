@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_time_series.R
 \name{plot_time_series}
 \alias{plot_time_series}
-\title{Plot time-series based on the results of Farrington Flexible}
+\title{Plot time-series based on the results of a signal detection algorithm, being alarms, threshold and expectation}
 \usage{
 plot_time_series(results, interactive = FALSE, number_of_weeks = 52)
 }

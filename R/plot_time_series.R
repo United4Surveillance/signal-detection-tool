@@ -1,4 +1,4 @@
-#' Plot time-series based on the results of Farrington Flexible
+#' Plot time-series based on the results of a signal detection algorithm, being alarms, threshold and expectation
 #'
 #' Static plots (default) are only based on the dates of the latest
 #' `number_of_weeks` weeks. Interactive plots are based on all data, but zoom in
@@ -124,7 +124,7 @@ plot_time_series <- function(results, interactive = FALSE,
       )
   }
 
-  # adding alarm points
+  # adding signal points
   plt <- plt +
     ggplot2::geom_point(
       data = dplyr::filter(results, alarms == TRUE),
