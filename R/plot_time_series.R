@@ -1,7 +1,11 @@
-#' Plot time-series based on the results of Farrington Flexible
+#' Plot time-series based on the results of a signal detection algorithm, being alarms, threshold and expectation
+#'
+#' Static plots (default) are only based on the dates of the latest
+#' `number_of_weeks` weeks. Interactive plots are based on all data, but zoom in
+#' by default on the latest `number_of_weeks` weeks.
 #'
 #' @param results data returned by the get_signals_farringtonflexible()
-#' @param interactive if TRUE, interactive plot is returned
+#' @param interactive logical, if TRUE, interactive plot is returned; default, static plot.
 #' @param number_of_weeks number of weeks to be covered in the plot
 #'
 #' @return either a gg or plotly object
@@ -17,43 +21,71 @@ plot_time_series <- function(results, interactive = FALSE,
                              number_of_weeks = 52) {
   results <- results %>%
     dplyr::mutate(
-      date = ISOweek::ISOweek2date(
-        paste(.data$year, "-W",
-          stringr::str_pad(.data$week, width = 2, pad = "0"),
-          "-1",
-          sep = ""
-        )
-      ),
-      set_status = dplyr::if_else(is.na(alarms), "Training data", "Test data"),
-      set_status = factor(set_status, levels = c("Training data", "Test data"))
+      isoweek = paste0(.data$year, "-W",
+                       stringr::str_pad(.data$week, width = 2, pad = "0")),
+      date = ISOweek::ISOweek2date(paste0(.data$isoweek, "-1")),
+      set_status = dplyr::if_else(is.na(.data$alarms), "Training data", "Test data"),
+      set_status = factor(.data$set_status, levels = c("Training data", "Test data")),
+      hover_text = paste0(
+        ifelse(.data$set_status == "Test data", "Signal detection period", ""),
+        "<br>Week: ", .data$isoweek,
+        "<br>Observed: ", .data$cases,
+        ifelse(!is.na(.data$upperbound_pad) | !is.na(.data$upperbound), (
+          ifelse(is.na(.data$upperbound_pad),
+                 paste0("<br>Threshold: ", round(.data$upperbound, 1)),
+                 paste0("<br>Threshold: ", round(.data$upperbound_pad, 1))
+          )
+        ), ""),
+        ifelse(!is.na(.data$expected_pad) | !is.na(.data$expected), (
+          ifelse(is.na(.data$expected_pad),
+                 paste0("<br>Expected: ", round(.data$expected, 1)),
+                 paste0("<br>Expected: ", round(.data$expected_pad, 1))
+          )
+        ), "")
+      )
     )
 
+  # Periods - ends on the first date in the following week, [start; end)
+  # Dates for the latest ~year (`number_of_weeks` period).
+  range_dates_year <- max(results$date) - lubridate::weeks(c(number_of_weeks, 0) - 1)
+
+  # Static plots should be based only on the latest `number_of_weeks` weeks
   if (!interactive) {
     results <- results %>%
-      dplyr::arrange(date) %>%
-      dplyr::slice_tail(n = number_of_weeks)
+      dplyr::filter(.data$date >= .env$range_dates_year[1])
   }
 
-  # finding number of weeks for signal detection period
-  # and dates for the last year and for the signal detection period
-  nweeks_sdp  <- results %>% dplyr::filter(set_status == "Test data") %>%
-    {nrow(.) / dplyr::n_distinct(results$stratum)} %>% round()
-  range_dates_year <- list(min_date = format(max(results$date) - lubridate::weeks(number_of_weeks), "%Y-%m-%d"),
-                           max_date = format(max(results$date), "%Y-%m-%d"))
-  range_dates_sdp  <- list(min_date = as.Date(max(results$date) - lubridate::weeks(nweeks_sdp-1)),
-                      max_date = as.Date(max(results$date)))
+  # Dates for the training period and _signal _detection _period (test data period)
+  period_dates_df <- results %>% dplyr::group_by(.data$set_status) %>%
+    dplyr::summarise(start = min(.data$date),
+                     end = max(.data$date) + lubridate::days(7))
+  # number of days in _signal _detection _period
+  ndays_sdp <- dplyr::filter(period_dates_df,
+                             .data$set_status == "Test data") %>%
+    {difftime(.$end, .$start, units = "days")} %>% as.numeric()
+  # Add dummy week to `results` to end the threshold line by a
+  #   horizontal segment (geom_step) in the final week
+  results <- results %>%
+    dplyr::filter(date == max(.data$date)) %>% # final week-date
+    dplyr::mutate(cases = NA, alarms = NA,
+                  date = .data$date + lubridate::days(7),
+                  hover_text = "" # don't show misleading hover at dummy data
+    ) %>%
+    dplyr::bind_rows(results, .)
 
-  bgcolor_df <- data.frame(name  = c("bg_white", "bg_sdp"),
-                           start = as.Date(c(min(results$date), range_dates_sdp$min_date)),
-                           end   = as.Date(c(range_dates_sdp$min_date, range_dates_sdp$max_date)),
-                           stringsAsFactors = FALSE)
-
-  # function for finding the ymax value
-  custom_round_up <- function(x, levels=c(1, 2, 5, 10)) {
-    if(length(x) != 1) stop("'x' must be of length 1")
-
-    10^floor(log10(x)) * levels[[which(x <= 10^floor(log10(x)) * levels)[[1]]]]
-  }
+  # function to find a nice-looking ymax value for y-axis range
+  #   (plotly does not work with ymax=Inf)
+  custom_round_up <- function(x) max(pretty(c(0, x)))
+  # compute local ymax for plotly adaptive y-axis when zooming in on x-axis
+  results <- results %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(ymax = custom_round_up(c(
+      .data$cases * dplyr::if_else(.data$alarms, 1.1, 1, missing = 1),
+                 # 1.1 to add space for signal-* on top-edge of case-number bars
+      .data$upperbound, .data$upperbound_pad, 1)
+    ))
+  # ymax overall for rectangle background
+  ymax_data <- max(results$ymax)
 
   col.threshold <- "#2297E6"
   col.expected <- "#000000"
@@ -61,38 +93,26 @@ plot_time_series <- function(results, interactive = FALSE,
   col.training <- "#9E9E9E"
   col.test <- "#304794"
 
+  half_week <- lubridate::days(3)
+
   plt <-
     results %>%
-    ggplot2::ggplot(ggplot2::aes(x = date, group = 1, text = paste0(
-      ifelse(set_status == "Test data", "Signal detection period", ""),
-      "<br>Date: ", date,
-      "<br>Observed: ", cases,
-      ifelse(!is.na(upperbound_pad) | !is.na(upperbound), (
-        ifelse(is.na(upperbound_pad),
-          paste0("<br>Threshold: ", round(upperbound, 1)),
-          paste0("<br>Threshold: ", round(upperbound_pad, 1))
-        )
-      ), ""),
-      ifelse(!is.na(expected_pad) | !is.na(expected), (
-        ifelse(is.na(expected_pad),
-          paste0("<br>Expected: ", round(expected, 1)),
-          paste0("<br>Expected: ", round(expected_pad, 1))
-        )
-      ), "")
-    ))) +
-    ggplot2::geom_rect(data = bgcolor_df, inherit.aes = FALSE,
+    ggplot2::ggplot(ggplot2::aes(x = date, group = 1, text = hover_text)) +
+    ggplot2::geom_rect(data = period_dates_df, inherit.aes = FALSE,
                        ggplot2::aes(x = NULL, y = NULL,
                                     xmin = start, xmax = end,
-                                    fill = name),
-                       ymin = 0, ymax = plyr::round_any(x = max(results$cases),
-                                                        f = ceiling,
-                                                        accuracy = custom_round_up(max(results$cases))),
+                                    fill = paste0("bg_", set_status)),
+                       ymin = 0, ymax = ymax_data,
                        colour = "white", linewidth = 0.5, alpha = 0.2) +
-    ggplot2::geom_col(ggplot2::aes(y = cases, fill = set_status)) +
+    ggplot2::geom_col(
+      ggplot2::aes(x = date + half_week, # center bars around mid-week
+                   y = cases, fill = set_status)
+    ) +
     ggplot2::geom_step(ggplot2::aes(y = upperbound, color = "Threshold"),
       linewidth = 1.3, direction = "hv"
     ) +
-    ggplot2::geom_step(ggplot2::aes(y = upperbound_pad, color = "Threshold", linetype = "Test data"),
+    ggplot2::geom_step(
+      ggplot2::aes(y = upperbound_pad, color = "Threshold", linetype = "Test data"),
       linewidth = 0.3, direction = "hv"
     )
 
@@ -106,11 +126,11 @@ plot_time_series <- function(results, interactive = FALSE,
       )
   }
 
-  # adding alarm points
+  # adding signal points
   plt <- plt +
     ggplot2::geom_point(
       data = dplyr::filter(results, alarms == TRUE),
-      ggplot2::aes(y = cases, shape = alarms, stroke = 1),
+      ggplot2::aes(x = date + half_week, y = cases, shape = alarms, stroke = 1),
       color = col.alarm, size = 6
     )
 
@@ -133,7 +153,7 @@ plot_time_series <- function(results, interactive = FALSE,
     )) +
     ggplot2::scale_fill_manual(
       values = c("Test data" = col.test, "Training data" = col.training,
-                 "bg_white" = "white", "bg_sdp" = col.threshold),
+                 "bg_Training data" = "white", "bg_Test data" = col.threshold),
       labels = c("Test data" = "Signal detection period"),
       breaks = c("Test data")
     ) +
@@ -169,21 +189,22 @@ plot_time_series <- function(results, interactive = FALSE,
     )
 
   if (interactive) {
+    range_dates_all <- range(results$date)
     plt <- plotly::ggplotly(plt, tooltip = "text", dynamicTicks = TRUE) %>%
       plotly::layout(
         xaxis = list(
           type = "date",
           autorange = FALSE,
-          range = list(
-            lubridate::as_datetime(range_dates_year$min_date),
-            lubridate::as_datetime(range_dates_year$max_date)
+          range = range_dates_year,
+          rangeslider = list(
+            range = range_dates_all,
+            visible = TRUE,
+            yaxis = list(range = c(0, ymax_data),
+                         rangemode = "fixed"), # so we always can see the big picture in the rangeslider plot
+            thickness = 0.10
           ),
-          rangeslider   = list(
-            range = list(c(as.Date(range_dates_year$min_date), as.Date(range_dates_year$max_date))),
-            visible = TRUE, type = "date", thickness = 0.10),
           rangeselector = list(
             buttons = list(
-              list(count=nweeks_sdp * 7, label="Signal detection period", step="day", stepmode="backward"),
               list(count=1, label="1 month", step="month", stepmode="backward"),
               list(count=6, label="6 months", step="month", stepmode="backward"),
               list(count=1, label="1 year", step="year", stepmode="backward"),
@@ -191,6 +212,12 @@ plot_time_series <- function(results, interactive = FALSE,
               )
             )
           ),
+        yaxis = list(range = c(0,
+                               results %>%
+                                 # pick the default x-range view
+                                 dplyr::filter(date >= range_dates_year[1]) %>%
+                                 dplyr::select("ymax") %>% max() )
+        ),
         legend = list(
           orientation = "h", x = 0.5, y = -0.9,
           yanchor = "top", xanchor = "center")
@@ -205,6 +232,48 @@ plot_time_series <- function(results, interactive = FALSE,
         "zoom2d",
         "toggleSpikelines"
       ))
+
+    # JavaScript callback function using htmlwidgets::onRender() to listen for
+    # the plotly_relayout event when x-axis range is adjusted.
+    # Since it is client-side also works in HTML-reports. Two purposes:
+    # 1. Dynamically adapt ymax of the interactive plot based on the x-axis zoom.
+    # 2. Fix to plotly rangeselector step="all", which extends x-axis into
+    ##   the future, when signal markers are present. See
+    ##   https://github.com/United4Surveillance/signal-detection-tool/issues/231
+    update_axes <- function(plot) {
+        htmlwidgets::onRender(plot, "
+          function(el, x, jsondata) {
+            el.on('plotly_relayout', function(eventdata) {
+              var x_autorange = eventdata['xaxis.autorange'];
+              if(x_autorange === true) {
+                // correct possible plotly-auto-extended x-axis
+                // use a copy of full date range to avoid modification
+                var data_xrange = [...jsondata['date_range']];
+                Plotly.relayout(el, {'xaxis.rangeslider.range': data_xrange,
+                                     'xaxis.range': data_xrange});
+              }
+
+              var x_range = eventdata['xaxis.range'];
+                // undefined when x_autorange is true
+              if(x_range) {
+                // adapt ymax on y-axis to zoomed data
+                var x_min = x_range[0];
+                var x_max = x_range[1];
+                var max_y_in_view =
+                  Math.max.apply(null, jsondata['results'].filter(function(d) {
+                      return d.date >= x_min && d.date <= x_max;
+                    }).map(d => d.ymax)
+                  );
+                Plotly.relayout(el, {'yaxis.range': [0, max_y_in_view]});
+              }
+            });
+          }
+      ", data = list(results = dplyr::select(results, c("date", "ymax")),
+                     date_range = range_dates_all)
+      )
+    }
+    # Update the plot with dynamic y-axis adjustment and x-axis bugfix
+    plt <- update_axes(plt)
 
     # modifying the interactive plot legend
     plt$x$data[[1]]$showlegend <-
