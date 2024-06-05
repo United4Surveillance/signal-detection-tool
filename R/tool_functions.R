@@ -209,7 +209,7 @@ complete_agegrp_arr <- function(df, format_check_results) {
     gsub(pattern = "\\D", replacement = "")
 
   # remove rows of only NA or empty
-  splits <- splits[!apply(is.na(splits) | splits == "", 1, all),]
+  splits <- splits[!apply(is.na(splits) | splits == "", 1, all), ]
 
   # if there is equidistance
   if (format_check_results$equal_sizing) {
