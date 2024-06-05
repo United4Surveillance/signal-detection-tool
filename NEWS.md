@@ -1,5 +1,3 @@
-* Made table appearance for interactive and static tables consistent using new dependency `flextable`
-* Recodes NAs in signal tables to 'unknown'
 
 # SignalDetectionTool 0.1.1
 
@@ -22,6 +20,8 @@
 * Unified wording of "Signals"; changed all instances of "Alarms" to "Signals".
 * Fixing that the Help Tab works when installing package from binary.
 * Allow selection of all character and factor variables in the dataset, except for the variables ending with '_id', to use for filters and stratifications.
+* Made table appearance for interactive and static tables consistent using new dependency `flextable`
+* Recodes NAs in signal tables to 'unknown'
 
 # SignalDetectionTool 0.1.0
 
