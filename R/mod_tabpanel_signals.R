@@ -30,7 +30,7 @@ mod_tabpanel_signals_ui <- function(id) {
 #' @noRd
 mod_tabpanel_signals_server <- function(
     id,
-    data,
+    filtered_data,
     errors_detected,
     number_of_weeks,
     number_of_weeks_input_valid,
@@ -166,7 +166,7 @@ mod_tabpanel_signals_server <- function(
       }
       # 'None' takes precedence over 'All'
       else if ("All" %in% strat_vars_chr) {
-        strat_vars_chr <- names(data())
+        strat_vars_chr <- names(filtered_data())
       }
 
       return(strat_vars_chr)
@@ -177,7 +177,7 @@ mod_tabpanel_signals_server <- function(
       shiny::req(!errors_detected())
       shiny::req(!no_algorithm_possible())
       results <- SignalDetectionTool::get_signals(
-        data = data(),
+        data = filtered_data(),
         method = method(),
         stratification = strat_vars_tidy(),
         date_var = "date_report",
@@ -186,7 +186,7 @@ mod_tabpanel_signals_server <- function(
       # when stratified signals were computed also add unstratified signals to the dataframe so that all can be visualised
       if (!is.null(strat_vars_tidy())) {
         results_unstratified <- SignalDetectionTool::get_signals(
-          data = data(),
+          data = filtered_data(),
           method = method(),
           stratification = NULL,
           date_var = "date_report",
@@ -211,7 +211,7 @@ mod_tabpanel_signals_server <- function(
         sort()
 
       dates <- seq(weeks[1], weeks[length(weeks)], by = "day")
-      data_n_weeks <- data() %>%
+      data_n_weeks <- filtered_data() %>%
         dplyr::filter(date_report %in% dates) # this has to use the same variable as in get_signals()
       data_n_weeks
     })
@@ -244,7 +244,7 @@ mod_tabpanel_signals_server <- function(
       if (n_plots_tables != 0) {
         # populate the plot_table_list with plots/tables of each category
         plot_table_list <- lapply(signal_categories, function(category) {
-          decider_barplot_map_table(signals_agg(), data(), category, toggle_alarms = show_alarms())
+          decider_barplot_map_table(signals_agg(), filtered_data(), category, toggle_alarms = show_alarms())
         })
         if (n_plots_tables == 1) {
           header <- h3(paste0(
@@ -366,7 +366,7 @@ mod_tabpanel_signals_server <- function(
 
     # Return list of subsetted data and parameters
     return(list(
-      signal_results = shiny::reactive(signals_padded()),
+      signals_padded = shiny::reactive(signals_padded()),
       signals_agg = shiny::reactive(signals_agg()),
       signal_data = shiny::reactive(signal_data())
     ))

@@ -7,13 +7,11 @@
 run_report(
   report_format = "HTML",
   data = SignalDetectionTool::input_example,
-  algo = "farrington",
   strata = c("county_id", "community_id", "sex", "age_group"),
   interactive = TRUE,
   tables = TRUE,
-  number_of_weeks = 6,
   output_file = NULL,
-  signal_results = NULL,
+  signals_padded = NULL,
   signals_agg = NULL
 )
 }
@@ -22,8 +20,6 @@ run_report(
 
 \item{data}{data.frame containing surveillance data in linelist format}
 
-\item{algo}{algorithm to be used}
-
 \item{strata}{A character vector specifying the columns to stratify
 the analysis. Default is NULL.}
 
@@ -31,11 +27,9 @@ the analysis. Default is NULL.}
 
 \item{tables}{Logical. True if tables should be included in report.}
 
-\item{number_of_weeks}{number of weeks for which signals are generated}
-
 \item{output_file}{The name of the output file \link[rmarkdown]{render}}
 
-\item{signal_results}{calculated signals (for use within the app, default is NULL)}
+\item{signals_padded}{calculated and padded signals (for use within the app, default is NULL)}
 
 \item{signals_agg}{aggregated signals  (for use within the app, default is NULL)}
 }

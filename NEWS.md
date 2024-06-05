@@ -19,6 +19,9 @@
 * Unified wording of "Signals"; changed all instances of "Alarms" to "Signals".
 * Fixing that the Help Tab works when installing package from binary.
 * Allow selection of all character and factor variables in the dataset, except for the variables ending with '_id', to use for filters and stratifications.
+* Adding a function `pad_signals()` performing the padding of signals timeseries (extension of threshold and expecation to the past for visualisation) which was previously done in the signals tab server.
+* adding method and number_of_weeks to the resulting tibble of `get_signals()` to reduce number of parameters needed to be passed forward.
+* Improved wording of objects in signals and reports tab
 
 # SignalDetectionTool 0.1.0
 

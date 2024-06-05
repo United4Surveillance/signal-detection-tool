@@ -444,7 +444,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     # Return list of subsetted data and parameters
     return(list(
-      data = reactive({
+      filtered_data = reactive({
         dplyr::filter(filtered_data(), subset == TRUE)
       }),
       n_weeks = shiny::reactive(input$n_weeks),

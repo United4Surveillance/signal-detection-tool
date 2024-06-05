@@ -28,7 +28,7 @@ decider_barplot_map_table(signals_agg,
 ```
 
 ```{r}
-df <- signal_results %>% 
+df <- signals_padded %>% 
   dplyr::filter(category %in% strat)
 
 eval_ts_facet <- ((dplyr::n_distinct(df$stratum) <= 12))

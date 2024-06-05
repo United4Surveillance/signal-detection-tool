@@ -10,6 +10,9 @@ if (is.null(params$data)) {
   data <- SignalDetectionTool::input_example
 } 
 
+algo <- unique(params$signals_padded$method)
+number_of_weeks <- unique(params$signals_padded$number_of_weeks)
+
 ```
 
 

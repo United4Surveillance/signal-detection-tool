@@ -23,12 +23,10 @@ params:
   data: NULL
   disease: "Pertussis"
   country: "Austria"
-  number_of_weeks: 6
-  algo: "farrington"
   strata: !r c("county_id", "community_id", "sex", "age_group") 
   interactive: false
   tables: true
-  signal_results: NULL
+  signals_padded: NULL
   signals_agg: NULL
 
 ---

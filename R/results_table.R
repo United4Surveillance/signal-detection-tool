@@ -55,7 +55,9 @@ create_table <- function(data, interactive = TRUE) {
     checkmate::check_false(interactive),
     combine = "or"
   )
-  data <- data %>% dplyr::select(-tidyselect::one_of("alarms"))
+  data <- data %>%
+    dplyr::select(-tidyselect::one_of("alarms")) %>%
+    dplyr::select(-number_of_weeks,-method)
   data <- data %>% dplyr::rename_all(~ stringr::str_to_title(.x))
   data <- data %>%
     dplyr::mutate(dplyr::across(tidyselect::where(is.double), round, digits = 2)) %>%

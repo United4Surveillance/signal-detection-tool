@@ -671,6 +671,12 @@ get_signals <- function(data,
     )
   }
 
+  # add number of weeks and method to the results dataframe
+  results <- results %>%
+    dplyr::mutate(
+      method = method,
+      number_of_weeks = number_of_weeks
+    )
 
   return(results)
 }
