@@ -31,14 +31,12 @@ decider_barplot_map_table(signals_agg,
 df <- signal_results %>% 
   dplyr::filter(category %in% strat)
 
-eval_ts_facet <- ((dplyr::n_distinct(df$stratum) <= 12))
 p_height <- ceiling(dplyr::n_distinct(df$stratum)/2) * 2
 txt <- NULL
 ```
 
 
 ```{r}
-#| eval = eval_ts_facet,
 #| fig.cap=paste0("Number of ", params$disease, " cases by week and signals stratified by ", strat_text, ", ", params$country),
 #| fig.dim = c(8, p_height),
 #| fig.fullwidth=TRUE
