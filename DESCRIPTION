@@ -28,6 +28,7 @@ Imports:
     ggplot2 (>= 3.4.4),
     golem (>= 0.4.1),
     grDevices,
+    htmlwidgets (>= 1.5.3),
     ISOweek (>= 0.6.2),
     lubridate (>= 1.9.0),
     magrittr (>= 2.0.3),
