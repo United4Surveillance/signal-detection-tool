@@ -25,13 +25,15 @@ number_of_weeks <- unique(params$signals_padded$number_of_weeks)
 
 ```{r}
 
-if (!is.null(params$signal_results)) {
-  signal_results <- params$signal_results
+if (!is.null(params$signals_padded)) {
+  signals_padded <- params$signals_padded
 } else {
   signal_results <- get_signals(data, 
                                 method = params$algo, 
                                 number_of_weeks = params$number_of_weeks)
-  # TODO: get padded signals dataframe, needs function!
+  signals_padded <- pad_signals(data,
+                                signal_results)
+
 }
 
 
@@ -54,7 +56,7 @@ if (!is.null(strata) & is.null(params$signals_agg)) {
 # Signal Detection 
 
 ```{r, results='asis'}
-results_analysis <- signal_results %>% 
+results_analysis <- signals_padded %>% 
   dplyr::filter(is.na(category), 
                 !is.na(alarms))
 
@@ -69,7 +71,7 @@ stringr::str_glue(
 ```{r}
 #| fig.cap=paste0("Number of ", params$disease, " cases by week and signals, ", params$country),
 #| out.width="100%"
-plot_time_series(signal_results %>% 
+plot_time_series(signals_padded %>% 
                    dplyr::filter(is.na(category)),
                  interactive = params$interactive)
 ```
@@ -80,7 +82,7 @@ plot_time_series(signal_results %>%
 txt <- NULL
 
 if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
-  create_results_table(signal_results %>% 
+  create_results_table(signals_padded %>% 
                        dplyr::filter(is.na(category)) %>% 
                        dplyr::select(-upperbound_pad, 
                                      -expected_pad, 
