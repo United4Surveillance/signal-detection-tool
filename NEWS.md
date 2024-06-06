@@ -1,3 +1,4 @@
+
 # SignalDetectionTool 0.1.1
 
 * Several bug fixes concerning `age_groups()` function. Fixed that NA in age column is dealt with correctly in age_group, fixed that when no age column is provided in the dataset function still works and further details making the function more robust. 
@@ -22,6 +23,9 @@
 * Adding a function `pad_signals()` performing the padding of signals timeseries (extension of threshold and expecation to the past for visualisation) which was previously done in the signals tab server.
 * adding method and number_of_weeks to the resulting tibble of `get_signals()` to reduce number of parameters needed to be passed forward.
 * Improved wording of objects in signals and reports tab
+* Made table appearance for interactive and static tables consistent using new dependency `flextable`
+* Recodes NAs in signal tables to 'unknown'
+
 
 # SignalDetectionTool 0.1.0
 
