@@ -14,7 +14,7 @@ if (is.null(params$data)) {
 
 # Data and Methods 
 
-- Method used: `r names(params$algo)`
+- Method used: `r names(available_algorithms()[which(available_algorithms() == params$algo)])`
 - Length of signal detection period: `r params$number_of_weeks` weeks
 - Strata selected: `r paste(params$strata, collapse = ", ")`
 
@@ -25,6 +25,7 @@ if (!is.null(params$signals_padded)) {
   signals_padded <- params$signals_padded
 } else {
   signal_results <- get_signals(data, 
+                                stratification = strata,
                                 method = params$algo, 
                                 number_of_weeks = params$number_of_weeks)
   signals_padded <- pad_signals(data,
@@ -34,14 +35,14 @@ if (!is.null(params$signals_padded)) {
 
 
 
-if (!is.null(strata) & is.null(params$signals_agg)) {
+if (!is.null(params$strata) & is.null(params$signals_agg)) {
   results_strata <- get_signals(data, 
                                 method = params$algo, 
                                 stratification = params$strata,
                                 number_of_weeks = params$number_of_weeks)
   signals_agg <- aggregate_signals(results_strata, 
                                    number_of_weeks = params$number_of_weeks)
-} else if (!is.null(strata)) {
+} else if (!is.null(params$strata)) {
   signals_agg <- params$signals_agg
 }
 
