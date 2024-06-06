@@ -99,7 +99,7 @@ create_table <- function(data, interactive = TRUE) {
   } else {
     # create static table for reports
     table <- data %>%
-      dplyr::mutate(Year = as.character(Year)) %>%
+      dplyr::mutate(dplyr::across(dplyr::any_of("Year"), as.character)) %>%
       flextable::as_grouped_data(groups = "Category") %>%
       flextable::as_flextable(hide_grouplabel = TRUE) %>%
       flextable::theme_zebra() %>%
