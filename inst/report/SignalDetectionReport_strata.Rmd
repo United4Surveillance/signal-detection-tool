@@ -61,7 +61,7 @@ plot_time_series(df,
 #| eval= params$tables
 
 if (sum(df$alarms, na.rm = TRUE) != 0) {
-  create_and_format_signals_table(df %>% 
+  build_signals_table(df %>% 
                        dplyr::select(-upperbound_pad, 
                                      -expected_pad, 
                                      -first_alarm_nonNA), 

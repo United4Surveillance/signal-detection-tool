@@ -51,19 +51,19 @@ get_float_columns <- function(data) {
 #'   year = 2020:2023,
 #'   week = 1:4,
 #'   cases = 10:13,
-#'   alarms = c(TRUE,TRUE,TRUE,FALSE),
+#'   alarms = c(TRUE, TRUE, TRUE, FALSE),
 #'   threshold = c(15, NA, 14, 14),
-#'   category = c("age_group","age_group","sex","sex"),
-#'   stratum = c("00-05","30-35","female","male")
+#'   category = c("age_group", "age_group", "sex", "sex"),
+#'   stratum = c("00-05", "30-35", "female", "male")
 #' )
 #' format_table(data)
 #'
 #' data_agg <- data.frame(
-#' stratum = c("00-04", "05-09", "10-14", "100-104", "105-109", "15-19"),
-#' cases = c(74, 5, 0, 0, 0, 2),
-#' any_alarms = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
-#' n_alarms = c(1, 0, 0, 0, 0, 0),
-#' category = rep("age_group", 6)
+#'   stratum = c("00-04", "05-09", "10-14", "100-104", "105-109", "15-19"),
+#'   cases = c(74, 5, 0, 0, 0, 2),
+#'   any_alarms = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
+#'   n_alarms = c(1, 0, 0, 0, 0, 0),
+#'   category = rep("age_group", 6)
 #' )
 #'
 #' format_table(data_agg)
@@ -194,12 +194,12 @@ convert_columns_integer <- function(data, columns_to_convert) {
 #'   cases = 10:12,
 #'   alarms = c(TRUE, FALSE, TRUE),
 #'   upperbound = c(15, NA, 14),
-#'   category = c(NA,NA,NA)
+#'   category = c(NA, NA, NA)
 #' )
-#' process_signals_for_table(data)
+#' prepare_signals_table(data)
 #' }
-process_signals_for_table <- function(data,
-                                      positive_only = TRUE) {
+prepare_signals_table <- function(data,
+                                  positive_only = TRUE) {
   checkmate::assert(
     checkmate::check_true(positive_only),
     checkmate::check_false(positive_only),
@@ -222,9 +222,9 @@ process_signals_for_table <- function(data,
   return(data)
 }
 
-#' Create and format the signal detection results table
+#' Builds the final formated signal detection results table for the report or the signals tab. Prepares and formats the signal detection results.
 #'
-#' This function applies the \code{\link{process_signals_for_table()}} and \code{\link{format_table()}} to create a nicely formated results table based on the input data frame. It can
+#' This function applies the \code{\link{prepare_signals_table()}} and \code{\link{format_table()}} to create a nicely formated results table based on the input data frame. It can
 #' filter the data based on the `positive_only` parameter and converts certain
 #' columns to integers for styling purposes. This table is used to show all signal detection results for different stratifications together in one table.
 #' @param data data.frame containing signals from \code{\link{get_signals()}}
@@ -234,11 +234,11 @@ process_signals_for_table <- function(data,
 #'
 #' @return An interactive DataTable or a static gt table, depending on the value
 #'   of `interactive`.
-create_and_format_signals_table <- function(data,
-                                            positive_only = TRUE,
-                                            interactive = TRUE) {
+build_signals_table <- function(data,
+                                positive_only = TRUE,
+                                interactive = TRUE) {
   table <- data %>%
-    process_signals_for_table(positive_only = positive_only) %>%
+    prepare_signals_table(positive_only = positive_only) %>%
     format_table(interactive = interactive)
 
   return(table)
@@ -266,9 +266,9 @@ create_and_format_signals_table <- function(data,
 #'   aggregate_signals(number_of_weeks = 6) %>%
 #'   filter(category == "age_group")
 #'
-#' process_signals_agg_for_table(signals_agg)
+#' prepare_signals_agg_table(signals_agg)
 #' }
-process_signals_agg_for_table <- function(signals_agg) {
+prepare_signals_agg_table <- function(signals_agg) {
   category <- unique(signals_agg$category)
   stopifnot(length(category) == 1)
   signals_agg <- signals_agg %>% convert_columns_integer(c("cases", "n_alarms"))
@@ -280,9 +280,9 @@ process_signals_agg_for_table <- function(signals_agg) {
   return(signals_agg)
 }
 
-#' Create and format the aggregated signal results table for one category and orders the strata by the factor levels
+#' Builds the final formated signal detection results table for aggregated signals in the report or the signals tab. Prepares and formats the aggregated signal results table for one category and orders the strata by the factor levels
 #'
-#' This function combines the preprocessing of the aggregated signals data.frame with the final formating of the table by applying \code{\link{process_signals_agg_for_table()}} and \code{\link{format_table()}}.
+#' This function combines the preparation of the aggregated signals data.frame with the final formating of the table by applying \code{\link{prepare_signals_agg_table()}} and \code{\link{format_table()}}.
 #' @param signals_agg A tibble or data.frame containing aggregated signals produced from \code{\link{aggregate_signals(signals,number_of_weeks = 6)}}
 #' @param interactive Logical indicating whether to create an interactive
 #'   DataTable (default is TRUE).
@@ -297,13 +297,12 @@ process_signals_agg_for_table <- function(signals_agg) {
 #' aggregate_signals(number_of_weeks = 6) %>%
 #' filter(category == "age_group")
 #'
-#' signals_agg_processed <- process_signals_agg_for_table(signals_agg)
-#' create_and_format_signals_agg_table(signals_agg_processed)
+#' build_signals_agg_table(signals_agg)
 #' }
-create_and_format_signals_agg_table <- function(signals_agg,
-                                                interactive = TRUE) {
+build_signals_agg_table <- function(signals_agg,
+                                    interactive = TRUE) {
   table <- signals_agg %>%
-    process_signals_agg_for_table() %>%
+    prepare_signals_agg_table() %>%
     format_table(positive_only = TRUE, interactive = interactive)
 
   return(table)

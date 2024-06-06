@@ -77,7 +77,7 @@ plot_time_series(signal_results %>%
 txt <- NULL
 
 if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
-  create_and_format_signals_table(signal_results %>% 
+  build_signals_table(signal_results %>% 
                        dplyr::filter(is.na(category)) %>% 
                        dplyr::select(-upperbound_pad, 
                                      -expected_pad, 

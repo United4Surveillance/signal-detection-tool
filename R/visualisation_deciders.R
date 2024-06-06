@@ -98,7 +98,7 @@ create_map_or_table <- function(signals_agg,
       toggle_alarms = toggle_alarms
     )
   } else {
-    output <- create_and_format_signals_agg_table(
+    output <- build_signals_agg_table(
       signals_agg,
       interactive = interactive
     )
@@ -137,7 +137,7 @@ create_barplot_or_table <- function(signals_agg,
   if (n_levels_data < n_levels) {
     plot_barchart(signals_agg, interactive = interactive, toggle_alarms = toggle_alarms)
   } else {
-    create_and_format_signals_agg_table(
+    build_signals_agg_table(
       signals_agg,
       interactive = interactive
     )

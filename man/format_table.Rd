@@ -28,19 +28,19 @@ data <- data.frame(
   year = 2020:2023,
   week = 1:4,
   cases = 10:13,
-  alarms = c(TRUE,TRUE,TRUE,FALSE),
+  alarms = c(TRUE, TRUE, TRUE, FALSE),
   threshold = c(15, NA, 14, 14),
-  category = c("age_group","age_group","sex","sex"),
-  stratum = c("00-05","30-35","female","male")
+  category = c("age_group", "age_group", "sex", "sex"),
+  stratum = c("00-05", "30-35", "female", "male")
 )
 format_table(data)
 
 data_agg <- data.frame(
-stratum = c("00-04", "05-09", "10-14", "100-104", "105-109", "15-19"),
-cases = c(74, 5, 0, 0, 0, 2),
-any_alarms = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
-n_alarms = c(1, 0, 0, 0, 0, 0),
-category = rep("age_group", 6)
+  stratum = c("00-04", "05-09", "10-14", "100-104", "105-109", "15-19"),
+  cases = c(74, 5, 0, 0, 0, 2),
+  any_alarms = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
+  n_alarms = c(1, 0, 0, 0, 0, 0),
+  category = rep("age_group", 6)
 )
 
 format_table(data_agg)
