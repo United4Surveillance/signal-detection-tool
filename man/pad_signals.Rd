@@ -25,6 +25,6 @@ input_example_prepro <- input_example \%>\%
   preprocess_data()
 signals <- input_example_prepro \%>\%
   get_signals(stratification = c("sex", "county_id"))
-pad_signals(input_example_prepro,signals)
+pad_signals(input_example_prepro, signals)
 }
 }
