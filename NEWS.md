@@ -3,8 +3,11 @@
 * Several bug fixes concerning `age_groups()` function. Fixed that NA in age column is dealt with correctly in age_group, fixed that when no age column is provided in the dataset function still works and further details making the function more robust. 
 * Added EU emblem
 * Switched off warnings shown in the console
-* Updated `timeseries()` to show the blue background, signifying signal detection period, correctly, when using `facet_grid` for strata in report. 
-* Improved general readability of `timeseries` plot, when used in relation to `facet`.
+* Updates and bug fixes to `plot_time_series()` 
+  - show the blue background, signifying signal detection period, correctly, when using `facet_grid` for strata in report. 
+  - Improved general readability of `timeseries` plot, when used in relation to `facet`.
+  - Improved positioning of bars for case numbers and blue background coverage.
+  - Interactive plot in app and HTML report now adapts y-range according to x-zoom and the x-axis do not anymore extend into the future.
 * Correcting text specifying the chosen signal detection period in Input tab.
 * Changes appearance of all tables, removes rownames and alarm column, more concise grouping
 * Adds filter and export functionality to all tables
@@ -15,7 +18,9 @@
 * Stripping leading and trailing whitespaces from all columns of the input data in `preprocess_data()`.
 * Unified wording of "Signals"; changed all instances of "Alarms" to "Signals".
 * Fixing that the Help Tab works when installing package from binary.
-* Seperating the formating of signal detection results tables from preprocessing in seperate functions. Renaming the functions such that the functionality provided by former `create_results_table()` is now `create_and_format_signals_table()` and `create_stratified_table()` is now `create_and_format_signals_agg_table()`.
+* Seperating the formating of signal detection results tables from preprocessing in seperate functions.
+* Renaming the functions such that the functionality provided by former `create_results_table()` is now `create_and_format_signals_table()` and `create_stratified_table()` is now `create_and_format_signals_agg_table()`.
+* Allow selection of all character and factor variables in the dataset, except for the variables ending with '_id', to use for filters and stratifications.
 
 # SignalDetectionTool 0.1.0
 

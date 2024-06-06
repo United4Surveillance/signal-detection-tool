@@ -41,7 +41,7 @@ mod_tabpanel_signals_server <- function(
     ns <- session$ns
 
     # UI-portion of the tab below!
-    # ensuring that content is onlyu shown if data check returns no errors
+    # ensuring that content is only shown if data check returns no errors
     output$signals_tab_ui <- shiny::renderUI({
       if (errors_detected() == TRUE) {
         return(datacheck_error_message)
@@ -58,7 +58,7 @@ mod_tabpanel_signals_server <- function(
               shiny::div(
                 class = "value-box blue",
                 shiny::div(class = "title", "Outbreak detection algorithm"),
-                shiny::div(class = "value", get_name_by_value(method(),available_algorithms()))
+                shiny::div(class = "value", get_name_by_value(method(), available_algorithms()))
               )
             ),
             column(
@@ -69,50 +69,29 @@ mod_tabpanel_signals_server <- function(
                 shiny::div(class = "value", number_of_weeks())
               )
             ),
-            # Red box if signals were found
-            if (sum(signals_agg()$n_alarms) > 0) {
+           # Box of signals in total
+            # Red box if signals were found, green if no signals
               column(
                 width = 2,
                 shiny::div(
-                  class = "value-box red",
+                  class = ifelse(sum(signals_agg()$n_alarms) > 0,
+                                 "value-box red", "value-box green"),
                   shiny::div(class = "title", "Number of signals"),
                   shiny::div(class = "value", shiny::textOutput(ns("n_alarms")))
                 )
-                # Green box if no signals were found
-              )
-            } else {
-              column(
-                width = 2,
-                shiny::div(
-                  class = "value-box green",
-                  shiny::div(class = "title", "Number of signals"),
-                  shiny::div(class = "value", shiny::textOutput(ns("n_alarms")))
-                )
-              )
-            },
+              ),
             # Box of signals by stratum
             if (!"None" %in% strat_vars()) {
-              # Red box if signals were found
-              if (sum(signals_agg()$n_alarms) > 0) {
-                column(
-                  width = 4,
-                  shiny::div(
-                    class = "value-box red",
-                    shiny::div(class = "title", "Number of signals by stratum"),
-                    shiny::div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
-                  )
+              # Red box if signals were found, green if no signals
+              column(
+                width = 4,
+                shiny::div(
+                 class = ifelse(sum(signals_agg()$n_alarms) > 0,
+                                 "value-box red", "value-box green"),
+                  shiny::div(class = "title", "Number of signals by stratum"),
+                  shiny::div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
                 )
-                # Green box if no signals were found
-              } else {
-                column(
-                  width = 4,
-                  shiny::div(
-                    class = "value-box green",
-                    shiny::div(class = "title", "Number of signals by stratum"),
-                    shiny::div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
-                  )
-                )
-              }
+              )
             }
           ),
           shiny::uiOutput(ns("alarm_button")),
@@ -139,7 +118,7 @@ mod_tabpanel_signals_server <- function(
       shiny::req(!(length(unique(strat_vars())) == 1 & strat_vars() == "None")) # only show the filter button when strata were selected
       shiny::selectInput(
         inputId = ns("ts_filter_var"),
-        label = "Chose stratum",
+        label = "Choose stratum",
         choices = c(strat_vars(), "None"),
         selected = "None"
       )

@@ -2,14 +2,14 @@
 % Please edit documentation in R/plot_time_series.R
 \name{plot_time_series}
 \alias{plot_time_series}
-\title{Plot time-series based on the results of Farrington Flexible}
+\title{Plot time-series based on the results of a signal detection algorithm, being alarms, threshold and expectation}
 \usage{
 plot_time_series(results, interactive = FALSE, number_of_weeks = 52)
 }
 \arguments{
 \item{results}{data returned by the get_signals_farringtonflexible()}
 
-\item{interactive}{if TRUE, interactive plot is returned}
+\item{interactive}{logical, if TRUE, interactive plot is returned; default, static plot.}
 
 \item{number_of_weeks}{number of weeks to be covered in the plot}
 }
@@ -17,7 +17,9 @@ plot_time_series(results, interactive = FALSE, number_of_weeks = 52)
 either a gg or plotly object
 }
 \description{
-Plot time-series based on the results of Farrington Flexible
+Static plots (default) are only based on the dates of the latest
+`number_of_weeks` weeks. Interactive plots are based on all data, but zoom in
+by default on the latest `number_of_weeks` weeks.
 }
 \examples{
 \dontrun{
