@@ -209,7 +209,7 @@ complete_agegrp_arr <- function(df, format_check_results) {
     gsub(pattern = "\\D", replacement = "")
 
   # remove rows of only NA or empty
-  splits <- splits[!apply(is.na(splits) | splits == "", 1, all),]
+  splits <- splits[!apply(is.na(splits) | splits == "", 1, all), ]
 
   # if there is equidistance
   if (format_check_results$equal_sizing) {
@@ -596,10 +596,12 @@ get_signals_stratified <- function(data,
 #'
 #' @examples
 #' \dontrun{
-#' results <- get_signals(preprocess_data(input_example),
-#'   method = "farrington",
-#'   stratification = c("county", "sex")
-#' )
+#' results <- input_example %>%
+#'   preprocess_data() %>%
+#'   get_signals(
+#'     method = "farrington",
+#'     stratification = c("county", "sex")
+#'   )
 #' }
 get_signals <- function(data,
                         method = "farrington",

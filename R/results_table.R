@@ -142,7 +142,7 @@ format_table <- function(data, positive_only = TRUE, interactive = TRUE) {
     }
   }
 
-  return(table)
+  table
 }
 
 #' Convert specified columns to integer type

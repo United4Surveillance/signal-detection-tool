@@ -40,9 +40,11 @@ specified method.
 }
 \examples{
 \dontrun{
-results <- get_signals(preprocess_data(input_example),
-  method = "farrington",
-  stratification = c("county", "sex")
-)
+results <- input_example \%>\%
+  preprocess_data() \%>\%
+  get_signals(
+    method = "farrington",
+    stratification = c("county", "sex")
+  )
 }
 }
