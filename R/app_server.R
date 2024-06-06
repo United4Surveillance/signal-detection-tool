@@ -28,14 +28,13 @@ app_server <- function(input, output, session) {
   )
 
   mod_tabpanel_report_server("report",
-    indata = datinput$data,
+    filtered_data = datinput$filtered_data,
     strat_vars = datinput$strat_vars,
     pathogen_vars = datinput$pathogen_vars,
     errors_detected = data_load_check_result$errors_detected,
     datinput$no_algorithm_possible,
     number_of_weeks_input_valid = datinput$weeks_input_valid,
     signals_padded = signals_output$signals_padded,
-    signals_agg = signals_output$signals_agg,
-    signal_data = signals_output$signal_data
+    signals_agg = signals_output$signals_agg
   )
 }

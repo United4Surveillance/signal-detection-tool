@@ -28,15 +28,14 @@ mod_tabpanel_report_ui <- function(id) {
 #'
 #' @noRd
 mod_tabpanel_report_server <- function(id,
-                                       indata,
+                                       filtered_data,
                                        strat_vars,
                                        pathogen_vars,
                                        errors_detected,
                                        no_algorithm_possible,
                                        number_of_weeks_input_valid,
                                        signals_padded,
-                                       signals_agg,
-                                       signal_data) {
+                                       signals_agg) {
 
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -119,7 +118,7 @@ mod_tabpanel_report_server <- function(id,
       },
       content = function(con) {
         run_report(report_format = input$format,
-                   data = signal_data(),
+                   data = filtered_data(),
                    strata = strat_vars(),
                    interactive = input$interactive,
                    tables = input$tables,

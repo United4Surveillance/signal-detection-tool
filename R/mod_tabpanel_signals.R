@@ -202,20 +202,6 @@ mod_tabpanel_signals_server <- function(
       aggregate_signals(signal_results(), number_of_weeks = number_of_weeks())
     })
 
-    signal_data <- shiny::reactive({
-      shiny::req(!errors_detected())
-      shiny::req(signal_results())
-      weeks <- paste0(signal_results()$year, "-", signal_results()$week, "-1") %>%
-        as.Date("%Y-%W-%u") %>%
-        unique() %>%
-        sort()
-
-      dates <- seq(weeks[1], weeks[length(weeks)], by = "day")
-      data_n_weeks <- filtered_data() %>%
-        dplyr::filter(date_report %in% dates) # this has to use the same variable as in get_signals()
-      data_n_weeks
-    })
-
     show_alarms <- shiny::reactive({
       shiny::req(input$alarms_trig)
       if (input$alarms_trig == "Show number of signals") {
@@ -367,8 +353,7 @@ mod_tabpanel_signals_server <- function(
     # Return list of subsetted data and parameters
     return(list(
       signals_padded = shiny::reactive(signals_padded()),
-      signals_agg = shiny::reactive(signals_agg()),
-      signal_data = shiny::reactive(signal_data())
+      signals_agg = shiny::reactive(signals_agg())
     ))
 
   })
