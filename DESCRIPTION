@@ -24,6 +24,7 @@ Imports:
     config (>= 0.3.2),
     dplyr (>= 1.1.4),
     DT (>= 0.26),
+    ggforce (>= 0.4.2), 
     ggplot2 (>= 3.4.4),
     golem (>= 0.4.1),
     grDevices,
