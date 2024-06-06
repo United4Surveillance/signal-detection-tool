@@ -28,7 +28,7 @@ decider_barplot_map_table(signals_agg,
 ```
 
 ```{r}
-df <- signal_results %>% 
+df <- signals_padded %>% 
   dplyr::filter(category %in% strat)
 
 number_stratum <- dplyr::n_distinct(df$stratum)

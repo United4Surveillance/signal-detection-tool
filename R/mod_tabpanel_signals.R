@@ -30,7 +30,7 @@ mod_tabpanel_signals_ui <- function(id) {
 #' @noRd
 mod_tabpanel_signals_server <- function(
     id,
-    data,
+    filtered_data,
     errors_detected,
     number_of_weeks,
     number_of_weeks_input_valid,
@@ -166,7 +166,7 @@ mod_tabpanel_signals_server <- function(
       }
       # 'None' takes precedence over 'All'
       else if ("All" %in% strat_vars_chr) {
-        strat_vars_chr <- names(data())
+        strat_vars_chr <- names(filtered_data())
       }
 
       return(strat_vars_chr)
@@ -177,7 +177,7 @@ mod_tabpanel_signals_server <- function(
       shiny::req(!errors_detected())
       shiny::req(!no_algorithm_possible())
       results <- SignalDetectionTool::get_signals(
-        data = data(),
+        data = filtered_data(),
         method = method(),
         stratification = strat_vars_tidy(),
         date_var = "date_report",
@@ -186,7 +186,7 @@ mod_tabpanel_signals_server <- function(
       # when stratified signals were computed also add unstratified signals to the dataframe so that all can be visualised
       if (!is.null(strat_vars_tidy())) {
         results_unstratified <- SignalDetectionTool::get_signals(
-          data = data(),
+          data = filtered_data(),
           method = method(),
           stratification = NULL,
           date_var = "date_report",
@@ -200,20 +200,6 @@ mod_tabpanel_signals_server <- function(
     signals_agg <- shiny::reactive({
       shiny::req(signal_results)
       aggregate_signals(signal_results(), number_of_weeks = number_of_weeks())
-    })
-
-    signal_data <- shiny::reactive({
-      shiny::req(!errors_detected())
-      shiny::req(signal_results())
-      weeks <- paste0(signal_results()$year, "-", signal_results()$week, "-1") %>%
-        as.Date("%Y-%W-%u") %>%
-        unique() %>%
-        sort()
-
-      dates <- seq(weeks[1], weeks[length(weeks)], by = "day")
-      data_n_weeks <- data() %>%
-        dplyr::filter(date_report %in% dates) # this has to use the same variable as in get_signals()
-      data_n_weeks
     })
 
     show_alarms <- shiny::reactive({
@@ -244,7 +230,7 @@ mod_tabpanel_signals_server <- function(
       if (n_plots_tables != 0) {
         # populate the plot_table_list with plots/tables of each category
         plot_table_list <- lapply(signal_categories, function(category) {
-          decider_barplot_map_table(signals_agg(), data(), category, toggle_alarms = show_alarms())
+          decider_barplot_map_table(signals_agg(), filtered_data(), category, toggle_alarms = show_alarms())
         })
         if (n_plots_tables == 1) {
           header <- h3(paste0(
@@ -285,68 +271,7 @@ mod_tabpanel_signals_server <- function(
       shiny::req(!errors_detected())
       shiny::req(!no_algorithm_possible())
 
-      # finding available weeks to use for padding based on the unstratified signal detection
-      available_thresholds <- list(26, 20, 14, 8, 2)
-      signals_all_timeopts <- dplyr::bind_rows(purrr::map(unlist(available_thresholds), function(timeopt) {
-        signals <- get_signals(data(),
-                               method = method(),
-                               number_of_weeks = timeopt + number_of_weeks()
-        )
-        if (!is.null(signals)) {
-          signals <- signals %>% dplyr::mutate(time_opt = timeopt)
-        }
-      }))
-
-      time_opts_working <- unique(signals_all_timeopts$time_opt)
-      time_opts_working_named <- available_thresholds[unlist(available_thresholds) %in% time_opts_working]
-      max_time_opt <- max(unlist(time_opts_working_named))
-
-      result_padding_unstratified <- signals_all_timeopts %>%
-        dplyr::filter(time_opt == max_time_opt) %>%
-        dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected) %>%
-        head(n = -(number_of_weeks() - 1))
-
-      # preparing dataset with padding
-      if (is.null(strat_vars_tidy())) {
-        result_padding <- result_padding_unstratified
-      } else {
-        result_padding_stratified <- SignalDetectionTool::get_signals(
-          data = data(),
-          method = method(),
-          date_var = "date_report",
-          stratification = strat_vars_tidy(),
-          number_of_weeks = (max_time_opt + number_of_weeks())
-        ) %>%
-          dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected, category, stratum) %>%
-          dplyr::group_by(category, stratum) %>%
-          dplyr::slice_head(n = -(number_of_weeks() - 1)) %>%
-          dplyr::ungroup()
-
-        result_padding <- dplyr::bind_rows(
-          result_padding_stratified,
-          result_padding_unstratified
-        )
-      }
-
-      # preparing dataset within actual signal detection period
-      results <- signal_results() %>%
-        dplyr::arrange(category, stratum, year, week) %>%
-        dplyr::left_join(x = ., y = result_padding, by = c("category", "stratum", "year", "week"))
-
-      # adjusting padding that the first upperbound which is calculated in the signals is set to the last upperbound padding such that no jump in the visualisation occurs
-      results <- results %>%
-        dplyr::group_by(category, stratum) %>%
-        dplyr::mutate(first_timepoint_alarms = min(which(!is.na(alarms)))) %>%
-        dplyr::mutate(first_alarm_nonNA = dplyr::if_else(dplyr::row_number() == first_timepoint_alarms, TRUE, FALSE)) %>%
-        dplyr::ungroup() %>%
-        dplyr::select(-first_timepoint_alarms) %>%
-        dplyr::mutate(
-          upperbound_pad = dplyr::if_else(first_alarm_nonNA, upperbound, upperbound_pad),
-          expected_pad = dplyr::if_else(first_alarm_nonNA, expected, expected_pad)
-        )
-
-
-      return(results)
+      pad_signals(filtered_data(),signal_results())
     })
 
     # based on the user input which timeseries should be visualised filter the signals_padded
@@ -427,9 +352,8 @@ mod_tabpanel_signals_server <- function(
 
     # Return list of subsetted data and parameters
     return(list(
-      signal_results = shiny::reactive(signals_padded()),
-      signals_agg = shiny::reactive(signals_agg()),
-      signal_data = shiny::reactive(signal_data())
+      signals_padded = shiny::reactive(signals_padded()),
+      signals_agg = shiny::reactive(signals_agg())
     ))
 
   })

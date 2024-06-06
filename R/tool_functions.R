@@ -209,7 +209,7 @@ complete_agegrp_arr <- function(df, format_check_results) {
     gsub(pattern = "\\D", replacement = "")
 
   # remove rows of only NA or empty
-  splits <- splits[!apply(is.na(splits) | splits == "", 1, all),]
+  splits <- splits[!apply(is.na(splits) | splits == "", 1, all), ]
 
   # if there is equidistance
   if (format_check_results$equal_sizing) {
@@ -671,6 +671,12 @@ get_signals <- function(data,
     )
   }
 
+  # add number of weeks and method to the results dataframe
+  results <- results %>%
+    dplyr::mutate(
+      method = method,
+      number_of_weeks = number_of_weeks
+    )
 
   return(results)
 }

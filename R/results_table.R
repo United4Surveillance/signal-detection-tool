@@ -61,10 +61,12 @@ create_table <- function(data, interactive = TRUE) {
       dplyr::mutate(stratum = tidyr::replace_na(stratum, "unknown"))
   }
 
-  data <- data %>% dplyr::select(-tidyselect::one_of("alarms"))
-  data <- data %>% dplyr::rename_all(~ stringr::str_to_title(.x))
+  data <- data %>%
+    dplyr::select(-tidyselect::one_of("alarms")) %>%
+    dplyr::select(-number_of_weeks,-method)
 
   data <- data %>%
+    dplyr::rename_all(~ stringr::str_to_title(.x)) %>%
     dplyr::mutate(dplyr::across(tidyselect::where(is.double), round, digits = 2)) %>%
     dplyr::mutate(dplyr::across(tidyselect::where(is.character), as.factor)) %>%
     dplyr::relocate(tidyselect::where(is.factor))
