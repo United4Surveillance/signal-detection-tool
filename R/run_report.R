@@ -2,6 +2,8 @@
 #'
 #' @param report_format format of the report: HTML or DOCX
 #' @param data data.frame containing surveillance data in linelist format
+#' @param algo algorithm to be used
+#' @param number_of_weeks number of weeks for which signals are generated
 #' @param strata A character vector specifying the columns to stratify
 #'   the analysis. Default is NULL.
 #' @param interactive Logical (only applicable to HTML report)
@@ -28,6 +30,8 @@
 run_report <- function(
     report_format = "HTML",
     data = SignalDetectionTool::input_example,
+    algo = "farrington",
+    number_of_weeks = 6,
     strata = c("county_id", "community_id", "sex", "age_group"),
     interactive = TRUE,
     tables = TRUE,
@@ -53,6 +57,8 @@ run_report <- function(
     data = data,
     country = unique(data$country),
     disease = unique(data$pathogen),
+    number_of_weeks = number_of_weeks,
+    algo = algo,
     strata = strata,
     interactive = ifelse(report_format != "HTML", FALSE, interactive),
     tables = tables,

@@ -7,6 +7,8 @@
 run_report(
   report_format = "HTML",
   data = SignalDetectionTool::input_example,
+  algo = "farrington",
+  number_of_weeks = 6,
   strata = c("county_id", "community_id", "sex", "age_group"),
   interactive = TRUE,
   tables = TRUE,
@@ -19,6 +21,10 @@ run_report(
 \item{report_format}{format of the report: HTML or DOCX}
 
 \item{data}{data.frame containing surveillance data in linelist format}
+
+\item{algo}{algorithm to be used}
+
+\item{number_of_weeks}{number of weeks for which signals are generated}
 
 \item{strata}{A character vector specifying the columns to stratify
 the analysis. Default is NULL.}

@@ -119,6 +119,8 @@ mod_tabpanel_report_server <- function(id,
       content = function(con) {
         run_report(report_format = input$format,
                    data = filtered_data(),
+                   algo = method(),
+                   number_of_weeks = number_of_weeks(),
                    strata = strat_vars(),
                    interactive = input$interactive,
                    tables = input$tables,
