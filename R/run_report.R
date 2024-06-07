@@ -71,7 +71,8 @@ run_report <- function(
     report_format == "DOCX" ~ "word_document",
     report_format == "PDF" ~ "pdf_document",
     TRUE ~ NA_character_)
-  rmarkdown::render("inst/report/SignalDetectionReport.Rmd",
+  rmd_path <- system.file("report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
+  rmarkdown::render(rmd_path,
                     output_format = report_f,
                     params = report_params,
                     output_file = output_file)
