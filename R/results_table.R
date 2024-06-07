@@ -82,8 +82,14 @@ format_table <- function(data, positive_only = TRUE, interactive = TRUE) {
     data <- data %>% dplyr::rename(signals = alarms)
   }
 
-  data <- data %>% dplyr::rename_all(~ stringr::str_to_title(.x))
+  if (!all(data$category == "None")) {
+    data <- data %>%
+      dplyr::mutate(stratum = tidyr::replace_na(stratum, "unknown"))
+  }
+
   data <- data %>%
+    dplyr::select(-tidyselect::one_of(c("alarms","number_of_weeks","method"))) %>%
+    dplyr::rename_all(~ stringr::str_to_title(.x)) %>%
     dplyr::mutate(dplyr::across(tidyselect::where(is.double), round, digits = 2)) %>%
     dplyr::mutate(dplyr::across(tidyselect::where(is.character), as.factor)) %>%
     dplyr::relocate(tidyselect::where(is.factor))
@@ -123,22 +129,21 @@ format_table <- function(data, positive_only = TRUE, interactive = TRUE) {
     }
   } else {
     # create static table for reports
-    data <- data %>%
-      dplyr::mutate(id = 1:nrow(data)) %>%
-      tidyr::pivot_wider(names_from = Category, values_from = Stratum) %>%
-      dplyr::select(-id) %>%
-      dplyr::mutate(dplyr::across(tidyselect::where(is.character), as.factor)) %>%
-      dplyr::relocate(tidyselect::where(is.factor))
-
     table <- data %>%
-      gt::gt() %>%
-      gt::tab_options(
-        column_labels.padding = gt::px(3),
-        column_labels.font.weight = "bold"
-      ) %>%
-      gt::opt_stylize(style = 5, color = "blue")
+      dplyr::mutate(dplyr::across(dplyr::any_of("Year"), as.character)) %>%
+      flextable::as_grouped_data(groups = "Category") %>%
+      flextable::as_flextable(hide_grouplabel = TRUE) %>%
+      flextable::theme_zebra() %>%
+      flextable::bg(bg = "#304794", part = "header") %>%
+      flextable::color(color = "white", part = "header") %>%
+      flextable::bold(bold = TRUE, part = "header") %>%
+      flextable::bg(i = ~!is.na(Category), bg = "grey", part = "body") %>%
+      flextable::bold(i = ~!is.na(Category), part = "body") %>%
+      flextable::autofit()
+
     if (length(float_columns)) {
-      table <- table %>% gt::fmt_number(columns = float_columns)
+      table <- table %>%
+        flextable::colformat_num(j = float_columns, digits = 2)
     }
   }
 

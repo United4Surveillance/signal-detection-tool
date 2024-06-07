@@ -18,7 +18,7 @@ app_server <- function(input, output, session) {
   )
 
   signals_output <- mod_tabpanel_signals_server("signals",
-    data = datinput$data,
+    filtered_data = datinput$filtered_data,
     number_of_weeks = datinput$n_weeks,
     number_of_weeks_input_valid = datinput$weeks_input_valid,
     strat_vars = datinput$strat_vars,
@@ -28,17 +28,13 @@ app_server <- function(input, output, session) {
   )
 
   mod_tabpanel_report_server("report",
-                             indata = datinput$data,
-                             strat_vars = datinput$strat_vars,
-                             pathogen_vars = datinput$pathogen_vars,
-                             errors_detected = data_load_check_result$errors_detected,
-                             method = datinput$method,
-                             datinput$no_algorithm_possible,
-                             number_of_weeks_input_valid = datinput$weeks_input_valid,
-                             number_of_weeks = datinput$n_weeks,
-                             signal_results = signals_output$signal_results,
-                             signals_agg = signals_output$signals_agg,
-                             signal_data = signals_output$signal_data)
-
-
+    filtered_data = datinput$filtered_data,
+    strat_vars = datinput$strat_vars,
+    pathogen_vars = datinput$pathogen_vars,
+    errors_detected = data_load_check_result$errors_detected,
+    datinput$no_algorithm_possible,
+    number_of_weeks_input_valid = datinput$weeks_input_valid,
+    signals_padded = signals_output$signals_padded,
+    signals_agg = signals_output$signals_agg
+  )
 }

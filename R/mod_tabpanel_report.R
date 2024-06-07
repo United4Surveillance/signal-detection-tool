@@ -28,17 +28,14 @@ mod_tabpanel_report_ui <- function(id) {
 #'
 #' @noRd
 mod_tabpanel_report_server <- function(id,
-                                       indata,
+                                       filtered_data,
                                        strat_vars,
                                        pathogen_vars,
-                                       method,
                                        errors_detected,
                                        no_algorithm_possible,
                                        number_of_weeks_input_valid,
-                                       number_of_weeks,
-                                       signal_results,
-                                       signals_agg,
-                                       signal_data) {
+                                       signals_padded,
+                                       signals_agg) {
 
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -96,6 +93,14 @@ mod_tabpanel_report_server <- function(id,
       }
     })
 
+    method <- reactive({
+      unique(signals_padded()$method)
+    })
+
+    number_of_weeks <- reactive({
+      unique(signals_padded()$number_of_weeks)
+    })
+
     # Download generated report
     output$report_text <- renderText({
       paste("Generates report for", pathogen_vars(), " stratified ",
@@ -113,14 +118,14 @@ mod_tabpanel_report_server <- function(id,
       },
       content = function(con) {
         run_report(report_format = input$format,
-                   data = signal_data(),
+                   data = filtered_data(),
+                   algo = method(),
+                   number_of_weeks = number_of_weeks(),
                    strata = strat_vars(),
-                   algo = available_algorithms()[available_algorithms() == method()],
                    interactive = input$interactive,
                    tables = input$tables,
-                   number_of_weeks = number_of_weeks(),
                    output_file = con,
-                   signal_results = signal_results(),
+                   signals_padded = signals_padded(),
                    signals_agg = signals_agg())
       })
   })
