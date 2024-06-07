@@ -4,12 +4,12 @@
 \alias{format_table}
 \title{Format the signal results to an interactive or static table}
 \usage{
-format_table(data, positive_only = TRUE, interactive = TRUE)
+format_table(data, signals_only = TRUE, interactive = TRUE)
 }
 \arguments{
 \item{data}{A data frame.}
 
-\item{positive_only}{Logical indicating whether to filter only those signal results where a signal was generated (default is TRUE). When TRUE then the signals column is not removed from the table.}
+\item{signals_only}{Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.}
 
 \item{interactive}{Logical indicating whether to create an interactive
 DataTable (default is TRUE).}

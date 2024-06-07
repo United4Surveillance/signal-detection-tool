@@ -2,9 +2,9 @@
 % Please edit documentation in R/results_table.R
 \name{build_signals_agg_table}
 \alias{build_signals_agg_table}
-\title{Builds the final formated signal detection results table for aggregated signals in the report or the signals tab. Prepares and formats the aggregated signal results table for one category and orders the strata by the factor levels}
+\title{Builds the aggregated signal detection results table with different formating options. To get the raw data.frame use format = "data.frame", to obtain nicely formated tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable". Prepares and formats the aggregated signal results table for one category and orders the strata by the factor levels}
 \usage{
-build_signals_agg_table(signals_agg, interactive = TRUE)
+build_signals_agg_table(signals_agg, format = "DataTable")
 }
 \arguments{
 \item{signals_agg}{A tibble or data.frame containing aggregated signals produced from \code{\link{aggregate_signals(signals,number_of_weeks = 6)}}}
@@ -13,19 +13,19 @@ build_signals_agg_table(signals_agg, interactive = TRUE)
 DataTable (default is TRUE).}
 }
 \value{
-An interactive DataTable or a static gt table, depending on the value
-  of `interactive`.
-  #' @examples
+data.frame or DataTable or Flextable depending on `format`
+}
+\description{
+This function combines the preparation of the aggregated signals data.frame with the final formating of the table by applying \code{\link{prepare_signals_agg_table()}} and \code{\link{format_table()}}.
+}
+\examples{
 \dontrun{
-signals_agg <- input_example %>%
-preprocess_data() %>%
-get_signals(stratification = c("age_group","sex")) %>%
-aggregate_signals(number_of_weeks = 6) %>%
+signals_agg <- input_example \%>\%
+preprocess_data() \%>\%
+get_signals(stratification = c("age_group","sex")) \%>\%
+aggregate_signals(number_of_weeks = 6) \%>\%
 filter(category == "age_group")
 
 build_signals_agg_table(signals_agg)
 }
-}
-\description{
-This function combines the preparation of the aggregated signals data.frame with the final formating of the table by applying \code{\link{prepare_signals_agg_table()}} and \code{\link{format_table()}}.
 }

@@ -38,7 +38,7 @@ get_float_columns <- function(data) {
 #'
 #' @param data A data frame.
 #'
-#' @param positive_only Logical indicating whether to filter only those signal results where a signal was generated (default is TRUE). When TRUE then the signals column is not removed from the table.
+#' @param signals_only Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.
 #' @param interactive Logical indicating whether to create an interactive
 #'   DataTable (default is TRUE).
 #'
@@ -68,27 +68,27 @@ get_float_columns <- function(data) {
 #'
 #' format_table(data_agg)
 #' }
-format_table <- function(data, positive_only = TRUE, interactive = TRUE) {
+format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
   checkmate::assert(
     checkmate::check_true(interactive),
     checkmate::check_false(interactive),
     combine = "or"
   )
 
-  if (positive_only) {
-    # only remove the alarms column when the positive_only TRUE thus only those with signals in the linelist are remaining
+  if (signals_only) {
+    # only remove the alarms column when the signals_only TRUE thus only those with signals in the linelist are remaining
     data <- data %>% dplyr::select(-tidyselect::one_of("alarms"))
   } else {
     data <- data %>% dplyr::rename(signals = alarms)
   }
-
-  if (!all(data$category == "None")) {
+  # when it is already a factor we do care about NA to unknown before
+  if (!is.factor(data$stratum)) {
     data <- data %>%
-      dplyr::mutate(stratum = tidyr::replace_na(stratum, "unknown"))
+      dplyr::mutate(stratum = dplyr::if_else(category != "None",tidyr::replace_na(stratum, "unknown"),stratum))
   }
 
   data <- data %>%
-    dplyr::select(-tidyselect::one_of(c("alarms","number_of_weeks","method"))) %>%
+    dplyr::select(-tidyselect::one_of(c("number_of_weeks", "method"))) %>%
     dplyr::rename_all(~ stringr::str_to_title(.x)) %>%
     dplyr::mutate(dplyr::across(tidyselect::where(is.double), round, digits = 2)) %>%
     dplyr::mutate(dplyr::across(tidyselect::where(is.character), as.factor)) %>%
@@ -137,8 +137,8 @@ format_table <- function(data, positive_only = TRUE, interactive = TRUE) {
       flextable::bg(bg = "#304794", part = "header") %>%
       flextable::color(color = "white", part = "header") %>%
       flextable::bold(bold = TRUE, part = "header") %>%
-      flextable::bg(i = ~!is.na(Category), bg = "grey", part = "body") %>%
-      flextable::bold(i = ~!is.na(Category), part = "body") %>%
+      flextable::bg(i = ~ !is.na(Category), bg = "grey", part = "body") %>%
+      flextable::bold(i = ~ !is.na(Category), part = "body") %>%
       flextable::autofit()
 
     if (length(float_columns)) {
@@ -177,19 +177,18 @@ convert_columns_integer <- function(data, columns_to_convert) {
   for (col_name in columns_to_convert) {
     data[[col_name]] <- as.integer(data[[col_name]])
   }
-  return(data)
+  data
 }
 
 #' Prepare the signal detection results for creation of table with results
 #'
 #' This function converts the columns week, year and cases to integer, columns are renamed and category with NA is replaced by None. It can
-#' filter the data based on the `positive_only` parameter giving back only those data points where a signal was found.
+#' filter the data based on the `signals_only` parameter giving back only those weeks where a signal was found.
 #'
 #' @param data data.frame containing signals from \code{\link{get_signals()}}
-#' @param positive_only Logical indicating whether to filter only those signal results where a signal was generated (default is TRUE).
+#' @param signals_only Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.
 #'
 #' @return data.frame
-#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -204,10 +203,10 @@ convert_columns_integer <- function(data, columns_to_convert) {
 #' prepare_signals_table(data)
 #' }
 prepare_signals_table <- function(data,
-                                  positive_only = TRUE) {
+                                  signals_only = TRUE) {
   checkmate::assert(
-    checkmate::check_true(positive_only),
-    checkmate::check_false(positive_only),
+    checkmate::check_true(signals_only),
+    checkmate::check_false(signals_only),
     combine = "or"
   )
 
@@ -220,33 +219,58 @@ prepare_signals_table <- function(data,
     dplyr::rename(threshold = upperbound)
 
   data <- data %>% dplyr::filter(!is.na(threshold))
-  if (positive_only) {
+  if (signals_only) {
     data <- data %>% dplyr::filter(alarms)
   }
 
-  return(data)
+  data
 }
 
-#' Builds the final formated signal detection results table for the report or the signals tab. Prepares and formats the signal detection results.
+#' Builds the signal detection results table with different formating options. To get the raw data.frame containing method ald number_of_weeks as well use format = "data.frame", to obtain nicely formated tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".
 #'
-#' This function applies the \code{\link{prepare_signals_table()}} and \code{\link{format_table()}} to create a nicely formated results table based on the input data frame. It can
-#' filter the data based on the `positive_only` parameter and converts certain
+#' This function applies the \code{\link{prepare_signals_table()}} and if format = c("DataTable","Flextable") \code{\link{format_table()}} to create a nicely formated results table based on the input data frame. If format = "data.frame" \code{\link{format_table()}} is not applied and the raw preprocessed signal_results are returned. It can
+#' filter the data based on the `signals_only` parameter and converts certain
 #' columns to integers for styling purposes. This table is used to show all signal detection results for different stratifications together in one table.
-#' @param data data.frame containing signals from \code{\link{get_signals()}}
-#' @param positive_only Logical indicating whether to filter only those signal results where a signal was generated (default is TRUE).
+#' @param signal_results data.frame containing signals from \code{\link{get_signals()}}
+#' @param signals_only Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.
 #' @param interactive Logical indicating whether to create an interactive
 #'   DataTable (default is TRUE).
 #'
-#' @return An interactive DataTable or a static gt table, depending on the value
-#'   of `interactive`.
-build_signals_table <- function(data,
-                                positive_only = TRUE,
-                                interactive = TRUE) {
-  table <- data %>%
-    prepare_signals_table(positive_only = positive_only) %>%
-    format_table(interactive = interactive)
+#' @return data.frame or DataTable or Flextable depending on `format`
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' signal_results <- input_example %>%
+#' preprocess_data() %>%
+#' get_signals(stratification = c("age_group"), number_of_weeks = 6)
+#' build_signals_table(signal_results)
+#' build_signals_table(signal_results, format = "data.frame")
+#' }
+build_signals_table <- function(signal_results,
+                                signals_only = TRUE,
+                                format = "DataTable") {
+  checkmate::assert(
+    checkmate::check_choice(format, choices = c(
+      "data.frame",
+      "DataTable",
+      "Flextable"
+    ))
+  )
 
-  return(table)
+  table <- signal_results %>%
+    prepare_signals_table(signals_only = signals_only)
+
+  if (format == "DataTable") {
+    table <- table %>%
+      format_table(signals_only = signals_only, interactive = TRUE)
+  }
+  if (format == "Flextable") {
+    table <- table %>%
+      format_table(signals_only = signals_only, interactive = FALSE)
+  }
+
+  table
 }
 
 #' Prepares aggregated signals of one category for producing a table.
@@ -261,7 +285,6 @@ build_signals_table <- function(data,
 #'   DataTable (default is TRUE).
 #'
 #' @return tibble with preprocessed aggregated signals
-#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -282,19 +305,21 @@ prepare_signals_agg_table <- function(signals_agg) {
   signals_agg <- signals_agg %>%
     dplyr::arrange(dplyr::desc(n_alarms))
 
-  return(signals_agg)
+  signals_agg
 }
 
-#' Builds the final formated signal detection results table for aggregated signals in the report or the signals tab. Prepares and formats the aggregated signal results table for one category and orders the strata by the factor levels
+#' Builds the aggregated signal detection results table with different formating options. To get the raw data.frame use format = "data.frame", to obtain nicely formated tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable". Prepares and formats the aggregated signal results table for one category and orders the strata by the factor levels
 #'
 #' This function combines the preparation of the aggregated signals data.frame with the final formating of the table by applying \code{\link{prepare_signals_agg_table()}} and \code{\link{format_table()}}.
 #' @param signals_agg A tibble or data.frame containing aggregated signals produced from \code{\link{aggregate_signals(signals,number_of_weeks = 6)}}
 #' @param interactive Logical indicating whether to create an interactive
 #'   DataTable (default is TRUE).
 #'
-#' @return An interactive DataTable or a static gt table, depending on the value
-#'   of `interactive`.
-#'   #' @examples
+#' @return data.frame or DataTable or Flextable depending on `format`
+#'
+#' @export
+#'
+#' @examples
 #' \dontrun{
 #' signals_agg <- input_example %>%
 #' preprocess_data() %>%
@@ -304,11 +329,27 @@ prepare_signals_agg_table <- function(signals_agg) {
 #'
 #' build_signals_agg_table(signals_agg)
 #' }
-build_signals_agg_table <- function(signals_agg,
-                                    interactive = TRUE) {
-  table <- signals_agg %>%
-    prepare_signals_agg_table() %>%
-    format_table(positive_only = TRUE, interactive = interactive)
 
-  return(table)
+build_signals_agg_table <- function(signals_agg,
+                                    format = "DataTable") {
+  checkmate::assert(
+    checkmate::check_choice(format, choices = c(
+      "data.frame",
+      "DataTable",
+      "Flextable"
+    ))
+  )
+  table <- signals_agg %>%
+    prepare_signals_agg_table()
+
+  if (format == "DataTable") {
+    table <- table %>%
+      format_table(signals_only = TRUE, interactive = TRUE)
+  }
+  if (format == "Flextable") {
+    table <- table %>%
+      format_table(signals_only = TRUE, interactive = FALSE)
+  }
+
+  table
 }

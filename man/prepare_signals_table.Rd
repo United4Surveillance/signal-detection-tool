@@ -4,19 +4,19 @@
 \alias{prepare_signals_table}
 \title{Prepare the signal detection results for creation of table with results}
 \usage{
-prepare_signals_table(data, positive_only = TRUE)
+prepare_signals_table(data, signals_only = TRUE)
 }
 \arguments{
 \item{data}{data.frame containing signals from \code{\link{get_signals()}}}
 
-\item{positive_only}{Logical indicating whether to filter only those signal results where a signal was generated (default is TRUE).}
+\item{signals_only}{Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.}
 }
 \value{
 data.frame
 }
 \description{
 This function converts the columns week, year and cases to integer, columns are renamed and category with NA is replaced by None. It can
-filter the data based on the `positive_only` parameter giving back only those data points where a signal was found.
+filter the data based on the `signals_only` parameter giving back only those weeks where a signal was found.
 }
 \examples{
 \dontrun{
