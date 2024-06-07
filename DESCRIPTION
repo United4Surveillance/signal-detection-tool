@@ -9,6 +9,7 @@ Depends:
     R (>= 4.0.2)
 Imports: 
     aeddo (>= 0.1.1),
+    bslib (>= 0.7.0),
     checkmate (>= 2.1.0),
     config (>= 0.3.2),
     dplyr (>= 1.1.4),

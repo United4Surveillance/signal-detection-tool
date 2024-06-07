@@ -51,37 +51,41 @@ mod_tabpanel_signals_server <- function(
         return(algorithm_error_message)
       } else {
         return(shiny::tagList(
+          shiny::tags$div(
+            # Prevents boxes from taking up the entire width of the page
+            style = "max-width: 800px; margin: 0 auto;",
           bslib::layout_column_wrap(
-            width = 1/3,
-            height = 200,
+            width = 1/2,
              bslib::value_box(
                 theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
-                title = "Outbreak detection algorithm",
-                value = get_name_by_value(method(),available_algorithms())
-              ),
-              bslib::value_box(
-                theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
-                title = "Number of weeks",
-                value = number_of_weeks()
-              ),bslib::layout_column_wrap(
-                width = 1,
-                heights_equal = "row",
-                bslib::value_box(
-                  theme = bslib::value_box_theme(bg = dplyr::if_else(sum(signals_agg()$n_alarms) > 0, "#DF536B", "#23FF00") , fg = "#FFFFFF"),
-                  title = "Number of alarms",
-                  value = shiny::textOutput(ns("n_alarms"))
-                ),
-            # Box of alarms by stratum
-            if (!"None" %in% strat_vars()) {
-                  bslib::value_box(
-                    theme = bslib::value_box_theme(bg = dplyr::if_else(sum(signals_agg()$n_alarms) > 0, "#DF536B", "#23FF00") , fg = "#FFFFFF"),
-                    title = "Number of alarms by stratum",
-                    value = shiny::htmlOutput(ns("signals_stratum"))
+                height = 200,
+                title = NULL,
+                value = shiny::div(
+                  "CW: ", shiny::span(shiny::textOutput(ns("signal_period"), inline = TRUE)),
+                  shiny::tags$br(),
+                  "Number of cases: ", shiny::span(shiny::textOutput(ns("n_cases"), inline = TRUE)),
+                  shiny::tags$br(),
+                  "Number of alarms: ", shiny::span(shiny::textOutput(ns("n_alarms"), inline = TRUE))
                 )
-            }
+              ),
+            # Box of alarms by stratum
+            bslib::value_box(
+                    theme = bslib::value_box_theme(bg = dplyr::if_else(sum(signals_agg()$n_alarms) > 0, "#DF536B", "#23FF00") , fg = "#FFFFFF"),
+                    title = "Number of alarms",
+                    value = shiny::div(
+                      if (!"None" %in% strat_vars()) {
+                        shiny::tagList(
+                          paste0("National level: ", sum(signals_agg()$n_alarms)),
+                          shiny::htmlOutput(ns("signals_stratum"))
+                        )
+                      } else {
+                        paste0("National level: ", sum(signals_agg()$n_alarms))
+                      }
+                    )
+                )
           )),
-          shiny::uiOutput(ns("alarm_button")),
           shiny::uiOutput(ns("plot_table_stratas")),
+          shiny::uiOutput(ns("alarm_button")),
           shiny::br(),
           shiny::h3(paste0(
             "Timeseries of weekly cases with signal detection applied to the last ",
@@ -204,13 +208,17 @@ mod_tabpanel_signals_server <- function(
 
     show_alarms <- shiny::reactive({
       shiny::req(input$alarms_trig)
-      if (input$alarms_trig == "Show number of alarms") {
-        return(TRUE)
-      } else {
-        return(FALSE)
-      }
+      return(input$alarms_trig)
     })
 
+    signal_weeks <- shiny::reactive({
+      shiny::req(signal_results())
+      signal_results() %>%
+      dplyr::mutate(date_week = as.Date(paste0(year, "-", week, "-1"), "%Y-%W-%u")) %>%
+      dplyr::distinct(date_week, .keep_all = T) %>%
+      dplyr::arrange(desc(date_week)) %>%
+      head(number_of_weeks())
+    })
 
     output$plot_table_stratas <- shiny::renderUI({
       shiny::req(signal_results)
@@ -233,30 +241,17 @@ mod_tabpanel_signals_server <- function(
           plot <- decider_barplot_map_table(signals_agg(), data(), category, toggle_alarms = show_alarms())
           bslib::card(
             width = "auto",
-            bslib::card_header(category),
-            bslib::card_body(plot)
+            bslib::card_header(shiny::div("Distribution by ", category, ", CW ", paste0(signal_weeks()$week[1], "-", signal_weeks()$week[number_of_weeks()], " ", signal_weeks()$year[1]))),
+            plot
           )
 
           })
-        if (n_plots_tables == 1) {
-          header <- h3(paste0(
-            "Visualisation and/or table showing the number of cases in the last ", number_of_weeks(),
-            " weeks with alarms from Signal Detection", " for the selected stratum ",
-            paste(signal_categories, collapse = ", "), "."
-          ))
-        } else {
-          header <- h3(paste0(
-            "Visualisations and/or tables showing the number of cases in the last ", number_of_weeks(),
-            " weeks with alarms from Signal Detection", " for the selected strata ",
-            paste(signal_categories, collapse = ", "), "."
-          ))
-        }
         column_plots <- shiny::fluidRow(
           lapply(1:n_plots_tables, function(x) shiny::column(12 / n_plots_tables, plot_table_list[x]))
         )
 
 
-        columns_with_header <- list(header, column_plots)
+        columns_with_header <- list(column_plots)
 
         # Return the combined UI elements
         column_plots_with_headers <- do.call(shiny::tagList, columns_with_header)
@@ -380,6 +375,10 @@ mod_tabpanel_signals_server <- function(
       sum(signals_agg()$n_alarms)
     })
 
+    output$n_cases <- shiny::renderText({
+      sum(signals_agg()$cases)
+    })
+
     output$signals_stratum <- shiny::renderUI({
       signals_strat <- signals_agg() %>%
         dplyr::filter(!is.na(category)) %>% # for stratified results remove the unstratified alarms
@@ -402,16 +401,23 @@ mod_tabpanel_signals_server <- function(
       shiny::HTML(text_output)
     })
 
+    output$signal_period <- shiny::renderText({
+      as.character(paste0(signal_weeks()$week[1], "-", signal_weeks()$week[number_of_weeks()], " ", signal_weeks()$year[1]))
+      })
+
     output$alarm_button <- shiny::renderUI({
       req(!errors_detected())
 
       if (length(strat_vars_tidy()) > 0) {
         shiny::tagList(
           shiny::br(),
-          shiny::selectInput(ns("alarms_trig"),
-                             label = "Toggle number of alarms on / off on stratification graphs",
-                             choices = c("Don't show number of alarms", "Show number of alarms"),
-                             selected = "Show number of alarms")
+          shinyWidgets::materialSwitch(
+            inputId = ns("alarms_trig"),
+            label = "Show number of alarms",
+            value = TRUE,
+            right = TRUE,
+            status = "primary"
+          )
         )
       }
     })
