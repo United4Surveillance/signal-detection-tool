@@ -98,9 +98,10 @@ create_map_or_table <- function(signals_agg,
       toggle_alarms = toggle_alarms
     )
   } else {
-    output <- create_stratified_table(
+    format <- ifelse(interactive, "DataTable", "Flextable")
+    output <- build_signals_agg_table(
       signals_agg,
-      interactive = interactive
+      format = format
     )
   }
 
@@ -137,9 +138,10 @@ create_barplot_or_table <- function(signals_agg,
   if (n_levels_data < n_levels) {
     plot_barchart(signals_agg, interactive = interactive, toggle_alarms = toggle_alarms)
   } else {
-    create_stratified_table(
+    format <- ifelse(interactive, "DataTable", "Flextable")
+    build_signals_agg_table(
       signals_agg,
-      interactive = interactive
+      format = format
     )
   }
 }

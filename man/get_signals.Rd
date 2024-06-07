@@ -40,10 +40,11 @@ specified method.
 }
 \examples{
 \dontrun{
-data <- read.csv("data/input/input.csv")
-results <- get_signals(data,
-  method = "farrington",
-  stratification = c("county", "sex")
-)
+results <- input_example \%>\%
+  preprocess_data() \%>\%
+  get_signals(
+    method = "farrington",
+    stratification = c("county", "sex")
+  )
 }
 }

@@ -69,25 +69,27 @@ mod_tabpanel_signals_server <- function(
                 shiny::div(class = "value", number_of_weeks())
               )
             ),
-           # Box of signals in total
+            # Box of signals in total
             # Red box if signals were found, green if no signals
-              column(
-                width = 2,
-                shiny::div(
-                  class = ifelse(sum(signals_agg()$n_alarms) > 0,
-                                 "value-box red", "value-box green"),
-                  shiny::div(class = "title", "Number of signals"),
-                  shiny::div(class = "value", shiny::textOutput(ns("n_alarms")))
-                )
-              ),
+            column(
+              width = 2,
+              shiny::div(
+                class = ifelse(sum(signals_agg()$n_alarms) > 0,
+                  "value-box red", "value-box green"
+                ),
+                shiny::div(class = "title", "Number of signals"),
+                shiny::div(class = "value", shiny::textOutput(ns("n_alarms")))
+              )
+            ),
             # Box of signals by stratum
             if (!"None" %in% strat_vars()) {
               # Red box if signals were found, green if no signals
               column(
                 width = 4,
                 shiny::div(
-                 class = ifelse(sum(signals_agg()$n_alarms) > 0,
-                                 "value-box red", "value-box green"),
+                  class = ifelse(sum(signals_agg()$n_alarms) > 0,
+                    "value-box red", "value-box green"
+                  ),
                   shiny::div(class = "title", "Number of signals by stratum"),
                   shiny::div(class = "value", shiny::htmlOutput(ns("signals_stratum")))
                 )
@@ -271,7 +273,7 @@ mod_tabpanel_signals_server <- function(
       shiny::req(!errors_detected())
       shiny::req(!no_algorithm_possible())
 
-      pad_signals(filtered_data(),signal_results())
+      pad_signals(filtered_data(), signal_results())
     })
 
     # based on the user input which timeseries should be visualised filter the signals_padded
@@ -280,12 +282,12 @@ mod_tabpanel_signals_server <- function(
       if (is.null(ts_filter_var_tidy())) {
         results <- signals_padded() %>%
           dplyr::filter(is.na(category))
-      } else{
+      } else {
         if (!is.null(input$ts_filter_val)) {
           results <- signals_padded() %>%
-            dplyr::mutate(stratum = dplyr::if_else(!is.na(category) & is.na(stratum),tidyr::replace_na("unknown"),stratum)) %>%
-            dplyr::filter(category == input$ts_filter_var & stratum == input$ts_filter_val)}
-        else{
+            dplyr::mutate(stratum = dplyr::if_else(!is.na(category) & is.na(stratum), tidyr::replace_na("unknown"), stratum)) %>%
+            dplyr::filter(category == input$ts_filter_var & stratum == input$ts_filter_val)
+        } else {
           # we should not get inside here but for completeness
           results <- signals_padded() %>%
             dplyr::filter(is.na(category))
@@ -303,8 +305,8 @@ mod_tabpanel_signals_server <- function(
     # signals table
     output$signals <- DT::renderDT({
       req(!errors_detected())
-      create_results_table(signal_results(),
-                           interactive = TRUE
+      build_signals_table(signal_results(),
+        format = "DataTable"
       )
       # FIXME: interactive mode not working here?
     })
@@ -342,9 +344,10 @@ mod_tabpanel_signals_server <- function(
         shiny::tagList(
           shiny::br(),
           shiny::selectInput(ns("alarms_trig"),
-                             label = "Toggle number of signals on / off on stratification graphs",
-                             choices = c("Don't show number of signals", "Show number of signals"),
-                             selected = "Show number of signals")
+            label = "Toggle number of signals on / off on stratification graphs",
+            choices = c("Don't show number of signals", "Show number of signals"),
+            selected = "Show number of signals"
+          )
         )
       }
     })
@@ -355,6 +358,5 @@ mod_tabpanel_signals_server <- function(
       signals_padded = shiny::reactive(signals_padded()),
       signals_agg = shiny::reactive(signals_agg())
     ))
-
   })
 }
