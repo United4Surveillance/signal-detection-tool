@@ -1,5 +1,5 @@
 
-# SignalDetectionTool 0.1.1
+# SignalDetectionTool 0.2.0
 
 * Several bug fixes concerning `age_groups()` function. Fixed that NA in age column is dealt with correctly in age_group, fixed that when no age column is provided in the dataset function still works and further details making the function more robust. 
 * Added EU emblem
