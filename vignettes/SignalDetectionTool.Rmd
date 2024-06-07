@@ -58,7 +58,7 @@ data <- preprocess_data(input_example)
 
 ```{r}
 results <- get_signals(data, stratification = c("county", "sex", "age_group"))
-create_results_table(results, interactive = TRUE)
+build_signals_table(results)
 ```
 
 

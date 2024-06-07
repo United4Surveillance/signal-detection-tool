@@ -18,7 +18,7 @@ plot_regional(
 
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
 
-\item{toggle_alarms}{boolean identifying whether the plot should showing number of alarms explicitly or only when hovering}
+\item{toggle_alarms}{boolean identifying whether the plot should showing number of signals explicitly or only when hovering}
 }
 \value{
 either a ggplot object if static plot is chosen or a plotly object for the interactive plot

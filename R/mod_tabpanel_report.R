@@ -9,10 +9,8 @@
 #' @importFrom shiny NS tagList
 mod_tabpanel_report_ui <- function(id) {
   ns <- shiny::NS(id)
-
   shiny::tabPanel(
-    "Report",
-    shiny::uiOutput(ns("report_tab_ui")),
+    title = "Report",
     icon = shiny::icon("download"),
     shinybusy::add_busy_spinner(
       spin = "fading-circle",
@@ -20,9 +18,9 @@ mod_tabpanel_report_ui <- function(id) {
       position = "full-page",
       height = "100px",
       width = "100px"
-    )
+    ),
+    shiny::uiOutput(ns("report_tab_ui"))
   )
-
 }
 
 
@@ -30,17 +28,14 @@ mod_tabpanel_report_ui <- function(id) {
 #'
 #' @noRd
 mod_tabpanel_report_server <- function(id,
-                                       indata,
+                                       filtered_data,
                                        strat_vars,
                                        pathogen_vars,
-                                       method,
                                        errors_detected,
                                        no_algorithm_possible,
                                        number_of_weeks_input_valid,
-                                       number_of_weeks,
-                                       signal_results,
-                                       signals_agg,
-                                       signal_data) {
+                                       signals_padded,
+                                       signals_agg) {
 
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -68,12 +63,12 @@ mod_tabpanel_report_server <- function(id,
               shiny::selectInput(NS(id, "format"), "Choose a format:",
                                  choices = c("HTML", "DOCX")),
 
-              shiny::checkboxInput(NS(id, "interactive"),
-                                   "Interactive HTML",
-                                   value = TRUE),
-
               shiny::checkboxInput(NS(id, "tables"),
                                    "Include tables (stratifications)",
+                                   value = TRUE),
+
+              shiny::checkboxInput(NS(id, "interactive"),
+                                   "Interactive HTML",
                                    value = TRUE),
 
               # Button
@@ -88,6 +83,22 @@ mod_tabpanel_report_server <- function(id,
           )
         ))
       }
+    })
+
+    shiny::observeEvent(input$format, {
+      if (input$format == "HTML") {
+        shinyjs::show(id = "interactive")
+      } else {
+        shinyjs::hide(id = "interactive")
+      }
+    })
+
+    method <- reactive({
+      unique(signals_padded()$method)
+    })
+
+    number_of_weeks <- reactive({
+      unique(signals_padded()$number_of_weeks)
     })
 
     # Download generated report
@@ -107,14 +118,14 @@ mod_tabpanel_report_server <- function(id,
       },
       content = function(con) {
         run_report(report_format = input$format,
-                   data = signal_data(),
+                   data = filtered_data(),
+                   algo = method(),
+                   number_of_weeks = number_of_weeks(),
                    strata = strat_vars(),
-                   algo = available_algorithms()[available_algorithms() == method()],
                    interactive = input$interactive,
                    tables = input$tables,
-                   number_of_weeks = number_of_weeks(),
                    output_file = con,
-                   signal_results = signal_results(),
+                   signals_padded = signals_padded(),
                    signals_agg = signals_agg())
       })
   })

@@ -29,7 +29,7 @@ the analysis. Default is NULL.}
 
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 
-\item{number_of_weeks}{integer, specifying number of weeks to generate alarms for.}
+\item{number_of_weeks}{integer, specifying number of weeks to generate signals for.}
 }
 \value{
 A tibble containing the results of the signal detection analysis.
@@ -40,10 +40,11 @@ specified method.
 }
 \examples{
 \dontrun{
-data <- read.csv("data/input/input.csv")
-results <- get_signals(data,
-  method = "farrington",
-  stratification = c("county", "sex")
-)
+results <- input_example \%>\%
+  preprocess_data() \%>\%
+  get_signals(
+    method = "farrington",
+    stratification = c("county", "sex")
+  )
 }
 }

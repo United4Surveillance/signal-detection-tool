@@ -209,7 +209,7 @@ complete_agegrp_arr <- function(df, format_check_results) {
     gsub(pattern = "\\D", replacement = "")
 
   # remove rows of only NA or empty
-  splits <- splits[!apply(is.na(splits) | splits == "", 1, all),]
+  splits <- splits[!apply(is.na(splits) | splits == "", 1, all), ]
 
   # if there is equidistance
   if (format_check_results$equal_sizing) {
@@ -413,10 +413,6 @@ age_groups <- function(df, break_at = NULL) {
     df <- df %>% dplyr::relocate(age_group, .after = age)
   }
 
-  # remove leading or trailing whitespaces from age_group
-  df <- df %>%
-    dplyr::mutate(age_group = trimws(age_group))
-
   # conducting format enquires
   format_check_results <- age_format_check(df)
 
@@ -458,7 +454,7 @@ age_groups <- function(df, break_at = NULL) {
 #' @param date_start A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.
 #' @param date_end A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
-#' @param number_of_weeks integer, specifying number of weeks to generate alarms for.
+#' @param number_of_weeks integer, specifying number of weeks to generate signals for.
 #' @return A tibble containing the results of the signal detection analysis
 #'   stratified by the specified columns.
 #'
@@ -519,6 +515,7 @@ get_signals_stratified <- function(data,
     date_end <- max(data[[date_var]], na.rm = TRUE)
   }
 
+  i <- 0
   # Loop through each category
   for (category in stratification_columns) {
     if (is.factor(data[, category])) {
@@ -530,6 +527,7 @@ get_signals_stratified <- function(data,
 
     # iterate over all strata and run algorithm
     for (stratum in strata) {
+      i <- i + 1
       # when stratum is NA filter needs to be done differently otherwise the NA stratum is lost
       if (is.na(stratum)) {
         sub_data <- data %>% dplyr::filter(is.na(.data[[category]]))
@@ -547,7 +545,7 @@ get_signals_stratified <- function(data,
       if (nrow(sub_data) == 0) {
         # don't run algorithm on those strata with 0 cases created by factors
         results <- sub_data_agg %>%
-          # set alarms to FALSE for the timeperiod alarms are generated for in the other present levels
+          # set alarms to FALSE for the timeperiod signals are generated for in the other present levels
           # logically the alarms column should also contain NA but later on computations are based on when the first alarm appears and when giving 0 timeseries to the algorithms they also put FALSE to the alarms column thus it is consistent
           # upperbound and expected to NA
           dplyr::mutate(alarms = dplyr::if_else(dplyr::row_number() > (nrow(.) - number_of_weeks + 1), FALSE, NA)) %>%
@@ -572,7 +570,7 @@ get_signals_stratified <- function(data,
         )
       }
       # Store the results in the list
-      category_results[[stratum]] <- results
+      category_results[[i]] <- results
     }
   }
 
@@ -592,17 +590,18 @@ get_signals_stratified <- function(data,
 #' @param date_start A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.
 #' @param date_end A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
-#' @param number_of_weeks integer, specifying number of weeks to generate alarms for.
+#' @param number_of_weeks integer, specifying number of weeks to generate signals for.
 #' @return A tibble containing the results of the signal detection analysis.
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' data <- read.csv("data/input/input.csv")
-#' results <- get_signals(data,
-#'   method = "farrington",
-#'   stratification = c("county", "sex")
-#' )
+#' results <- input_example %>%
+#'   preprocess_data() %>%
+#'   get_signals(
+#'     method = "farrington",
+#'     stratification = c("county", "sex")
+#'   )
 #' }
 get_signals <- function(data,
                         method = "farrington",
@@ -673,6 +672,12 @@ get_signals <- function(data,
     )
   }
 
+  # add number of weeks and method to the results dataframe
+  results <- results %>%
+    dplyr::mutate(
+      method = method,
+      number_of_weeks = number_of_weeks
+    )
 
   return(results)
 }

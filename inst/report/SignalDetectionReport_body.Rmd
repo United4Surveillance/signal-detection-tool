@@ -9,38 +9,40 @@ library(SignalDetectionTool)
 if (is.null(params$data)) {
   data <- SignalDetectionTool::input_example
 } 
-
 ```
 
 
 # Data and Methods 
 
-- Method used: `r names(params$algo)`
+- Method used: `r names(available_algorithms()[which(available_algorithms() == params$algo)])`
 - Length of signal detection period: `r params$number_of_weeks` weeks
 - Strata selected: `r paste(params$strata, collapse = ", ")`
 
 
 ```{r}
 
-if (!is.null(params$signal_results)) {
-  signal_results <- params$signal_results
+if (!is.null(params$signals_padded)) {
+  signals_padded <- params$signals_padded
 } else {
   signal_results <- get_signals(data, 
+                                stratification = strata,
                                 method = params$algo, 
                                 number_of_weeks = params$number_of_weeks)
-  # TODO: get padded signals dataframe, needs function!
+  signals_padded <- pad_signals(data,
+                                signal_results)
+
 }
 
 
 
-if (!is.null(strata) & is.null(params$signals_agg)) {
+if (!is.null(params$strata) & is.null(params$signals_agg)) {
   results_strata <- get_signals(data, 
                                 method = params$algo, 
                                 stratification = params$strata,
                                 number_of_weeks = params$number_of_weeks)
   signals_agg <- aggregate_signals(results_strata, 
                                    number_of_weeks = params$number_of_weeks)
-} else if (!is.null(strata)) {
+} else if (!is.null(params$strata)) {
   signals_agg <- params$signals_agg
 }
 
@@ -51,21 +53,22 @@ if (!is.null(strata) & is.null(params$signals_agg)) {
 # Signal Detection 
 
 ```{r, results='asis'}
-results_analysis <- signal_results %>% 
+results_analysis <- signals_padded %>% 
   dplyr::filter(is.na(category), 
                 !is.na(alarms))
+
 
 stringr::str_glue(
   "In the signal detection period - last {params$number_of_weeks} weeks available in the data - ", 
   "there were {sum(results_analysis$cases)} cases of {params$disease} in {params$country}. ",
-  "Using the {names(params$algo)} algorithm {sum(results_analysis$alarm)} signal{ifelse(sum(results_analysis$n_alarms) == 1, '', 's')} {ifelse(sum(results_analysis$n_alarms) == 1, ' was', ' were')} detected.")
+  "Using the {names(params$algo)} algorithm {sum(results_analysis$alarms)} signal{ifelse(sum(results_analysis$n_alarms) == 1, '', 's')} {ifelse(sum(results_analysis$n_alarms) == 1, ' was', ' were')} detected.")
 ```
 
 
 ```{r}
 #| fig.cap=paste0("Number of ", params$disease, " cases by week and signals, ", params$country),
 #| out.width="100%"
-plot_time_series(signal_results %>% 
+plot_time_series(signals_padded %>% 
                    dplyr::filter(is.na(category)),
                  interactive = params$interactive)
 ```
@@ -76,12 +79,13 @@ plot_time_series(signal_results %>%
 txt <- NULL
 
 if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
-  create_results_table(signal_results %>% 
+  format <- ifelse(params$interactive, "DataTable", "Flextable")
+  build_signals_table(signals_padded %>% 
                        dplyr::filter(is.na(category)) %>% 
                        dplyr::select(-upperbound_pad, 
                                      -expected_pad, 
                                      -first_alarm_nonNA), 
-                     interactive = params$interactive)
+                     format = format)
 } else {
   txt <- "No signals were detected."
 }
