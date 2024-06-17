@@ -192,11 +192,6 @@ mod_tabpanel_signals_server <- function(
       aggregate_signals(signal_results(), number_of_weeks = number_of_weeks())
     })
 
-    show_alarms <- shiny::reactive({
-      shiny::req(input$alarms_trig)
-      return(input$alarms_trig)
-    })
-
     signal_weeks <- shiny::reactive({
       shiny::req(signal_results())
       signal_results() %>%
@@ -224,7 +219,7 @@ mod_tabpanel_signals_server <- function(
       if (n_plots_tables != 0) {
         # populate the plot_table_list with plots/tables of each category
         plot_table_list <- lapply(signal_categories, function(category) {
-          plot <- decider_barplot_map_table(signals_agg(), filtered_data(), category, toggle_alarms = show_alarms())
+          plot <- decider_barplot_map_table(signals_agg(), filtered_data(), category, toggle_alarms = input$alarms_trig)
 
           if(category %in% names(pretty_variable_names())){
             category_label <- pretty_variable_names()[category][[1]]
