@@ -224,7 +224,7 @@ mod_tabpanel_signals_server <- function(
       if (n_plots_tables != 0) {
         # populate the plot_table_list with plots/tables of each category
         plot_table_list <- lapply(signal_categories, function(category) {
-          plot <- decider_barplot_map_table(signals_agg(), data(), category, toggle_alarms = show_alarms())
+          plot <- decider_barplot_map_table(signals_agg(), filtered_data(), category, toggle_alarms = show_alarms())
           bslib::card(
             width = "auto",
             bslib::card_header(shiny::div("Distribution by ", category, ", CW ", paste0(signal_weeks()$week[1], "-", signal_weeks()$week[number_of_weeks()], " ", signal_weeks()$year[1]))),
