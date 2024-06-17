@@ -89,6 +89,7 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
   # when it is already a factor we do care about NA to unknown before
   if (!is.factor(data$stratum)) {
     data <- data %>%
+      dplyr::mutate(stratum = as.character(stratum)) %>%
       dplyr::mutate(stratum = dplyr::if_else(category != "None", tidyr::replace_na(stratum, "unknown"), stratum))
   }
 
