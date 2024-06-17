@@ -10,9 +10,6 @@ build_signals_table(signal_results, signals_only = TRUE, format = "DataTable")
 \item{signal_results}{data.frame containing signals from \code{\link{get_signals()}}}
 
 \item{signals_only}{Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.}
-
-\item{interactive}{Logical indicating whether to create an interactive
-DataTable (default is TRUE).}
 }
 \value{
 data.frame or DataTable or Flextable depending on `format`
@@ -25,8 +22,8 @@ columns to integers for styling purposes. This table is used to show all signal 
 \examples{
 \dontrun{
 signal_results <- input_example \%>\%
-preprocess_data() \%>\%
-get_signals(stratification = c("age_group"), number_of_weeks = 6)
+  preprocess_data() \%>\%
+  get_signals(stratification = c("age_group"), number_of_weeks = 6)
 build_signals_table(signal_results)
 build_signals_table(signal_results, format = "data.frame")
 }
