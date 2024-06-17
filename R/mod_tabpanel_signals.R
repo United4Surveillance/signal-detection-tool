@@ -225,9 +225,16 @@ mod_tabpanel_signals_server <- function(
         # populate the plot_table_list with plots/tables of each category
         plot_table_list <- lapply(signal_categories, function(category) {
           plot <- decider_barplot_map_table(signals_agg(), filtered_data(), category, toggle_alarms = show_alarms())
+
+          if(category %in% names(pretty_variable_names())){
+            category_label <- pretty_variable_names()[category][[1]]
+          }else{
+            category_label <- category
+          }
+
           bslib::card(
             width = "auto",
-            bslib::card_header(shiny::div("Distribution by ", category, ", CW ", paste0(signal_weeks()$week[1], "-", signal_weeks()$week[number_of_weeks()], " ", signal_weeks()$year[1]))),
+            bslib::card_header(shiny::div("Distribution by ", category_label, ", CW ", paste0(signal_weeks()$week[1], "-", signal_weeks()$week[number_of_weeks()], " ", signal_weeks()$year[1]))),
             plot
           )
 
@@ -319,9 +326,15 @@ mod_tabpanel_signals_server <- function(
           dplyr::filter(category == i) %>%
           dplyr::pull(n_alarms)
 
+        if(i %in% names(pretty_variable_names())){
+          category_label <- pretty_variable_names()[i][[1]]
+        }else{
+          category_label <- i
+        }
+
         text_output <- paste0(
           text_output,
-          paste0(i, ": ", n_alarms, "<br/>")
+          paste0(category_label, ": ", n_alarms, "<br/>")
         )
       }
       shiny::HTML(text_output)
