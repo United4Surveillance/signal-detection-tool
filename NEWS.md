@@ -1,3 +1,7 @@
+# SignalDetectionTool 0.2.1
+* Bug fix inside `format_table()` so that signals tab is working again when no stratification is chosen
+* Improvements in the documentation of `build_signals_table()`, `prepare_signals_agg_table()`
+
 # SignalDetectionTool 0.2.0
 
 * Several bug fixes concerning `age_groups()` function. Fixed that NA in age column is dealt with correctly in age_group, fixed that when no age column is provided in the dataset function still works and further details making the function more robust. 
