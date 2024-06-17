@@ -74,6 +74,11 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
     checkmate::check_false(interactive),
     combine = "or"
   )
+  checkmate::assert(
+    checkmate::check_true(signals_only),
+    checkmate::check_false(signals_only),
+    combine = "or"
+  )
 
   if (signals_only) {
     # only remove the alarms column when the signals_only TRUE thus only those with signals in the linelist are remaining
@@ -254,6 +259,11 @@ build_signals_table <- function(signal_results,
       "DataTable",
       "Flextable"
     ))
+  )
+  checkmate::assert(
+    checkmate::check_true(signals_only),
+    checkmate::check_false(signals_only),
+    combine = "or"
   )
 
   table <- signal_results %>%
