@@ -52,6 +52,7 @@ mod_tabpanel_signals_server <- function(
       } else {
         return(shiny::tagList(
           shiny::tags$div(
+            shiny::br(),
             # Prevents boxes from taking up the entire width of the page
             style = "max-width: 800px; margin: 0 auto;",
           bslib::layout_column_wrap(
