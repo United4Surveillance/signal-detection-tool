@@ -69,7 +69,8 @@ mod_tabpanel_data_ui <- function(id) {
         hr(),
         div(
           style = "border: 2px solid black; padding: 10px;",
-          shiny::uiOutput(ns("missing_vals"))
+          shiny::uiOutput(ns("missing_vals")),
+          shiny::uiOutput(ns("negative_ages"))
         ),
         hr(),
         h3("Uploaded dataset"),
@@ -153,6 +154,22 @@ mod_tabpanel_data_server <- function(id) {
           shiny::tags$ul(missing_data), # list of spans of class 'more'
           shiny::tags$script("addMoreBtn();") # custom JS for class 'more'
         )
+      }
+    })
+    # Notify user about negative ages in the data
+    output$negative_ages <- shiny::renderUI({
+
+      if("age" %in% names(data())) {
+
+        data_negative_ages <- data() %>%
+          dplyr::filter(age < 0)
+
+        if(nrow(data_negative_ages) != 0) {
+
+          "There are some ages with negative values. These will be replaced with NA"
+
+        }
+
       }
     })
 
