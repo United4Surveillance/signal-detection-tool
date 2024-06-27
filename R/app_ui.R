@@ -67,42 +67,19 @@ golem_add_external_resources <- function() {
       path = app_sys("app/www"),
       app_title = "SignalDetectionTool"
     ),
-    # Presets for the boxes in the signals tabpanel
     tags$style(HTML("
-      .value-box {
-        border-radius: 3px;
-        border: 1px solid #ddd;
-        background-color: #f4f4f4;
-        padding: 10px;
-        text-align: center;
+      .bslib-value-box .value-box-title {
+        font-size: 15px !important; /* Adjust the font size */
+        font-weight: bold !important; /* Make the title text bold */
+        padding-top: -20px !important; /* Reduce space above the title */
+        margin-top: -20px !important; /* Reduce space above the title */
       }
-      .value-box .title {
-        font-size: 16px;
-        color: white;
+      .bslib-value-box .value-box-value {
+        font-size: 13px !important; /* Adjust the font size */
+        margin-bottom: -20px !important; /* Reduce space below the value */
+        padding-bottom: -20px !important; /* Reduce space below the value */
       }
-      .value-box .value {
-        font-size: 24px;
-        font-weight: bold;
-        color: white;
-      }
-      .value-box .icon {
-        font-size: 32px;
-        margin-bottom: 10px;
-      }
-      .value-box.blue {
-        border-color: #304794;
-        background-color: #304794;
-      }
-      .value-box.red {
-        border-color: #DF536B;
-        background-color: #DF536B;
-      }
-      .value-box.green {
-        border-color: #23FF00;
-        background-color: #23FF00;
-      }"
-      )
-      )
+    "))
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()
   )
