@@ -26,6 +26,8 @@
 * Improved wording of objects in signals and reports tab
 * Made table appearance for interactive and static tables consistent using new dependency `flextable`
 * Recodes NAs in signal tables to 'unknown' for all stratifications but not for the unstratified level
+* Changed the title of the tool to "Signal Detection Tool".
+* Implemented cards and boxes by using `bslib` package.
 
 
 # SignalDetectionTool 0.1.0
