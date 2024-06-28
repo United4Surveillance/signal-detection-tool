@@ -218,6 +218,17 @@ mod_tabpanel_signals_server <- function(
         dplyr::slice_tail(n = number_of_weeks())
     })
 
+    alarms_trig <- shiny::reactive({
+      toggle_numbers <- input$alarms_trig
+      # Default to FALSE if toggle_numbers is NULL
+      if (is.null(toggle_numbers)){
+        toggle_numbers <- FALSE
+      }
+
+      toggle_numbers
+
+      })
+
     output$plot_table_stratas <- shiny::renderUI({
       shiny::req(signal_results)
       plot_table_list <- list()
@@ -236,7 +247,7 @@ mod_tabpanel_signals_server <- function(
       if (n_plots_tables != 0) {
         # populate the plot_table_list with plots/tables of each category
         plot_table_list <- lapply(signal_categories, function(category) {
-          plot <- decider_barplot_map_table(signals_agg(), filtered_data(), category, toggle_alarms = input$alarms_trig)
+          plot <- decider_barplot_map_table(signals_agg(), filtered_data(), category, toggle_alarms = alarms_trig())
 
           if(category %in% names(pretty_variable_names())){
             category_label <- pretty_variable_names()[category][[1]]
