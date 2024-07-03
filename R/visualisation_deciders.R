@@ -161,7 +161,7 @@ decider_barplot_map_table <- function(signals_agg,
                                       signal_category,
                                       interactive = TRUE,
                                       toggle_alarms = FALSE) {
-  if (signal_category %in% c("state", "county", "community")) {
+  if (signal_category %in% region_variable_names()) {
     plot_or_table <- create_map_or_table(
       signals_agg,
       data_surveillance,
