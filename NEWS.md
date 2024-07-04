@@ -1,6 +1,7 @@
 # SignalDetectionTool 0.2.1
 
 * Losening restriction on which region information can be used for creating maps. Now all region variables including region_level variables can be used which is necessary for users who want to use their own shapefiles for their defined regions.
+* Fixing bug so that plot_time_series() works with upperbond_pad and expected_pad being all NA
 
 # SignalDetectionTool 0.2.0
 
