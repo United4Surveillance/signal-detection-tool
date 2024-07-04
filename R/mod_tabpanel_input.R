@@ -190,7 +190,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     filter_var_opts <- shiny::reactive({
       shiny::req(available_var_opts())
       shiny::req(data_sub())
-      date_opts <- intersect(names(data_sub()), c("date_report"))
+      date_opts <- intersect(names(data_sub()), c("date_report", "age"))
       all_opts <- c("None", date_opts, available_var_opts())
       all_opts
     })
@@ -280,6 +280,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
             if (class(df[[rlang::as_name(filter_var)]]) == "Date") { # apply filter if filtering date
               df <- df %>%
                 dplyr::filter(!!filter_var %in% seq(filter_val[1], filter_val[2], "day"))
+            } else if(rlang::as_name(filter_var) == "age") {
+              df <- df %>%
+                dplyr::filter(!!filter_var >= filter_val[1], !!filter_var <= filter_val[2])
             } else if ("N/A" %in% filter_val) { # apply filter if filtering for NAs
               df <- df %>%
                 dplyr::filter(

@@ -14,6 +14,7 @@ mod_input_filter_ui <- function(id) {
     shiny::div(
       id = id,
       shiny::uiOutput(ns("filter_var_ui")),
+      shiny::br(),
       shiny::uiOutput(ns("filter_val_ui")),
       tags$style(shiny::HTML(paste0("#", id, "-filter_var_ui{display:inline-block}"))),
       tags$style(shiny::HTML(paste0("#", id, "-filter_val_ui{display:inline-block; vertical-align: top;}"))),
@@ -48,6 +49,12 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
       class(data()[[input$filter_var_sel]]) == "Date"
     })
 
+    # This can be transformed is_numeric, if we allow other numerical variables to the filtering in some point
+    is_age <- shiny::reactive({
+      shiny::req(input$filter_var_sel)
+      input$filter_var_sel == "age"
+    })
+
     # filter value
     output$filter_val_ui <- shiny::renderUI({
       shiny::req(input$filter_var_sel != "None")
@@ -68,6 +75,24 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
             min = min(data()[[input$filter_var_sel]]),
             max = max(data()[[input$filter_var_sel]]),
             value = max(data()[[input$filter_var_sel]])
+          ),
+        )
+      } else if(is_age()) {
+
+        value_ui <- shiny::tagList(
+          shiny::numericInput(
+            inputId = ns("filter_min_val_sel"),
+            label = "Minimum Age",
+            value = min(data()[[input$filter_var_sel]], na.rm = T),
+            min = min(data()[[input$filter_var_sel]], na.rm = T),
+            max = max(data()[[input$filter_var_sel]], na.rm = T)
+          ),
+          shiny::numericInput(
+            inputId = ns("filter_max_val_sel"),
+            label = "Maximum Age",
+            min = min(data()[[input$filter_var_sel]], na.rm = T),
+            max = max(data()[[input$filter_var_sel]], na.rm = T),
+            value = max(data()[[input$filter_var_sel]], na.rm = T)
           ),
         )
       } else {
@@ -95,7 +120,10 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
     # return values to filter for
     filter_val <- shiny::reactive({
       shiny::req(is_date)
+      shiny::req(is_age)
       if (is_date()) {
+        values <- c(input$filter_min_val_sel, input$filter_max_val_sel)
+      } else if(is_age()){
         values <- c(input$filter_min_val_sel, input$filter_max_val_sel)
       } else {
         values <- input$filter_val_sel
