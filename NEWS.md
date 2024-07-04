@@ -3,6 +3,7 @@
 * Losening restriction on which region information can be used for creating maps. Now all region variables including region_level variables can be used which is necessary for users who want to use their own shapefiles for their defined regions.
 * Changed the title of the tool to "Signal Detection Tool".
 * Implemented cards and boxes by using `bslib` package.
+* Fixing bug so that plot_time_series() works with upperbond_pad and expected_pad being all NA
 
 # SignalDetectionTool 0.2.0
 
