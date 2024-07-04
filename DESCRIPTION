@@ -46,6 +46,7 @@ Imports:
     shinybusy (>= 0.3.1),
     shinyjs (>= 2.1.0),
     shinyvalidate (>= 0.1.3),
+    shinyWidgets (>= 0.8.1),
     stats,
     stringr (>= 1.5.0),
     surveillance (>= 1.21.0),
