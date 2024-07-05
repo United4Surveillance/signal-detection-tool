@@ -1,6 +1,8 @@
 # SignalDetectionTool 0.2.1
 
 * Losening restriction on which region information can be used for creating maps. Now all region variables including region_level variables can be used which is necessary for users who want to use their own shapefiles for their defined regions.
+* Changed the title of the tool to "Signal Detection Tool".
+* Implemented cards and boxes by using `bslib` package.
 * Fixing bug so that plot_time_series() works with upperbond_pad and expected_pad being all NA
 
 # SignalDetectionTool 0.2.0
@@ -31,7 +33,6 @@
 * Improved wording of objects in signals and reports tab
 * Made table appearance for interactive and static tables consistent using new dependency `flextable`
 * Recodes NAs in signal tables to 'unknown' for all stratifications but not for the unstratified level
-
 
 # SignalDetectionTool 0.1.0
 
