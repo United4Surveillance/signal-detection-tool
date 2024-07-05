@@ -62,16 +62,12 @@ mod_tabpanel_data_ui <- function(id) {
           htmlOutput(ns("unused_vars"))
         ),
         hr(),
-        h4("Cases which have missing data"),
-        span(paste0("In this section you receive feedback about cases for which data required for the computations is missing and will thus be removed for all analysis. The following variables are checked for missingness: ",check_for_missing_values(), ". If any of these variables have a missing value the case is removed for all analysis.")),
+        h4("Data Quality"),
+        span(paste0("In this section you receive feedback about implausible or inconsistent values and missing data. The following variables are checked for missingness: ",check_for_missing_values(), ". The following variables are checked for inconsistent/implausible values: age")),
         hr(),
-        span("Please check if values are missing on purpose, otherwise please correct the data uploaded. Case IDs listed below are excluded from analysis."),
+        shiny::uiOutput(ns("missing_vals")),
         hr(),
-        div(
-          style = "border: 2px solid black; padding: 10px;",
-          shiny::uiOutput(ns("missing_vals"))
-        ),
-        hr(),
+        shiny::uiOutput(ns("negative_ages")),
         h3("Uploaded dataset"),
         hr(),
         # Output: Data file ----
@@ -147,12 +143,43 @@ mod_tabpanel_data_server <- function(id) {
     output$missing_vals <- shiny::renderUI({
       missing_data <- get_missing_data(data())
       if (length(missing_data) == 0) {
-        "There are no cases showing missing entries in the data."
-      } else {
-        shiny::tagList(
-          shiny::tags$ul(missing_data), # list of spans of class 'more'
-          shiny::tags$script("addMoreBtn();") # custom JS for class 'more'
+        shiny::div(
+          style = "border: 2px solid black; padding: 10px;",
+          "There are no cases showing missing entries in the data."
         )
+      } else {
+        shiny::div("Please check if values are missing on purpose, otherwise please correct the data uploaded. Case IDs listed below are excluded from analysis.",
+                   shiny::br(),
+                   shiny::br(),
+                   shiny::div(
+                    style = "border: 2px solid black; padding: 10px;",
+                    shiny::tagList(
+                      shiny::tags$ul(missing_data), # list of spans of class 'more'
+                      shiny::tags$script("addMoreBtn();") # custom JS for class 'more'
+                    )
+                   )
+        )
+      }
+    })
+    # Notify user about negative ages in the data
+    output$negative_ages <- shiny::renderUI({
+
+      if("age" %in% names(data())) {
+
+        data_negative_ages <- data() %>%
+          dplyr::filter(age < 0)
+
+        if(nrow(data_negative_ages) != 0) {
+
+          div(
+            div(
+              style = "border: 2px solid black; padding: 10px;",
+              "There are some ages with negative values in the data. These values will be replaced with NA in the analysis."
+            ),
+            hr()
+          )
+        }
+
       }
     })
 

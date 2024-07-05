@@ -4,6 +4,7 @@
 * Changed the title of the tool to "Signal Detection Tool".
 * Implemented cards and boxes by using `bslib` package.
 * Fixing bug so that plot_time_series() works with upperbond_pad and expected_pad being all NA
+* Added notification about negative values in age.
 
 # SignalDetectionTool 0.2.0
 
