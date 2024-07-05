@@ -63,14 +63,9 @@ mod_tabpanel_data_ui <- function(id) {
         ),
         hr(),
         h4("Data Quality"),
-        span(paste0("In this section you receive feedback about data quality and cases for which data required for the computations is missing and will thus be removed for all analysis. The following variables are checked for missingness: ",check_for_missing_values(), ". If any of these variables have a missing value the case is removed for all analysis.")),
+        span(paste0("In this section you receive feedback about implausible or inconsistent values and missing data. The following variables are checked for missingness: ",check_for_missing_values(), ". The following variables are checked for inconsistent/implausible values: age")),
         hr(),
-        span("Please check if values are missing on purpose, otherwise please correct the data uploaded. Case IDs listed below are excluded from analysis."),
-        hr(),
-        div(
-          style = "border: 2px solid black; padding: 10px;",
-          shiny::uiOutput(ns("missing_vals"))
-        ),
+        shiny::uiOutput(ns("missing_vals")),
         hr(),
         shiny::uiOutput(ns("negative_ages")),
         h3("Uploaded dataset"),
@@ -148,11 +143,21 @@ mod_tabpanel_data_server <- function(id) {
     output$missing_vals <- shiny::renderUI({
       missing_data <- get_missing_data(data())
       if (length(missing_data) == 0) {
-        "There are no cases showing missing entries in the data."
+        shiny::div(
+          style = "border: 2px solid black; padding: 10px;",
+          "There are no cases showing missing entries in the data."
+        )
       } else {
-        shiny::tagList(
-          shiny::tags$ul(missing_data), # list of spans of class 'more'
-          shiny::tags$script("addMoreBtn();") # custom JS for class 'more'
+        shiny::div("Please check if values are missing on purpose, otherwise please correct the data uploaded. Case IDs listed below are excluded from analysis.",
+                   shiny::br(),
+                   shiny::br(),
+                   shiny::div(
+                    style = "border: 2px solid black; padding: 10px;",
+                    shiny::tagList(
+                      shiny::tags$ul(missing_data), # list of spans of class 'more'
+                      shiny::tags$script("addMoreBtn();") # custom JS for class 'more'
+                    )
+                   )
         )
       }
     })
