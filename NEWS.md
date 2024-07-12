@@ -1,4 +1,4 @@
-# SignalDetectionTool 0.2.1
+# SignalDetectionTool 0.3.0
 
 * Losening restriction on which region information can be used for creating maps. Now all region variables including region_level variables can be used which is necessary for users who want to use their own shapefiles for their defined regions.
 * Changed the title of the tool to "Signal Detection Tool".
