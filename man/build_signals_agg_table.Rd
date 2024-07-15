@@ -9,7 +9,7 @@ build_signals_agg_table(signals_agg, format = "DataTable")
 \arguments{
 \item{signals_agg}{A tibble or data.frame containing aggregated signals produced from \code{\link{aggregate_signals(signals,number_of_weeks = 6)}}}
 
-\item{interactive}{Logical indicating whether to create an interactive
+\item{format}{the format of the output table, one of data.frame, DataTable, FlexTable. Default is DataTable. For getting a raw output dataframe the parameter data.frame should be used. For getting nicely formatted results tables one of DataTable and Flextable should be used. DataTable will be interactive.
 DataTable (default is TRUE).}
 }
 \value{
@@ -21,10 +21,10 @@ This function combines the preparation of the aggregated signals data.frame with
 \examples{
 \dontrun{
 signals_agg <- input_example \%>\%
-preprocess_data() \%>\%
-get_signals(stratification = c("age_group","sex")) \%>\%
-aggregate_signals(number_of_weeks = 6) \%>\%
-filter(category == "age_group")
+  preprocess_data() \%>\%
+  get_signals(stratification = c("age_group", "sex")) \%>\%
+  aggregate_signals(number_of_weeks = 6) \%>\%
+  filter(category == "age_group")
 
 build_signals_agg_table(signals_agg)
 }

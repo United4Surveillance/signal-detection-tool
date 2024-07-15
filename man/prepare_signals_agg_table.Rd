@@ -8,9 +8,6 @@ prepare_signals_agg_table(signals_agg)
 }
 \arguments{
 \item{signals_agg}{A tibble or data.frame containing aggregated signals produced from \code{\link{aggregate_signals(signals,number_of_weeks = 6)}} for only one category}
-
-\item{interactive}{Logical indicating whether to create an interactive
-DataTable (default is TRUE).}
 }
 \value{
 tibble with preprocessed aggregated signals

@@ -1,11 +1,12 @@
 # SignalDetectionTool 0.3.0
 
 * Losening restriction on which region information can be used for creating maps. Now all region variables including region_level variables can be used which is necessary for users who want to use their own shapefiles for their defined regions.
-* Fix bug that signal tab did not work when no stratas where selected.
+* Bug fix inside `format_table()` so that signals tab is working again when no stratification is chosen.
 * Changed the title of the tool to "Signal Detection Tool".
 * Implemented cards and boxes by using `bslib` package.
 * Fixing bug so that plot_time_series() works with upperbond_pad and expected_pad being all NA
 * Added notification about negative values in age.
+* Improvements in the documentation of `build_signals_table()`, `prepare_signals_agg_table()`
 
 # SignalDetectionTool 0.2.0
 

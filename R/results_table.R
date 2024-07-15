@@ -74,6 +74,11 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
     checkmate::check_false(interactive),
     combine = "or"
   )
+  checkmate::assert(
+    checkmate::check_true(signals_only),
+    checkmate::check_false(signals_only),
+    combine = "or"
+  )
 
   if (signals_only) {
     # only remove the alarms column when the signals_only TRUE thus only those with signals in the linelist are remaining
@@ -84,7 +89,8 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
   # when it is already a factor we do care about NA to unknown before
   if (!is.factor(data$stratum)) {
     data <- data %>%
-      dplyr::mutate(stratum = dplyr::if_else(category != "None",tidyr::replace_na(stratum, "unknown"),stratum))
+      dplyr::mutate(stratum = as.character(stratum)) %>%
+      dplyr::mutate(stratum = dplyr::if_else(category != "None", tidyr::replace_na(stratum, "unknown"), stratum))
   }
 
   data <- data %>%
@@ -233,8 +239,6 @@ prepare_signals_table <- function(data,
 #' columns to integers for styling purposes. This table is used to show all signal detection results for different stratifications together in one table.
 #' @param signal_results data.frame containing signals from \code{\link{get_signals()}}
 #' @param signals_only Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.
-#' @param interactive Logical indicating whether to create an interactive
-#'   DataTable (default is TRUE).
 #'
 #' @return data.frame or DataTable or Flextable depending on `format`
 #' @export
@@ -242,8 +246,8 @@ prepare_signals_table <- function(data,
 #' @examples
 #' \dontrun{
 #' signal_results <- input_example %>%
-#' preprocess_data() %>%
-#' get_signals(stratification = c("age_group"), number_of_weeks = 6)
+#'   preprocess_data() %>%
+#'   get_signals(stratification = c("age_group"), number_of_weeks = 6)
 #' build_signals_table(signal_results)
 #' build_signals_table(signal_results, format = "data.frame")
 #' }
@@ -256,6 +260,11 @@ build_signals_table <- function(signal_results,
       "DataTable",
       "Flextable"
     ))
+  )
+  checkmate::assert(
+    checkmate::check_true(signals_only),
+    checkmate::check_false(signals_only),
+    combine = "or"
   )
 
   table <- signal_results %>%
@@ -281,8 +290,6 @@ build_signals_table <- function(signal_results,
 #' and results for all the strata no matter whether there are signals or not.
 #'
 #' @param signals_agg A tibble or data.frame containing aggregated signals produced from \code{\link{aggregate_signals(signals,number_of_weeks = 6)}} for only one category
-#' @param interactive Logical indicating whether to create an interactive
-#'   DataTable (default is TRUE).
 #'
 #' @return tibble with preprocessed aggregated signals
 #'
@@ -312,7 +319,7 @@ prepare_signals_agg_table <- function(signals_agg) {
 #'
 #' This function combines the preparation of the aggregated signals data.frame with the final formating of the table by applying \code{\link{prepare_signals_agg_table()}} and \code{\link{format_table()}}.
 #' @param signals_agg A tibble or data.frame containing aggregated signals produced from \code{\link{aggregate_signals(signals,number_of_weeks = 6)}}
-#' @param interactive Logical indicating whether to create an interactive
+#' @param format the format of the output table, one of data.frame, DataTable, FlexTable. Default is DataTable. For getting a raw output dataframe the parameter data.frame should be used. For getting nicely formatted results tables one of DataTable and Flextable should be used. DataTable will be interactive.
 #'   DataTable (default is TRUE).
 #'
 #' @return data.frame or DataTable or Flextable depending on `format`
@@ -322,14 +329,13 @@ prepare_signals_agg_table <- function(signals_agg) {
 #' @examples
 #' \dontrun{
 #' signals_agg <- input_example %>%
-#' preprocess_data() %>%
-#' get_signals(stratification = c("age_group","sex")) %>%
-#' aggregate_signals(number_of_weeks = 6) %>%
-#' filter(category == "age_group")
+#'   preprocess_data() %>%
+#'   get_signals(stratification = c("age_group", "sex")) %>%
+#'   aggregate_signals(number_of_weeks = 6) %>%
+#'   filter(category == "age_group")
 #'
 #' build_signals_agg_table(signals_agg)
 #' }
-
 build_signals_agg_table <- function(signals_agg,
                                     format = "DataTable") {
   checkmate::assert(
