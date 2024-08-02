@@ -19,6 +19,10 @@
 #' }
 plot_time_series <- function(results, interactive = FALSE,
                              number_of_weeks = 52) {
+
+  # check whether timeseries contains padding or not
+  padding <- "upperbound_pad" %in% colnames(results)
+
   results <- results %>%
     dplyr::mutate(
       isoweek = paste0(
@@ -27,25 +31,39 @@ plot_time_series <- function(results, interactive = FALSE,
       ),
       date = ISOweek::ISOweek2date(paste0(.data$isoweek, "-1")),
       set_status = dplyr::if_else(is.na(.data$alarms), "Training data", "Test data"),
-      set_status = factor(.data$set_status, levels = c("Training data", "Test data")),
-      hover_text = paste0(
+      set_status = factor(.data$set_status, levels = c("Training data", "Test data")))
+
+  if(padding){
+    results <- results %>%
+      dplyr::mutate(hover_text = paste0(
         ifelse(.data$set_status == "Test data", "Signal detection period", ""),
         "<br>Week: ", .data$isoweek,
         "<br>Observed: ", .data$cases,
         ifelse(!is.na(.data$upperbound_pad) | !is.na(.data$upperbound), (
           ifelse(is.na(.data$upperbound_pad),
-            paste0("<br>Threshold: ", round(.data$upperbound, 1)),
-            paste0("<br>Threshold: ", round(.data$upperbound_pad, 1))
+                 paste0("<br>Threshold: ", round(.data$upperbound, 1)),
+                 paste0("<br>Threshold: ", round(.data$upperbound_pad, 1))
           )
         ), ""),
         ifelse(!is.na(.data$expected_pad) | !is.na(.data$expected), (
           ifelse(is.na(.data$expected_pad),
-            paste0("<br>Expected: ", round(.data$expected, 1)),
-            paste0("<br>Expected: ", round(.data$expected_pad, 1))
+                 paste0("<br>Expected: ", round(.data$expected, 1)),
+                 paste0("<br>Expected: ", round(.data$expected_pad, 1))
           )
         ), "")
-      )
-    )
+      ))
+  }else{
+    results <- results %>%
+      dplyr::mutate(hover_text = paste0(
+        ifelse(.data$set_status == "Test data", "Signal detection period", ""),
+        "<br>Week: ", .data$isoweek,
+        "<br>Observed: ", .data$cases,
+        ifelse(!is.na(.data$upperbound),
+               paste0("<br>Threshold: ", round(.data$upperbound, 1)),""),
+        ifelse(!is.na(.data$expected),
+               paste0("<br>Expected: ", round(.data$expected, 1)),"")))
+  }
+
 
   # Periods - ends on the first date in the following week, [start; end)
   # Dates for the latest ~year (`number_of_weeks` period).
@@ -88,13 +106,24 @@ plot_time_series <- function(results, interactive = FALSE,
   #   (plotly does not work with ymax=Inf)
   custom_round_up <- function(x) max(pretty(c(0, x)))
   # compute local ymax for plotly adaptive y-axis when zooming in on x-axis
-  results <- results %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(ymax = custom_round_up(c(
-      .data$cases * dplyr::if_else(.data$alarms, 1.1, 1, missing = 1),
-      # 1.1 to add space for signal-* on top-edge of case-number bars
-      .data$upperbound, .data$upperbound_pad, 1
-    )))
+  if(padding){
+    results <- results %>%
+      dplyr::rowwise() %>%
+      dplyr::mutate(ymax = custom_round_up(c(
+        .data$cases * dplyr::if_else(.data$alarms, 1.1, 1, missing = 1),
+        # 1.1 to add space for signal-* on top-edge of case-number bars
+        .data$upperbound, .data$upperbound_pad, 1
+      )))
+  }else{
+    results <- results %>%
+      dplyr::rowwise() %>%
+      dplyr::mutate(ymax = custom_round_up(c(
+        .data$cases * dplyr::if_else(.data$alarms, 1.1, 1, missing = 1),
+        # 1.1 to add space for signal-* on top-edge of case-number bars
+        .data$upperbound, 1
+      )))
+  }
+
   # ymax overall for rectangle background
   ymax_data <- max(results$ymax)
 
@@ -129,7 +158,7 @@ plot_time_series <- function(results, interactive = FALSE,
       linewidth = 1.3, direction = "hv"
     )
 
-  if (any(!is.na(results$upperbound_pad))) {
+  if (padding && any(!is.na(results$upperbound_pad))) {
     plt <- plt +
       ggplot2::geom_step(
         ggplot2::aes(y = upperbound_pad, color = "Threshold", linetype = "Test data"),
@@ -137,7 +166,7 @@ plot_time_series <- function(results, interactive = FALSE,
       )
   }
 
-  if (any(!is.na(results$expected_pad))) {
+  if (padding && any(!is.na(results$expected_pad))) {
     plt <- plt +
       ggplot2::geom_step(ggplot2::aes(y = expected, color = "Expected"),
         linewidth = 1.3, direction = "hv"
@@ -313,7 +342,7 @@ plot_time_series <- function(results, interactive = FALSE,
     plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Threshold"
     plt$x$data[[6]]$showlegend <- FALSE
 
-    if (any(!is.na(results$expected_pad))) {
+    if (padding && any(!is.na(results$expected_pad))) {
       plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Expected"
       plt$x$data[[8]]$showlegend <- FALSE
       if (any(results$alarms == TRUE, na.rm = TRUE)) {
