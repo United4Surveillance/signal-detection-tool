@@ -21,7 +21,9 @@ plot_time_series <- function(results, interactive = FALSE,
                              number_of_weeks = 52) {
 
   # check whether timeseries contains padding or not
-  padding <- "upperbound_pad" %in% colnames(results)
+  padding_upperbound <- "upperbound_pad" %in% colnames(results)
+  padding_expected <- "expected_pad" %in% colnames(results)
+  padding <- any(padding_expected,padding_upperbound)
 
   results <- results %>%
     dplyr::mutate(
@@ -33,7 +35,7 @@ plot_time_series <- function(results, interactive = FALSE,
       set_status = dplyr::if_else(is.na(.data$alarms), "Training data", "Test data"),
       set_status = factor(.data$set_status, levels = c("Training data", "Test data")))
 
-  if(padding){
+  if(padding_upperbound){
     results <- results %>%
       dplyr::mutate(hover_text = paste0(
         ifelse(.data$set_status == "Test data", "Signal detection period", ""),
@@ -106,7 +108,7 @@ plot_time_series <- function(results, interactive = FALSE,
   #   (plotly does not work with ymax=Inf)
   custom_round_up <- function(x) max(pretty(c(0, x)))
   # compute local ymax for plotly adaptive y-axis when zooming in on x-axis
-  if(padding){
+  if(padding_upperbound){
     results <- results %>%
       dplyr::rowwise() %>%
       dplyr::mutate(ymax = custom_round_up(c(
@@ -158,7 +160,7 @@ plot_time_series <- function(results, interactive = FALSE,
       linewidth = 1.3, direction = "hv"
     )
 
-  if (padding && any(!is.na(results$upperbound_pad))) {
+  if (padding_upperbound && any(!is.na(results$upperbound_pad))) {
     plt <- plt +
       ggplot2::geom_step(
         ggplot2::aes(y = upperbound_pad, color = "Threshold", linetype = "Test data"),
@@ -166,13 +168,18 @@ plot_time_series <- function(results, interactive = FALSE,
       )
   }
 
-  if (padding && any(!is.na(results$expected_pad))) {
+  if (padding_expected && any(!is.na(results$expected_pad))) {
     plt <- plt +
       ggplot2::geom_step(ggplot2::aes(y = expected, color = "Expected"),
         linewidth = 1.3, direction = "hv"
       ) +
       ggplot2::geom_step(ggplot2::aes(y = expected_pad, color = "Expected", linetype = "Training data"),
         linewidth = 0.3, direction = "hv"
+      )
+  }else{
+    plt <- plt +
+      ggplot2::geom_step(ggplot2::aes(y = expected, color = "Expected"),
+                         linewidth = 1.3, direction = "hv"
       )
   }
 
@@ -345,7 +352,7 @@ plot_time_series <- function(results, interactive = FALSE,
     if (padding && any(!is.na(results$expected_pad))) {
       plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Expected"
       plt$x$data[[8]]$showlegend <- FALSE
-      if (any(results$alarms == TRUE, na.rm = TRUE)) {
+      if (length(plt$x$data) == 9 && any(results$alarms == TRUE, na.rm = TRUE)) {
         plt$x$data[[9]]$name <- plt$x$data[[9]]$legendgroup <- "Signal"
       }
     } else {
