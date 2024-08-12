@@ -24,7 +24,8 @@ app_server <- function(input, output, session) {
     strat_vars = datinput$strat_vars,
     errors_detected = data_load_check_result$errors_detected,
     method = datinput$method,
-    no_algorithm_possible = datinput$no_algorithm_possible
+    no_algorithm_possible = datinput$no_algorithm_possible,
+    intervention_start_date = datinput$intervention_start_date
   )
 
   mod_tabpanel_report_server("report",

@@ -36,7 +36,8 @@ mod_tabpanel_signals_server <- function(
     number_of_weeks_input_valid,
     strat_vars,
     method,
-    no_algorithm_possible) {
+    no_algorithm_possible,
+    intervention_start_date) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -175,9 +176,11 @@ mod_tabpanel_signals_server <- function(
     signal_results <- shiny::reactive({
       shiny::req(!errors_detected())
       shiny::req(!no_algorithm_possible())
+      print(intervention_start_date())
       results <- SignalDetectionTool::get_signals(
         data = filtered_data(),
         method = method(),
+        intervention_start_date = intervention_start_date(),
         stratification = strat_vars_tidy(),
         date_var = "date_report",
         number_of_weeks = number_of_weeks()
@@ -187,6 +190,7 @@ mod_tabpanel_signals_server <- function(
         results_unstratified <- SignalDetectionTool::get_signals(
           data = filtered_data(),
           method = method(),
+          intervention_start_date = intervention_start_date(),
           stratification = NULL,
           date_var = "date_report",
           number_of_weeks = number_of_weeks()
@@ -288,8 +292,13 @@ mod_tabpanel_signals_server <- function(
     signals_padded <- shiny::reactive({
       shiny::req(!errors_detected())
       shiny::req(!no_algorithm_possible())
+      if(grepl("glm",method())){
+        # for those the results are already padded
+        signal_results()
+      }else{
+        pad_signals(filtered_data(), signal_results())
+      }
 
-      pad_signals(filtered_data(), signal_results())
     })
 
     # based on the user input which timeseries should be visualised filter the signals_padded
