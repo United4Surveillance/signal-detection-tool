@@ -73,4 +73,19 @@ create_factor_with_unknown <- function(signals_agg) {
   signals_agg
 }
 
+get_iso_week_year <- function(date){
+  # think about problematic case of wrong aggregation
+  date <- as.Date(date)
 
+  iso_week <- lubridate::isoweek(date)
+  iso_year <- lubridate::isoyear(date)
+
+  return(list(iso_week = iso_week, iso_year = iso_year))
+}
+
+get_intervention_timepoint <- function(date,data_aggregated){
+
+  iso_week_year <- get_iso_week_year(date)
+  which(data_aggregated$year == iso_week_year$iso_year & data_aggregated$week == iso_week_year$iso_week)
+
+}
