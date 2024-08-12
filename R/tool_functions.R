@@ -471,6 +471,9 @@ age_groups <- function(df, break_at = NULL) {
 #' }
 get_signals_stratified <- function(data,
                                    fun,
+                                   model = "",
+                                   intervention_start_date = intervention_start_date,
+                                   timeTrend = FALSE,
                                    stratification_columns,
                                    date_start = NULL,
                                    date_end = NULL,
@@ -554,9 +557,12 @@ get_signals_stratified <- function(data,
             expected = NA
           )
       } else {
-        results <- fun(sub_data_agg, number_of_weeks)
+        if(model != ""){
+          results <- fun(sub_data_agg, number_of_weeks, model = model, timeTrend = timeTrend, intervention_start_date = intervention_start_date)
+        }else{
+          results <- fun(sub_data_agg, number_of_weeks)
+        }
       }
-
 
       if (is.null(results)) {
         warning(paste0(
@@ -605,6 +611,7 @@ get_signals_stratified <- function(data,
 #' }
 get_signals <- function(data,
                         method = "farrington",
+                        intervention_start_date = NULL,
                         stratification = NULL,
                         date_start = NULL,
                         date_end = NULL,
@@ -638,6 +645,10 @@ get_signals <- function(data,
     checkmate::check_integerish(number_of_weeks)
   )
 
+  model <- ""
+  timeTrend <- FALSE
+
+
   if (method == "farrington") {
     fun <- get_signals_farringtonflexible
   } else if (method == "aeddo") {
@@ -646,6 +657,21 @@ get_signals <- function(data,
     fun <- get_signals_ears
   } else if (method == "cusum") {
     fun <- get_signals_cusum
+  } else if (grepl("glm",method)){
+    fun <- get_signals_glm
+    if(method == "glm mean"){
+      model <- "mean"
+      timeTrend <- FALSE
+    }else if (method == "glm timetrend"){
+      model <- "mean"
+      timeTrend <- TRUE
+    }else if (method == "glm harmonic without timetrend"){
+      model <- "sincos"
+      timeTrend <- FALSE
+    }else if(method == "glm harmonic with timetrend"){
+      model <- "sincos"
+      timeTrend <- TRUE
+    }
   }
 
   if (is.null(stratification)) {
@@ -653,17 +679,25 @@ get_signals <- function(data,
     data_agg <- data %>%
       aggregate_data(date_var = date_var) %>%
       add_rows_missing_dates(date_start, date_end)
-
-    results <- fun(data_agg, number_of_weeks)
-
+    if (grepl("glm",method)){
+      results <- fun(data_agg, number_of_weeks, model = model, timeTrend = timeTrend, intervention_start_date = intervention_start_date)
+    }else{
+      results <- fun(data_agg, number_of_weeks)
+    }
     if (!is.null(results)) {
       results <- results %>%
         dplyr::mutate(category = NA, stratum = NA)
     }
-  } else {
+  }
+
+
+  else {
     results <- get_signals_stratified(
       data,
       fun,
+      model = model,
+      intervention_start_date = intervention_start_date,
+      timeTrend = timeTrend,
       stratification,
       date_start,
       date_end,

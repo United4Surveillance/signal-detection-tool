@@ -74,7 +74,11 @@ available_algorithms <- function() {
   c(
     "FarringtonFlexible" = "farrington",
     "EARS" = "ears",
-    "CUSUM" = "cusum"
+    "CUSUM" = "cusum",
+    "Mean" = "glm mean",
+    "Timetrend" = "glm timetrend",
+    "Harmonic without timetrend" = "glm harmonic without timetrend",
+    "Harmonic with timetrend" = "glm harmonic with timetrend"
   )
 }
 
