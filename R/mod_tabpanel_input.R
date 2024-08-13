@@ -109,11 +109,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 span("Depending on the number of weeks you want to generate signals for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
                 br(),
                 shiny::uiOutput(ns("algorithm_choice")),
-                shiny::textOutput(ns("algorithm_glm_text")),
-                shiny::conditionalPanel(condition =  paste0("output['", ns("algorithm_glm_text"), "'] == 'true'"),
-                                        checkboxInput("pandemic_correction", "Covid19 Pandemic Correction", value = FALSE)),
-                shiny::uiOutput(ns("conditional_date_input")),
-                shiny::textOutput(ns("intervention_display"))
+                shiny::conditionalPanel(condition =  sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
+                                        checkboxInput(ns("pandemic_correction"), "Covid19 Pandemic Correction", value = FALSE)),
+                shiny::uiOutput(ns("conditional_date_input"))
 
               )
             )
@@ -450,17 +448,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }
     })
 
-    output$algorithm_glm_text <- shiny::renderText({
-      shiny::req(!errors_detected())
-      shiny::req(input$algorithm_choice)
-
-      # checking whether data has any rows after filtering
-      if (algorithm_glm()) {
-        "true"
-      }else{
-        "false"
-      }
+    output$algorithm_glm <- renderText({
+      algorithm_glm()  # This will return "TRUE" or "FALSE" as a string
     })
+
+    # Force the output to be sent to the client even if not rendered in UI
+    # this needs to be here otherwise the conditionalPanel for the tickbox is not evaluated!
+    outputOptions(output, "algorithm_glm", suspendWhenHidden = FALSE)
 
     # Observe changes in algorithm_choice to reset pandemic_correction checkbox to FALSE when other algorithm is selected
     observeEvent(input$algorithm_choice, {
@@ -471,10 +465,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     # Conditional UI for date input
     output$conditional_date_input <- shiny::renderUI({
-      print("inside conditional date input")
-      print(input$pandemic_correction)
       if (isTRUE(input$pandemic_correction)) {
-        print("inside is TRUE")
         shiny::dateInput(ns("intervention_start_date"), "Select a Date when the pandemic started", value = NULL)
       } else {
         NULL
@@ -492,29 +483,12 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     # Reactive expression for intervention start date
     intervention_start_date <- shiny::reactive({
-      print("inside intervention start")
       if (!is.null(input$pandemic_correction) && input$pandemic_correction && algorithm_glm()) {
-        print("inside we give it the start value")
-        req(input$intervention_start_date)
         input$intervention_start_date
-        #print(intervention_start_date)
       } else {
-        print("inside return NULL")
         NULL
       }
     })
-
-  # Display the intervention start date
-  output$intervention_display <- renderText({
-    date <- intervention_start_date()
-    if (is.null(date)) {
-      "No intervention start date selected."
-    } else {
-      paste("Intervention starts on:", date)
-    }
-  })
-
-
 
     # Return list of subsetted data and parameters
     return(list(
@@ -527,7 +501,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       pathogen_vars = shiny::reactive(input$pathogen_vars),
       method = shiny::reactive(input$algorithm_choice),
       no_algorithm_possible = shiny::reactive(no_algorithm_possible()),
-      intervention_start_date = shiny::reactive(intervention_start_date_new())
+      intervention_start_date = shiny::reactive(intervention_start_date())
     ))
   })
 }
