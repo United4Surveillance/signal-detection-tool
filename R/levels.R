@@ -77,7 +77,7 @@ available_algorithms <- function() {
     "CUSUM" = "cusum",
     "Mean" = "glm mean",
     "Timetrend" = "glm timetrend",
-    "Harmonic without timetrend" = "glm harmonic without timetrend",
+    "Harmonic" = "glm harmonic",
     "Harmonic with timetrend" = "glm harmonic with timetrend"
   )
 }
