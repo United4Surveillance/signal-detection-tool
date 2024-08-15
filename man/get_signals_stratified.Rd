@@ -7,6 +7,9 @@
 get_signals_stratified(
   data,
   fun,
+  model = "",
+  intervention_start_date = NULL,
+  time_trend = FALSE,
   stratification_columns,
   date_start = NULL,
   date_end = NULL,
@@ -18,6 +21,12 @@ get_signals_stratified(
 \item{data}{A data frame containing the surveillance data.}
 
 \item{fun}{The signal detection function to apply to each stratum.}
+
+\item{model}{character, default empty string which is the choice if farrington, ears or cusum are used and if a glm method was chosen as outbreak detection method then one of c("mean","sincos", "FN")}
+
+\item{intervention_start_date}{A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.}
+
+\item{time_trend}{boolean default TRUE setting time_trend in the get_signals_glm(). This parameter is only used when an the glm based outbreak detection models are used, i.e. for the models c("mean","sincos", "FN")}
 
 \item{stratification_columns}{A character vector specifying the columns to
 stratify the data by.}

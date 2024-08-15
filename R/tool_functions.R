@@ -449,6 +449,9 @@ age_groups <- function(df, break_at = NULL) {
 #'
 #' @param data A data frame containing the surveillance data.
 #' @param fun The signal detection function to apply to each stratum.
+#' @param model character, default empty string which is the choice if farrington, ears or cusum are used and if a glm method was chosen as outbreak detection method then one of c("mean","sincos", "FN")
+#' @param intervention_start_date A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.
+#' @param time_trend boolean default TRUE setting time_trend in the get_signals_glm(). This parameter is only used when an the glm based outbreak detection models are used, i.e. for the models c("mean","sincos", "FN")
 #' @param stratification_columns A character vector specifying the columns to
 #'   stratify the data by.
 #' @param date_start A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.
@@ -472,8 +475,8 @@ age_groups <- function(df, break_at = NULL) {
 get_signals_stratified <- function(data,
                                    fun,
                                    model = "",
-                                   intervention_start_date = intervention_start_date,
-                                   timeTrend = FALSE,
+                                   intervention_start_date = NULL,
+                                   time_trend = FALSE,
                                    stratification_columns,
                                    date_start = NULL,
                                    date_end = NULL,
@@ -485,6 +488,16 @@ get_signals_stratified <- function(data,
       checkmate::check_choice(col, choices = names(data))
     )
   }
+
+  checkmate::check_choice(model, choices = c("","mean", "sincos", "FN"))
+
+  checkmate::assert(
+    checkmate::check_null(intervention_start_date),
+    checkmate::check_date(lubridate::date(intervention_start_date)),
+    combine = "or"
+  )
+
+  checkmate::check_flag(time_trend)
 
   checkmate::assert(
     checkmate::check_null(date_start),
@@ -558,7 +571,7 @@ get_signals_stratified <- function(data,
           )
       } else {
         if(model != ""){
-          results <- fun(sub_data_agg, number_of_weeks, model = model, timeTrend = timeTrend, intervention_start_date = intervention_start_date)
+          results <- fun(sub_data_agg, number_of_weeks, model = model, time_trend = time_trend, intervention_start_date = intervention_start_date)
         }else{
           results <- fun(sub_data_agg, number_of_weeks)
         }
@@ -591,6 +604,7 @@ get_signals_stratified <- function(data,
 #' @param data A data frame containing the surveillance data preprocessed with [preprocess_data()].
 #' @param method The method to use for signal detection (currently supports
 #'   "farrington").
+#' @param intervention_start_date A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.
 #' @param stratification A character vector specifying the columns to stratify
 #'   the analysis. Default is NULL.
 #' @param date_start A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.
@@ -623,6 +637,12 @@ get_signals <- function(data,
   )
 
   checkmate::assert(
+    checkmate::check_null(intervention_start_date),
+    checkmate::check_date(lubridate::date(intervention_start_date)),
+    combine = "or"
+  )
+
+  checkmate::assert(
     checkmate::check_null(stratification),
     checkmate::check_vector(stratification),
     combine = "or"
@@ -646,7 +666,7 @@ get_signals <- function(data,
   )
 
   model <- ""
-  timeTrend <- FALSE
+  time_trend <- FALSE
 
 
   if (method == "farrington") {
@@ -661,16 +681,16 @@ get_signals <- function(data,
     fun <- get_signals_glm
     if(method == "glm mean"){
       model <- "mean"
-      timeTrend <- FALSE
+      time_trend <- FALSE
     }else if (method == "glm timetrend"){
       model <- "mean"
-      timeTrend <- TRUE
-    }else if (method == "glm harmonic without timetrend"){
+      time_trend <- TRUE
+    }else if (method == "glm harmonic"){
       model <- "sincos"
-      timeTrend <- FALSE
+      time_trend <- FALSE
     }else if(method == "glm harmonic with timetrend"){
       model <- "sincos"
-      timeTrend <- TRUE
+      time_trend <- TRUE
     }
   }
 
@@ -680,7 +700,7 @@ get_signals <- function(data,
       aggregate_data(date_var = date_var) %>%
       add_rows_missing_dates(date_start, date_end)
     if (grepl("glm",method)){
-      results <- fun(data_agg, number_of_weeks, model = model, timeTrend = timeTrend, intervention_start_date = intervention_start_date)
+      results <- fun(data_agg, number_of_weeks, model = model, time_trend = time_trend, intervention_start_date = intervention_start_date)
     }else{
       results <- fun(data_agg, number_of_weeks)
     }
@@ -697,7 +717,7 @@ get_signals <- function(data,
       fun,
       model = model,
       intervention_start_date = intervention_start_date,
-      timeTrend = timeTrend,
+      time_trend = time_trend,
       stratification,
       date_start,
       date_end,
