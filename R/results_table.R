@@ -86,6 +86,10 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
   } else {
     data <- data %>% dplyr::rename(signals = alarms)
   }
+
+  if ("expected_pad" %in% colnames(data)){
+    data <- data %>% dplyr::select(-expected_pad)
+  }
   # when it is already a factor we do care about NA to unknown before
   if (!is.factor(data$stratum)) {
     data <- data %>%
