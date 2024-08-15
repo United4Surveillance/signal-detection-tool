@@ -176,7 +176,7 @@ plot_time_series <- function(results, interactive = FALSE,
       ggplot2::geom_step(ggplot2::aes(y = expected_pad, color = "Expected", linetype = "Training data"),
         linewidth = 0.3, direction = "hv"
       )
-  }else{
+  }else if(any(!is.na(results$expected))){
     plt <- plt +
       ggplot2::geom_step(ggplot2::aes(y = expected, color = "Expected"),
                          linewidth = 1.3, direction = "hv"
