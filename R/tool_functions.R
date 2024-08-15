@@ -691,6 +691,12 @@ get_signals <- function(data,
     }else if(method == "glm harmonic with timetrend"){
       model <- "sincos"
       time_trend <- TRUE
+    }else if(method == "glm farrington"){
+      model <- "FN"
+      time_trend <- FALSE
+    }else if(method == "glm farrington with timetrend"){
+      model <- "FN"
+      time_trend <- TRUE
     }
   }
 

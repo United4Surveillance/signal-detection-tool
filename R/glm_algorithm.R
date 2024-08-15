@@ -1,6 +1,18 @@
+#' Create a data.frame with 10 seasgroups components for harmonic modeling.
+#'
+#' This function generates seasonal group data required for fitting a Farrington-like Generalized Linear Model (GLM). The function leverages the `surveillance` package to create a dataset that includes seasonal groupings based on historical data, which is particularly useful for modeling seasonality in time series data.
+#'
+#' @param ts_length integer, specifying the length of the time series for which the seasonal group data is to be generated.
+#' @param freq integer, default 52, specifying the frequency of the time series (e.g., 52 for weekly data).
+#' @return A data frame containing the seasonal groupings (`seasgroups`) for the specified time series length. These seasonal groupings are used as covariates in the Farrington GLM model to account for seasonality.
+#' @examples
+#' \dontrun{
+#' # Generate seasonal group data for a time series of length 100 with weekly frequency
+#' create_fn_data(100)
+#' }
 create_fn_data <- function(ts_length, freq = 52) {
-  # Create dummy sts to calculate Farrington input
-  # why this *2??? is this because of pandemic adjustment? need to understand
+
+  # *2 just making the computation of seasgroups overall more stable
   time_point_to_consider <- ts_length * 2
   survts <- surveillance::sts(rep(0, time_point_to_consider),
     start = c(2000, 1),
@@ -9,10 +21,10 @@ create_fn_data <- function(ts_length, freq = 52) {
 
   # Create data for Farrington GLM
   modelData <- surveillance:::algo.farrington.data.glm(
-    dayToConsider = time_point_to_consider, b = floor((time_point_to_consider - w) / freq),
+    dayToConsider = time_point_to_consider, b = floor((time_point_to_consider - 3) / freq),
     freq = freq, epochAsDate = FALSE,
     epochStr = "none", vectorOfDates = 1:time_point_to_consider,
-    w = w, noPeriods = 10, observed = survts@observed[, 1],
+    w = 3, noPeriods = 10, observed = survts@observed[, 1],
     population = rep(0, 1000), verbose = FALSE,
     pastWeeksNotIncluded = 0, k = time_point_to_consider
   )[, 1:4]
@@ -71,9 +83,7 @@ create_model_data <- function(ts_len,
   if (model == "sincos") {
     data_season <- create_sincos_data(ts_len)
   } else if (model == "FN") {
-    data_season <- create_fn_data(
-      freq
-    )
+    data_season <- create_fn_data(ts_len)
   }
   data_time_trend <- NULL
   if (time_trend) {

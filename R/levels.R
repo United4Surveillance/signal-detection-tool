@@ -78,7 +78,9 @@ available_algorithms <- function() {
     "Mean" = "glm mean",
     "Timetrend" = "glm timetrend",
     "Harmonic" = "glm harmonic",
-    "Harmonic with timetrend" = "glm harmonic with timetrend"
+    "Harmonic with timetrend" = "glm harmonic with timetrend",
+    "Step harmonic" = "glm farrington",
+    "Step harmonic with timetrend" = "glm farrington with timetrend"
   )
 }
 
