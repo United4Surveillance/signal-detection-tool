@@ -176,7 +176,7 @@ mod_tabpanel_signals_server <- function(
     signal_results <- shiny::reactive({
       shiny::req(!errors_detected())
       shiny::req(!no_algorithm_possible())
-      print(intervention_start_date())
+
       results <- SignalDetectionTool::get_signals(
         data = filtered_data(),
         method = method(),
