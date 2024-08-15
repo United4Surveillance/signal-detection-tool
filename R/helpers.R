@@ -73,6 +73,10 @@ create_factor_with_unknown <- function(signals_agg) {
   signals_agg
 }
 
+#' Get isoweek and isoyear from a given date
+#' @param date character in the format "yyyy-mm-dd"
+#' @return list containing a isoweek (integer) and isoyear (integer)
+#' @examples \dontrun{get_iso_week_year("2020-03-04")}
 get_iso_week_year <- function(date){
   # think about problematic case of wrong aggregation
   date <- as.Date(date)
@@ -83,6 +87,16 @@ get_iso_week_year <- function(date){
   return(list(iso_week = iso_week, iso_year = iso_year))
 }
 
+#' Get row number of aggregated data which is the isoweek and isoyear corresponding to the date given
+#' @param date character in the format "yyyy-mm-dd"
+#' @param data_aggregated data.frame, aggregated data with case counts
+#' @return integer row number of data_aggregated where the isoweek and isoyear of the given date are
+#' @examples \dontrun{
+#' data_agg <- input_example %>%
+#' preprocess_data() %>%
+#' aggregate_data() %>%
+#' add_rows_missing_dates()
+#' get_intervention_timepoint("2020-03-04",data_agg)}
 get_intervention_timepoint <- function(date,data_aggregated){
 
   iso_week_year <- get_iso_week_year(date)
