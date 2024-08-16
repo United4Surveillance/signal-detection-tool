@@ -1,3 +1,9 @@
+# SignalDetectionTool 0.4.0
+
+* Allowing the plot_time_series() to work without exected_pad and upperbound_pad, i.e. directly with the signal detection results
+* Adding six outbreak detection methods which are all GLM based. Simple Mean, Timetrend, Harmonic, Harmonic with timetrend, Farrington like GLM and Farrington like GLM with timetrend to model the expected number of cases.
+* Adding the possibility to do a pandemic correction based on these GLM methods. Pandemic correction fits a seperate intercept and possibly timetrend depending on the model chosen.
+
 # SignalDetectionTool 0.3.0
 
 * Losening restriction on which region information can be used for creating maps. Now all region variables including region_level variables can be used which is necessary for users who want to use their own shapefiles for their defined regions.
