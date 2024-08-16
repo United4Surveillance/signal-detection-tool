@@ -381,11 +381,11 @@ check_region_region_id_consistency <- function(data, regions) {
 #' @returns boolean, when TRUE all values of col are in the required format, when FALSE at least one is not in required format
 #' @examples
 #' \dontrun{
-#' is_age_group_format(c("<30","30-35","40-45","45+")) # Should return TRUE
-#' is_age_group_format(c("<30","30-35","40-45",">45")) # Should return TRUE
-#' is_age_group_format(c("below_one","one_to_five")) # Should return FALSE
-#' is_age_group_format(c("<30","30-35","40/45","45+")) # Should return FALSE
-#' is_age_group_format(c("<30","30-35","40+45","45+")) # Should return FALSE
+#' is_age_group_format(c("<30", "30-35", "40-45", "45+")) # Should return TRUE
+#' is_age_group_format(c("<30", "30-35", "40-45", ">45")) # Should return TRUE
+#' is_age_group_format(c("below_one", "one_to_five")) # Should return FALSE
+#' is_age_group_format(c("<30", "30-35", "40/45", "45+")) # Should return FALSE
+#' is_age_group_format(c("<30", "30-35", "40+45", "45+")) # Should return FALSE
 #' }
 is_age_group_format <- function(col) {
   all(grepl("^<?\\d{1,}[-_—]?\\d{0,}$|^\\d{1,}[+]$|^>\\d{1,}$", col) | is.na(col) | col == "" | col == "unknown" | col == "NA")
@@ -396,11 +396,11 @@ is_age_group_format <- function(col) {
 #' @returns boolean, when TRUE the largest age group of col is in the required format, when FALSE it is not in required format
 #' @examples
 #' \dontrun{
-#' is_last_age_group_format(c("<30","30_35","40_45","45+")) # Should return TRUE
-#' is_last_age_group_format(c("<30","30-35","40-45","45-50")) # Should return TRUE
-#' is_last_age_group_format(c("<30","30-35","40-45",">45")) # Should return TRUE
-#' is_last_age_group_format(c("<30","30-35","40-45","45-")) # Should return FALSE
-#' is_last_age_group_format(c("<30","30-35","40-45","45")) # Should return FALSE
+#' is_last_age_group_format(c("<30", "30_35", "40_45", "45+")) # Should return TRUE
+#' is_last_age_group_format(c("<30", "30-35", "40-45", "45-50")) # Should return TRUE
+#' is_last_age_group_format(c("<30", "30-35", "40-45", ">45")) # Should return TRUE
+#' is_last_age_group_format(c("<30", "30-35", "40-45", "45-")) # Should return FALSE
+#' is_last_age_group_format(c("<30", "30-35", "40-45", "45")) # Should return FALSE
 #' }
 is_last_age_group_format <- function(col) {
   # get the last/oldest age_group from the data
@@ -422,7 +422,7 @@ is_last_age_group_format <- function(col) {
 #' @returns boolean, when TRUE all values of date_col are in the required format, when FALSE at least one is not in required format
 #' @examples
 #' \dontrun{
-#' is_ISO8601(c("2023-04-01","2022-12-31"))
+#' is_ISO8601(c("2023-04-01", "2022-12-31"))
 #' }
 is_ISO8601 <- function(date_col) {
   # need to allow empty entries inside the data variable
@@ -435,8 +435,8 @@ is_ISO8601 <- function(date_col) {
 #' @returns boolean, when TRUE all values of date_col are in the required format, when FALSE at least one is not in required format
 #' @examples
 #' \dontrun{
-#' is_ISO8601_detailed(c("2023-04-01","2022-12-32")) # Should return FALSE
-#' is_ISO8601_detailed(c("2023-04-01","2022-12-31")) # Should return TRUE
+#' is_ISO8601_detailed(c("2023-04-01", "2022-12-32")) # Should return FALSE
+#' is_ISO8601_detailed(c("2023-04-01", "2022-12-31")) # Should return TRUE
 #' }
 is_ISO8601_detailed <- function(date_col) {
   pattern <- "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"

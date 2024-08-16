@@ -31,12 +31,12 @@ mod_tabpanel_data_ui <- function(id) {
       shiny::sidebarPanel(
         # Input: Select a file ----
         shiny::fileInput(ns("file1"), "Choose CSV or Excel File",
-                         multiple = TRUE,
-                         accept = c(
-                           ".xlsx",
-                           ".xls",
-                           ".csv"
-                         )
+          multiple = TRUE,
+          accept = c(
+            ".xlsx",
+            ".xls",
+            ".csv"
+          )
         ),
       ),
 
@@ -63,7 +63,7 @@ mod_tabpanel_data_ui <- function(id) {
         ),
         hr(),
         h4("Data Quality"),
-        span(paste0("In this section you receive feedback about implausible or inconsistent values and missing data. The following variables are checked for missingness: ",check_for_missing_values(), ". The following variables are checked for inconsistent/implausible values: age")),
+        span(paste0("In this section you receive feedback about implausible or inconsistent values and missing data. The following variables are checked for missingness: ", check_for_missing_values(), ". The following variables are checked for inconsistent/implausible values: age")),
         hr(),
         shiny::uiOutput(ns("missing_vals")),
         hr(),
@@ -148,29 +148,27 @@ mod_tabpanel_data_server <- function(id) {
           "There are no cases showing missing entries in the data."
         )
       } else {
-        shiny::div("Please check if values are missing on purpose, otherwise please correct the data uploaded. Case IDs listed below are excluded from analysis.",
-                   shiny::br(),
-                   shiny::br(),
-                   shiny::div(
-                    style = "border: 2px solid black; padding: 10px;",
-                    shiny::tagList(
-                      shiny::tags$ul(missing_data), # list of spans of class 'more'
-                      shiny::tags$script("addMoreBtn();") # custom JS for class 'more'
-                    )
-                   )
+        shiny::div(
+          "Please check if values are missing on purpose, otherwise please correct the data uploaded. Case IDs listed below are excluded from analysis.",
+          shiny::br(),
+          shiny::br(),
+          shiny::div(
+            style = "border: 2px solid black; padding: 10px;",
+            shiny::tagList(
+              shiny::tags$ul(missing_data), # list of spans of class 'more'
+              shiny::tags$script("addMoreBtn();") # custom JS for class 'more'
+            )
+          )
         )
       }
     })
     # Notify user about negative ages in the data
     output$negative_ages <- shiny::renderUI({
-
-      if("age" %in% names(data())) {
-
+      if ("age" %in% names(data())) {
         data_negative_ages <- data() %>%
           dplyr::filter(age < 0)
 
-        if(nrow(data_negative_ages) != 0) {
-
+        if (nrow(data_negative_ages) != 0) {
           div(
             div(
               style = "border: 2px solid black; padding: 10px;",
@@ -179,7 +177,6 @@ mod_tabpanel_data_server <- function(id) {
             hr()
           )
         }
-
       }
     })
 

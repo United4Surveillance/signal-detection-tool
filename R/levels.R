@@ -102,6 +102,6 @@ check_for_missing_values <- function() {
   c("date_report")
 }
 
-age_group_levels <- function(){
+age_group_levels <- function() {
   app_cache_env$age_group_levels
 }

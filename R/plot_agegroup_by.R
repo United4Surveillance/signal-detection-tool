@@ -1,4 +1,3 @@
-
 #' Plot age-groups grouped by another variable
 #'
 #' @param df case data
@@ -11,15 +10,16 @@
 #'
 #' @examples
 #' \dontrun{
-#' plot_agegroup_by(df = test_data,
-#'                   age_group_col = "age_group",
-#'                   by_col = "county")
+#' plot_agegroup_by(
+#'   df = test_data,
+#'   age_group_col = "age_group",
+#'   by_col = "county"
+#' )
 #' }
 plot_agegroup_by <- function(df,
                              age_group_col = "age_group",
                              by_col = NULL,
                              interactive = FALSE) {
-
   # check if age_group_col is contained in df and if age_group_col is a factor
   checkmate::assert(
     checkmate::check_choice(age_group_col, choices = names(df)),
@@ -51,10 +51,14 @@ plot_agegroup_by <- function(df,
         mapping = ggplot2::aes(
           x = !!rlang::sym(age_group_col),
           fill = !!rlang::sym(by_col), # TODO: colors
-          text = sprintf("%s: %.0f",
-                         .data$fill,
-                         ggplot2::after_stat(.data$count))),
-        color = "black") +
+          text = sprintf(
+            "%s: %.0f",
+            .data$fill,
+            ggplot2::after_stat(.data$count)
+          )
+        ),
+        color = "black"
+      ) +
       ggplot2::guides(fill = ggplot2::guide_legend(ncol = min(n_levels, 5)))
   } else {
     p <- p +
@@ -63,16 +67,19 @@ plot_agegroup_by <- function(df,
         position = "dodge",
         mapping = ggplot2::aes(
           x = !!rlang::sym(age_group_col),
-          text = sprintf("Count: %.0f", ggplot2::after_stat(.data$count))),
+          text = sprintf("Count: %.0f", ggplot2::after_stat(.data$count))
+        ),
         color = "black",
-        fill = scales::hue_pal()(1)) # TODO: colors
+        fill = scales::hue_pal()(1)
+      ) # TODO: colors
   }
 
   p <- p +
     ggplot2::labs(x = "Age-group", y = "Count") +
     ggplot2::scale_y_continuous(
       breaks = scales::pretty_breaks(n = 10),
-      expand = ggplot2::expansion(mult = c(0, 0.1))) +
+      expand = ggplot2::expansion(mult = c(0, 0.1))
+    ) +
     ggplot2::scale_x_discrete(drop = FALSE) +
     ggplot2::theme(
       legend.direction = "vertical",
@@ -87,25 +94,27 @@ plot_agegroup_by <- function(df,
       axis.title.x = ggplot2::element_text(face = "bold"),
       # axis.text.x = ggplot2::element_text(angle = 90, hjust = 1),
       axis.title.y = ggplot2::element_text(face = "bold"),
-      legend.title = ggplot2::element_text(face = "bold")) +
+      legend.title = ggplot2::element_text(face = "bold")
+    ) +
     NULL
 
   if (interactive) {
     p <- plotly::ggplotly(p, tooltip = "text") %>%
       plotly::layout(legend = list(orientation = "h", x = 0.3, y = 1.1)) %>%
-      plotly::config(modeBarButtonsToRemove = c('autoScale2d',
-                                                # 'resetScale2d',
-                                                'select2d',
-                                                'lasso2d',
-                                                'zoomIn2d',
-                                                'zoomOut2d',
-                                                'pan2d',
-                                                'zoom2d',
-                                                'toggleSpikelines'))
+      plotly::config(modeBarButtonsToRemove = c(
+        "autoScale2d",
+        # 'resetScale2d',
+        "select2d",
+        "lasso2d",
+        "zoomIn2d",
+        "zoomOut2d",
+        "pan2d",
+        "zoom2d",
+        "toggleSpikelines"
+      ))
   }
 
   p
-
 }
 
 
@@ -126,4 +135,3 @@ plot_agegroup_by <- function(df,
 #                                age_group_col = "age_group",
 #                                by_col = "county")
 # p_ag_county
-

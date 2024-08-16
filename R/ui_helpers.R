@@ -1,7 +1,6 @@
-format_html_list <- function(char, ordered = FALSE){
-
+format_html_list <- function(char, ordered = FALSE) {
   seps <- c("<li>", "</li>")
-  html_wrapper <-  if(ordered) c("<ol>", "</ol>") else c("<ul>", "</ul>")
+  html_wrapper <- if (ordered) c("<ol>", "</ol>") else c("<ul>", "</ul>")
 
   bullets <- paste0(seps[1], char, seps[2], collapse = "")
 

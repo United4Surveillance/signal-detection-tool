@@ -93,7 +93,7 @@ aggregate_data <- function(data,
       year = !!rlang::sym(year_var),
       .data$cases
     ) %>%
-    dplyr::arrange(year,week)
+    dplyr::arrange(year, week)
 }
 
 #' Aggregate cases and signals over the number of weeks.

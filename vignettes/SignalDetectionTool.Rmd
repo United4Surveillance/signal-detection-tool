@@ -13,12 +13,11 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  message = FALSE, 
+  message = FALSE,
   warning = FALSE,
-  fig.dim = c(4, 3), 
+  fig.dim = c(4, 3),
   fig.align = "center"
 )
-
 ```
 
 

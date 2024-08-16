@@ -87,7 +87,7 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
     data <- data %>% dplyr::rename(signals = alarms)
   }
 
-  if ("expected_pad" %in% colnames(data)){
+  if ("expected_pad" %in% colnames(data)) {
     data <- data %>% dplyr::select(-expected_pad)
   }
   # when it is already a factor we do care about NA to unknown before

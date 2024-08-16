@@ -6,4 +6,3 @@ NULL
 
 #' @importFrom lubridate `%within%`
 NULL
-

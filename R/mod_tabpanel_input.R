@@ -109,10 +109,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 span("Depending on the number of weeks you want to generate signals for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
                 br(),
                 shiny::uiOutput(ns("algorithm_choice")),
-                shiny::conditionalPanel(condition =  sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
-                                        checkboxInput(ns("pandemic_correction"), "Covid19 Pandemic Correction", value = FALSE)),
+                shiny::conditionalPanel(
+                  condition = sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
+                  checkboxInput(ns("pandemic_correction"), "Covid19 Pandemic Correction", value = FALSE)
+                ),
                 shiny::uiOutput(ns("conditional_date_input"))
-
               )
             )
           )
@@ -183,7 +184,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::req(data_sub)
       shiny::req(!errors_detected())
       available_vars <- data_sub() %>%
-        dplyr::select(where(is.character)|where(is.factor)) %>%
+        dplyr::select(where(is.character) | where(is.factor)) %>%
         dplyr::select(-pathogen, -dplyr::all_of(dplyr::ends_with("_id"))) %>%
         names() %>%
         sort()
@@ -461,7 +462,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     })
 
     output$algorithm_glm <- renderText({
-      algorithm_glm()  # This will return "TRUE" or "FALSE" as a string
+      algorithm_glm() # This will return "TRUE" or "FALSE" as a string
     })
 
     # Force the output to be sent to the client even if not rendered in UI
@@ -479,9 +480,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     output$conditional_date_input <- shiny::renderUI({
       if (isTRUE(input$pandemic_correction)) {
         valid_dates <- valid_dates_intervention()
-        if(is.null(valid_dates$valid_start_date)){
+        if (is.null(valid_dates$valid_start_date)) {
           shiny::p("Your dataset does not have sufficient number of weeks to do a pandemic correction.")
-        }else{
+        } else {
           shiny::dateInput(ns("intervention_start_date"), "Select a Date when the pandemic started", value = valid_dates$default_intervention, min = valid_dates$valid_start_date, max = valid_dates$valid_end_date)
         }
       } else {
@@ -511,10 +512,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     # get default, min and max dates for intervention date
     valid_dates_intervention <- shiny::reactive({
       get_valid_dates_intervention_start(filtered_data(), number_of_weeks = input$n_weeks, time_trend = time_trend())
-
     })
 
-    #output$valid_dates_intervention <-
+    # output$valid_dates_intervention <-
 
     # Return list of subsetted data and parameters
     return(list(

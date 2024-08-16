@@ -11,7 +11,6 @@
 #' create_fn_data(100)
 #' }
 create_fn_data <- function(ts_length, freq = 52) {
-
   # *2 just making the computation of seasgroups overall more stable
   time_point_to_consider <- ts_length * 2
   survts <- surveillance::sts(rep(0, time_point_to_consider),
@@ -43,7 +42,6 @@ create_fn_data <- function(ts_length, freq = 52) {
 #' @param S integer, default 1, specifying the number of cycles per freq. When freq = 52 this specifies the number of cycles to have per year
 #' @return A data frame with columns for the sine and cosine values over time.
 create_sincos_data <- function(ts_len, freq = 52, S = 1) {
-
   checkmate::assert_number(S, lower = 1)
 
   modelData <- data.frame(
@@ -66,7 +64,7 @@ create_sincos_data <- function(ts_len, freq = 52, S = 1) {
 #' @return data.frame containing all columns needed for the glm model. These are columns for the seasonality, time_trend and intercepts. This model data is used to fit the parameters for these coviariates.
 #' @examples \dontrun{
 #' create_model_data(100)
-#' create_model_data(100,intervention_start = 50)
+#' create_model_data(100, intervention_start = 50)
 #' }
 create_model_data <- function(ts_len,
                               model = "mean",
@@ -118,9 +116,8 @@ create_model_data <- function(ts_len,
 #' @examples
 #' \dontrun{
 #' create_time_trend(100)
-#' create_time_trend(100,intervention_start = 50)
+#' create_time_trend(100, intervention_start = 50)
 #' }
-
 create_time_trend <- function(ts_len,
                               intervention_start = NULL,
                               min_timepoints_trend = 12) {
@@ -213,37 +210,39 @@ create_formula <- function(model_data) {
 #' @examples
 #' \dontrun{
 #' data_aggregated <- input_example %>%
-#' preprocess_data() %>%
-#' aggregate_data() %>%
-#' add_rows_missing_dates()
+#'   preprocess_data() %>%
+#'   aggregate_data() %>%
+#'   add_rows_missing_dates()
 #' results <- get_signals_glm(data_aggregated)
 #' }
 get_signals_glm <- function(data_aggregated,
-                          number_of_weeks = 6,
-                          model = "mean",
-                          time_trend = TRUE,
-                          return_full_model = TRUE,
-                          alpha_upper = 0.05,
-                          intervention_start_date = NULL,
-                          min_timepoints_baseline = 12,
-                          min_timepoints_trend = 12) {
+                            number_of_weeks = 6,
+                            model = "mean",
+                            time_trend = TRUE,
+                            return_full_model = TRUE,
+                            alpha_upper = 0.05,
+                            intervention_start_date = NULL,
+                            min_timepoints_baseline = 12,
+                            min_timepoints_trend = 12) {
   checkmate::assert(
     checkmate::check_choice(model, choices = c("mean", "sincos", "FN"))
   )
 
   ts_len <- nrow(data_aggregated)
-  if(!is.null(intervention_start_date)){
-    intervention_start <- get_intervention_timepoint(intervention_start_date,data_aggregated)
-  }else{
+  if (!is.null(intervention_start_date)) {
+    intervention_start <- get_intervention_timepoint(intervention_start_date, data_aggregated)
+  } else {
     intervention_start <- NULL
   }
 
-  rev_number_weeks <- rev(seq(0,number_of_weeks-1,1))
-  bound_results <- data.frame(cases = integer(),
-                               expectation = numeric(),
-                               upper = numeric())
+  rev_number_weeks <- rev(seq(0, number_of_weeks - 1, 1))
+  bound_results <- data.frame(
+    cases = integer(),
+    expectation = numeric(),
+    upper = numeric()
+  )
 
-  for (k in rev_number_weeks){
+  for (k in rev_number_weeks) {
     # we start with "first" week for signal detection, i.e. the one the most far away from the recent week
     # this week is taken as well to show the full model into the past
     ts_len_curr <- ts_len - k
@@ -266,9 +265,9 @@ get_signals_glm <- function(data_aggregated,
       dplyr::select(cases)
 
 
-    if(nrow(model_data) == 0){
+    if (nrow(model_data) == 0) {
       model_data <- cases
-    }else{
+    } else {
       model_data <- dplyr::bind_cols(cases, model_data)
     }
 
@@ -280,8 +279,8 @@ get_signals_glm <- function(data_aggregated,
 
     # fit a glm based on formula and data provided
     fit_glm <- glm(formula,
-                   data = fit_data,
-                   family = quasipoisson()
+      data = fit_data,
+      family = quasipoisson()
     )
 
     phi <- max(summary(fit_glm)$dispersion, 1)
@@ -290,14 +289,14 @@ get_signals_glm <- function(data_aggregated,
     omega <- surveillance:::algo.farrington.assign.weights(s)
     # fit a weighted glm using weighted anscombe residulas
     fit_glm <- glm(formula,
-                   data = fit_data,
-                   family = quasipoisson(), weights = omega
+      data = fit_data,
+      family = quasipoisson(), weights = omega
     )
     phi <- max(summary(fit_glm)$dispersion, 1)
     # predict with the fitted glm
     pred <- predict.glm(fit_glm,
-                        newdata = pred_data,
-                        se.fit = TRUE
+      newdata = pred_data,
+      se.fit = TRUE
     )
 
     eta0 <- pred$fit
@@ -319,12 +318,10 @@ get_signals_glm <- function(data_aggregated,
       )
     }
 
-    bound_results <- rbind(bound_results,bounds)
-    if(k == max(rev_number_weeks) && return_full_model){
+    bound_results <- rbind(bound_results, bounds)
+    if (k == max(rev_number_weeks) && return_full_model) {
       full_model_expectation <- fit_glm$fitted.values
     }
-
-
   }
 
   # generate alarms
@@ -342,13 +339,12 @@ get_signals_glm <- function(data_aggregated,
   data_aggregated$upperbound <- upperbound
   data_aggregated$expected <- expected
 
-  if(return_full_model){
+  if (return_full_model) {
     pad_number_of_weeks <- rep(NA, number_of_weeks)
-    data_aggregated$expected_pad <- c(full_model_expectation,pad_number_of_weeks)
+    data_aggregated$expected_pad <- c(full_model_expectation, pad_number_of_weeks)
   }
 
   data_aggregated
-
 }
 
 #' Get a default and minimum and maximum date for the intervention time point for the glm algorithms with pandemic correction. This is based on the data provided and the settings for the delays.
@@ -370,10 +366,10 @@ get_valid_dates_intervention_start <- function(data,
                                                number_of_weeks = 6,
                                                time_trend = TRUE,
                                                min_timepoints_baseline = 12,
-                                               min_timepoints_trend = 12){
-  if(time_trend){
-    delay <- max(min_timepoints_baseline,min_timepoints_trend)
-  }else{
+                                               min_timepoints_trend = 12) {
+  if (time_trend) {
+    delay <- max(min_timepoints_baseline, min_timepoints_trend)
+  } else {
     delay <- min_timepoints_baseline
   }
 
@@ -385,7 +381,7 @@ get_valid_dates_intervention_start <- function(data,
   min_date_plus_delay <- min_date + lubridate::weeks(delay)
   max_date_minus_delay <- max_date - lubridate::weeks(number_of_weeks + delay)
 
-  if(min_date_plus_delay > max_date_minus_delay){
+  if (min_date_plus_delay > max_date_minus_delay) {
     min_date_plus_delay <- NULL
     max_date_minus_delay <- NULL
   }
@@ -393,10 +389,9 @@ get_valid_dates_intervention_start <- function(data,
   # get a good default date for the intervention
   # if 15-03-2020 is in the valid range we take it as in most european countries measures started in middle of March so this is a good value for them to start with
   default_intervention <- as.Date("2020-03-15")
-  if(is.null(min_date_plus_delay)){
+  if (is.null(min_date_plus_delay)) {
     default_intervention <- NULL
-  }
-  else if(!(default_intervention %within% lubridate::interval(min_date_plus_delay, max_date_minus_delay))){
+  } else if (!(default_intervention %within% lubridate::interval(min_date_plus_delay, max_date_minus_delay))) {
     default_intervention <- min_date_plus_delay
   }
 

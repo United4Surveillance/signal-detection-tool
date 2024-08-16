@@ -17,16 +17,16 @@
 #'
 #' @examples
 #' \dontrun{
-#' run_report(report_format = "HTML",
-#'            data = SignalDetectionTool::input_example,
-#'            algo = "farrington",
-#'            strata = c("county_id", "community_id", "sex", "age_group"),
-#'            interactive = TRUE,
-#'            tables = TRUE,
-#'            number_of_weeks = 6)
+#' run_report(
+#'   report_format = "HTML",
+#'   data = SignalDetectionTool::input_example,
+#'   algo = "farrington",
+#'   strata = c("county_id", "community_id", "sex", "age_group"),
+#'   interactive = TRUE,
+#'   tables = TRUE,
+#'   number_of_weeks = 6
+#' )
 #' }
-
-
 run_report <- function(
     report_format = "HTML",
     data = SignalDetectionTool::input_example,
@@ -35,14 +35,14 @@ run_report <- function(
     strata = c("county_id", "community_id", "sex", "age_group"),
     interactive = TRUE,
     tables = TRUE,
-    output_file  = NULL,
+    output_file = NULL,
     signals_padded = NULL,
     signals_agg = NULL) {
-
   # Check inputs ---------------------------------------------------------------
   checkmate::assert_choice(report_format,
-                           choices = c("HTML", "DOCX"),
-                           null.ok = FALSE)
+    choices = c("HTML", "DOCX"),
+    null.ok = FALSE
+  )
 
   checkmate::assert_data_frame(data)
   checkmate::assert_logical(interactive)
@@ -64,18 +64,18 @@ run_report <- function(
     tables = tables,
     signals_padded = signals_padded,
     signals_agg = signals_agg
-    )
+  )
 
   report_f <- dplyr::case_when(
     report_format == "HTML" ~ "html_document",
     report_format == "DOCX" ~ "word_document",
     report_format == "PDF" ~ "pdf_document",
-    TRUE ~ NA_character_)
+    TRUE ~ NA_character_
+  )
   rmd_path <- system.file("report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
   rmarkdown::render(rmd_path,
-                    output_format = report_f,
-                    params = report_params,
-                    output_file = output_file)
-
-
+    output_format = report_f,
+    params = report_params,
+    output_file = output_file
+  )
 }
