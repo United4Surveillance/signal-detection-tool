@@ -20,8 +20,9 @@ Get row number of aggregated data which is the isoweek and isoyear corresponding
 \examples{
 \dontrun{
 data_agg <- input_example \%>\%
-preprocess_data() \%>\%
-aggregate_data() \%>\%
-add_rows_missing_dates()
-get_intervention_timepoint("2020-03-04",data_agg)}
+  preprocess_data() \%>\%
+  aggregate_data() \%>\%
+  add_rows_missing_dates()
+get_intervention_timepoint("2020-03-04", data_agg)
+}
 }

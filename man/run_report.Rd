@@ -47,12 +47,14 @@ Renders signal detection report
 }
 \examples{
 \dontrun{
-run_report(report_format = "HTML",
-           data = SignalDetectionTool::input_example,
-           algo = "farrington",
-           strata = c("county_id", "community_id", "sex", "age_group"),
-           interactive = TRUE,
-           tables = TRUE,
-           number_of_weeks = 6)
+run_report(
+  report_format = "HTML",
+  data = SignalDetectionTool::input_example,
+  algo = "farrington",
+  strata = c("county_id", "community_id", "sex", "age_group"),
+  interactive = TRUE,
+  tables = TRUE,
+  number_of_weeks = 6
+)
 }
 }

@@ -14,7 +14,8 @@ get_signals_glm(
   alpha_upper = 0.05,
   intervention_start_date = NULL,
   min_timepoints_baseline = 12,
-  min_timepoints_trend = 12
+  min_timepoints_trend = 12,
+  past_weeks_not_included = 4
 )
 }
 \arguments{
@@ -35,6 +36,10 @@ get_signals_glm(
 \item{min_timepoints_baseline}{integer, default 12, this parameter is only used when intervention_start_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.}
 
 \item{min_timepoints_trend}{integer, default 12, this parameter is only used when intervention_start_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.}
+
+\item{past_weeks_not_included}{An integer specifying the number of past weeks to exclude from
+the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
+Default is `4`.}
 }
 \value{
 data.frame aggregated data with case counts and additional columns alarms, upperbound and expected obtained from the signal detection algorithm. If return_full_model == TRUE then expected_pad is also added as a column to data_aggregated.
@@ -46,9 +51,9 @@ The GLM is flexible being able to just fit a mean, add a time trend, fit a harmo
 \examples{
 \dontrun{
 data_aggregated <- input_example \%>\%
-preprocess_data() \%>\%
-aggregate_data() \%>\%
-add_rows_missing_dates()
+  preprocess_data() \%>\%
+  aggregate_data() \%>\%
+  add_rows_missing_dates()
 results <- get_signals_glm(data_aggregated)
 }
 }

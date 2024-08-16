@@ -17,10 +17,10 @@ checking the format of the last/biggest age group to follow the format digit sep
 }
 \examples{
 \dontrun{
-is_last_age_group_format(c("<30","30_35","40_45","45+")) # Should return TRUE
-is_last_age_group_format(c("<30","30-35","40-45","45-50")) # Should return TRUE
-is_last_age_group_format(c("<30","30-35","40-45",">45")) # Should return TRUE
-is_last_age_group_format(c("<30","30-35","40-45","45-")) # Should return FALSE
-is_last_age_group_format(c("<30","30-35","40-45","45")) # Should return FALSE
+is_last_age_group_format(c("<30", "30_35", "40_45", "45+")) # Should return TRUE
+is_last_age_group_format(c("<30", "30-35", "40-45", "45-50")) # Should return TRUE
+is_last_age_group_format(c("<30", "30-35", "40-45", ">45")) # Should return TRUE
+is_last_age_group_format(c("<30", "30-35", "40-45", "45-")) # Should return FALSE
+is_last_age_group_format(c("<30", "30-35", "40-45", "45")) # Should return FALSE
 }
 }

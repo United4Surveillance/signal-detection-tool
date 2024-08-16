@@ -16,5 +16,7 @@ list containing a isoweek (integer) and isoyear (integer)
 Get isoweek and isoyear from a given date
 }
 \examples{
-\dontrun{get_iso_week_year("2020-03-04")}
+\dontrun{
+get_iso_week_year("2020-03-04")
+}
 }

@@ -17,6 +17,6 @@ checking YYYYY-mm-dd format of date variables
 }
 \examples{
 \dontrun{
-is_ISO8601(c("2023-04-01","2022-12-31"))
+is_ISO8601(c("2023-04-01", "2022-12-31"))
 }
 }
