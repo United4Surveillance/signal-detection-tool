@@ -7,7 +7,8 @@
 create_baseline(
   ts_len,
   intervention_start = NULL,
-  min_timepoints_baseline = 12
+  min_timepoints_baseline = 12,
+  past_weeks_not_included = 4
 )
 }
 \arguments{
@@ -16,6 +17,10 @@ create_baseline(
 \item{intervention_start}{integer, default NULL, specifying the row number in the time series corresponding to an intervention date. When NULL no intervention is modeled.}
 
 \item{min_timepoints_baseline}{integer, default 12, specifying the minimum number of time points required after the intervention to fit a new baseline.}
+
+\item{past_weeks_not_included}{An integer specifying the number of past weeks to exclude from
+the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
+Default is `4`.}
 }
 \value{
 NULL when intervention_start = NULL, otherwise a data frame with a column representing the baseline before and after the intervention (if applicable).

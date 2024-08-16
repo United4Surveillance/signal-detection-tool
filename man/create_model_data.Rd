@@ -10,7 +10,8 @@ create_model_data(
   time_trend = TRUE,
   intervention_start = NULL,
   min_timepoints_baseline = 12,
-  min_timepoints_trend = 12
+  min_timepoints_trend = 12,
+  past_weeks_not_included = 4
 )
 }
 \arguments{
@@ -25,6 +26,10 @@ create_model_data(
 \item{min_timepoints_baseline}{integer, default 12, this parameter is only used when intervention_start_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.}
 
 \item{min_timepoints_trend}{integer, default 12, this parameter is only used when intervention_start_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.}
+
+\item{past_weeks_not_included}{An integer specifying the number of past weeks to exclude from
+the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
+Default is `4`.}
 }
 \value{
 data.frame containing all columns needed for the glm model. These are columns for the seasonality, time_trend and intercepts. This model data is used to fit the parameters for these coviariates.
@@ -35,6 +40,6 @@ This function generates a dataset containing all the necessary columns for fitti
 \examples{
 \dontrun{
 create_model_data(100)
-create_model_data(100,intervention_start = 50)
+create_model_data(100, intervention_start = 50)
 }
 }
