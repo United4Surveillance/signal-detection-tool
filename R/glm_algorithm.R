@@ -338,7 +338,8 @@ get_signals_glm <- function(data_aggregated,
 
     bound_results <- rbind(bound_results, bounds)
     if (k == max(rev_number_weeks) && return_full_model) {
-      data_past_weeks_not_included <- model_data[(ts_len_curr - past_weeks_not_included):(ts_len_curr - 1), ]
+      # drop = FALSE ensures that we still get a dataframe back even when using the mean method and thus data consisting only of one column
+      data_past_weeks_not_included <- model_data[(ts_len_curr - past_weeks_not_included):(ts_len_curr - 1), ,drop = FALSE]
       pred_past_weeks_not_included <- predict.glm(fit_glm,
         newdata = data_past_weeks_not_included,
         se.fit = TRUE
