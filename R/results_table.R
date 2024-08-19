@@ -82,14 +82,14 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
 
   if (signals_only) {
     # only remove the alarms column when the signals_only TRUE thus only those with signals in the linelist are remaining
-    data <- data %>% dplyr::select(-tidyselect::one_of("alarms"))
+    data <- data %>% dplyr::select(-dplyr::one_of("alarms"))
   } else {
     data <- data %>% dplyr::rename(signals = alarms)
   }
 
-  if ("expected_pad" %in% colnames(data)) {
-    data <- data %>% dplyr::select(-expected_pad)
-  }
+  # remove columns which were added for the visualisation of the timeseries but we do not want to have for the table
+  data <- data %>% dplyr::select(-dplyr::one_of("expected_pad", "upperbound_pad", "first_alarm_nonNA"))
+
   # when it is already a factor we do care about NA to unknown before
   if (!is.factor(data$stratum)) {
     data <- data %>%
