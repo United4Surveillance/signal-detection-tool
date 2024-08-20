@@ -130,8 +130,10 @@ In the Mean model, separate means are fitted for the periods before and after th
 This approach allows you to model changes in case counts, such as a decline due to the pandemic, and to capture a different time trend that may emerge afterward. A critical assumption behind these models is that the current case counts are represented by the model applied after the intervention, meaning it models the case counts which occured during and following the pandemic.
 
 ### Signals tab
-The `Signals` tab is split into 2 / 3 "rows", depending on whether any stratas were chosen in the `Input` tab. The first row belongs to the visualisations of the respective stratas chosen. 
-The second row to a timeseries / epicurve, depicting the signal detection in the number of weeks specified in the `Input` tab.
+The `Signals` tab is split into 2 / 3 "rows", depending on whether any stratas were chosen in the `Input` tab. The first row belongs to the visualisations of the respective stratas chosen.  
+
+The second row to a timeseries / epicurve, depicting the signal detection in the number of weeks specified in the `Input` tab. In the timeseries visualisation the expectation and/or the threshold is also extended into the past for a better understanding of how the algorithm used works. For the algorithms Mean, Timetrend, Harmonic, Harmonic with timetrend, Step harmonic and Step harmonic with timetrend we display the expected number of cases from the model fitted to the first (earliest with respect to time) timepoint of the signal detection period shown blue. For the expected values displayed during the signal detection period, the model is refitted to a time series with additional historical data. As each new week of the signal detection period is included, more past weeks are incorporated into the fitting process, causing the mean expectation to change over time during the blue signal detection period.
+
 The third and final row display a signal detection table, which provides information on the signals found in both the entirety of the (filtered) dataset as well as per stratification parameter. 
 
 #### Stratification visualisation 
