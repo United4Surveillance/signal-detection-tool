@@ -1,3 +1,5 @@
+* Fixing bug so the legend in the interactive version of the plot_regional function only shows the border-color
+
 # SignalDetectionTool 0.3.0
 
 * Losening restriction on which region information can be used for creating maps. Now all region variables including region_level variables can be used which is necessary for users who want to use their own shapefiles for their defined regions.
