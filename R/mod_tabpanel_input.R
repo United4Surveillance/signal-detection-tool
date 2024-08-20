@@ -283,6 +283,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
             } else if(rlang::as_name(filter_var) == "age") {
               df <- df %>%
                 dplyr::filter(!!filter_var >= filter_val[1], !!filter_var <= filter_val[2])
+
+              sorted_filter_val <- stringr::str_sort(unique(df$age_group), numeric = TRUE)
+              app_cache_env$age_group_levels <- sorted_filter_val
             } else if ("N/A" %in% filter_val) { # apply filter if filtering for NAs
               df <- df %>%
                 dplyr::filter(
@@ -300,7 +303,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 app_cache_env$sex_levels <- sorted_filter_val
               }
               if (filter_var == "age_group") {
-                sorted_filter_val <- stringr::str_sort(filter_val, numeric = TRUE)
+                sorted_filter_val <- stringr::str_sort(unique(df$age_group), numeric = TRUE)
                 app_cache_env$age_group_levels <- sorted_filter_val
               }
             } else { # otherwise

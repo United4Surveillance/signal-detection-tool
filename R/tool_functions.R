@@ -520,7 +520,7 @@ get_signals_stratified <- function(data,
   for (category in stratification_columns) {
     if (is.factor(data[, category])) {
       # adding the NAs to also calculate signals for them
-      strata <- levels(addNA(data[, category], ifany = TRUE))
+      strata <- levels(droplevels(addNA(data[, category], ifany = TRUE)))
     } else {
       strata <- unique(data[, category]) # character is supported as well
     }
