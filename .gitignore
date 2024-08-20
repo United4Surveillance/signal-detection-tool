@@ -61,6 +61,7 @@ rsconnect/
 ## exeptions
 !template.docx
 !header_logo.html
+!inst/rmd/help_tab.html
 
 
 # Temporary idea files
