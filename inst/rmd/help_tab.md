@@ -1,99 +1,286 @@
----
-output: 
-  html_document
----
-
 ## Introduction
-This tab is meant to help, guide and assist you in any issues or questions that might arise while using the SignalDetectionTool app. It will cover the background and purpose of the tool, guide you through the different options and functionalities provided, as well as a contact point for you to report any bugs found while using the tool.
 
-### United4Surveillance 
-The SignalDetectionTool is developed within task under the United4Surveillance (U4S) project, Workpackage 2, Task 2 - Outbreak and Signal Detection. The goal of U4S is to ensure better detection of early warning signs and to strengthen infectious disease surveillance systems at the national level. Through early detection of infectious disease outbreaks, the further spread of diseases can potentially be contained, thereby reducing harmful consequences. Automated signal detection using tools can thereby help to identify specific events of concern and manage and foster automated data analysis. 
+This tab is meant to help, guide and assist you with any issues or
+questions that might arise while using the SignalDetectionTool app. It
+will cover the background and purpose of the tool, guide you through the
+different options and functionalities provided, and provides a contact
+point for reporting any bugs found while using the tool.
 
-### Why use the SignalDetectionTool? 
-Use this Shiny app as what it is - a tool. A tool to help bring another perspective to your disease surveillance, while also making it easy to generate reports and figures.
+### United4Surveillance
+
+The SignalDetectionTool is developed under the United4Surveillance (U4S)
+project, work package 2, Task 2 “Outbreak and Signal Detection”. The
+goal of U4S is to ensure better detection of early warning signs and to
+strengthen infectious disease surveillance systems at the national
+level. Through early detection of infectious disease outbreaks, the
+further spread of diseases can potentially be contained, thereby
+reducing harmful consequences. Automated signal detection using tools
+can thereby help identify specific events of concern and manage and
+foster automated data analysis.
+
+### Why use the SignalDetectionTool?
+
+Use this Shiny app as what it is - a tool. A tool to help bring another
+perspective to your disease surveillance, while also making it easy to
+generate reports and figures.
 
 ## Input data
-This app requires specific input data formatting, which is described in detail in MS Teams.
+
+This app requires specific input data formatting, which is described in
+detail in MS Teams.
 
 ## Workflow of the tool
-The SignalDetectionTool app is made up of several tabs, which all holds different, key properties for using the app correctly. 
-The workflow of the tool is to move from left to right, in a natural order. However, it may prove necessary to jump between the `Input` and `Signals` tabs, to achieve the right signal detection for your needs.
-Additionally, the `Input`, `Signals` and `Report` tabs will be empty untill an input dataset is given.
+
+The SignalDetectionTool app is made up of several tabs, each holding
+different key properties for using the app correctly. The workflow of
+the tool is to move from left to right, in a natural order. However, it
+may be necessary to jump between the `Input` and `Signals` tabs, to
+achieve the right signal detection for your needs. Additionally, the
+`Input`, `Signals` and `Report` tabs will be empty until an input data
+set is given.
 
 ### Data tab
-The data tab is where you provide the tool with the proper input data, to perform signal detection upon. 
 
-Clicking on the `Browse` button, you access a File Manager System, where you can navigate to your data set, saved as either an Excel (.xlsx) or comma-seperated file (.csv). 
-Once you have selected a file, the file is read and checked by the tool. You will then receive feedback about your data in two sections: 
+The data tab is where you provide the tool with the proper input data to
+perform signal detection upon.
 
-* In the first section, only those columns in your data where the column name has been written correctly are checked. For example, the column “country_id” is not checked when the column name deviates from it and is, for example, “country_id(NUTS)” in your dataset. This section checks whether all mandatory columns are present in your dataset and whether your columns have the right type and correct values. For example, it is checked whether the dates are in the correct YYYY-MM-DD format.
+Clicking on the `Browse` button, you access a File Manager System, where
+you can navigate to your data set, saved as either an Excel (.xlsx) or
+comma-seperated file (.csv). Once you have selected a file, the file is
+read and checked by the tool. You will then receive feedback about your
+data in two sections:
 
-* In the second section, you receive feedback about all columns in your dataset that differ from the predefined names and are therefore not recognised by the DataCheckTool. From the example given above in i) the column “country_id(NUTS)” would appear in this section. As you want to use the column “country_id(NUTS)” later for signal detection, please change the column names to the required ones. Columns shown in this section are not checked for correct type and values.
+-   In the first section, only those columns in your data where the
+    column name has been written correctly are checked. For example, the
+    column “country\_id” is not checked when the column name deviates
+    from it and is, for example, “country\_id(NUTS)” in your dataset.
+    This section checks whether all mandatory columns are present in
+    your dataset and whether your columns have the right type and
+    correct values. For example, it is checked whether the dates are in
+    the correct YYYY-MM-DD format.
 
-In general, this feedback mechanism can, and should, be used in an iterative process. This means, that you get feedback about your data, you correct your data accordingly, and then upload it again. When all error are fixed you can stop, otherwise you can continue correcting and uploading.
+-   In the second section, you receive feedback about all columns in
+    your dataset that differ from the predefined names and are therefore
+    not recognised by the DataCheckTool. From the example given above
+    in i) the column “country\_id(NUTS)” would appear in this section.
+    As you want to use the column “country\_id(NUTS)” later for signal
+    detection, please change the column names to the required ones.
+    Columns shown in this section are not checked for correct type and
+    values.
 
-In the data tab, you are also presented with a table showing the data provided. If the input data did not pass the data format check, then the raw data provided is shown, otherwise a table of pre-processed data, ready for signal detection is presented and you can move on the next tab, `Input`.
+In general, this feedback mechanism can, and should, be used in an
+iterative process. This means, that you get feedback about your data,
+you correct your data accordingly, and then upload it again. When all
+errors are fixed you can stop, otherwise you can continue correcting and
+uploading. In the data tab, you are also presented with a table showing
+the data provided. If the input data did not pass the data format check,
+then the raw data provided is shown. Otherwise a table of pre-processed
+data, ready for signal detection is presented and you can move on the
+next tab,`Input`.
 
-### Input tab 
-The input tab is where you can interact, manipulate and shape the input data set, to investigate for signals proper. There are multiple different features to change, which will be covered in this section.
+### Input tab
+
+The input tab is where you can interact, manipulate and shape the input
+data set, to investigate for signals proper. There are multiple
+different features to change, which will be covered in this section.
 
 #### Pathogen
-Using this tool, it is only possible to perform signal detection upon one kind of pathogen at a time. Thus if data about multiple pathogens exist in data, one will be selected. 
+
+Using this tool, it is only possible to perform signal detection upon
+one kind of pathogen at a time. Thus, if data about multiple pathogens
+exist in data, one will be preselected and can be changed using the
+drop-down list.
 
 #### Filters
-You can choose to investigate a subset of your data according to the filters you select. When filtering upon one or more variables, whether it be choosing a specific timeperiod through date_report and / or selecting only the age_groups 00-29, then that is the subset of data used to train the outbreak detection algorithms and is shown on the timeseries visualisation.
+
+You can choose to investigate a subset of your data according to the
+filters you select. When filtering upon one or more variables, whether
+it be choosing a specific time period through date\_report and / or
+selecting only the age\_groups 00-29, thatsubset of data is then used to
+train the outbreak detection algorithms and is shown on the timeseries
+visualisation.
 
 #### Strata
-You can choose to stratify by up to three variables. Choosing a variable for stratification means that signals will be examined for each level of chosen strata(s). For example, if the variable age_group is one of chosen stratas, then each age_group level, e.g. "00-04", "05-09" etc., will be examined for signals. This strata examination will be shown both in the result table found at the bottom of the `Signals` tab, and additionally, a strata-specific visualisation or table is shown on the top of the `Signals` tab. Choosing a strata will not affect the timeseries visualisation in the `Signals` tab.
+
+You can choose to stratify by up to three variables. Choosing a variable
+for stratification means that signals will be examined for each level of
+chosen strata(s). For example, if the variable age\_group is one of
+chosen strata, then each age\_group level, e.g. “00-04”, “05-09” etc.,
+will be examined for signals. This strata examination will be shown both
+in the result table found at the bottom of the `Signals` tab, and
+additionally, a strata-specific visualisation or table is shown on the
+top of the `Signals` tab. Choosing a strata will not affect the time
+series visualisation in the `Signals` tab.
 
 #### Signal detection period
-Here you can set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks, which is also dependent on if any filtering is done.
+
+Here you can set the number of weeks you want to generate signals for.
+The signals are generated for the most recent weeks, which is also
+dependent on if any filtering is done.
 
 #### Signal detection algorithm
-Depending on the number of weeks you want to generate signals for, and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your setting, with respects for the individual needs of training data of the different algorithms.  
 
-In the following we call the training period the time period which is used to fit the parameters of the algorithms. This time period is given by your selection of date_report (Filters section) and the Signal detection period. If you select the time period 01-01-2020 until 31-12-2021 in the Filters section and select six weeks for the signal detection period the training period will be from 01-01-2020 until 22-11-2021 (six weeks before 31-12-2021). If you do not set any filter for date_report in the Filters section then the full time period of your dataset minus the Signal Detection Period will be used to fit the parameters.
+Depending on the number of weeks you want to generate signals for, and
+the filters you set, the choice of algorithms is automatically updated
+to those which are possible to apply for your setting, with respect to
+the individual needs of training data of the different algorithms. In
+the following, we call the training period the time period which is used
+to fit the parameters of the algorithms. This time period is given by
+your selection of date\_report (Filters section) and the Signal
+detection period. If you select the time period 01-01-2020 until
+31-12-2021 in the Filters section and select six weeks for the signal
+detection period the training period will be from 01-01-2020 until
+22-11-2021 (six weeks before 31-12-2021). If you do not set any filter
+for date\_report in the Filters section then the full time period of
+your data set minus the Signal Detection Period will be used to fit the
+parameters.
 
-Which signal detection algorithm should you choose? It depends on multiple criteria, and they all have their individual weaknesses and strengths.  
+Which signal detection algorithm should you choose? It depends on
+multiple criteria, and they all have their individual weaknesses and
+strengths.
 
-**CUSUM**
-- does not model time trend
-- does not model seasonality
-- cusum can compute the baseline theoretically on only one time point in the past but for a good baseline more historic data should be used
+**CUSUM** CUSUM (cumulative sum) is an algorithm that detects shifts in
+the mean of a time series. It accumulates deviations of the observed
+case counts from the mean case count and once this accumulation has
+reached a value above a defined tolerance a signal is triggered. After a
+signal is triggered, the cumulative sum is set to zero, and the
+algorithm restarts. As CUSUM accumulates the deviations over time, it is
+more sensitive to small and moderate shifts in the case count. The mean
+case count is computed on all case counts of the training period. CUSUM
+does not account for seasonality as it just computes a mean over all
+case counts. CUSUM was originally developed by E. S. Page and typically
+used in industry for monitoring change detection. Rossi et al. (1999)
+serves as reference in the public health context.
 
-CUSUM (cumulative sum) is an algorithm which detects shifts in the mean of a time series. It accumulates deviations of the observed case counts from the mean case count and once this accumulation has reached a value above a defined tolerance a signal is triggered. After a signal was triggered the cumulative sum is set to zero and the algorithm restarts. As CUSUM accumulates the deviations over time it is more sensitive to small and moderate shifts in the case count. The mean case count is computed on all case counts of the training period. CUSUM does not account for seasonality as it just computes a mean over all case counts.  
-CUSUM was originally developed by E. S. Page and typically used in industry for monitoring change detection. Rossi et al. (1999) serves as reference in the public health context. 
+**FarringtonFlexible** The FarringtonFlexible uses a generalised linear
+model (GLM) to model the observed case count. In addition to a time
+trend terms for seasonality are also included in this model. For the
+computation of the baseline past very high case counts (potential
+outbreaks) are downweighted so that they don’t shift the baseline
+upwards. Furthermore, the past 26 time points before the current time
+point are excluded from the baseline to avoid reducing sensitivity when
+an outbreak has recently started before the current time point. The
+algorithm needs at least 78 time points (1.5 years when time points are
+weeks) of data in the past to calibrate the baseline. FarringtonFlexible
+(Noufaily et al. 2012) is an improved version of the classic Farrington
+algorithm (Farrington et al. 1996). In this tool the implementation from
+the R package surveillance is used which is illustrated in Salmon et
+al. (2016).
 
-**FarringtonFlexible**
-- models time trend
-- models seasonality
-- needs more historic data (78 time points) to compute a baseline
+**EARS** The EARS (Early Aberration Reporting System) algorithm uses a
+window-based approach for outbreak detection. For the EARS C1 algorithm
+implemented in this tool, mean and standard deviation are computed from
+the cases observed in the last 7 time points before the current time
+point. These parameters are used to compute a threshold based on the
+quantiles of the normal distribution. When the observed case count is
+above the computed threshold a signal is raised. Because of the short
+time interval considered, EARS does not take into account seasonality
+and time trends. The baseline is computed using only the last 7 time
+points. EARS was developed by CDC and published in Hutwagner et
+al. (2003).
 
-The FarringtonFlexible uses a generalised linear model (GLM) to model the observed case count. In addition to a time trend terms for seasonality are also included in this model. For the computation of the baseline past very high case counts (potential outbreaks) are downweighted so that they don't shift the baseline upwards. Furthermore the past 26 time points before the current time point are excluded from the baseline to avoid reducing sensitivity when an outbreak has recently started before the current time point. The algorithm needs at least 78 time points (1.5 years when time points are weeks) of data in the past to calibrate the baseline.  
-FarringtonFlexible (Noufaily et al. 2012) is an improved version of the classic Farrington algorithm (Farrington et al. 1996). In this tool the implementation from the R package surveillance is used which is illustrated in Salmon et al. (2016).
+**Mean** This method calculates the mean of all previous case counts
+while downweighting past outbreaks, ensuring that the mean remains
+unbiased by previous high case counts. This mean serves as the expected
+value for the current number of cases. A threshold is then determined
+using a prediction interval derived from the mean, applying either a
+Poisson or negative binomial distribution. The choice of distribution is
+based on the fitted dispersion of the data.
 
-**EARS**
-- does not model time trend
-- does not model seasonality
-- needs only 7 time points of historic data 
+**Timetrend** This method models the expected number of cases by a
+regression with an intercept and a time trend. It uses all the full
+previous data to fit the regression. It downweighting past outbreaks,
+ensuring that the fitted expected number of cases remains unbiased by
+previous high case counts. A threshold is then determined using a
+prediction interval derived from the mean, applying either a Poisson or
+negative binomial distribution. The choice of distribution is based on
+the fitted dispersion of the data.
 
-The EARS (Early Aberration Reporting System) algorithm uses a window-based approach for outbreak detection. For the EARS C1 algorithm implemented in this tool mean and standard deviation are computed from the cases observed in the last 7 time points before the current time point. These parameters are used to compute a threshold based on the quantiles of the normal distribution. When the observed case count is above the computed threshold a signal is raised. Because of the short time interval considered, EARS does not take into account seasonality and time trends. The baseline is computed using only the last 7 time points.  
-EARS was developed by CDC and published in Hutwagner et al. (2003). 
+**Harmonic** This method models the expected number of cases using a
+harmonic sin-cos regression that includes an intercept but no time
+trend. The harmonic sin-cos wave elements are used to model seasonality
+which occurs in the data. The model is fitted using all available
+historical data while downweighting past outbreaks to ensure that the
+estimated expected number of cases is not biased by previous high case
+counts. A threshold is then determined using a prediction interval
+derived from the model’s mean, applying either a Poisson or negative
+binomial distribution. The choice of distribution is based on the fitted
+dispersion of the data.
+
+**Harmonic with time trend** The same as the Harmonic method but with
+fitting a time trend to account for the underlying trend in the data.
+
+**Step harmonic** This method models the expected number of cases using
+the season groups defined in the Farrington outbreak detection
+algorithm. The year is divided into 10 seasonal windows, each with a
+constant expected case count within its respective season group. This
+approach offers flexibility in capturing seasonal patterns, such as a
+faster decline following a rise, but it requires more data for accurate
+fitting. The regression model also includes an intercept. The model is
+fitted using all available historical data, with past outbreaks
+downweighted to ensure that the estimated expected number of cases
+remains unbiased by previous high case counts. A threshold is then
+determined using a prediction interval derived from the model’s mean,
+applying either a Poisson or negative binomial distribution, depending
+on the fitted dispersion of the data.
+
+**Step harmonic with time trend** The same as the Step harmonic method
+but with fitting a time trend to account for the underlying trend in the
+data.
+
+**Covid19 Pandemic correction** The “Pandemic Correction” feature,
+accessible via an additional button, applies an interrupted time series
+analysis to the outbreak detection methods. In the Mean model, separate
+means are fitted for the periods before and after the selected
+intervention date. For models that include a time trend, both the
+intercept and time trend can differ following the intervention. However,
+the seasonality components are fitted across the entire time period and
+are not adjusted based on the intervention date. This approach allows
+you to model changes in case counts, such as a decline due to the
+pandemic, and to capture a different time trend that may emerge
+afterward. A critical assumption behind these models is that the current
+case counts are represented by the model applied after the intervention,
+meaning it models the case counts which occurred during and following
+the pandemic.
 
 ### Signals tab
-The `Signals` tab is split into 2 / 3 "rows", depending on whether any stratas were chosen in the `Input` tab. The first row belongs to the visualisations of the respective stratas chosen. 
-The second row to a timeseries / epicurve, depicting the signal detection in the number of weeks specified in the `Input` tab.
-The third and final row display a signal detection table, which provides information on the signals found in both the entirety of the (filtered) dataset as well as per stratification parameter. 
 
-#### Stratification visualisation 
-When one of the strata about regions (state, county or community) is selected in the `Input` tab the app tries to provide a map visualisation. This currently only works if there are NUTS codes provided in the data using the corresponding _id columns (i.e. county_id) and these NUTS ids all match the shapefile which is used in the app. When your data has cases with missing region during the signal detection timeperiod a map with additional text is shown which gives you information about these cases with missing/unknown region. In case you did not provide NUTS ids or some NUTS ids are not matching no map visualisation is currently possible and you will see a table with the results instead of a map. 
+The `Signals` tab is split into 2 / 3 “rows”, depending on whether any
+strata were chosen in the `Input` tab. The first row belongs to the
+visualisations of the respective strata chosen. The second row to a time
+series / Epi Curve, depicting the signal detection in the number of
+weeks specified in the `Input` tab. The third and final row display a
+signal detection table, which provides information on the signals found
+in both the entirety of the (filtered) data set as well as per
+stratification parameter.
+
+#### Stratification visualisation
+
+When one of the strata about regions (state, county or community) is
+selected in the `Input` tab the app tries to provide a map
+visualisation. This currently only works if there are NUTS codes
+provided in the data using the corresponding \_id columns
+(i.e. county\_id) and these NUTS ids all match the shapefile which is
+used in the app. When your data has cases with missing region during the
+signal detection timeperiod a map with additional text is shown which
+gives you information about these cases with missing/unknown region. In
+case you did not provide NUTS ids or some NUTS ids are not matching no
+map visualisation is currently possible and you will see a table with
+the results instead of a map.
 
 ### Report tab
-The `Report` tab is the final destination in the SignalDetectionTool Shiny app. Here, it is possible to produce and download a report, using the different parameter selections, filtering choices and stratifications chosen in the `Input` tab. Thus, you can customise exactly how you want your report. 
-The report can be produced to three different formats: HTML, DOCX or PDF. All come with the U4S logo and expressions, as also found throughout the Shiny app. 
+
+The `Report` tab is the final destination in the SignalDetectionTool
+Shiny app. Here, it is possible to produce and download a report, using
+the different parameter selections, filtering choices and
+stratifications chosen in the `Input` tab. Thus, you can customise
+exactly how you want your report. The report can be produced to three
+different formats: HTML, DOCX or PDF. All come with the U4S logo and
+expressions, as also found throughout the Shiny app.
 
 ## Bug reporting
-If you encounter any technical issues or bugs when using the SignalDetectionTool, please report them on [Github](https://github.com/United4Surveillance/signal-detection-evaluation-tool/issues/new/choose) by making an issue. 
-Thank you in advance!
 
-
+If you encounter any technical issues or bugs when using the
+SignalDetectionTool, please report them on
+[Github](https://github.com/United4Surveillance/signal-detection-evaluation-tool/issues/new/choose)
+by making an issue. Thank you in advance!
