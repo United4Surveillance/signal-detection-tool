@@ -339,7 +339,7 @@ get_signals_glm <- function(data_aggregated,
     bound_results <- rbind(bound_results, bounds)
     if (k == max(rev_number_weeks) && return_full_model) {
       # drop = FALSE ensures that we still get a dataframe back even when using the mean method and thus data consisting only of one column
-      data_past_weeks_not_included <- model_data[(ts_len_curr - past_weeks_not_included):(ts_len_curr - 1), ,drop = FALSE]
+      data_past_weeks_not_included <- model_data[(ts_len_curr - past_weeks_not_included):(ts_len_curr - 1), , drop = FALSE]
       pred_past_weeks_not_included <- predict.glm(fit_glm,
         newdata = data_past_weeks_not_included,
         se.fit = TRUE
@@ -365,8 +365,12 @@ get_signals_glm <- function(data_aggregated,
   data_aggregated$expected <- expected
 
   if (return_full_model) {
-    pad_number_of_weeks <- rep(NA, number_of_weeks)
-    data_aggregated$expected_pad <- c(full_model_expectation, pad_number_of_weeks)
+    pad_number_of_weeks <- rep(NA, number_of_weeks - 1)
+    # and fill the expected_pad also for the first value where we have already have expectation from the prediction model
+    # this is needed to not get a hole in the plot_time_series expected line
+    data_aggregated$expected_pad <- c(full_model_expectation, bound_results$expectation[1], pad_number_of_weeks)
+
+    data_aggregated
   }
 
   data_aggregated
@@ -466,7 +470,6 @@ get_possible_glm_methods <- function(data,
                                      date_var = "date_report",
                                      number_of_weeks = 6,
                                      past_weeks_not_included = 4) {
-
   min_date <- min(data[[date_var]], na.rm = TRUE)
   max_date <- max(data[[date_var]], na.rm = TRUE)
   max_date_fit <- max_date - lubridate::weeks(number_of_weeks + past_weeks_not_included)
