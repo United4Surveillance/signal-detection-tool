@@ -7,6 +7,7 @@
 * Fixing bug so that plot_time_series() works with upperbond_pad and expected_pad being all NA
 * Added notification about negative values in age.
 * Improvements in the documentation of `build_signals_table()`, `prepare_signals_agg_table()`
+* Bug fix inside `preprocess_data()` so that the tool works again when the age variable is not included in the data.
 
 # SignalDetectionTool 0.2.0
 
