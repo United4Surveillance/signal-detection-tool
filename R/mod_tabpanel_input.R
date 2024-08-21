@@ -104,16 +104,23 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 shiny::uiOutput(ns("weeks_selection")),
                 shiny::textOutput(ns("text_weeks_selection")),
                 br(),
-                span("Signal detection algorithm", style = "font-size:100%;font-weight: bold"),
-                br(),
-                span("Depending on the number of weeks you want to generate signals for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
-                br(),
-                shiny::uiOutput(ns("algorithm_choice")),
-                shiny::conditionalPanel(
-                  condition = sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
-                  checkboxInput(ns("pandemic_correction"), "Covid19 Pandemic Correction", value = FALSE)
-                ),
-                shiny::uiOutput(ns("conditional_date_input"))
+                shiny::fluidRow(
+                  column(
+                    6,
+                    span("Signal detection algorithm", style = "font-size:100%;font-weight: bold"),
+                    br(),
+                    span("Depending on the number of weeks you want to generate signals for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
+                    br(),
+                    shiny::uiOutput(ns("algorithm_choice"))
+                  ),
+                  column(
+                    6, shiny::conditionalPanel(
+                      condition = sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
+                      checkboxInput(ns("pandemic_correction"), "Covid19 Pandemic Correction", value = FALSE)
+                    ),
+                    shiny::uiOutput(ns("conditional_date_input"))
+                  )
+                )
               )
             )
           )
@@ -382,7 +389,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       if (nrow(filtered_data()) < 1) {
         return(NULL)
       }
-      signals_cusum_ears_farr <- dplyr::bind_rows(purrr::map(c("farrington","ears","cusum"), function(algorithm) {
+      signals_cusum_ears_farr <- dplyr::bind_rows(purrr::map(c("farrington", "ears", "cusum"), function(algorithm) {
         signals <- get_signals(filtered_data(),
           method = algorithm,
           number_of_weeks = input$n_weeks
@@ -394,7 +401,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       # for the glm based algorithms we can compute based on the data when which algorithms are possible
       glm_methods_possible <- get_possible_glm_methods(filtered_data(), number_of_weeks = input$n_weeks)
 
-      algorithms_working <- c(glm_methods_possible,unique(signals_cusum_ears_farr$method))
+      algorithms_working <- c(glm_methods_possible, unique(signals_cusum_ears_farr$method))
       algorithms_working_named <- available_algorithms()[unlist(available_algorithms()) %in% algorithms_working]
 
 
@@ -434,7 +441,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
           selected = selected_algorithm,
           choices = algorithms_possible(),
           selectize = FALSE,
-          width = "40%"
+          width = "90%"
         ))
       }
     })
@@ -484,7 +491,10 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         if (is.null(valid_dates$valid_start_date)) {
           shiny::p("Your dataset does not have sufficient number of weeks to do a pandemic correction.")
         } else {
-          shiny::dateInput(ns("intervention_start_date"), "Select a Date when the pandemic started", value = valid_dates$default_intervention, min = valid_dates$valid_start_date, max = valid_dates$valid_end_date)
+          shiny::dateInput(ns("intervention_start_date"), "Choose the date when you first notice a significant change in the number of cases.",
+            value = valid_dates$default_intervention, min = valid_dates$valid_start_date, max = valid_dates$valid_end_date,
+            width = "90%"
+          )
         }
       } else {
         NULL
