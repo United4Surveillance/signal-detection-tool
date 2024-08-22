@@ -1,5 +1,6 @@
 
 * Bug fix inside `preprocess_data()` so that the tool works again when the age variable is not included in the data.
+* Fixing bug so the legend in the interactive version of the plot_regional function only shows the border-color
 
 # SignalDetectionTool 0.3.0
 
