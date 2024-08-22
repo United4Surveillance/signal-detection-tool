@@ -23,9 +23,9 @@ create_model_data(
 
 \item{intervention_start}{integer, specifying the rownumber in the aggregated timeseries which corresponds to the intervention date.}
 
-\item{min_timepoints_baseline}{integer, default 12, this parameter is only used when intervention_start_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.}
+\item{min_timepoints_baseline}{integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.}
 
-\item{min_timepoints_trend}{integer, default 12, this parameter is only used when intervention_start_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.}
+\item{min_timepoints_trend}{integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.}
 
 \item{past_weeks_not_included}{An integer specifying the number of past weeks to exclude from
 the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.

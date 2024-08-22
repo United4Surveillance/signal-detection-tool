@@ -11,6 +11,7 @@
 #' @param output_file The name of the output file \link[rmarkdown]{render}
 #' @param signals_padded calculated and padded signals (for use within the app, default is NULL)
 #' @param signals_agg aggregated signals  (for use within the app, default is NULL)
+#'@param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done.
 #'
 #' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 #' @export
@@ -37,7 +38,8 @@ run_report <- function(
     tables = TRUE,
     output_file = NULL,
     signals_padded = NULL,
-    signals_agg = NULL) {
+    signals_agg = NULL,
+    intervention_date = NULL) {
   # Check inputs ---------------------------------------------------------------
   checkmate::assert_choice(report_format,
     choices = c("HTML", "DOCX"),
@@ -63,7 +65,8 @@ run_report <- function(
     interactive = ifelse(report_format != "HTML", FALSE, interactive),
     tables = tables,
     signals_padded = signals_padded,
-    signals_agg = signals_agg
+    signals_agg = signals_agg,
+    intervention_date = intervention_date
   )
 
   report_f <- dplyr::case_when(

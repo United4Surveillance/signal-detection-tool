@@ -12,7 +12,7 @@ get_signals_glm(
   time_trend = TRUE,
   return_full_model = TRUE,
   alpha_upper = 0.05,
-  intervention_start_date = NULL,
+  intervention_date = NULL,
   min_timepoints_baseline = 12,
   min_timepoints_trend = 12,
   past_weeks_not_included = 4
@@ -31,11 +31,11 @@ get_signals_glm(
 
 \item{alpha_upper}{decimal between 0 and 1, default 0.05 specifying the pvalue cutoff used for computing the threshold, when set to 0.05 the 95 percent quantile is used.}
 
-\item{intervention_start_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done, i.e. no additional intercept and possibly new time trend is fitted. When a date is given a new intercept and possibly time_trend (if time_trend == TRUE) is fitted.}
+\item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done, i.e. no additional intercept and possibly new time trend is fitted. When a date is given a new intercept and possibly time_trend (if time_trend == TRUE) is fitted.}
 
-\item{min_timepoints_baseline}{integer, default 12, this parameter is only used when intervention_start_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.}
+\item{min_timepoints_baseline}{integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.}
 
-\item{min_timepoints_trend}{integer, default 12, this parameter is only used when intervention_start_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.}
+\item{min_timepoints_trend}{integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.}
 
 \item{past_weeks_not_included}{An integer specifying the number of past weeks to exclude from
 the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.

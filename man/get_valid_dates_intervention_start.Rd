@@ -32,7 +32,7 @@ the fitting process. This can be useful for excluding recent data with outbreaks
 Default is `4`.}
 }
 \value{
-list with three dates or NULL values. valid_start_date is the first date which is valid to chose as intervention_start_date, valid_end_date is the last date which is valid to chose to chose as intervention_start_date, default_intervention is a default date which is used for the intervention_start_date and usually set to "2020-03-15" but checked whether this is possible with the data we have
+list with three dates or NULL values. valid_start_date is the first date which is valid to chose as intervention_date, valid_end_date is the last date which is valid to chose to chose as intervention_date, default_intervention is a default date which is used for the intervention_date and usually set to "2020-03-15" but checked whether this is possible with the data we have
 }
 \description{
 Get a default and minimum and maximum date for the intervention time point for the glm algorithms with pandemic correction. This is based on the data provided and the settings for the delays.

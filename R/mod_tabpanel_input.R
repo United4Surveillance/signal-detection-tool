@@ -491,7 +491,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         if (is.null(valid_dates$valid_start_date)) {
           shiny::p("Your dataset does not have sufficient number of weeks to do a pandemic correction.")
         } else {
-          shiny::dateInput(ns("intervention_start_date"), "Choose the date when you first notice a significant change in the number of cases.",
+          shiny::dateInput(ns("intervention_date"), "Choose the date when you first notice a significant change in the number of cases.",
             value = valid_dates$default_intervention, min = valid_dates$valid_start_date, max = valid_dates$valid_end_date,
             width = "90%"
           )
@@ -511,9 +511,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     })
 
     # Reactive expression for intervention start date
-    intervention_start_date <- shiny::reactive({
+    intervention_date <- shiny::reactive({
       if (!is.null(input$pandemic_correction) && input$pandemic_correction && algorithm_glm()) {
-        input$intervention_start_date
+        input$intervention_date
       } else {
         NULL
       }
@@ -538,7 +538,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       pathogen_vars = shiny::reactive(input$pathogen_vars),
       method = shiny::reactive(input$algorithm_choice),
       no_algorithm_possible = shiny::reactive(no_algorithm_possible()),
-      intervention_start_date = shiny::reactive(intervention_start_date())
+      intervention_date = shiny::reactive(intervention_date())
     ))
   })
 }

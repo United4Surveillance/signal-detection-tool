@@ -59,8 +59,8 @@ create_sincos_data <- function(ts_len, freq = 52, S = 1) {
 #' @param model character, default "mean" one of c("mean", "sincos", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.
 #' @param time_trend boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.
 #' @param intervention_start integer, specifying the rownumber in the aggregated timeseries which corresponds to the intervention date.
-#' @param min_timepoints_baseline integer, default 12, this parameter is only used when intervention_start_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.
-#' @param min_timepoints_trend integer, default 12, this parameter is only used when intervention_start_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.
+#' @param min_timepoints_baseline integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.
+#' @param min_timepoints_trend integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.
 #' @param past_weeks_not_included An integer specifying the number of past weeks to exclude from
 #' the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 #' Default is `4`.
@@ -216,9 +216,9 @@ create_formula <- function(model_data) {
 #' @param time_trend boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.
 #' @param return_full_model boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_weeks should be returned and attached to data_aggregated as well.
 #' @param alpha_upper decimal between 0 and 1, default 0.05 specifying the pvalue cutoff used for computing the threshold, when set to 0.05 the 95 percent quantile is used.
-#' @param intervention_start_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done, i.e. no additional intercept and possibly new time trend is fitted. When a date is given a new intercept and possibly time_trend (if time_trend == TRUE) is fitted.
-#' @param min_timepoints_baseline integer, default 12, this parameter is only used when intervention_start_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.
-#' @param min_timepoints_trend integer, default 12, this parameter is only used when intervention_start_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.
+#' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done, i.e. no additional intercept and possibly new time trend is fitted. When a date is given a new intercept and possibly time_trend (if time_trend == TRUE) is fitted.
+#' @param min_timepoints_baseline integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.
+#' @param min_timepoints_trend integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.
 #' @param past_weeks_not_included An integer specifying the number of past weeks to exclude from
 #' the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 #' Default is `4`.
@@ -238,7 +238,7 @@ get_signals_glm <- function(data_aggregated,
                             time_trend = TRUE,
                             return_full_model = TRUE,
                             alpha_upper = 0.05,
-                            intervention_start_date = NULL,
+                            intervention_date = NULL,
                             min_timepoints_baseline = 12,
                             min_timepoints_trend = 12,
                             past_weeks_not_included = 4) {
@@ -247,8 +247,8 @@ get_signals_glm <- function(data_aggregated,
   )
 
   ts_len <- nrow(data_aggregated)
-  if (!is.null(intervention_start_date)) {
-    intervention_start <- get_intervention_timepoint(intervention_start_date, data_aggregated)
+  if (!is.null(intervention_date)) {
+    intervention_start <- get_intervention_timepoint(intervention_date, data_aggregated)
   } else {
     intervention_start <- NULL
   }
@@ -386,7 +386,7 @@ get_signals_glm <- function(data_aggregated,
 #' @param past_weeks_not_included An integer specifying the number of past weeks to exclude from
 #' the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 #' Default is `4`.
-#' @return list with three dates or NULL values. valid_start_date is the first date which is valid to chose as intervention_start_date, valid_end_date is the last date which is valid to chose to chose as intervention_start_date, default_intervention is a default date which is used for the intervention_start_date and usually set to "2020-03-15" but checked whether this is possible with the data we have
+#' @return list with three dates or NULL values. valid_start_date is the first date which is valid to chose as intervention_date, valid_end_date is the last date which is valid to chose to chose as intervention_date, default_intervention is a default date which is used for the intervention_date and usually set to "2020-03-15" but checked whether this is possible with the data we have
 #' @examples \dontrun{
 #' input_prepro <- input_example %>% preprocess_data()
 #' get_valid_dates_intervention_start(input_prepro) # this just gives the default date "2020-03-15" back

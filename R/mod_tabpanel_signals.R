@@ -37,7 +37,7 @@ mod_tabpanel_signals_server <- function(
     strat_vars,
     method,
     no_algorithm_possible,
-    intervention_start_date) {
+    intervention_date) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -181,7 +181,7 @@ mod_tabpanel_signals_server <- function(
       results <- SignalDetectionTool::get_signals(
         data = filtered_data(),
         method = method(),
-        intervention_start_date = intervention_start_date(),
+        intervention_date = intervention_date(),
         stratification = strat_vars_tidy(),
         date_var = "date_report",
         number_of_weeks = number_of_weeks()
@@ -191,7 +191,7 @@ mod_tabpanel_signals_server <- function(
         results_unstratified <- SignalDetectionTool::get_signals(
           data = filtered_data(),
           method = method(),
-          intervention_start_date = intervention_start_date(),
+          intervention_date = intervention_date(),
           stratification = NULL,
           date_var = "date_report",
           number_of_weeks = number_of_weeks()
