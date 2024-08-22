@@ -1,3 +1,6 @@
+
+* Bug fix inside `preprocess_data()` so that the tool works again when the age variable is not included in the data.
+
 # SignalDetectionTool 0.3.0
 
 * Losening restriction on which region information can be used for creating maps. Now all region variables including region_level variables can be used which is necessary for users who want to use their own shapefiles for their defined regions.
@@ -7,7 +10,6 @@
 * Fixing bug so that plot_time_series() works with upperbond_pad and expected_pad being all NA
 * Added notification about negative values in age.
 * Improvements in the documentation of `build_signals_table()`, `prepare_signals_agg_table()`
-* Bug fix inside `preprocess_data()` so that the tool works again when the age variable is not included in the data.
 
 # SignalDetectionTool 0.2.0
 
