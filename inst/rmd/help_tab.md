@@ -139,35 +139,47 @@ Which signal detection algorithm should you choose? It depends on
 multiple criteria, and they all have their individual weaknesses and
 strengths.
 
-**CUSUM** CUSUM (cumulative sum) is an algorithm that detects shifts in
-the mean of a time series. It accumulates deviations of the observed
-case counts from the mean case count and once this accumulation has
-reached a value above a defined tolerance a signal is triggered. After a
-signal is triggered, the cumulative sum is set to zero, and the
-algorithm restarts. As CUSUM accumulates the deviations over time, it is
-more sensitive to small and moderate shifts in the case count. The mean
-case count is computed on all case counts of the training period. CUSUM
-does not account for seasonality as it just computes a mean over all
-case counts. CUSUM was originally developed by E. S. Page and typically
-used in industry for monitoring change detection. Rossi et al. (1999)
-serves as reference in the public health context.
+**CUSUM**  
+- does not model time trend - does not model seasonality - cusum can
+compute the baseline theoretically on only one time point in the past
+but for a good baseline more historic data should be used
 
-**FarringtonFlexible** The FarringtonFlexible uses a generalised linear
-model (GLM) to model the observed case count. In addition to a time
-trend terms for seasonality are also included in this model. For the
-computation of the baseline past very high case counts (potential
-outbreaks) are downweighted so that they don’t shift the baseline
-upwards. Furthermore, the past 26 time points before the current time
-point are excluded from the baseline to avoid reducing sensitivity when
-an outbreak has recently started before the current time point. The
-algorithm needs at least 78 time points (1.5 years when time points are
-weeks) of data in the past to calibrate the baseline. FarringtonFlexible
-(Noufaily et al. 2012) is an improved version of the classic Farrington
-algorithm (Farrington et al. 1996). In this tool the implementation from
-the R package surveillance is used which is illustrated in Salmon et
-al. (2016).
+CUSUM (cumulative sum) is an algorithm that detects shifts in the mean
+of a time series. It accumulates deviations of the observed case counts
+from the mean case count and once this accumulation has reached a value
+above a defined tolerance a signal is triggered. After a signal is
+triggered, the cumulative sum is set to zero, and the algorithm
+restarts. As CUSUM accumulates the deviations over time, it is more
+sensitive to small and moderate shifts in the case count. The mean case
+count is computed on all case counts of the training period. CUSUM does
+not account for seasonality as it just computes a mean over all case
+counts. CUSUM was originally developed by E. S. Page and typically used
+in industry for monitoring change detection. Rossi et al. (1999) serves
+as reference in the public health context.
 
-**EARS** The EARS (Early Aberration Reporting System) algorithm uses a
+**FarringtonFlexible**  
+- models time trend - models seasonality - needs more historic data (78
+time points) to compute a baseline
+
+The FarringtonFlexible uses a generalised linear model (GLM) to model
+the observed case count. In addition to a time trend terms for
+seasonality are also included in this model. For the computation of the
+baseline past very high case counts (potential outbreaks) are
+downweighted so that they don’t shift the baseline upwards. Furthermore,
+the past 26 time points before the current time point are excluded from
+the baseline to avoid reducing sensitivity when an outbreak has recently
+started before the current time point. The algorithm needs at least 78
+time points (1.5 years when time points are weeks) of data in the past
+to calibrate the baseline. FarringtonFlexible (Noufaily et al. 2012) is
+an improved version of the classic Farrington algorithm (Farrington et
+al. 1996). In this tool the implementation from the R package
+surveillance is used which is illustrated in Salmon et al. (2016).
+
+**EARS**  
+- does not model time trend - does not model seasonality - needs only 7
+time points of historic data
+
+The EARS (Early Aberration Reporting System) algorithm uses a
 window-based approach for outbreak detection. For the EARS C1 algorithm
 implemented in this tool, mean and standard deviation are computed from
 the cases observed in the last 7 time points before the current time
@@ -178,70 +190,6 @@ time interval considered, EARS does not take into account seasonality
 and time trends. The baseline is computed using only the last 7 time
 points. EARS was developed by CDC and published in Hutwagner et
 al. (2003).
-
-**Mean** This method calculates the mean of all previous case counts
-while downweighting past outbreaks, ensuring that the mean remains
-unbiased by previous high case counts. This mean serves as the expected
-value for the current number of cases. A threshold is then determined
-using a prediction interval derived from the mean, applying either a
-Poisson or negative binomial distribution. The choice of distribution is
-based on the fitted dispersion of the data.
-
-**Timetrend** This method models the expected number of cases by a
-regression with an intercept and a time trend. It uses all the full
-previous data to fit the regression. It downweighting past outbreaks,
-ensuring that the fitted expected number of cases remains unbiased by
-previous high case counts. A threshold is then determined using a
-prediction interval derived from the mean, applying either a Poisson or
-negative binomial distribution. The choice of distribution is based on
-the fitted dispersion of the data.
-
-**Harmonic** This method models the expected number of cases using a
-harmonic sin-cos regression that includes an intercept but no time
-trend. The harmonic sin-cos wave elements are used to model seasonality
-which occurs in the data. The model is fitted using all available
-historical data while downweighting past outbreaks to ensure that the
-estimated expected number of cases is not biased by previous high case
-counts. A threshold is then determined using a prediction interval
-derived from the model’s mean, applying either a Poisson or negative
-binomial distribution. The choice of distribution is based on the fitted
-dispersion of the data.
-
-**Harmonic with time trend** The same as the Harmonic method but with
-fitting a time trend to account for the underlying trend in the data.
-
-**Step harmonic** This method models the expected number of cases using
-the season groups defined in the Farrington outbreak detection
-algorithm. The year is divided into 10 seasonal windows, each with a
-constant expected case count within its respective season group. This
-approach offers flexibility in capturing seasonal patterns, such as a
-faster decline following a rise, but it requires more data for accurate
-fitting. The regression model also includes an intercept. The model is
-fitted using all available historical data, with past outbreaks
-downweighted to ensure that the estimated expected number of cases
-remains unbiased by previous high case counts. A threshold is then
-determined using a prediction interval derived from the model’s mean,
-applying either a Poisson or negative binomial distribution, depending
-on the fitted dispersion of the data.
-
-**Step harmonic with time trend** The same as the Step harmonic method
-but with fitting a time trend to account for the underlying trend in the
-data.
-
-**Covid19 Pandemic correction** The “Pandemic Correction” feature,
-accessible via an additional button, applies an interrupted time series
-analysis to the outbreak detection methods. In the Mean model, separate
-means are fitted for the periods before and after the selected
-intervention date. For models that include a time trend, both the
-intercept and time trend can differ following the intervention. However,
-the seasonality components are fitted across the entire time period and
-are not adjusted based on the intervention date. This approach allows
-you to model changes in case counts, such as a decline due to the
-pandemic, and to capture a different time trend that may emerge
-afterward. A critical assumption behind these models is that the current
-case counts are represented by the model applied after the intervention,
-meaning it models the case counts which occurred during and following
-the pandemic.
 
 ### Signals tab
 
