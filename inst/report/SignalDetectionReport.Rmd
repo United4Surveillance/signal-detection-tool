@@ -30,6 +30,7 @@ params:
   tables: true
   signals_padded: NULL
   signals_agg: NULL
+  intervention_date: NULL
 
 ---
 

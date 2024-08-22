@@ -35,7 +35,8 @@ mod_tabpanel_report_server <- function(id,
                                        no_algorithm_possible,
                                        number_of_weeks_input_valid,
                                        signals_padded,
-                                       signals_agg) {
+                                       signals_agg,
+                                       intervention_date) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -134,7 +135,8 @@ mod_tabpanel_report_server <- function(id,
           tables = input$tables,
           output_file = con,
           signals_padded = signals_padded(),
-          signals_agg = signals_agg()
+          signals_agg = signals_agg(),
+          intervention_date = intervention_date()
         )
       }
     )

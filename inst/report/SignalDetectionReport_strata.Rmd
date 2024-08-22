@@ -55,6 +55,7 @@ txt <- NULL
 #| fig.fullwidth=TRUE
 plot_time_series(df,
                  number_of_weeks = 52,
+                 intervention_date = params$intervention_date,
                  interactive = FALSE) +
   ggplot2::facet_wrap(~stratum, ncol = 2, scales = "free_y") +
   ggplot2::scale_x_date(
@@ -73,6 +74,7 @@ plot_time_series(df,
 for (i in seq_len(pages)) {
   p <- plot_time_series(df,
                  number_of_weeks = 52,
+                 intervention_date = params$intervention_date,
                  interactive = FALSE) + 
   ggforce::facet_wrap_paginate(~stratum, 
                                ncol = 2, 

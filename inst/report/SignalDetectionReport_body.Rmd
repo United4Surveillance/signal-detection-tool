@@ -70,6 +70,7 @@ stringr::str_glue(
 #| out.width="100%"
 plot_time_series(signals_padded %>% 
                    dplyr::filter(is.na(category)),
+                 intervention_date = params$intervention_date,
                  interactive = params$interactive)
 ```
 

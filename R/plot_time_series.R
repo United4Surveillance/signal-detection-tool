@@ -6,6 +6,7 @@
 #'
 #' @param results data returned by the get_signals_farringtonflexible()
 #' @param interactive logical, if TRUE, interactive plot is returned; default, static plot.
+#' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done.The  intervention is marked with a dashed line.
 #' @param number_of_weeks number of weeks to be covered in the plot
 #'
 #' @return either a gg or plotly object
@@ -18,6 +19,7 @@
 #' plot_time_series(results)
 #' }
 plot_time_series <- function(results, interactive = FALSE,
+                             intervention_date = NULL,
                              number_of_weeks = 52) {
   # check whether timeseries contains padding or not
   padding_upperbound <- "upperbound_pad" %in% colnames(results)
@@ -137,6 +139,12 @@ plot_time_series <- function(results, interactive = FALSE,
   col.alarm <- "#FF0000"
   col.training <- "#9E9E9E"
   col.test <- "#304794"
+  col.intervention <- "#ff8c00"
+
+  legend_values <- c(
+    "Expected" = col.expected,
+    "Threshold" = col.threshold
+  )
 
   half_week <- lubridate::days(3)
 
@@ -186,6 +194,13 @@ plot_time_series <- function(results, interactive = FALSE,
       )
   }
 
+  # adding intervention vertical line
+  if(!is.null(intervention_date)){
+    plt <- plt +
+      ggplot2::geom_vline(xintercept = intervention_date, linetype = "dashed", color = col.intervention, size = 0.7)
+    legend_values <- c(legend_values,"Intervention" = col.intervention)
+  }
+
   # adding signal points
   plt <- plt +
     ggplot2::geom_point(
@@ -207,10 +222,7 @@ plot_time_series <- function(results, interactive = FALSE,
       values = c("TRUE" = 8),
       labels = c("TRUE" = "Signal")
     ) +
-    ggplot2::scale_color_manual(values = c(
-      "Expected" = col.expected,
-      "Threshold" = col.threshold
-    )) +
+    ggplot2::scale_color_manual(values = legend_values) +
     ggplot2::scale_fill_manual(
       values = c(
         "Test data" = col.test, "Training data" = col.training,
@@ -343,6 +355,7 @@ plot_time_series <- function(results, interactive = FALSE,
     plt <- update_axes(plt)
 
     # modifying the interactive plot legend
+    # This is horrible, we need to find a solution at some point to do this differently
     plt$x$data[[1]]$showlegend <-
       plt$x$data[[2]]$showlegend <- FALSE
     plt$x$data[[1]]$hoverinfo <-
@@ -351,13 +364,23 @@ plot_time_series <- function(results, interactive = FALSE,
     plt$x$data[[4]]$name <- plt$x$data[[4]]$legendgroup <- "Signal detection period"
     plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Threshold"
     plt$x$data[[6]]$showlegend <- FALSE
-
+    #browser()
     if (padding && any(!is.na(results$expected_pad))) {
       plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Expected"
-      plt$x$data[[8]]$showlegend <- FALSE
-      if (length(plt$x$data) == 9 && any(results$alarms == TRUE, na.rm = TRUE)) {
-        plt$x$data[[9]]$name <- plt$x$data[[9]]$legendgroup <- "Signal"
+      if(!is.null(intervention_date)){
+        plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Intervention (pandemic)"
+        plt$x$data[[8]]$showlegend <- TRUE
       }
+
+      if (length(plt$x$data) == 9 && any(results$alarms == TRUE, na.rm = TRUE)) {
+        if(is.null(intervention_date)){
+          plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Signal"
+        }else{
+          plt$x$data[[9]]$name <- plt$x$data[[9]]$legendgroup <- "Signal"
+          plt$x$data[[9]]$showlegend <- TRUE
+        }
+      }
+
     } else {
       if (any(results$alarms == TRUE, na.rm = TRUE)) {
         plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Signal"
