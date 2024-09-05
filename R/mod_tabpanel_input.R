@@ -104,11 +104,23 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 shiny::uiOutput(ns("weeks_selection")),
                 shiny::textOutput(ns("text_weeks_selection")),
                 br(),
-                span("Signal detection algorithm", style = "font-size:100%;font-weight: bold"),
-                br(),
-                span("Depending on the number of weeks you want to generate signals for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
-                br(),
-                shiny::uiOutput(ns("algorithm_choice"))
+                shiny::fluidRow(
+                  column(
+                    6,
+                    span("Signal detection algorithm", style = "font-size:100%;font-weight: bold"),
+                    br(),
+                    span("Depending on the number of weeks you want to generate signals for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
+                    br(),
+                    shiny::uiOutput(ns("algorithm_choice"))
+                  ),
+                  column(
+                    6, shiny::conditionalPanel(
+                      condition = sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
+                      checkboxInput(ns("pandemic_correction"), "Covid19 Pandemic Correction", value = FALSE)
+                    ),
+                    shiny::uiOutput(ns("conditional_date_input"))
+                  )
+                )
               )
             )
           )
@@ -179,7 +191,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::req(data_sub)
       shiny::req(!errors_detected())
       available_vars <- data_sub() %>%
-        dplyr::select(where(is.character)|where(is.factor)) %>%
+        dplyr::select(where(is.character) | where(is.factor)) %>%
         dplyr::select(-pathogen, -dplyr::all_of(dplyr::ends_with("_id"))) %>%
         names() %>%
         sort()
@@ -377,8 +389,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       if (nrow(filtered_data()) < 1) {
         return(NULL)
       }
-
-      signals_all_methods <- dplyr::bind_rows(purrr::map(unlist(available_algorithms()), function(algorithm) {
+      signals_cusum_ears_farr <- dplyr::bind_rows(purrr::map(c("farrington", "ears", "cusum"), function(algorithm) {
         signals <- get_signals(filtered_data(),
           method = algorithm,
           number_of_weeks = input$n_weeks
@@ -387,8 +398,10 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
           signals <- signals %>% dplyr::mutate(method = algorithm)
         }
       }))
+      # for the glm based algorithms we can compute based on the data when which algorithms are possible
+      glm_methods_possible <- get_possible_glm_methods(filtered_data(), number_of_weeks = input$n_weeks)
 
-      algorithms_working <- unique(signals_all_methods$method)
+      algorithms_working <- c(glm_methods_possible, unique(signals_cusum_ears_farr$method))
       algorithms_working_named <- available_algorithms()[unlist(available_algorithms()) %in% algorithms_working]
 
 
@@ -417,7 +430,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       if (length(algorithms_possible()) == 0) {
         return(shiny::tagList(
           br(),
-          HTML("<b> For the selection you chose no algorithm is possible to apply. Please reduce the number of weeks you want generate signals for or change the filters you set. </b>"),
+          HTML("<b> It is not possible to apply any algorithm for the settings you chose. Please reduce the number of weeks you want generate signals for or change the filters you set. </b>"),
           br()
         ))
       } else {
@@ -428,8 +441,63 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
           selected = selected_algorithm,
           choices = algorithms_possible(),
           selectize = FALSE,
-          width = "40%"
+          width = "90%"
         ))
+      }
+    })
+
+    algorithm_glm <- reactive({
+      shiny::req(!errors_detected())
+      shiny::req(input$algorithm_choice)
+
+      if (grepl("glm", input$algorithm_choice)) {
+        TRUE
+      } else {
+        FALSE
+      }
+    })
+
+    time_trend <- reactive({
+      shiny::req(!errors_detected())
+      shiny::req(input$algorithm_choice)
+      shiny::req(algorithm_glm)
+
+      if (algorithm_glm() && grepl("timetrend", input$algorithm_choice)) {
+        TRUE
+      } else {
+        FALSE
+      }
+    })
+
+    output$algorithm_glm <- renderText({
+      algorithm_glm() # This will return "TRUE" or "FALSE" as a string
+    })
+
+    # Force the output to be sent to the client even if not rendered in UI
+    # this needs to be here otherwise the conditionalPanel for the tickbox is not evaluated!
+    outputOptions(output, "algorithm_glm", suspendWhenHidden = FALSE)
+
+    # Observe changes in algorithm_choice to reset pandemic_correction checkbox to FALSE when other algorithm is selected
+    observeEvent(input$algorithm_choice, {
+      if (!algorithm_glm()) {
+        updateCheckboxInput(session, "pandemic_correction", value = FALSE)
+      }
+    })
+
+    # Conditional UI for date input
+    output$conditional_date_input <- shiny::renderUI({
+      if (isTRUE(input$pandemic_correction)) {
+        valid_dates <- valid_dates_intervention()
+        if (is.null(valid_dates$valid_start_date)) {
+          shiny::p("Your dataset does not have sufficient number of weeks to do a pandemic correction.")
+        } else {
+          shiny::dateInput(ns("intervention_date"), "Choose the date when you first notice a significant change in the number of cases.",
+            value = valid_dates$default_intervention, min = valid_dates$valid_start_date, max = valid_dates$valid_end_date,
+            width = "90%"
+          )
+        }
+      } else {
+        NULL
       }
     })
 
@@ -442,6 +510,23 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }
     })
 
+    # Reactive expression for intervention start date
+    intervention_date <- shiny::reactive({
+      if (!is.null(input$pandemic_correction) && input$pandemic_correction && algorithm_glm()) {
+        input$intervention_date
+      } else {
+        NULL
+      }
+    })
+
+
+    # get default, min and max dates for intervention date
+    valid_dates_intervention <- shiny::reactive({
+      get_valid_dates_intervention_start(filtered_data(), number_of_weeks = input$n_weeks, time_trend = time_trend())
+    })
+
+    # output$valid_dates_intervention <-
+
     # Return list of subsetted data and parameters
     return(list(
       filtered_data = reactive({
@@ -449,16 +534,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }),
       n_weeks = shiny::reactive(input$n_weeks),
       weeks_input_valid = shiny::reactive(iv_weeks$is_valid()),
-      strat_vars = shiny::reactive({
-        input$strat_vars
-      }),
-      pathogen_vars = shiny::reactive({
-        input$pathogen_vars
-      }),
-      method = shiny::reactive({
-        input$algorithm_choice
-      }),
-      no_algorithm_possible = shiny::reactive(no_algorithm_possible())
+      strat_vars = shiny::reactive(input$strat_vars),
+      pathogen_vars = shiny::reactive(input$pathogen_vars),
+      method = shiny::reactive(input$algorithm_choice),
+      no_algorithm_possible = shiny::reactive(no_algorithm_possible()),
+      intervention_date = shiny::reactive(intervention_date())
     ))
   })
 }

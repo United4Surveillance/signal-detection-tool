@@ -13,12 +13,8 @@ mod_tabpanel_help_ui <- function(id) {
   shiny::tabPanel(
     "Help",
     shiny::fluidPage(
-      column(
-        12,
-        shiny::br(),
-        shiny::h3("Table of content"),
-        shiny::uiOutput(ns("help_markdown"))
-      )
+      style = "padding-top: 30px;",
+      shiny::uiOutput(ns("help_tab_html"))
     ),
     icon = shiny::icon("question")
   )
@@ -32,15 +28,15 @@ mod_tabpanel_help_server <- function(id) {
     ns <- session$ns
 
     rmd_path <- system.file("rmd/help_tab.Rmd", package = "SignalDetectionTool")
-    # Knit the R Markdown file to a temporary Markdown file
-    md_path_temp <- tempfile(fileext = ".md")
-    knitr::knit(input = rmd_path, output = md_path_temp, quiet = TRUE, encoding = "UTF-8")
+    html_path_temp <- tempfile(fileext = ".html")
+    # somehow when including the finished rendered html instead of rerendering each time the app starts does not work and then the data tab does not show the output
+    knitr::knit(input = rmd_path, output = html_path_temp, quiet = TRUE, encoding = "UTF-8")
 
-    # Convert the Markdown file to HTML
-    html_content <- markdown::mark_html(md_path_temp, output = NULL, options = list(toc = TRUE, number_sections = FALSE), template = FALSE)
+    html_content <- markdown::mark_html(html_path_temp, output = NULL, options = list(toc = TRUE, number_sections = FALSE), template = FALSE)
 
-    output$help_markdown <- shiny::renderUI({
+    output$help_tab_html <- shiny::renderUI({
       shiny::HTML(html_content)
     })
+
   })
 }

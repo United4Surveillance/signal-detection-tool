@@ -5,4 +5,3 @@ input_metadata <- read.delim("dev/data/input/description.md", sep = "|") %>%
   dplyr::filter(!grepl("-{1,}", Variable))
 
 usethis::use_data(input_metadata, overwrite = TRUE)
-

@@ -19,10 +19,10 @@ For the first age_group using seperator, i.e. 00-05, <5 is allowed. For the last
 }
 \examples{
 \dontrun{
-is_age_group_format(c("<30","30-35","40-45","45+")) # Should return TRUE
-is_age_group_format(c("<30","30-35","40-45",">45")) # Should return TRUE
-is_age_group_format(c("below_one","one_to_five")) # Should return FALSE
-is_age_group_format(c("<30","30-35","40/45","45+")) # Should return FALSE
-is_age_group_format(c("<30","30-35","40+45","45+")) # Should return FALSE
+is_age_group_format(c("<30", "30-35", "40-45", "45+")) # Should return TRUE
+is_age_group_format(c("<30", "30-35", "40-45", ">45")) # Should return TRUE
+is_age_group_format(c("below_one", "one_to_five")) # Should return FALSE
+is_age_group_format(c("<30", "30-35", "40/45", "45+")) # Should return FALSE
+is_age_group_format(c("<30", "30-35", "40+45", "45+")) # Should return FALSE
 }
 }

@@ -7,6 +7,7 @@
 get_signals(
   data,
   method = "farrington",
+  intervention_date = NULL,
   stratification = NULL,
   date_start = NULL,
   date_end = NULL,
@@ -19,6 +20,8 @@ get_signals(
 
 \item{method}{The method to use for signal detection (currently supports
 "farrington").}
+
+\item{intervention_date}{A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.}
 
 \item{stratification}{A character vector specifying the columns to stratify
 the analysis. Default is NULL.}

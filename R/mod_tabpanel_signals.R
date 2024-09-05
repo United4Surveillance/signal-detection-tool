@@ -36,7 +36,8 @@ mod_tabpanel_signals_server <- function(
     number_of_weeks_input_valid,
     strat_vars,
     method,
-    no_algorithm_possible) {
+    no_algorithm_possible,
+    intervention_date) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -55,21 +56,21 @@ mod_tabpanel_signals_server <- function(
             shiny::br(),
             # Prevents boxes from taking up the entire width of the page
             style = "max-width: 900px; margin: 0 auto;",
-          bslib::layout_column_wrap(
-            width = 1/3,
-            bslib::value_box(
-              height = 135,
-              theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
-              title = "Method, disease and period",
-              value = shiny::div(
-                "Algorithm: ", get_name_by_value(method(), available_algorithms()),
-                shiny::tags$br(),
-                "Disease: ",  unique(filtered_data()$pathogen),
-                shiny::tags$br(),
-                "Time period: ", shiny::span(shiny::textOutput(ns("signal_period_text"), inline = TRUE))
-              )
-            ),
-             bslib::value_box(
+            bslib::layout_column_wrap(
+              width = 1 / 3,
+              bslib::value_box(
+                height = 135,
+                theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
+                title = "Method, disease and period",
+                value = shiny::div(
+                  "Algorithm: ", get_name_by_value(method(), available_algorithms()),
+                  shiny::tags$br(),
+                  "Disease: ", unique(filtered_data()$pathogen),
+                  shiny::tags$br(),
+                  "Time period: ", shiny::span(shiny::textOutput(ns("signal_period_text"), inline = TRUE))
+                )
+              ),
+              bslib::value_box(
                 height = 135,
                 theme = bslib::value_box_theme(bg = dplyr::if_else(sum(signal_results_unstratified()$alarms) > 0, "#DF536B", "#23FF00"), fg = "#FFFFFF"),
                 title = "Number of unstratified cases and alarms",
@@ -79,20 +80,21 @@ mod_tabpanel_signals_server <- function(
                   "Alarms: ", shiny::span(paste0(sum(signal_results_unstratified()$alarms)), inline = TRUE)
                 )
               ),
-            if(!"None" %in% strat_vars()){
-              # Box of alarms by stratum
-              bslib::value_box(
-                      height = 135,
-                      theme = bslib::value_box_theme(bg = dplyr::if_else(sum(signals_agg()$n_alarms) > 0, "#DF536B", "#23FF00") , fg = "#FFFFFF"),
-                      title = "Number of stratified alarms",
-                      value = shiny::div(
-                          shiny::tagList(
-                            shiny::htmlOutput(ns("signals_stratum"))
-                          )
-                      )
+              if (!"None" %in% strat_vars()) {
+                # Box of alarms by stratum
+                bslib::value_box(
+                  height = 135,
+                  theme = bslib::value_box_theme(bg = dplyr::if_else(sum(signals_agg()$n_alarms) > 0, "#DF536B", "#23FF00"), fg = "#FFFFFF"),
+                  title = "Number of stratified alarms",
+                  value = shiny::div(
+                    shiny::tagList(
+                      shiny::htmlOutput(ns("signals_stratum"))
+                    )
                   )
+                )
               }
-          )),
+            )
+          ),
           shiny::uiOutput(ns("plot_table_stratas")),
           shiny::uiOutput(ns("alarm_button")),
           shiny::br(),
@@ -175,9 +177,11 @@ mod_tabpanel_signals_server <- function(
     signal_results <- shiny::reactive({
       shiny::req(!errors_detected())
       shiny::req(!no_algorithm_possible())
+
       results <- SignalDetectionTool::get_signals(
         data = filtered_data(),
         method = method(),
+        intervention_date = intervention_date(),
         stratification = strat_vars_tidy(),
         date_var = "date_report",
         number_of_weeks = number_of_weeks()
@@ -187,6 +191,7 @@ mod_tabpanel_signals_server <- function(
         results_unstratified <- SignalDetectionTool::get_signals(
           data = filtered_data(),
           method = method(),
+          intervention_date = intervention_date(),
           stratification = NULL,
           date_var = "date_report",
           number_of_weeks = number_of_weeks()
@@ -204,15 +209,15 @@ mod_tabpanel_signals_server <- function(
     signal_weeks <- shiny::reactive({
       shiny::req(signal_results())
       signal_results() %>%
-      dplyr::mutate(date_week = as.Date(paste0(year, "-", week, "-1"), "%Y-%W-%u")) %>%
-      dplyr::distinct(date_week, .keep_all = T) %>%
-      dplyr::arrange(desc(date_week)) %>%
-      head(number_of_weeks())
+        dplyr::mutate(date_week = as.Date(paste0(year, "-", week, "-1"), "%Y-%W-%u")) %>%
+        dplyr::distinct(date_week, .keep_all = T) %>%
+        dplyr::arrange(desc(date_week)) %>%
+        head(number_of_weeks())
     })
 
     signal_results_unstratified <- shiny::reactive({
-        shiny::req(signal_results())
-        signal_results() %>%
+      shiny::req(signal_results())
+      signal_results() %>%
         dplyr::filter(is.na(stratum)) %>%
         dplyr::arrange(year, week) %>%
         dplyr::slice_tail(n = number_of_weeks())
@@ -221,13 +226,12 @@ mod_tabpanel_signals_server <- function(
     alarms_trig <- shiny::reactive({
       toggle_numbers <- input$alarms_trig
       # Default to FALSE if toggle_numbers is NULL
-      if (is.null(toggle_numbers)){
+      if (is.null(toggle_numbers)) {
         toggle_numbers <- FALSE
       }
 
       toggle_numbers
-
-      })
+    })
 
     output$plot_table_stratas <- shiny::renderUI({
       shiny::req(signal_results)
@@ -249,9 +253,9 @@ mod_tabpanel_signals_server <- function(
         plot_table_list <- lapply(signal_categories, function(category) {
           plot <- decider_barplot_map_table(signals_agg(), filtered_data(), category, toggle_alarms = alarms_trig())
 
-          if(category %in% names(pretty_variable_names())){
+          if (category %in% names(pretty_variable_names())) {
             category_label <- pretty_variable_names()[category][[1]]
-          }else{
+          } else {
             category_label <- category
           }
 
@@ -260,8 +264,7 @@ mod_tabpanel_signals_server <- function(
             bslib::card_header(shiny::div("Distribution by ", category_label, ",", signal_period())),
             plot
           )
-
-          })
+        })
 
         column_plots <- shiny::fluidRow(
           lapply(1:n_plots_tables, function(x) shiny::column(12 / n_plots_tables, plot_table_list[x]))
@@ -288,8 +291,12 @@ mod_tabpanel_signals_server <- function(
     signals_padded <- shiny::reactive({
       shiny::req(!errors_detected())
       shiny::req(!no_algorithm_possible())
-
-      pad_signals(filtered_data(), signal_results())
+      if (grepl("glm", method())) {
+        # for those the results are already padded
+        signal_results()
+      } else {
+        pad_signals(filtered_data(), signal_results())
+      }
     })
 
     # based on the user input which timeseries should be visualised filter the signals_padded
@@ -314,14 +321,10 @@ mod_tabpanel_signals_server <- function(
 
     signal_period <- shiny::reactive({
       shiny::req(signal_weeks())
-      if(signal_weeks()$year[1] != signal_weeks()$year[number_of_weeks()]){
-
+      if (signal_weeks()$year[1] != signal_weeks()$year[number_of_weeks()]) {
         signal_period <- paste0(format(signal_weeks()$date_week[number_of_weeks()], "W%W-%Y"), " - ", format(signal_weeks()$date_week[1], "W%W-%Y"))
-
       } else {
-
         signal_period <- paste0("W", signal_weeks()$week[number_of_weeks()], "-", signal_weeks()$week[1], " ", signal_weeks()$year[1])
-
       }
 
       as.character(signal_period)
@@ -330,7 +333,7 @@ mod_tabpanel_signals_server <- function(
     # visualisation of the timeseries
     output$time_series_plot <- plotly::renderPlotly({
       shiny::req(signals_padded_filtered())
-      plot_time_series(signals_padded_filtered(), interactive = TRUE)
+      plot_time_series(signals_padded_filtered(), interactive = TRUE, intervention_date = intervention_date())
     })
 
     # signals table
@@ -356,9 +359,9 @@ mod_tabpanel_signals_server <- function(
           dplyr::filter(category == i) %>%
           dplyr::pull(n_alarms)
 
-        if(i %in% names(pretty_variable_names())){
+        if (i %in% names(pretty_variable_names())) {
           category_label <- pretty_variable_names()[i][[1]]
-        }else{
+        } else {
           category_label <- i
         }
 
@@ -372,7 +375,7 @@ mod_tabpanel_signals_server <- function(
 
     output$signal_period_text <- shiny::renderText({
       signal_period()
-      })
+    })
 
     output$alarm_button <- shiny::renderUI({
       req(!errors_detected())
