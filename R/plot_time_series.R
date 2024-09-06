@@ -195,10 +195,10 @@ plot_time_series <- function(results, interactive = FALSE,
   }
 
   # adding intervention vertical line
-  if(!is.null(intervention_date)){
+  if (!is.null(intervention_date)) {
     plt <- plt +
       ggplot2::geom_vline(xintercept = intervention_date, linetype = "dashed", color = col.intervention, size = 0.7)
-    legend_values <- c(legend_values,"Intervention" = col.intervention)
+    legend_values <- c(legend_values, "Intervention" = col.intervention)
   }
 
   # adding signal points
@@ -364,23 +364,26 @@ plot_time_series <- function(results, interactive = FALSE,
     plt$x$data[[4]]$name <- plt$x$data[[4]]$legendgroup <- "Signal detection period"
     plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Threshold"
     plt$x$data[[6]]$showlegend <- FALSE
-    #browser()
+
     if (padding && any(!is.na(results$expected_pad))) {
       plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Expected"
-      if(!is.null(intervention_date)){
+      if (!is.null(intervention_date)) {
         plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Intervention (pandemic)"
         plt$x$data[[8]]$showlegend <- TRUE
       }
 
       if (length(plt$x$data) == 9 && any(results$alarms == TRUE, na.rm = TRUE)) {
-        if(is.null(intervention_date)){
+        if (is.null(intervention_date)) {
           plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Signal"
-        }else{
+        } else {
           plt$x$data[[9]]$name <- plt$x$data[[9]]$legendgroup <- "Signal"
           plt$x$data[[9]]$showlegend <- TRUE
         }
+      } else {
+        if (any(results$alarms == TRUE, na.rm = TRUE)) {
+          plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Signal"
+        }
       }
-
     } else {
       if (any(results$alarms == TRUE, na.rm = TRUE)) {
         plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Signal"
