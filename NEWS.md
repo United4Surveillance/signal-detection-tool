@@ -1,3 +1,6 @@
+
+* Adding the possibility to filter the data by age.
+
 # SignalDetectionTool 0.4.0
 
 
@@ -6,7 +9,6 @@
 * Adding the possibility to do a pandemic correction based on these GLM methods. Pandemic correction fits a seperate intercept and possibly timetrend depending on the model chosen.
 * Bug fix inside `preprocess_data()` so that the tool works again when the age variable is not included in the data.
 * Fixing bug so the legend in the interactive version of the plot_regional function only shows the border-color
-* Adding the possibility to filter the data by age.
 
 
 # SignalDetectionTool 0.3.0
