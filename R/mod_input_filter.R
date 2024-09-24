@@ -16,10 +16,11 @@ mod_input_filter_ui <- function(id) {
       shiny::uiOutput(ns("filter_var_ui")),
       shiny::br(),
       shiny::uiOutput(ns("filter_val_ui")),
+      shiny::br(),
       tags$style(shiny::HTML(paste0("#", id, "-filter_var_ui{display:inline-block}"))),
       tags$style(shiny::HTML(paste0("#", id, "-filter_val_ui{display:inline-block; vertical-align: top;}"))),
-      tags$style(shiny::HTML(paste0("#", id, "-filter_min_val_sel{display:inline-block}"))), # TODO: make these conditional html output
-      tags$style(shiny::HTML(paste0("#", id, "-filter_max_val_sel{display:inline-block}")))
+      tags$style(shiny::HTML(paste0("#", id, "-filter_min_val_sel{display:inline-block; vertical-align: top;}"))), # TODO: make these conditional html output
+      tags$style(shiny::HTML(paste0("#", id, "-filter_max_val_sel{display:inline-block; vertical-align: top;}")))
     )
   )
 }
@@ -80,20 +81,24 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
       } else if(is_age()) {
 
         value_ui <- shiny::tagList(
-          shiny::numericInput(
-            inputId = ns("filter_min_val_sel"),
-            label = "Minimum Age",
-            value = min(data()[[input$filter_var_sel]], na.rm = T),
-            min = min(data()[[input$filter_var_sel]], na.rm = T),
-            max = max(data()[[input$filter_var_sel]], na.rm = T)
-          ),
-          shiny::numericInput(
-            inputId = ns("filter_max_val_sel"),
-            label = "Maximum Age",
-            min = min(data()[[input$filter_var_sel]], na.rm = T),
-            max = max(data()[[input$filter_var_sel]], na.rm = T),
-            value = max(data()[[input$filter_var_sel]], na.rm = T)
-          ),
+          shiny::div(
+            shiny::numericInput(
+              inputId = ns("filter_min_val_sel"),
+              label = "Minimum Age",
+              value = min(data()[[input$filter_var_sel]], na.rm = T),
+              min = min(data()[[input$filter_var_sel]], na.rm = T),
+              max = max(data()[[input$filter_var_sel]], na.rm = T)
+              ),
+            style = "display: inline-block; width: 45%; vertical-align: top;"),
+          shiny::div(
+            shiny::numericInput(
+              inputId = ns("filter_max_val_sel"),
+              label = "Maximum Age",
+              min = min(data()[[input$filter_var_sel]], na.rm = T),
+              max = max(data()[[input$filter_var_sel]], na.rm = T),
+              value = max(data()[[input$filter_var_sel]], na.rm = T)
+            ),
+            style = "display: inline-block; width: 45%; vertical-align: top;")
         )
       } else {
         if (class(data()[[input$filter_var_sel]]) == "factor") {
@@ -131,6 +136,35 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
       values
     })
 
+    # Logic for filtering for age
+    shiny::observeEvent(input$filter_min_val_sel, {
+      # Ensure that the minimum value doesn't exceed the current maximum value
+      min_val <- input$filter_min_val_sel
+      max_val <- input$filter_max_val_sel
+
+      # If the minimum value exceeds the maximum, reset it to the maximum
+      if (min_val > max_val) {
+        updateNumericInput(session, "filter_min_val_sel", value = max_val)
+      } else {
+        # Otherwise, just update the max limit for the minimum input
+        updateNumericInput(session, "filter_max_val_sel", min = min_val)
+      }
+    })
+
+    shiny::observeEvent(input$filter_max_val_sel, {
+      # Ensure that the maximum value doesn't go below the current minimum value
+      min_val <- input$filter_min_val_sel
+      max_val <- input$filter_max_val_sel
+
+      # If the maximum value is less than the minimum, reset it to the minimum
+      if (max_val < min_val) {
+        updateNumericInput(session, "filter_max_val_sel", value = min_val)
+      } else {
+        # Otherwise, just update the min limit for the maximum input
+        updateNumericInput(session, "filter_min_val_sel", max = max_val)
+      }
+    })
+
     # update filter_var choices depending on all_filters (n_filters is required
     # to trigger event when a filter is removed from all_filters)
     shiny::observeEvent(
@@ -153,7 +187,6 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
         )
       }
     )
-
 
     # return
     list(
