@@ -74,7 +74,13 @@ available_algorithms <- function() {
   c(
     "FarringtonFlexible" = "farrington",
     "EARS" = "ears",
-    "CUSUM" = "cusum"
+    "CUSUM" = "cusum",
+    "Mean" = "glm mean",
+    "Timetrend" = "glm timetrend",
+    "Harmonic" = "glm harmonic",
+    "Harmonic with timetrend" = "glm harmonic with timetrend",
+    "Step harmonic" = "glm farrington",
+    "Step harmonic with timetrend" = "glm farrington with timetrend"
   )
 }
 
@@ -96,6 +102,6 @@ check_for_missing_values <- function() {
   c("date_report")
 }
 
-age_group_levels <- function(){
+age_group_levels <- function() {
   app_cache_env$age_group_levels
 }

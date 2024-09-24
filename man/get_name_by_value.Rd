@@ -21,6 +21,6 @@ Can be used to retrieve the "pretty" names to show to the user and in the backgr
 }
 \examples{
 \dontrun{
-get_name_by_value("farrington",available_algorithms())
+get_name_by_value("farrington", available_algorithms())
 }
 }

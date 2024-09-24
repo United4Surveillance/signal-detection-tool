@@ -81,13 +81,15 @@ plot_regional <- function(shape_with_signals,
 
   # creating text if cases missing region > 0
   text_region_missing <- NULL
-  if(!is.null(signals_agg_unknown_region) & nrow(signals_agg_unknown_region) > 0){
-    text_region_missing <- paste0(signals_agg_unknown_region$cases, " case",
-                                  ifelse(signals_agg_unknown_region$cases > 1,"s "," "),
-                                  "from unknown region with \n",signals_agg_unknown_region$n_alarms,
-                                  " signal",
-                                  ifelse(signals_agg_unknown_region$n_alarms > 1,"s",""),".\n")
-    if(!interactive){
+  if (!is.null(signals_agg_unknown_region) & nrow(signals_agg_unknown_region) > 0) {
+    text_region_missing <- paste0(
+      signals_agg_unknown_region$cases, " case",
+      ifelse(signals_agg_unknown_region$cases > 1, "s ", " "),
+      "from unknown region with \n", signals_agg_unknown_region$n_alarms,
+      " signal",
+      ifelse(signals_agg_unknown_region$n_alarms > 1, "s", ""), ".\n"
+    )
+    if (!interactive) {
       plot <- plot +
         ggplot2::labs(caption = text_region_missing) +
         ggplot2::theme(plot.caption = ggplot2::element_text(size = 14, hjust = 0.5))
@@ -113,13 +115,15 @@ plot_regional <- function(shape_with_signals,
   if (interactive) {
     plot <- plotly::ggplotly(plot, tooltip = "text")
 
-    if(!is.null(text_region_missing)){
+    if (!is.null(text_region_missing)) {
       plot <- plot %>%
-        plotly::layout(annotations = list(text = text_region_missing,
-                                          x = 0.5, y = 0,
-                                          xref = "paper", yref = "paper",
-                                          showarrow = FALSE,
-                                          align = "center"))
+        plotly::layout(annotations = list(
+          text = text_region_missing,
+          x = 0.5, y = 0,
+          xref = "paper", yref = "paper",
+          showarrow = FALSE,
+          align = "center"
+        ))
     }
     plot <- plot %>%
       plotly::style(
@@ -138,6 +142,16 @@ plot_regional <- function(shape_with_signals,
         "zoom2d",
         "toggleSpikelines"
       ))
+    # modifying the interactive plot legend
+    # Finding nr of trace with a showlegend = T
+    legends_2_copy <- which(sapply(plot$x$data, function(l){l$showlegend == TRUE}))
+    # Copy trace and show only bordercolor
+    for(idx in legends_2_copy){
+      n_list <- length(plot$x$data)
+      plot$x$data[[n_list+1]] <- plot$x$data[[idx]]
+      plot$x$data[[n_list+1]]$fillcolor <- "transparent"
+      plot$x$data[[idx]]$showlegend <- FALSE
+    }
   }
 
   plot

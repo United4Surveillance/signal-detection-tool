@@ -54,9 +54,9 @@ the aeddo algorithm to detect potential outbreaks.
 \examples{
 \dontrun{
 data_aggregated <- input_example \%>\%
-preprocess_data() \%>\%
-aggregate_data() \%>\%
-add_rows_missing_dates()
+  preprocess_data() \%>\%
+  aggregate_data() \%>\%
+  add_rows_missing_dates()
 results <- get_signals_aeddo(data_aggregated)
 }
 

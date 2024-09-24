@@ -1,7 +1,22 @@
-# SignalDetectionTool 0.2.1
+# SignalDetectionTool 0.4.0
+
+
+* Allowing the plot_time_series() to work without exected_pad and upperbound_pad, i.e. directly with the signal detection results
+* Adding six outbreak detection methods which are all GLM based. Simple Mean, Timetrend, Harmonic, Harmonic with timetrend, Farrington like GLM and Farrington like GLM with timetrend to model the expected number of cases.
+* Adding the possibility to do a pandemic correction based on these GLM methods. Pandemic correction fits a seperate intercept and possibly timetrend depending on the model chosen.
+* Bug fix inside `preprocess_data()` so that the tool works again when the age variable is not included in the data.
+* Fixing bug so the legend in the interactive version of the plot_regional function only shows the border-color
+
+
+# SignalDetectionTool 0.3.0
 
 * Losening restriction on which region information can be used for creating maps. Now all region variables including region_level variables can be used which is necessary for users who want to use their own shapefiles for their defined regions.
+* Bug fix inside `format_table()` so that signals tab is working again when no stratification is chosen.
+* Changed the title of the tool to "Signal Detection Tool".
+* Implemented cards and boxes by using `bslib` package.
 * Fixing bug so that plot_time_series() works with upperbond_pad and expected_pad being all NA
+* Added notification about negative values in age.
+* Improvements in the documentation of `build_signals_table()`, `prepare_signals_agg_table()`
 
 # SignalDetectionTool 0.2.0
 
@@ -31,7 +46,6 @@
 * Improved wording of objects in signals and reports tab
 * Made table appearance for interactive and static tables consistent using new dependency `flextable`
 * Recodes NAs in signal tables to 'unknown' for all stratifications but not for the unstratified level
-
 
 # SignalDetectionTool 0.1.0
 

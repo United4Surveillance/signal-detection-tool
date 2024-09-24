@@ -19,7 +19,7 @@ check that months are numbers between 01-12 and days are from 01-31
 }
 \examples{
 \dontrun{
-is_ISO8601_detailed(c("2023-04-01","2022-12-32")) # Should return FALSE
-is_ISO8601_detailed(c("2023-04-01","2022-12-31")) # Should return TRUE
+is_ISO8601_detailed(c("2023-04-01", "2022-12-32")) # Should return FALSE
+is_ISO8601_detailed(c("2023-04-01", "2022-12-31")) # Should return TRUE
 }
 }

@@ -28,8 +28,10 @@ Plot age-groups grouped by another variable
 }
 \examples{
 \dontrun{
-plot_agegroup_by(df = test_data,
-                  age_group_col = "age_group",
-                  by_col = "county")
+plot_agegroup_by(
+  df = test_data,
+  age_group_col = "age_group",
+  by_col = "county"
+)
 }
 }

@@ -14,7 +14,8 @@ run_report(
   tables = TRUE,
   output_file = NULL,
   signals_padded = NULL,
-  signals_agg = NULL
+  signals_agg = NULL,
+  intervention_date = NULL
 )
 }
 \arguments{
@@ -38,6 +39,8 @@ the analysis. Default is NULL.}
 \item{signals_padded}{calculated and padded signals (for use within the app, default is NULL)}
 
 \item{signals_agg}{aggregated signals  (for use within the app, default is NULL)}
+
+\item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done.}
 }
 \value{
 the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
@@ -47,12 +50,14 @@ Renders signal detection report
 }
 \examples{
 \dontrun{
-run_report(report_format = "HTML",
-           data = SignalDetectionTool::input_example,
-           algo = "farrington",
-           strata = c("county_id", "community_id", "sex", "age_group"),
-           interactive = TRUE,
-           tables = TRUE,
-           number_of_weeks = 6)
+run_report(
+  report_format = "HTML",
+  data = SignalDetectionTool::input_example,
+  algo = "farrington",
+  strata = c("county_id", "community_id", "sex", "age_group"),
+  interactive = TRUE,
+  tables = TRUE,
+  number_of_weeks = 6
+)
 }
 }

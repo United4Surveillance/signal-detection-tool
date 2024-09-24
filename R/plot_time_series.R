@@ -6,6 +6,7 @@
 #'
 #' @param results data returned by the get_signals_farringtonflexible()
 #' @param interactive logical, if TRUE, interactive plot is returned; default, static plot.
+#' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done.The  intervention is marked with a dashed line.
 #' @param number_of_weeks number of weeks to be covered in the plot
 #'
 #' @return either a gg or plotly object
@@ -18,7 +19,13 @@
 #' plot_time_series(results)
 #' }
 plot_time_series <- function(results, interactive = FALSE,
+                             intervention_date = NULL,
                              number_of_weeks = 52) {
+  # check whether timeseries contains padding or not
+  padding_upperbound <- "upperbound_pad" %in% colnames(results)
+  padding_expected <- "expected_pad" %in% colnames(results)
+  padding <- any(padding_expected, padding_upperbound)
+
   results <- results %>%
     dplyr::mutate(
       isoweek = paste0(
@@ -27,8 +34,12 @@ plot_time_series <- function(results, interactive = FALSE,
       ),
       date = ISOweek::ISOweek2date(paste0(.data$isoweek, "-1")),
       set_status = dplyr::if_else(is.na(.data$alarms), "Training data", "Test data"),
-      set_status = factor(.data$set_status, levels = c("Training data", "Test data")),
-      hover_text = paste0(
+      set_status = factor(.data$set_status, levels = c("Training data", "Test data"))
+    )
+
+  if (padding_upperbound) {
+    results <- results %>%
+      dplyr::mutate(hover_text = paste0(
         ifelse(.data$set_status == "Test data", "Signal detection period", ""),
         "<br>Week: ", .data$isoweek,
         "<br>Observed: ", .data$cases,
@@ -44,8 +55,22 @@ plot_time_series <- function(results, interactive = FALSE,
             paste0("<br>Expected: ", round(.data$expected_pad, 1))
           )
         ), "")
-      )
-    )
+      ))
+  } else {
+    results <- results %>%
+      dplyr::mutate(hover_text = paste0(
+        ifelse(.data$set_status == "Test data", "Signal detection period", ""),
+        "<br>Week: ", .data$isoweek,
+        "<br>Observed: ", .data$cases,
+        ifelse(!is.na(.data$upperbound),
+          paste0("<br>Threshold: ", round(.data$upperbound, 1)), ""
+        ),
+        ifelse(!is.na(.data$expected),
+          paste0("<br>Expected: ", round(.data$expected, 1)), ""
+        )
+      ))
+  }
+
 
   # Periods - ends on the first date in the following week, [start; end)
   # Dates for the latest ~year (`number_of_weeks` period).
@@ -88,13 +113,24 @@ plot_time_series <- function(results, interactive = FALSE,
   #   (plotly does not work with ymax=Inf)
   custom_round_up <- function(x) max(pretty(c(0, x)))
   # compute local ymax for plotly adaptive y-axis when zooming in on x-axis
-  results <- results %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(ymax = custom_round_up(c(
-      .data$cases * dplyr::if_else(.data$alarms, 1.1, 1, missing = 1),
-      # 1.1 to add space for signal-* on top-edge of case-number bars
-      .data$upperbound, .data$upperbound_pad, 1
-    )))
+  if (padding_upperbound) {
+    results <- results %>%
+      dplyr::rowwise() %>%
+      dplyr::mutate(ymax = custom_round_up(c(
+        .data$cases * dplyr::if_else(.data$alarms, 1.1, 1, missing = 1),
+        # 1.1 to add space for signal-* on top-edge of case-number bars
+        .data$upperbound, .data$upperbound_pad, 1
+      )))
+  } else {
+    results <- results %>%
+      dplyr::rowwise() %>%
+      dplyr::mutate(ymax = custom_round_up(c(
+        .data$cases * dplyr::if_else(.data$alarms, 1.1, 1, missing = 1),
+        # 1.1 to add space for signal-* on top-edge of case-number bars
+        .data$upperbound, 1
+      )))
+  }
+
   # ymax overall for rectangle background
   ymax_data <- max(results$ymax)
 
@@ -103,6 +139,12 @@ plot_time_series <- function(results, interactive = FALSE,
   col.alarm <- "#FF0000"
   col.training <- "#9E9E9E"
   col.test <- "#304794"
+  col.intervention <- "#ff8c00"
+
+  legend_values <- c(
+    "Expected" = col.expected,
+    "Threshold" = col.threshold
+  )
 
   half_week <- lubridate::days(3)
 
@@ -129,7 +171,7 @@ plot_time_series <- function(results, interactive = FALSE,
       linewidth = 1.3, direction = "hv"
     )
 
-  if (any(!is.na(results$upperbound_pad))) {
+  if (padding_upperbound && any(!is.na(results$upperbound_pad))) {
     plt <- plt +
       ggplot2::geom_step(
         ggplot2::aes(y = upperbound_pad, color = "Threshold", linetype = "Test data"),
@@ -137,7 +179,7 @@ plot_time_series <- function(results, interactive = FALSE,
       )
   }
 
-  if (any(!is.na(results$expected_pad))) {
+  if (padding_expected && any(!is.na(results$expected_pad))) {
     plt <- plt +
       ggplot2::geom_step(ggplot2::aes(y = expected, color = "Expected"),
         linewidth = 1.3, direction = "hv"
@@ -145,6 +187,18 @@ plot_time_series <- function(results, interactive = FALSE,
       ggplot2::geom_step(ggplot2::aes(y = expected_pad, color = "Expected", linetype = "Training data"),
         linewidth = 0.3, direction = "hv"
       )
+  } else if (any(!is.na(results$expected))) {
+    plt <- plt +
+      ggplot2::geom_step(ggplot2::aes(y = expected, color = "Expected"),
+        linewidth = 1.3, direction = "hv"
+      )
+  }
+
+  # adding intervention vertical line
+  if (!is.null(intervention_date)) {
+    plt <- plt +
+      ggplot2::geom_vline(xintercept = intervention_date, linetype = "dashed", color = col.intervention, size = 0.7)
+    legend_values <- c(legend_values, "Intervention" = col.intervention)
   }
 
   # adding signal points
@@ -168,10 +222,7 @@ plot_time_series <- function(results, interactive = FALSE,
       values = c("TRUE" = 8),
       labels = c("TRUE" = "Signal")
     ) +
-    ggplot2::scale_color_manual(values = c(
-      "Expected" = col.expected,
-      "Threshold" = col.threshold
-    )) +
+    ggplot2::scale_color_manual(values = legend_values) +
     ggplot2::scale_fill_manual(
       values = c(
         "Test data" = col.test, "Training data" = col.training,
@@ -304,6 +355,7 @@ plot_time_series <- function(results, interactive = FALSE,
     plt <- update_axes(plt)
 
     # modifying the interactive plot legend
+    # This is horrible, we need to find a solution at some point to do this differently
     plt$x$data[[1]]$showlegend <-
       plt$x$data[[2]]$showlegend <- FALSE
     plt$x$data[[1]]$hoverinfo <-
@@ -313,11 +365,24 @@ plot_time_series <- function(results, interactive = FALSE,
     plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Threshold"
     plt$x$data[[6]]$showlegend <- FALSE
 
-    if (any(!is.na(results$expected_pad))) {
+    if (padding && any(!is.na(results$expected_pad))) {
       plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Expected"
-      plt$x$data[[8]]$showlegend <- FALSE
-      if (any(results$alarms == TRUE, na.rm = TRUE)) {
-        plt$x$data[[9]]$name <- plt$x$data[[9]]$legendgroup <- "Signal"
+      if (!is.null(intervention_date)) {
+        plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Intervention (pandemic)"
+        plt$x$data[[8]]$showlegend <- TRUE
+      }
+
+      if (length(plt$x$data) == 9 && any(results$alarms == TRUE, na.rm = TRUE)) {
+        if (is.null(intervention_date)) {
+          plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Signal"
+        } else {
+          plt$x$data[[9]]$name <- plt$x$data[[9]]$legendgroup <- "Signal"
+          plt$x$data[[9]]$showlegend <- TRUE
+        }
+      } else {
+        if (any(results$alarms == TRUE, na.rm = TRUE)) {
+          plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Signal"
+        }
       }
     } else {
       if (any(results$alarms == TRUE, na.rm = TRUE)) {

@@ -24,7 +24,8 @@ app_server <- function(input, output, session) {
     strat_vars = datinput$strat_vars,
     errors_detected = data_load_check_result$errors_detected,
     method = datinput$method,
-    no_algorithm_possible = datinput$no_algorithm_possible
+    no_algorithm_possible = datinput$no_algorithm_possible,
+    intervention_date = datinput$intervention_date
   )
 
   mod_tabpanel_report_server("report",
@@ -35,6 +36,7 @@ app_server <- function(input, output, session) {
     datinput$no_algorithm_possible,
     number_of_weeks_input_valid = datinput$weeks_input_valid,
     signals_padded = signals_output$signals_padded,
-    signals_agg = signals_output$signals_agg
+    signals_agg = signals_output$signals_agg,
+    intervention_date = datinput$intervention_date
   )
 }

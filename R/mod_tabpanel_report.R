@@ -35,8 +35,8 @@ mod_tabpanel_report_server <- function(id,
                                        no_algorithm_possible,
                                        number_of_weeks_input_valid,
                                        signals_padded,
-                                       signals_agg) {
-
+                                       signals_agg,
+                                       intervention_date) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -61,19 +61,19 @@ mod_tabpanel_report_server <- function(id,
 
               # Input: Choose dataset ----
               shiny::selectInput(NS(id, "format"), "Choose a format:",
-                                 choices = c("HTML", "DOCX")),
-
+                choices = c("HTML", "DOCX")
+              ),
               shiny::checkboxInput(NS(id, "tables"),
-                                   "Include tables (stratifications)",
-                                   value = TRUE),
-
+                "Include tables (stratifications)",
+                value = TRUE
+              ),
               shiny::checkboxInput(NS(id, "interactive"),
-                                   "Interactive HTML",
-                                   value = TRUE),
+                "Interactive HTML",
+                value = TRUE
+              ),
 
               # Button
               shiny::downloadButton(NS(id, "downloadReport"), "Create Report")
-
             ),
 
             # Main panel for displaying outputs ----
@@ -103,31 +103,42 @@ mod_tabpanel_report_server <- function(id,
 
     # Download generated report
     output$report_text <- renderText({
-      paste("Generates report for", pathogen_vars(), " stratified ",
-            "by ", paste0(strat_vars(), collapse = ", "), "for the last",
-            number_of_weeks(), " weeks using ",
-            names(available_algorithms())[available_algorithms() == method()],
-            " as outbreak detection algorithm.")
+      paste(
+        "Generates report for", pathogen_vars(), " stratified ",
+        "by ", paste0(strat_vars(), collapse = ", "), "for the last",
+        number_of_weeks(), " weeks using ",
+        names(available_algorithms())[available_algorithms() == method()],
+        " as outbreak detection algorithm."
+      )
     })
 
 
     output$downloadReport <- downloadHandler(
       filename = function() {
-        paste0("SignalDetectionReport.",
-               switch(input$format, HTML = "html", DOCX = "docx", PDF = "pdf"))
+        paste0(
+          "SignalDetectionReport.",
+          switch(input$format,
+            HTML = "html",
+            DOCX = "docx",
+            PDF = "pdf"
+          )
+        )
       },
       content = function(con) {
-        run_report(report_format = input$format,
-                   data = filtered_data(),
-                   algo = method(),
-                   number_of_weeks = number_of_weeks(),
-                   strata = strat_vars(),
-                   interactive = input$interactive,
-                   tables = input$tables,
-                   output_file = con,
-                   signals_padded = signals_padded(),
-                   signals_agg = signals_agg())
-      })
+        run_report(
+          report_format = input$format,
+          data = filtered_data(),
+          algo = method(),
+          number_of_weeks = number_of_weeks(),
+          strata = strat_vars(),
+          interactive = input$interactive,
+          tables = input$tables,
+          output_file = con,
+          signals_padded = signals_padded(),
+          signals_agg = signals_agg(),
+          intervention_date = intervention_date()
+        )
+      }
+    )
   })
 }
-

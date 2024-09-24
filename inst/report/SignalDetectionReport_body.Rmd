@@ -70,6 +70,7 @@ stringr::str_glue(
 #| out.width="100%"
 plot_time_series(signals_padded %>% 
                    dplyr::filter(is.na(category)),
+                 intervention_date = params$intervention_date,
                  interactive = params$interactive)
 ```
 
@@ -81,10 +82,7 @@ txt <- NULL
 if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
   format <- ifelse(params$interactive, "DataTable", "Flextable")
   build_signals_table(signals_padded %>% 
-                       dplyr::filter(is.na(category)) %>% 
-                       dplyr::select(-upperbound_pad, 
-                                     -expected_pad, 
-                                     -first_alarm_nonNA), 
+                       dplyr::filter(is.na(category)), 
                      format = format)
 } else {
   txt <- "No signals were detected."
