@@ -138,30 +138,34 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
 
     # Logic for filtering for age
     shiny::observeEvent(input$filter_min_val_sel, {
-      # Ensure that the minimum value doesn't exceed the current maximum value
-      min_val <- input$filter_min_val_sel
-      max_val <- input$filter_max_val_sel
+      # Ensure the input is not empty or NULL
+      if (!is.null(input$filter_min_val_sel) && !is.null(input$filter_max_val_sel)) {
+        min_val <- input$filter_min_val_sel
+        max_val <- input$filter_max_val_sel
 
-      # If the minimum value exceeds the maximum, reset it to the maximum
-      if (min_val > max_val) {
-        updateNumericInput(session, "filter_min_val_sel", value = max_val)
-      } else {
-        # Otherwise, just update the max limit for the minimum input
-        updateNumericInput(session, "filter_max_val_sel", min = min_val)
+        # If the minimum value exceeds the maximum, reset it to the maximum
+        if (!is.na(min_val) && min_val > max_val) {
+          updateNumericInput(session, "filter_min_val_sel", value = max_val)
+        } else {
+          # Otherwise, just update the max limit for the minimum input
+          updateNumericInput(session, "filter_max_val_sel", min = min_val)
+        }
       }
     })
 
     shiny::observeEvent(input$filter_max_val_sel, {
-      # Ensure that the maximum value doesn't go below the current minimum value
-      min_val <- input$filter_min_val_sel
-      max_val <- input$filter_max_val_sel
+      # Ensure the input is not empty or NULL
+      if (!is.null(input$filter_min_val_sel) && !is.null(input$filter_max_val_sel)) {
+        min_val <- input$filter_min_val_sel
+        max_val <- input$filter_max_val_sel
 
-      # If the maximum value is less than the minimum, reset it to the minimum
-      if (max_val < min_val) {
-        updateNumericInput(session, "filter_max_val_sel", value = min_val)
-      } else {
-        # Otherwise, just update the min limit for the maximum input
-        updateNumericInput(session, "filter_min_val_sel", max = max_val)
+        # If the maximum value is less than the minimum, reset it to the minimum
+        if (!is.na(max_val) && max_val < min_val) {
+          updateNumericInput(session, "filter_max_val_sel", value = min_val)
+        } else {
+          # Otherwise, just update the min limit for the maximum input
+          updateNumericInput(session, "filter_min_val_sel", max = max_val)
+        }
       }
     })
 
