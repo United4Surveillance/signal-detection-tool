@@ -1,3 +1,5 @@
+# SignalDetectionTool 0.4.0
+
 
 * Allowing the `plot_time_series()` to work without exected_pad and upperbound_pad, i.e. directly with the signal detection results
 * Adding six outbreak detection methods which are all GLM based. Simple Mean, Timetrend, Harmonic, Harmonic with timetrend, Farrington like GLM and Farrington like GLM with timetrend to model the expected number of cases.
