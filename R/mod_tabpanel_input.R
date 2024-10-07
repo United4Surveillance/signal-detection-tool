@@ -198,12 +198,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       available_vars
     })
 
-    # adding date_report to the possible filter vars
+    # adding date_report and age to the possible filter vars
     filter_var_opts <- shiny::reactive({
       shiny::req(available_var_opts())
       shiny::req(data_sub())
-      date_opts <- intersect(names(data_sub()), c("date_report", "age"))
-      all_opts <- c("None", date_opts, available_var_opts())
+      date_opts <- intersect(names(data_sub()), c("date_report"))
+      age_opts <- intersect(names(data_sub()), c("age"))
+      all_opts <- c("None", date_opts, age_opts, available_var_opts())
       all_opts
     })
 
