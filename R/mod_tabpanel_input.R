@@ -198,12 +198,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       available_vars
     })
 
-    # adding date_report to the possible filter vars
+    # adding date_report and age to the possible filter vars
     filter_var_opts <- shiny::reactive({
       shiny::req(available_var_opts())
       shiny::req(data_sub())
       date_opts <- intersect(names(data_sub()), c("date_report"))
-      all_opts <- c("None", date_opts, available_var_opts())
+      age_opts <- intersect(names(data_sub()), c("age"))
+      all_opts <- c("None", date_opts, age_opts, available_var_opts())
       all_opts
     })
 
@@ -292,6 +293,12 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
             if (class(df[[rlang::as_name(filter_var)]]) == "Date") { # apply filter if filtering date
               df <- df %>%
                 dplyr::filter(!!filter_var %in% seq(filter_val[1], filter_val[2], "day"))
+            } else if(rlang::as_name(filter_var) == "age") {
+              df <- df %>%
+                dplyr::filter(!!filter_var >= filter_val[1], !!filter_var <= filter_val[2])
+
+              sorted_filter_val <- stringr::str_sort(unique(df$age_group), numeric = TRUE)
+              app_cache_env$age_group_levels <- sorted_filter_val
             } else if ("N/A" %in% filter_val) { # apply filter if filtering for NAs
               df <- df %>%
                 dplyr::filter(
@@ -309,7 +316,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 app_cache_env$sex_levels <- sorted_filter_val
               }
               if (filter_var == "age_group") {
-                sorted_filter_val <- stringr::str_sort(filter_val, numeric = TRUE)
+                sorted_filter_val <- stringr::str_sort(unique(df$age_group), numeric = TRUE)
                 app_cache_env$age_group_levels <- sorted_filter_val
               }
             } else { # otherwise

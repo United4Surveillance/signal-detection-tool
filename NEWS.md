@@ -1,3 +1,6 @@
+
+* Adding the possibility to filter the data by age.
+
 # SignalDetectionTool 0.4.0
 
 
