@@ -1,17 +1,22 @@
 #' Renders signal detection report
 #'
-#' @param report_format format of the report: HTML or DOCX
+#' If executed as a standalone function, all filtering must
+#' be performed beforehand.
+#' This function is also invoked within the app.
+#'
 #' @param data data.frame containing surveillance data in linelist format
-#' @param algo algorithm to be used
+#' @param report_format format of the report: HTML or DOCX
+#' @param method algorithm to be used
 #' @param number_of_weeks number of weeks for which signals are generated
 #' @param strata A character vector specifying the columns to stratify
 #'   the analysis. Default is NULL.
 #' @param interactive Logical (only applicable to HTML report)
 #' @param tables Logical. True if tables should be included in report.
 #' @param output_file The name of the output file \link[rmarkdown]{render}
+#' @param output_dir The output directory for the rendered output file \link[rmarkdown]{render}
 #' @param signals_padded calculated and padded signals (for use within the app, default is NULL)
 #' @param signals_agg aggregated signals  (for use within the app, default is NULL)
-#'@param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done.
+#' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done.
 #'
 #' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 #' @export
@@ -21,22 +26,23 @@
 #' run_report(
 #'   report_format = "HTML",
 #'   data = SignalDetectionTool::input_example,
-#'   algo = "farrington",
-#'   strata = c("county_id", "community_id", "sex", "age_group"),
+#'   method = "farrington",
+#'   strata = c("county", "community", "sex", "age_group"),
 #'   interactive = TRUE,
 #'   tables = TRUE,
 #'   number_of_weeks = 6
 #' )
 #' }
 run_report <- function(
-    report_format = "HTML",
     data = SignalDetectionTool::input_example,
-    algo = "farrington",
+    report_format = "HTML",
+    method = "farrington",
     number_of_weeks = 6,
-    strata = c("county_id", "community_id", "sex", "age_group"),
+    strata = c("county", "community", "sex", "age_group"),
     interactive = TRUE,
     tables = TRUE,
     output_file = NULL,
+    output_dir = NULL,
     signals_padded = NULL,
     signals_agg = NULL,
     intervention_date = NULL) {
@@ -60,13 +66,13 @@ run_report <- function(
     country = unique(data$country),
     disease = unique(data$pathogen),
     number_of_weeks = number_of_weeks,
-    algo = algo,
+    method = method,
     strata = strata,
     interactive = ifelse(report_format != "HTML", FALSE, interactive),
     tables = tables,
     signals_padded = signals_padded,
     signals_agg = signals_agg,
-    intervention_date = intervention_date
+    intervention_date = as.Date(intervention_date)
   )
 
   report_f <- dplyr::case_when(
@@ -79,6 +85,7 @@ run_report <- function(
   rmarkdown::render(rmd_path,
     output_format = report_f,
     params = report_params,
-    output_file = output_file
+    output_file = output_file,
+    output_dir = output_dir
   )
 }
