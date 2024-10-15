@@ -1,5 +1,6 @@
 
 * Adding the possibility to filter the data by age.
+* Adding column "cases in outbreak" to the signal detection results table. This information is calculated based on the outbreak_status column (when available) of the data by simply taking the sum of outbreak_status = TRUE of the aggregated cases. 
 
 # SignalDetectionTool 0.4.0
 

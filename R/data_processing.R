@@ -86,15 +86,31 @@ aggregate_data <- function(data,
   week_var <- paste0(date_var, "_week")
   year_var <- paste0(date_var, "_year")
 
-  data %>%
-    dplyr::group_by(!!rlang::sym(week_var), !!rlang::sym(year_var)) %>%
-    dplyr::summarize(cases = dplyr::n(), .groups = "drop") %>%
-    dplyr::select(
-      week = !!rlang::sym(week_var),
-      year = !!rlang::sym(year_var),
-      .data$cases
-    ) %>%
-    dplyr::arrange(year, week)
+  if("outbreak_status" %in% names(data)){
+    data %>%
+      dplyr::group_by(!!rlang::sym(week_var), !!rlang::sym(year_var)) %>%
+      dplyr::summarize(cases = dplyr::n(),
+                       `cases in outbreak` = sum(outbreak_status),
+                       .groups = "drop") %>%
+      dplyr::select(
+        week = !!rlang::sym(week_var),
+        year = !!rlang::sym(year_var),
+        .data$cases,
+        .data$`cases in outbreak`
+      ) %>%
+      dplyr::arrange(year, week)
+  } else {
+    data %>%
+      dplyr::group_by(!!rlang::sym(week_var), !!rlang::sym(year_var)) %>%
+      dplyr::summarize(cases = dplyr::n(),
+                       .groups = "drop") %>%
+      dplyr::select(
+        week = !!rlang::sym(week_var),
+        year = !!rlang::sym(year_var),
+        .data$cases
+      ) %>%
+      dplyr::arrange(year, week)
+  }
 }
 
 #' Aggregate cases and signals over the number of weeks.
