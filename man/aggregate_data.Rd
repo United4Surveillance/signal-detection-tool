@@ -2,7 +2,8 @@
 % Please edit documentation in R/data_processing.R
 \name{aggregate_data}
 \alias{aggregate_data}
-\title{Aggregates case data by year and week}
+\title{Aggregates case data by year and week
+With number cases already part of a known outbreak if outbreak_status column is part of the data}
 \usage{
 aggregate_data(data, date_var = "date_report")
 }
@@ -13,6 +14,7 @@ aggregate_data(data, date_var = "date_report")
 }
 \description{
 Aggregates case data by year and week
+With number cases already part of a known outbreak if outbreak_status column is part of the data
 }
 \examples{
 \dontrun{
