@@ -33,3 +33,4 @@
 | hospitalization	       | NO | Indication whether the case was hospitalized, yes, no or unknown  |
 | death                  | NO | Indication whether the case has died, yes, no or unknown |
 | vaccination	           | NO | Indication whether the case was vaccinated before infection, yes, no or unknown |
+| outbreak_status        | NO | Indication whether the case is known to be part of an outbreak, yes, no, unknown|
