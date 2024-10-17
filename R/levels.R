@@ -40,7 +40,8 @@ yes_no_unknown_variables <- function() {
   c(
     "hospitalization",
     "death",
-    "vaccination"
+    "vaccination",
+    "outbreak_status"
   )
 }
 
