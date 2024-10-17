@@ -75,6 +75,7 @@ preprocess_data <- function(data) {
 }
 
 #' Aggregates case data by year and week
+#' With number cases already part of a known outbreak if outbreak_status column is part of the data
 #' @param data data.frame, linelist of cases to be aggregated
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @examples
@@ -86,15 +87,32 @@ aggregate_data <- function(data,
   week_var <- paste0(date_var, "_week")
   year_var <- paste0(date_var, "_year")
 
-  data %>%
-    dplyr::group_by(!!rlang::sym(week_var), !!rlang::sym(year_var)) %>%
-    dplyr::summarize(cases = dplyr::n(), .groups = "drop") %>%
-    dplyr::select(
-      week = !!rlang::sym(week_var),
-      year = !!rlang::sym(year_var),
-      .data$cases
-    ) %>%
-    dplyr::arrange(year, week)
+  if("outbreak_status" %in% names(data)){
+    data %>%
+      dplyr::group_by(!!rlang::sym(week_var), !!rlang::sym(year_var)) %>%
+      dplyr::summarize(cases = dplyr::n(),
+                       cases_in_outbreak = sum(outbreak_status == "yes", na.rm = T),
+                       .groups = "drop") %>%
+      dplyr::mutate(cases_in_outbreak = dplyr::if_else(is.na(cases_in_outbreak),0,cases_in_outbreak)) %>%
+      dplyr::select(
+        week = !!rlang::sym(week_var),
+        year = !!rlang::sym(year_var),
+        cases,
+        cases_in_outbreak
+      ) %>%
+      dplyr::arrange(year, week)
+  } else {
+    data %>%
+      dplyr::group_by(!!rlang::sym(week_var), !!rlang::sym(year_var)) %>%
+      dplyr::summarize(cases = dplyr::n(),
+                       .groups = "drop") %>%
+      dplyr::select(
+        week = !!rlang::sym(week_var),
+        year = !!rlang::sym(year_var),
+        cases
+      ) %>%
+      dplyr::arrange(year, week)
+  }
 }
 
 #' Aggregate cases and signals over the number of weeks.

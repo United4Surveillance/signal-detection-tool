@@ -1,5 +1,7 @@
 
 * Adding the possibility to filter the data by age.
+* Adding column "cases in outbreak" to the signal detection results table. his is based on an optional variable outbreak_status in the dataset.
+* The value unknown can now be chosen as filter value when present in the selected filter variables 
 
 # SignalDetectionTool 0.4.0
 

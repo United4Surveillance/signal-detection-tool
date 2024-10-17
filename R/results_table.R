@@ -87,6 +87,12 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
     data <- data %>% dplyr::rename(signals = alarms)
   }
 
+  if("cases_in_outbreak" %in% names(data)){
+    data <- data %>%
+      dplyr::mutate(cases_in_outbreak = as.integer(cases_in_outbreak)) %>%
+      dplyr::rename('Cases in outbreak' = cases_in_outbreak)
+  }
+
   # remove columns which were added for the visualisation of the timeseries but we do not want to have for the table
   data <- data %>% dplyr::select(-dplyr::one_of("expected_pad", "upperbound_pad", "first_alarm_nonNA"))
 
