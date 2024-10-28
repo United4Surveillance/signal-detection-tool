@@ -306,6 +306,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                     !!filter_var %in% filter_val[filter_val != "N/A"]
                 )
             } else if (class(data()[[filter_var]]) == "factor") { # apply filter for factors (dropping levels)
+              # backtransform "unknown" to NA as we did not transform the data but only what is displayed to the user
+              filter_val <- sapply(filter_val, function(x) if (x == "unknown") NA_character_ else x)
+
               df <- df %>%
                 dplyr::filter(!!filter_var %in% filter_val) %>%
                 dplyr::mutate(!!filter_var := factor(!!filter_var, levels = filter_val))
