@@ -4,8 +4,8 @@
 #' be performed beforehand.
 #' This function is also invoked within the app.
 #'
-#' @param report_format format of the report: HTML or DOCX
 #' @param data data.frame containing surveillance data in linelist format
+#' @param report_format format of the report: HTML or DOCX
 #' @param method algorithm to be used
 #' @param number_of_weeks number of weeks for which signals are generated
 #' @param strata A character vector specifying the columns to stratify
@@ -13,6 +13,7 @@
 #' @param interactive Logical (only applicable to HTML report)
 #' @param tables Logical. True if tables should be included in report.
 #' @param output_file The name of the output file \link[rmarkdown]{render}
+#' @param output_dir The output directory for the rendered output file \link[rmarkdown]{render}
 #' @param signals_padded calculated and padded signals (for use within the app, default is NULL)
 #' @param signals_agg aggregated signals  (for use within the app, default is NULL)
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done.
@@ -33,14 +34,15 @@
 #' )
 #' }
 run_report <- function(
-    report_format = "HTML",
     data = SignalDetectionTool::input_example,
+    report_format = "HTML",
     method = "farrington",
     number_of_weeks = 6,
     strata = c("county", "community", "sex", "age_group"),
     interactive = TRUE,
     tables = TRUE,
     output_file = NULL,
+    output_dir = NULL,
     signals_padded = NULL,
     signals_agg = NULL,
     intervention_date = NULL) {
@@ -70,7 +72,7 @@ run_report <- function(
     tables = tables,
     signals_padded = signals_padded,
     signals_agg = signals_agg,
-    intervention_date = intervention_date
+    intervention_date = as.Date(intervention_date)
   )
 
   report_f <- dplyr::case_when(
@@ -83,6 +85,7 @@ run_report <- function(
   rmarkdown::render(rmd_path,
     output_format = report_f,
     params = report_params,
-    output_file = output_file
+    output_file = output_file,
+    output_dir = output_dir
   )
 }

@@ -5,23 +5,24 @@
 \title{Renders signal detection report}
 \usage{
 run_report(
-  report_format = "HTML",
   data = SignalDetectionTool::input_example,
+  report_format = "HTML",
   method = "farrington",
   number_of_weeks = 6,
   strata = c("county", "community", "sex", "age_group"),
   interactive = TRUE,
   tables = TRUE,
   output_file = NULL,
+  output_dir = NULL,
   signals_padded = NULL,
   signals_agg = NULL,
   intervention_date = NULL
 )
 }
 \arguments{
-\item{report_format}{format of the report: HTML or DOCX}
-
 \item{data}{data.frame containing surveillance data in linelist format}
+
+\item{report_format}{format of the report: HTML or DOCX}
 
 \item{method}{algorithm to be used}
 
@@ -35,6 +36,8 @@ the analysis. Default is NULL.}
 \item{tables}{Logical. True if tables should be included in report.}
 
 \item{output_file}{The name of the output file \link[rmarkdown]{render}}
+
+\item{output_dir}{The output directory for the rendered output file \link[rmarkdown]{render}}
 
 \item{signals_padded}{calculated and padded signals (for use within the app, default is NULL)}
 

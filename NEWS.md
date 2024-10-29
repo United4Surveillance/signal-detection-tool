@@ -2,11 +2,13 @@
 * Adding the possibility to filter the data by age.
 * Adding column "cases in outbreak" to the signal detection results table. his is based on an optional variable outbreak_status in the dataset.
 * The value unknown can now be chosen as filter value when present in the selected filter variables 
+* Allow `run_report()` to work as a standalone function 
+* user can specify output_dir in the `run_report()` function 
 
 # SignalDetectionTool 0.4.0
 
-
 * Allowing the plot_time_series() to work without exected_pad and upperbound_pad, i.e. directly with the signal detection results
+* Allowing the `plot_time_series()` to work without exected_pad and upperbound_pad, i.e. directly with the signal detection results
 * Adding six outbreak detection methods which are all GLM based. Simple Mean, Timetrend, Harmonic, Harmonic with timetrend, Farrington like GLM and Farrington like GLM with timetrend to model the expected number of cases.
 * Adding the possibility to do a pandemic correction based on these GLM methods. Pandemic correction fits a seperate intercept and possibly timetrend depending on the model chosen.
 * Bug fix inside `preprocess_data()` so that the tool works again when the age variable is not included in the data.

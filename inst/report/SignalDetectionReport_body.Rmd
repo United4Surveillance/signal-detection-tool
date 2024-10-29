@@ -17,6 +17,7 @@ if (is.null(params$data)) {
 - Method used: `r names(available_algorithms()[which(available_algorithms() == params$method)])`
 - Length of signal detection period: `r params$number_of_weeks` weeks
 - Strata selected: `r paste(params$strata, collapse = ", ")`
+- Intervention date: `r params$intervention_date`
 
 
 ```{r}
@@ -28,14 +29,16 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
   signal_results <- get_signals(data_preprocessed, 
                                 stratification = NULL,
                                 method = params$method, 
-                                number_of_weeks = params$number_of_weeks)
+                                number_of_weeks = params$number_of_weeks, 
+                                intervention_date = params$intervention_date)
   
   if (!is.null(params$strata)) {
     signal_results_stratified  <- get_signals(
       data_preprocessed, 
       stratification = params$strata,
       method = params$method, 
-      number_of_weeks = params$number_of_weeks) 
+      number_of_weeks = params$number_of_weeks, 
+      intervention_date = params$intervention_date) 
     
     signal_results <- signal_results %>% 
       dplyr::bind_rows(signal_results_stratified)
