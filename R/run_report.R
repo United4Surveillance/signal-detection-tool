@@ -6,7 +6,7 @@
 #'
 #' @param data data.frame containing surveillance data in linelist format
 #' @param report_format format of the report: HTML or DOCX
-#' @param method algorithm to be used
+#' @param method algorithm to be use, one of \code{available_algorithms()}
 #' @param number_of_weeks number of weeks for which signals are generated
 #' @param strata A character vector specifying the columns to stratify
 #'   the analysis. Default is NULL.
@@ -61,6 +61,10 @@ run_report <- function(
     strata <- NULL
   }
 
+  if (is.character(intervention_date)) {
+    intervention_date <- as.Date(intervention_date)
+  }
+
   report_params <- list(
     data = data,
     country = unique(data$country),
@@ -72,7 +76,7 @@ run_report <- function(
     tables = tables,
     signals_padded = signals_padded,
     signals_agg = signals_agg,
-    intervention_date = as.Date(intervention_date)
+    intervention_date = intervention_date
   )
 
   report_f <- dplyr::case_when(

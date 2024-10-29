@@ -24,7 +24,7 @@ run_report(
 
 \item{report_format}{format of the report: HTML or DOCX}
 
-\item{method}{algorithm to be used}
+\item{method}{algorithm to be use, one of \code{available_algorithms()}}
 
 \item{number_of_weeks}{number of weeks for which signals are generated}
 
