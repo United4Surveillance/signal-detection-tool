@@ -30,18 +30,25 @@ app_ui <- function(request) {
       ## Logo and headertext
       shiny::titlePanel(
         shiny::div(
+          style = "height: 10vh;",
           shiny::br(),
           shiny::fluidRow(
-            shiny::column(width = 8, shiny::h1("Signal Detection Tool")),
+            shiny::column(
+              width = 8,
+              shiny::div(
+                style = "text-align: left; margin-left: 20px; font-size: 50px;",
+                "Signal Detection Tool"
+              )
+            ),
             shiny::column(width = 2, shiny::tags$img(src = "www/U4S-BLUE-200x87.png", style = "padding-bottom: 20px;")),
             shiny::column(width = 2, shiny::tags$img(src = "www/EN_V_Co-funded_by_POS.png", height = 95, width = "auto"))
           ),
         ),
         windowTitle = "U4S Signal Detection"
       ),
-      shiny::fluidRow(
-        shiny::column(
-          width = 12,
+      # shiny::fluidRow(
+        # shiny::column(
+          # width = 12,
           shiny::tabsetPanel(
             mod_tabpanel_help_ui("help"),
             mod_tabpanel_data_ui("data"),
@@ -49,8 +56,8 @@ app_ui <- function(request) {
             mod_tabpanel_signals_ui("signals"),
             mod_tabpanel_report_ui("report"),
             selected = "Data"
-          )
-        )
+          # )
+        # )
       ),
 
       # EU Disclaimer
