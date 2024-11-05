@@ -27,10 +27,9 @@ mod_tabpanel_data_ui <- function(id) {
       width = "100px"
     ),
     bslib::layout_columns(
-      col_widths = c(3, 9),
+      col_widths = c(3, 9, 12),
       bslib::card(
-        max_height = "20vh",
-        shiny::h2("Load Data"),
+        bslib::card_title("Load Data", container = shiny::h2),
         shiny::fileInput(
           inputId = ns("file1"),
           label = "Choose CSV or Excel File",
@@ -42,151 +41,41 @@ mod_tabpanel_data_ui <- function(id) {
           )
         ),
       ),
-      bslib::page_fluid(
-        bslib::card(
-          h3("Data check results"),
-          h4("Correct type and values of the columns in your data"),
-          span("In this section you receive feedback about the correct type and values of all columns in your data where the column name was written correctly. Columns which are not written in the way it is required by the SOP are not checked for correctness. If there is an error in this section you need to first fix it to be able to use the tool."),
-          hr(),
-          div(
-            style = "border: 2px solid black; padding: 10px;",
-            htmlOutput(ns("errors"))
-          ), # Display errors output
-          hr(), # Horizontal line for visual separation
-          h4("Columns in your dataset which were not checked for correctness"),
-          span("In this section you receive feedback about columns which are not checked by the tool. These can be columns with a wrong column name that does not match the predefined names in the SOP, as well as additional columns you provided which are not part of the SOP. You can still continue using the app even when there are notifications in this section."),
-          hr(),
-          span("Please check the column names shown and correct those which should match column names defined in the SOP. The additional columns you provided can stay and can be used in stratification and filters."),
-          span("After you corrected the columns please upload your data again for verification."),
-          hr(),
-          div(
-            style = "border: 2px solid black; padding: 10px;",
-            htmlOutput(ns("unused_vars"))
-          ),
-          hr(),
-          h4("Data Quality"),
-          span(paste0("In this section you receive feedback about implausible or inconsistent values and missing data. The following variables are checked for missingness: ", check_for_missing_values(), ". The following variables are checked for inconsistent/implausible values: age")),
-          hr(),
-          shiny::uiOutput(ns("missing_vals")),
-          hr(),
-          shiny::uiOutput(ns("negative_ages")),
+      bslib::card(
+        bslib::card_title("Data check results", container = shiny::h2),
+        shiny::h4("Correct type and values of the columns in your data"),
+        "In this section you receive feedback about the correct type and values of all columns in your data where the column name was written correctly. Columns which are not written in the way it is required by the SOP are not checked for correctness. If there is an error in this section you need to first fix it to be able to use the tool.",
+        shiny::div(
+          style = "border: 2px solid black; padding: 10px;",
+          shiny::htmlOutput(ns("errors"))
         ),
-        bslib::card(
-          min_height = "850px",
-          h3("Uploaded dataset"),
-          DT::dataTableOutput(ns("contents"))
+        # Display errors output
+        shiny::h4("Columns in your dataset which were not checked for correctness"),
+        shiny::span("In this section you receive feedback about columns which are not checked by the tool. These can be columns with a wrong column name that does not match the predefined names in the SOP, as well as additional columns you provided which are not part of the SOP. You can still continue using the app even when there are notifications in this section."),
+        shiny::span("Please check the column names shown and correct those which should match column names defined in the SOP. The additional columns you provided can stay and can be used in stratification and filters."),
+        shiny::span("After you corrected the columns please upload your data again for verification."),
+        shiny::div(
+          style = "border: 2px solid black; padding: 10px;",
+          shiny::htmlOutput(ns("unused_vars"))
+        ),
+        shiny::h4("Data Quality"),
+        shiny::span("In this section you receive feedback about implausible or inconsistent values and missing data."),
+        shiny::span(paste0("The following variables are checked for missingness: ", check_for_missing_values(), ".")),
+        shiny::div(
+          style = "border: 2px solid black; padding: 10px;",
+          shiny::uiOutput(ns("missing_vals")),
+        ),
+        shiny::span(paste0("The following variables are checked for inconsistent/implausible values: age")),
+        shiny::div(
+          style = "border: 2px solid black; padding: 10px;",
+          shiny::uiOutput(ns("negative_ages")),
         )
-      )
+      ),
+      shiny::uiOutput(ns("data_dt"))
     )
   )
-
-  #     # Main panel for displaying outputs ----
-  #     mainPanel(
-  #       h3("Data check results"),
-  #       h4("Correct type and values of the columns in your data"),
-  #       span("In this section you receive feedback about the correct type and values of all columns in your data where the column name was written correctly. Columns which are not written in the way it is required by the SOP are not checked for correctness. If there is an error in this section you need to first fix it to be able to use the tool."),
-  #       hr(),
-  #       div(
-  #         style = "border: 2px solid black; padding: 10px;",
-  #         htmlOutput(ns("errors"))
-  #       ), # Display errors output
-  #       hr(), # Horizontal line for visual separation
-  #       h4("Columns in your dataset which were not checked for correctness"),
-  #       span("In this section you receive feedback about columns which are not checked by the tool. These can be columns with a wrong column name that does not match the predefined names in the SOP, as well as additional columns you provided which are not part of the SOP. You can still continue using the app even when there are notifications in this section."),
-  #       hr(),
-  #       span("Please check the column names shown and correct those which should match column names defined in the SOP. The additional columns you provided can stay and can be used in stratification and filters."),
-  #       span("After you corrected the columns please upload your data again for verification."),
-  #       hr(),
-  #       div(
-  #         style = "border: 2px solid black; padding: 10px;",
-  #         htmlOutput(ns("unused_vars"))
-  #       ),
-  #       hr(),
-  #       h4("Data Quality"),
-  #       span(paste0("In this section you receive feedback about implausible or inconsistent values and missing data. The following variables are checked for missingness: ", check_for_missing_values(), ". The following variables are checked for inconsistent/implausible values: age")),
-  #       hr(),
-  #       shiny::uiOutput(ns("missing_vals")),
-  #       hr(),
-  #       shiny::uiOutput(ns("negative_ages")),
-  #       h3("Uploaded dataset"),
-  #       hr(),
-  #       # Output: Data file ----
-  #       DT::dataTableOutput(ns("contents"))
-  #     )
-  #   )
-  # )
 }
 
-
-# mod_tabpanel_data_ui <- function(id) {
-#   ns <- shiny::NS(id)
-#
-#   # custom JS/CSS
-#   shiny::tags$head(
-#     shiny::tags$style(src = "www/addMoreBtn.css"),
-#     shiny::tags$script(src = "www/addMoreBtn.js")
-#   )
-#
-#   shiny::tabPanel(
-#     title = "Data",
-#     icon = icon("file"),
-#     shinybusy::add_busy_spinner(
-#       spin = "fading-circle",
-#       color = "#304794",
-#       position = "full-page",
-#       height = "100px",
-#       width = "100px"
-#     ),
-#     shiny::h2("Load Data"),
-#     shiny::sidebarLayout(
-#       shiny::sidebarPanel(
-#         # Input: Select a file ----
-#         shiny::fileInput(ns("file1"), "Choose CSV or Excel File",
-#           multiple = TRUE,
-#           accept = c(
-#             ".xlsx",
-#             ".xls",
-#             ".csv"
-#           )
-#         ),
-#       ),
-#
-#       # Main panel for displaying outputs ----
-#       mainPanel(
-#         h3("Data check results"),
-#         h4("Correct type and values of the columns in your data"),
-#         span("In this section you receive feedback about the correct type and values of all columns in your data where the column name was written correctly. Columns which are not written in the way it is required by the SOP are not checked for correctness. If there is an error in this section you need to first fix it to be able to use the tool."),
-#         hr(),
-#         div(
-#           style = "border: 2px solid black; padding: 10px;",
-#           htmlOutput(ns("errors"))
-#         ), # Display errors output
-#         hr(), # Horizontal line for visual separation
-#         h4("Columns in your dataset which were not checked for correctness"),
-#         span("In this section you receive feedback about columns which are not checked by the tool. These can be columns with a wrong column name that does not match the predefined names in the SOP, as well as additional columns you provided which are not part of the SOP. You can still continue using the app even when there are notifications in this section."),
-#         hr(),
-#         span("Please check the column names shown and correct those which should match column names defined in the SOP. The additional columns you provided can stay and can be used in stratification and filters."),
-#         span("After you corrected the columns please upload your data again for verification."),
-#         hr(),
-#         div(
-#           style = "border: 2px solid black; padding: 10px;",
-#           htmlOutput(ns("unused_vars"))
-#         ),
-#         hr(),
-#         h4("Data Quality"),
-#         span(paste0("In this section you receive feedback about implausible or inconsistent values and missing data. The following variables are checked for missingness: ", check_for_missing_values(), ". The following variables are checked for inconsistent/implausible values: age")),
-#         hr(),
-#         shiny::uiOutput(ns("missing_vals")),
-#         hr(),
-#         shiny::uiOutput(ns("negative_ages")),
-#         h3("Uploaded dataset"),
-#         hr(),
-#         # Output: Data file ----
-#         DT::dataTableOutput(ns("contents"))
-#       )
-#     )
-#   )
-# }
 
 #' tabpanel "data" Server Functions
 #' Reading csv or Excel data
@@ -208,11 +97,11 @@ mod_tabpanel_data_server <- function(id) {
       # input$file1 will be NULL initially. After the user selects
       # and uploads a file, head of that data file by default,
       # or all rows if selected, will be shown.
-      req(input$file1)
+      shiny::req(input$file1)
 
       # check on the filetype
       ext <- tools::file_ext(input$file1$name)
-      validate(need(ext == "csv" | ext == "xlsx" | ext == "xls", "Please upload a csv, xlsx or xls file"))
+      shiny::validate(need(ext == "csv" | ext == "xlsx" | ext == "xls", "Please upload a csv, xlsx or xls file"))
       # read data
       read_csv_or_excel(input$file1$name, input$file1$datapath)
     })
@@ -254,56 +143,52 @@ mod_tabpanel_data_server <- function(id) {
     output$missing_vals <- shiny::renderUI({
       missing_data <- get_missing_data(data())
       if (length(missing_data) == 0) {
-        shiny::div(
-          style = "border: 2px solid black; padding: 10px;",
-          "There are no cases showing missing entries in the data."
-        )
+        "There are no cases showing missing entries in the data."
       } else {
         shiny::div(
           "Please check if values are missing on purpose, otherwise please correct the data uploaded. Case IDs listed below are excluded from analysis.",
           shiny::br(),
-          shiny::br(),
-          shiny::div(
-            style = "border: 2px solid black; padding: 10px;",
-            shiny::tagList(
-              shiny::tags$ul(missing_data), # list of spans of class 'more'
-              shiny::tags$script("addMoreBtn();") # custom JS for class 'more'
-            )
+          shiny::tagList(
+            shiny::tags$ul(missing_data), # list of spans of class 'more'
+            shiny::tags$script("addMoreBtn();") # custom JS for class 'more'
           )
         )
       }
     })
     # Notify user about negative ages in the data
-    output$negative_ages <- shiny::renderUI({
+    output$negative_ages <- shiny::renderText({
       if ("age" %in% names(data())) {
         data_negative_ages <- data() %>%
           dplyr::filter(age < 0)
-
         if (nrow(data_negative_ages) != 0) {
-          div(
-            div(
-              style = "border: 2px solid black; padding: 10px;",
-              "There are some ages with negative values in the data. These values will be replaced with NA in the analysis."
-            ),
-            hr()
-          )
+          "There are some ages with negative values in the data. These values will be replaced with NA in the analysis."
+        } else {
+          "There are no cases with negative ages."
         }
       }
     })
 
     # data preview table ----
-    output$contents <- DT::renderDataTable({
-      req(data)
-      DT::datatable(
-        data(),
-        options = list(
-          scrollX = TRUE
+    output$data_dt <- shiny::renderUI({
+      shiny::req(data())
+      shiny::tagList(
+        bslib::card(
+          min_height = "775px",
+          h2("Uploaded Data"),
+          DT::renderDataTable({
+            DT::datatable(
+              data(),
+              options = list(
+                scrollX = TRUE
+              )
+            )
+          })
         )
       )
     })
 
     # Return a reactive preprocessed data from this server that can be passed
     # along to subsequent tab modules
-    return(list(data = data_preprocessed, errors_detected = errors_detected))
+    list(data = data_preprocessed, errors_detected = errors_detected)
   })
 }

@@ -56,7 +56,7 @@ mod_tabpanel_report_server <- function(id,
           bslib::layout_columns(
             col_widths = c(6, 6),
             bslib::card(
-              shiny::h2("Download Report"),
+              bslib::card_title("Download Report", container = shiny::h2),
               shiny::selectInput(NS(id, "format"), "Choose a format:",
                 choices = c("HTML", "DOCX")
               ),
@@ -86,16 +86,16 @@ mod_tabpanel_report_server <- function(id,
       }
     })
 
-    method <- reactive({
+    method <- shiny::reactive({
       unique(signals_padded()$method)
     })
 
-    number_of_weeks <- reactive({
+    number_of_weeks <- shiny::reactive({
       unique(signals_padded()$number_of_weeks)
     })
 
     # Download generated report
-    output$report_text <- renderText({
+    output$report_text <- shiny::renderText({
       paste(
         "Generates report for", pathogen_vars(), " stratified ",
         "by ", paste0(strat_vars(), collapse = ", "), "for the last",
@@ -106,7 +106,7 @@ mod_tabpanel_report_server <- function(id,
     })
 
 
-    output$downloadReport <- downloadHandler(
+    output$downloadReport <- shiny::downloadHandler(
       filename = function() {
         paste0(
           "SignalDetectionReport.",
