@@ -8,6 +8,21 @@ app_ui <- function(request) {
   shiny::tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
+
+    # styling
+    shiny::tags$head(
+      shiny::tags$style(
+        shiny::HTML(
+          "div.tab-content {
+            height: 80vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 10px;
+          }"
+        )
+      )
+    ),
+
     # Your application UI logic
     bslib::page_fluid(
       shinyjs::useShinyjs(),
