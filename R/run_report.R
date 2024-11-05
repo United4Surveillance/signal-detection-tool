@@ -42,7 +42,7 @@ run_report <- function(
     interactive = TRUE,
     tables = TRUE,
     output_file = NULL,
-    output_dir = NULL,
+    output_dir = ".",
     signals_padded = NULL,
     signals_agg = NULL,
     intervention_date = NULL) {
