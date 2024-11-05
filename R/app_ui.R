@@ -25,6 +25,13 @@ app_ui <- function(request) {
 
     # Your application UI logic
     bslib::page_fluid(
+      # theme = bslib::bs_theme(
+      #   bg = "#101010",
+      #   fg = "#FFF",
+      #   primary = "#E69F00",
+      #   secondary = "#0072B2",
+      #   success = "#009E73"
+      # ),
       shinyjs::useShinyjs(),
       # Application title
       ## Logo and headertext
@@ -47,16 +54,16 @@ app_ui <- function(request) {
         windowTitle = "U4S Signal Detection"
       ),
       # shiny::fluidRow(
-        # shiny::column(
-          # width = 12,
-          shiny::tabsetPanel(
-            mod_tabpanel_help_ui("help"),
-            mod_tabpanel_data_ui("data"),
-            mod_tabpanel_input_ui("input"),
-            mod_tabpanel_signals_ui("signals"),
-            mod_tabpanel_report_ui("report"),
-            selected = "Data"
-          # )
+      # shiny::column(
+      # width = 12,
+      shiny::tabsetPanel(
+        mod_tabpanel_help_ui("help"),
+        mod_tabpanel_data_ui("data"),
+        mod_tabpanel_input_ui("input"),
+        mod_tabpanel_signals_ui("signals"),
+        mod_tabpanel_report_ui("report"),
+        selected = "Data"
+        # )
         # )
       ),
 

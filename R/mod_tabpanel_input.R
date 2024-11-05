@@ -20,7 +20,7 @@ mod_tabpanel_input_ui <- function(id) {
       width = "100px"
     ),
     bslib::page_fluid(
-    shiny::uiOutput(ns("input_tab_ui"))
+      shiny::uiOutput(ns("input_tab_ui"))
     )
   )
 }
@@ -50,61 +50,51 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         bslib::layout_columns(
           col_widths = c(6, 6),
           bslib::card(
-            span("Dataset settings", style = "font-size:140%;color:#304794"),
-            hr(),
-            span("Pathogen", style = "font-size:100%;font-weight: bold"),
+            bslib::card_title("Dataset settings", container = shiny::h2),
+            shiny::h4("Pathogen"),
             shiny::uiOutput(ns("pathogen_choices")),
-            br(),
-            span("Filters", style = "font-size:100%;font-weight: bold"),
-            br(),
+            shiny::br(),
+            shiny::h4("Filters"),
             span("You can chose to investigate a subset of your data according to the filters you select. When filtering by date_report you have the possibility select a specific timeperiod you want to investigate. In the timeseries visualisation only the timeperiod you selected will be shown and the outbreak detection algorithms will only train on the data from the timeperiod you selected."),
-            br(),
-            br(),
             shiny::div(
               id = "filter_input",
-              span(
+              shiny::div(
                 "Add and remove filters",
-                shiny::actionButton(
-                  inputId = ns("add_filter"),
-                  label = "",
-                  icon = shiny::icon("plus")
-                ),
-                shiny::actionButton(
-                  inputId = ns("remove_filter"),
-                  label = "",
-                  icon = shiny::icon("minus")
-                )
               ),
+              shiny::actionButton(
+                inputId = ns("add_filter"),
+                label = "",
+                icon = shiny::icon("plus")
+              ),
+              shiny::actionButton(
+                inputId = ns("remove_filter"),
+                label = "",
+                icon = shiny::icon("minus")
+              )
             ),
-            br(),
             mod_input_filter_ui(id = ns("filter0"))
           ),
           bslib::card(
-            span("Signal Detection settings", style = "font-size:140%;color:#304794"),
-            hr(),
-            span("Strata", style = "font-size:100%;font-weight: bold"),
-            br(),
-            span("Select up to 3 variables you want to stratify by. Signals and visualisations will be generated for each stratum."),
+            bslib::card_title("Signal Detection settings", container = shiny::h2),
+            shiny::h4("Strata"),
+            shiny::span("Select up to 3 variables you want to stratify by. Signals and visualisations will be generated for each stratum."),
             shiny::uiOutput(ns("strat_choices")),
-            br(),
-            span("Signal Detection Period", style = "font-size:100%;font-weight: bold"),
-            br(),
-            span("Set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks."),
-            br(),
+            shiny::br(),
+            shiny::h4("Signal Detection Period"),
+            shiny::span("Set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks."),
             shiny::uiOutput(ns("weeks_selection")),
             shiny::textOutput(ns("text_weeks_selection")),
-            br(),
+            shiny::br(),
             shiny::fluidRow(
-              column(
-                6,
-                span("Signal detection algorithm", style = "font-size:100%;font-weight: bold"),
-                br(),
-                span("Depending on the number of weeks you want to generate signals for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
-                br(),
+              shiny::column(
+                width = 6,
+                shiny::h4("Signal detection algorithm"),
+                shiny::span("Depending on the number of weeks you want to generate signals for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
                 shiny::uiOutput(ns("algorithm_choice"))
               ),
-              column(
-                6, shiny::conditionalPanel(
+              shiny::column(
+                width = 6,
+                shiny::conditionalPanel(
                   condition = sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
                   checkboxInput(ns("pandemic_correction"), "Covid19 Pandemic Correction", value = FALSE)
                 ),
@@ -253,7 +243,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::req(!errors_detected())
       return(shiny::selectInput(
         inputId = ns("pathogen_vars"),
-        label = "",
+        label = "Select a pathogen",
         choices = unique(data()$pathogen),
         width = "40%"
       ))
@@ -410,7 +400,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
 
     output$strat_choices <- shiny::renderUI({
-      req(!errors_detected())
+      shiny::req(!errors_detected())
       shiny::req(available_var_opts)
 
       shiny::selectizeInput(
