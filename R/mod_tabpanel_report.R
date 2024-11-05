@@ -19,7 +19,9 @@ mod_tabpanel_report_ui <- function(id) {
       height = "100px",
       width = "100px"
     ),
-    shiny::uiOutput(ns("report_tab_ui"))
+    bslib::page_fluid(
+      shiny::uiOutput(ns("report_tab_ui"))
+    )
   )
 }
 
@@ -44,22 +46,17 @@ mod_tabpanel_report_server <- function(id,
     # ensuring that content is onlyu shown if data check returns no errors
     output$report_tab_ui <- shiny::renderUI({
       if (errors_detected() == TRUE) {
-        return(datacheck_error_message)
+        datacheck_error_message
       } else if (!number_of_weeks_input_valid()) {
-        return(nweeks_error_message)
+        nweeks_error_message
       } else if (no_algorithm_possible() == TRUE) {
-        return(algorithm_error_message)
+        algorithm_error_message
       } else {
-        return(shiny::tagList(
-          shiny::titlePanel("Download Report"),
-
-          # Sidebar layout with input and output definitions ----
-          shiny::sidebarLayout(
-
-            # Sidebar panel for inputs ----
-            shiny::sidebarPanel(
-
-              # Input: Choose dataset ----
+        shiny::tagList(
+          bslib::layout_columns(
+            col_widths = c(6, 6),
+            bslib::card(
+              shiny::h2("Download Report"),
               shiny::selectInput(NS(id, "format"), "Choose a format:",
                 choices = c("HTML", "DOCX")
               ),
@@ -71,17 +68,13 @@ mod_tabpanel_report_server <- function(id,
                 "Interactive HTML",
                 value = TRUE
               ),
-
-              # Button
               shiny::downloadButton(NS(id, "downloadReport"), "Create Report")
             ),
-
-            # Main panel for displaying outputs ----
-            shiny::mainPanel(
+            bslib::card(
               shiny::textOutput(NS(id, "report_text"))
             )
           )
-        ))
+        )
       }
     })
 

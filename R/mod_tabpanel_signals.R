@@ -20,7 +20,9 @@ mod_tabpanel_signals_ui <- function(id) {
       height = "100px",
       width = "100px"
     ),
-    shiny::uiOutput(ns("signals_tab_ui"))
+    bslib::page_fluid(
+      shiny::uiOutput(ns("signals_tab_ui"))
+    )
   )
 }
 
@@ -45,73 +47,144 @@ mod_tabpanel_signals_server <- function(
     # ensuring that content is only shown if data check returns no errors
     output$signals_tab_ui <- shiny::renderUI({
       if (errors_detected() == TRUE) {
-        return(datacheck_error_message)
+        datacheck_error_message
       } else if (!number_of_weeks_input_valid()) {
-        return(nweeks_error_message)
+        nweeks_error_message
       } else if (no_algorithm_possible() == TRUE) {
-        return(algorithm_error_message)
+        algorithm_error_message
       } else {
-        return(shiny::tagList(
-          shiny::tags$div(
-            shiny::br(),
-            # Prevents boxes from taking up the entire width of the page
-            style = "max-width: 900px; margin: 0 auto;",
-            bslib::layout_column_wrap(
-              width = 1 / 3,
+        shiny::tagList(
+          bslib::layout_column_wrap(
+            width = 1 / 3,
+            bslib::value_box(
+              height = 135,
+              theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
+              title = "Method, disease and period",
+              value = shiny::div(
+                "Algorithm: ", get_name_by_value(method(), available_algorithms()),
+                shiny::tags$br(),
+                "Disease: ", unique(filtered_data()$pathogen),
+                shiny::tags$br(),
+                "Time period: ", shiny::span(shiny::textOutput(ns("signal_period_text"), inline = TRUE))
+              )
+            ),
+            bslib::value_box(
+              height = 135,
+              theme = bslib::value_box_theme(bg = dplyr::if_else(sum(signal_results_unstratified()$alarms) > 0, "#DF536B", "#23FF00"), fg = "#FFFFFF"),
+              title = "Number of unstratified cases and alarms",
+              value = shiny::div(
+                "Cases: ", shiny::span(paste0(sum(signal_results_unstratified()$cases)), inline = TRUE),
+                shiny::tags$br(),
+                "Alarms: ", shiny::span(paste0(sum(signal_results_unstratified()$alarms)), inline = TRUE)
+              )
+            ),
+            if (!"None" %in% strat_vars()) {
+              # Box of alarms by stratum
               bslib::value_box(
                 height = 135,
-                theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
-                title = "Method, disease and period",
+                theme = bslib::value_box_theme(bg = dplyr::if_else(sum(signals_agg()$n_alarms) > 0, "#DF536B", "#23FF00"), fg = "#FFFFFF"),
+                title = "Number of stratified alarms",
                 value = shiny::div(
-                  "Algorithm: ", get_name_by_value(method(), available_algorithms()),
-                  shiny::tags$br(),
-                  "Disease: ", unique(filtered_data()$pathogen),
-                  shiny::tags$br(),
-                  "Time period: ", shiny::span(shiny::textOutput(ns("signal_period_text"), inline = TRUE))
-                )
-              ),
-              bslib::value_box(
-                height = 135,
-                theme = bslib::value_box_theme(bg = dplyr::if_else(sum(signal_results_unstratified()$alarms) > 0, "#DF536B", "#23FF00"), fg = "#FFFFFF"),
-                title = "Number of unstratified cases and alarms",
-                value = shiny::div(
-                  "Cases: ", shiny::span(paste0(sum(signal_results_unstratified()$cases)), inline = TRUE),
-                  shiny::tags$br(),
-                  "Alarms: ", shiny::span(paste0(sum(signal_results_unstratified()$alarms)), inline = TRUE)
-                )
-              ),
-              if (!"None" %in% strat_vars()) {
-                # Box of alarms by stratum
-                bslib::value_box(
-                  height = 135,
-                  theme = bslib::value_box_theme(bg = dplyr::if_else(sum(signals_agg()$n_alarms) > 0, "#DF536B", "#23FF00"), fg = "#FFFFFF"),
-                  title = "Number of stratified alarms",
-                  value = shiny::div(
-                    shiny::tagList(
-                      shiny::htmlOutput(ns("signals_stratum"))
-                    )
+                  shiny::tagList(
+                    shiny::htmlOutput(ns("signals_stratum"))
                   )
                 )
-              }
-            )
+              )
+            }
           ),
-          shiny::uiOutput(ns("plot_table_stratas")),
-          shiny::uiOutput(ns("alarm_button")),
-          shiny::br(),
-          shiny::h3(paste0(
-            "Timeseries of weekly cases with signal detection applied to the last ",
-            number_of_weeks(), " weeks."
-          )),
-          shiny::uiOutput(ns("ts_filter_var")),
-          shiny::uiOutput(ns("ts_filter_val")),
-          tags$style(shiny::HTML(paste0("#", id, "-ts_filter_var{display:inline-block}"))),
-          tags$style(shiny::HTML(paste0("#", id, "-ts_filter_val{display:inline-block; vertical-align: top;}"))),
-          plotly::plotlyOutput(ns("time_series_plot")),
-          shiny::h3("Signal detection table"),
-          DT::DTOutput(ns("signals"))
-        ))
+          bslib::card(
+            shiny::uiOutput(ns("plot_table_stratas")),
+            shiny::uiOutput(ns("alarm_button"))
+          ),
+          bslib::card(
+            shiny::h3(paste0(
+              "Timeseries of weekly cases with signal detection applied to the last ",
+              number_of_weeks(), " weeks."
+            )),
+            shiny::uiOutput(ns("ts_filter_var")),
+            shiny::uiOutput(ns("ts_filter_val")),
+            tags$style(shiny::HTML(paste0("#", id, "-ts_filter_var{display:inline-block}"))),
+            tags$style(shiny::HTML(paste0("#", id, "-ts_filter_val{display:inline-block; vertical-align: top;}"))),
+            plotly::plotlyOutput(ns("time_series_plot"))
+          ),
+          bslib::card(
+            shiny::h3("Signal detection table"),
+            DT::DTOutput(ns("signals"))
+          )
+        )
       }
     })
+
+    # output$signals_tab_ui <- shiny::renderUI({
+    #   if (errors_detected() == TRUE) {
+    #     datacheck_error_message
+    #   } else if (!number_of_weeks_input_valid()) {
+    #     nweeks_error_message
+    #   } else if (no_algorithm_possible() == TRUE) {
+    #     algorithm_error_message
+    #   } else {
+    #     shiny::tagList(
+    #       shiny::tags$div(
+    #         shiny::br(),
+    #         # Prevents boxes from taking up the entire width of the page
+    #         style = "max-width: 900px; margin: 0 auto;",
+    #
+    #         bslib::layout_column_wrap(
+    #           width = 1 / 3,
+    #           bslib::value_box(
+    #             height = 135,
+    #             theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
+    #             title = "Method, disease and period",
+    #             value = shiny::div(
+    #               "Algorithm: ", get_name_by_value(method(), available_algorithms()),
+    #               shiny::tags$br(),
+    #               "Disease: ", unique(filtered_data()$pathogen),
+    #               shiny::tags$br(),
+    #               "Time period: ", shiny::span(shiny::textOutput(ns("signal_period_text"), inline = TRUE))
+    #             )
+    #           ),
+    #           bslib::value_box(
+    #             height = 135,
+    #             theme = bslib::value_box_theme(bg = dplyr::if_else(sum(signal_results_unstratified()$alarms) > 0, "#DF536B", "#23FF00"), fg = "#FFFFFF"),
+    #             title = "Number of unstratified cases and alarms",
+    #             value = shiny::div(
+    #               "Cases: ", shiny::span(paste0(sum(signal_results_unstratified()$cases)), inline = TRUE),
+    #               shiny::tags$br(),
+    #               "Alarms: ", shiny::span(paste0(sum(signal_results_unstratified()$alarms)), inline = TRUE)
+    #             )
+    #           ),
+    #           if (!"None" %in% strat_vars()) {
+    #             # Box of alarms by stratum
+    #             bslib::value_box(
+    #               height = 135,
+    #               theme = bslib::value_box_theme(bg = dplyr::if_else(sum(signals_agg()$n_alarms) > 0, "#DF536B", "#23FF00"), fg = "#FFFFFF"),
+    #               title = "Number of stratified alarms",
+    #               value = shiny::div(
+    #                 shiny::tagList(
+    #                   shiny::htmlOutput(ns("signals_stratum"))
+    #                 )
+    #               )
+    #             )
+    #           }
+    #         ),
+    #         shiny::uiOutput(ns("plot_table_stratas")),
+    #         shiny::uiOutput(ns("alarm_button")),
+    #         shiny::br(),
+    #         shiny::h3(paste0(
+    #           "Timeseries of weekly cases with signal detection applied to the last ",
+    #           number_of_weeks(), " weeks."
+    #         )),
+    #         shiny::uiOutput(ns("ts_filter_var")),
+    #         shiny::uiOutput(ns("ts_filter_val")),
+    #         tags$style(shiny::HTML(paste0("#", id, "-ts_filter_var{display:inline-block}"))),
+    #         tags$style(shiny::HTML(paste0("#", id, "-ts_filter_val{display:inline-block; vertical-align: top;}"))),
+    #         plotly::plotlyOutput(ns("time_series_plot")),
+    #         shiny::h3("Signal detection table"),
+    #         DT::DTOutput(ns("signals"))
+    #       )
+    #     )
+    #   }
+    # })
 
     ## button to select which timeseries to visualise in signals tab
     output$ts_filter_var <- shiny::renderUI({
