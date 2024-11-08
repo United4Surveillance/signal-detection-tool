@@ -5,9 +5,9 @@
 #' This function is also invoked within the app.
 #'
 #' @param data data.frame containing surveillance data in linelist format
-#' @param report_format format of the report: HTML or DOCX
-#' @param method algorithm to be use, one of \code{available_algorithms()}
-#' @param number_of_weeks number of weeks for which signals are generated
+#' @param report_format character, format of the report: HTML or DOCX
+#' @param method character, algorithm to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend".
+#' @param number_of_weeks integer, number of weeks for which signals are generated
 #' @param strata A character vector specifying the columns to stratify
 #'   the analysis. Default is NULL.
 #' @param interactive Logical (only applicable to HTML report)
@@ -26,7 +26,7 @@
 #' run_report(
 #'   report_format = "HTML",
 #'   data = SignalDetectionTool::input_example,
-#'   method = "farrington",
+#'   method = "FarringtonFlexible",
 #'   strata = c("county", "community", "sex", "age_group"),
 #'   interactive = TRUE,
 #'   tables = TRUE,
@@ -36,7 +36,7 @@
 run_report <- function(
     data = SignalDetectionTool::input_example,
     report_format = "HTML",
-    method = "farrington",
+    method = "FarringtonFlexible",
     number_of_weeks = 6,
     strata = c("county", "community", "sex", "age_group"),
     interactive = TRUE,
@@ -64,6 +64,8 @@ run_report <- function(
   if (is.character(intervention_date)) {
     intervention_date <- as.Date(intervention_date)
   }
+  # transform the method name used in the app to the method names in the background
+  method <- SignalDetectionTool:::available_algorithms()[method]
 
   report_params <- list(
     data = data,

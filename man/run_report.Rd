@@ -7,13 +7,13 @@
 run_report(
   data = SignalDetectionTool::input_example,
   report_format = "HTML",
-  method = "farrington",
+  method = "FarringtonFlexible",
   number_of_weeks = 6,
   strata = c("county", "community", "sex", "age_group"),
   interactive = TRUE,
   tables = TRUE,
   output_file = NULL,
-  output_dir = NULL,
+  output_dir = ".",
   signals_padded = NULL,
   signals_agg = NULL,
   intervention_date = NULL
@@ -22,11 +22,11 @@ run_report(
 \arguments{
 \item{data}{data.frame containing surveillance data in linelist format}
 
-\item{report_format}{format of the report: HTML or DOCX}
+\item{report_format}{character, format of the report: HTML or DOCX}
 
-\item{method}{algorithm to be use, one of \code{available_algorithms()}}
+\item{method}{character, algorithm to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend".}
 
-\item{number_of_weeks}{number of weeks for which signals are generated}
+\item{number_of_weeks}{integer, number of weeks for which signals are generated}
 
 \item{strata}{A character vector specifying the columns to stratify
 the analysis. Default is NULL.}
@@ -58,7 +58,7 @@ This function is also invoked within the app.
 run_report(
   report_format = "HTML",
   data = SignalDetectionTool::input_example,
-  method = "farrington",
+  method = "FarringtonFlexible",
   strata = c("county", "community", "sex", "age_group"),
   interactive = TRUE,
   tables = TRUE,
