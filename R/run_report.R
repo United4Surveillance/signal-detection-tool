@@ -16,7 +16,7 @@
 #' @param output_dir The output directory for the rendered output file \link[rmarkdown]{render}
 #' @param signals_padded calculated and padded signals (for use within the app, default is NULL)
 #' @param signals_agg aggregated signals  (for use within the app, default is NULL)
-#' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done.
+#' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.
 #'
 #' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 #' @export
@@ -38,7 +38,7 @@ run_report <- function(
     report_format = "HTML",
     method = "FarringtonFlexible",
     number_of_weeks = 6,
-    strata = c("county", "community", "sex", "age_group"),
+    strata = c("county", "age_group"),
     interactive = TRUE,
     tables = TRUE,
     output_file = NULL,
