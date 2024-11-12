@@ -134,6 +134,7 @@ mod_tabpanel_report_server <- function(id,
           interactive = input$interactive,
           tables = input$tables,
           output_file = con,
+          output_dir = NULL,
           signals_padded = signals_padded(),
           signals_agg = signals_agg(),
           intervention_date = intervention_date()
