@@ -22,22 +22,22 @@ run_report(
 \arguments{
 \item{data}{data.frame containing surveillance data in linelist format}
 
-\item{report_format}{character, format of the report: HTML or DOCX}
+\item{report_format}{character, format of the report: "HTML" or "DOCX"}
 
 \item{method}{character, algorithm to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend".}
 
 \item{number_of_weeks}{integer, number of weeks for which signals are generated}
 
-\item{strata}{A character vector specifying the columns to stratify
+\item{strata}{A character vector specifying the columns to stratify. If `NULL` no strata are used.
 the analysis. Default is NULL.}
 
-\item{interactive}{Logical (only applicable to HTML report)}
+\item{interactive}{Logical, indicating whether interactive elements should be included in the report. Only applicable when `report_format = "HTML"`. Defaults to `TRUE`.}
 
 \item{tables}{Logical. True if tables should be included in report.}
 
-\item{output_file}{The name of the output file \link[rmarkdown]{render}}
+\item{output_file}{A character string specifying the name of the output file (without directory path). If `NULL` (default), the file name is automatically generated to be SignalDetectionReport. See \link[rmarkdown]{render} for more details.}
 
-\item{output_dir}{The output directory for the rendered output file \link[rmarkdown]{render}}
+\item{output_dir}{A character string specifying the output directory for the rendered output file (default is ".", which means the rendered file will be saved in the current working directory. See \link[rmarkdown]{render} for more details. `NULL` is used when running the report from shiny app which will take the Downloads folder as default option for saving.}
 
 \item{signals_padded}{calculated and padded signals (for use within the app, default is NULL)}
 
@@ -55,14 +55,33 @@ This function is also invoked within the app.
 }
 \examples{
 \dontrun{
+# Example 1: Run report with specified parameters and HTML format output
 run_report(
   report_format = "HTML",
   data = SignalDetectionTool::input_example,
   method = "FarringtonFlexible",
-  strata = c("county", "community", "sex", "age_group"),
+  strata = c("county", "sex"),
   interactive = TRUE,
   tables = TRUE,
   number_of_weeks = 6
+)
+# Example 2: An example output directory specified
+run_report(
+  method = "EARS",
+  output_dir = "C:/Users/SmithJ/Documents"
+)
+# Example 3: An example output file name is speficied
+run_report(
+  method = "EARS",
+  output_file = "My Signal Report"
+)
+
+# Example 4: No strata are used
+run_report(
+  report_format = "HTML",
+  data = SignalDetectionTool::input_example,
+  method = "EARS",
+  strata = NULL
 )
 }
 }

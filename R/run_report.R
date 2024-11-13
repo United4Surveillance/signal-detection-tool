@@ -5,15 +5,15 @@
 #' This function is also invoked within the app.
 #'
 #' @param data data.frame containing surveillance data in linelist format
-#' @param report_format character, format of the report: HTML or DOCX
+#' @param report_format character, format of the report: "HTML" or "DOCX"
 #' @param method character, algorithm to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend".
 #' @param number_of_weeks integer, number of weeks for which signals are generated
-#' @param strata A character vector specifying the columns to stratify
+#' @param strata A character vector specifying the columns to stratify. If `NULL` no strata are used.
 #'   the analysis. Default is NULL.
-#' @param interactive Logical (only applicable to HTML report)
+#' @param interactive Logical, indicating whether interactive elements should be included in the report. Only applicable when `report_format = "HTML"`. Defaults to `TRUE`.
 #' @param tables Logical. True if tables should be included in report.
-#' @param output_file The name of the output file \link[rmarkdown]{render}
-#' @param output_dir The output directory for the rendered output file \link[rmarkdown]{render}
+#' @param output_file A character string specifying the name of the output file (without directory path). If `NULL` (default), the file name is automatically generated to be SignalDetectionReport. See \link[rmarkdown]{render} for more details.
+#' @param output_dir A character string specifying the output directory for the rendered output file (default is ".", which means the rendered file will be saved in the current working directory. See \link[rmarkdown]{render} for more details. `NULL` is used when running the report from shiny app which will take the Downloads folder as default option for saving.
 #' @param signals_padded calculated and padded signals (for use within the app, default is NULL)
 #' @param signals_agg aggregated signals  (for use within the app, default is NULL)
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.
@@ -23,14 +23,33 @@
 #'
 #' @examples
 #' \dontrun{
+#' # Example 1: Run report with specified parameters and HTML format output
 #' run_report(
 #'   report_format = "HTML",
 #'   data = SignalDetectionTool::input_example,
 #'   method = "FarringtonFlexible",
-#'   strata = c("county", "community", "sex", "age_group"),
+#'   strata = c("county", "sex"),
 #'   interactive = TRUE,
 #'   tables = TRUE,
 #'   number_of_weeks = 6
+#' )
+#' # Example 2: An example output directory specified
+#' run_report(
+#'   method = "EARS",
+#'   output_dir = "C:/Users/SmithJ/Documents"
+#' )
+#' # Example 3: An example output file name is speficied
+#' run_report(
+#'   method = "EARS",
+#'   output_file = "My Signal Report"
+#' )
+#'
+#' # Example 4: No strata are used
+#' run_report(
+#'   report_format = "HTML",
+#'   data = SignalDetectionTool::input_example,
+#'   method = "EARS",
+#'   strata = NULL
 #' )
 #' }
 run_report <- function(
@@ -46,15 +65,35 @@ run_report <- function(
     signals_padded = NULL,
     signals_agg = NULL,
     intervention_date = NULL) {
+
   # Check inputs ---------------------------------------------------------------
   checkmate::assert_choice(report_format,
     choices = c("HTML", "DOCX"),
     null.ok = FALSE
   )
-
   checkmate::assert_data_frame(data)
+  # Validate strata
+  checkmate::assert_character(strata, null.ok = TRUE, min.len = 1)
+  # check that all columns are present in the data
+  for (col in strata) {
+    checkmate::assert(
+      checkmate::check_choice(col, choices = names(data))
+    )
+  }
+  checkmate::assert(
+    checkmate::check_choice(method, choices = names(available_algorithms()))
+  )
   checkmate::assert_logical(interactive)
   checkmate::assert_logical(tables)
+  # Validate `output_dir`
+  checkmate::assert_string(output_dir, null.ok = TRUE)
+  # Validate `output_file`
+  checkmate::assert_character(output_file, null.ok = TRUE, len = 1)
+  checkmate::assert(
+    checkmate::check_null(intervention_date),
+    checkmate::check_date(lubridate::date(intervention_date)),
+    combine = "or"
+  )
 
   # render report --------------------------------------------------------------
   if ("None" %in% strata) {
