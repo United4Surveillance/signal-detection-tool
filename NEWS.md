@@ -1,9 +1,10 @@
+# SignalDetectionTool 0.5.0
 
 * Adding the possibility to filter the data by age.
-* Adding column "cases in outbreak" to the signal detection results table. his is based on an optional variable outbreak_status in the dataset.
-* The value unknown can now be chosen as filter value when present in the selected filter variables 
-* Allow `run_report()` to work as a standalone function 
-* user can specify output_dir in the `run_report()` function 
+* Adding column "cases in outbreak" to the signal detection results table. This is based on an optional variable outbreak_status in the dataset.
+* The value unknown can be chosen as filter value when present in the selected filter variables. 
+* Allow `run_report()` to work as a standalone function.
+* The output directory can be specified when using `run_report()` function 
 
 # SignalDetectionTool 0.4.0
 
