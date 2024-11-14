@@ -42,12 +42,16 @@ data <- data.frame(
 )
 
 # Filter data from January 3, 2023 to January 8, 2023 (using Date format)
-filtered_data <- filter_by_date(data, date_var = "date_report",
-                                date_start = as.Date("2023-01-03"),
-                                date_end = as.Date("2023-01-08"))
+filtered_data <- filter_by_date(data,
+  date_var = "date_report",
+  date_start = as.Date("2023-01-03"),
+  date_end = as.Date("2023-01-08")
+)
 
 # Filter data using character format for dates
-filtered_data <- filter_by_date(data, date_var = "date_report",
-                                date_start = "2023-01-03",
-                                date_end = "2023-01-08")
+filtered_data <- filter_by_date(data,
+  date_var = "date_report",
+  date_start = "2023-01-03",
+  date_end = "2023-01-08"
+)
 }

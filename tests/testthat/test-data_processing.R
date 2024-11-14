@@ -183,7 +183,7 @@ test_that("test that after aggregation week and years are in the correct order",
 
   data <- rbind(data, data_one_month_later)
   # shuffle order of rows to create dates which are not in order
-  data <- data[sample(nrow(data)),]
+  data <- data[sample(nrow(data)), ]
 
   data_agg <- data %>%
     preprocess_data() %>%
@@ -197,3 +197,68 @@ test_that("test that after aggregation week and years are in the correct order",
   expect_equal(data_agg, solution)
 })
 
+test_that("Aggregation of data is performed correctly using outbreak status", {
+  linelist1 <- data.frame(
+    date_report = seq.Date(from = as.Date("2024-10-01"), by = "days", length.out = 10),
+    age_group = c("00-04", "05-09", "35-39", "65-69", NA_character_, rep("05-09", 5))
+  )
+  # check that with NAs inside the outbreak_status aggregation still works correctly
+  linelist2 <- data.frame(
+    date_report = seq.Date(from = as.Date("2024-10-01"), by = "days", length.out = 10),
+    age_group = c("00-04", "05-09", "35-39", "65-69", NA_character_, rep("05-09", 5)),
+    outbreak_status = c(rep(c("yes", "no", NA_character_), 2), rep(NA_character_, 4))
+  ) %>%
+    dplyr::mutate(outbreak_status = factor(outbreak_status, levels = yes_no_unknown_levels()))
+
+  linelist3 <- data.frame(
+    date_report = seq.Date(from = as.Date("2024-12-01"), by = "days", length.out = 10),
+    age_group = c("00-04", "05-09", "35-39", "65-69", NA_character_, rep("05-09", 5)),
+    outbreak_status = c(rep(c("yes", "yes", NA_character_), 2), rep(NA_character_, 4))
+  ) %>%
+    dplyr::mutate(outbreak_status = factor(outbreak_status, levels = yes_no_unknown_levels()))
+
+  # have a gap in between which needs to be filled with 0s
+  linelist4 <- rbind(linelist3, linelist2)
+
+  # add week and year vars
+  linelist1 <- linelist1 %>%
+    dplyr::mutate(dplyr::across(dplyr::starts_with("date") & !dplyr::where(is.numeric),
+      ~ surveillance::isoWeekYear(.x)$ISOYear,
+      .names = "{.col}_year"
+    )) %>%
+    dplyr::mutate(dplyr::across(dplyr::starts_with("date") & !dplyr::where(is.numeric),
+      ~ surveillance::isoWeekYear(.x)$ISOWeek,
+      .names = "{.col}_week"
+    ))
+
+  linelist2 <- linelist2 %>%
+    dplyr::mutate(dplyr::across(dplyr::starts_with("date") & !dplyr::where(is.numeric),
+      ~ surveillance::isoWeekYear(.x)$ISOYear,
+      .names = "{.col}_year"
+    )) %>%
+    dplyr::mutate(dplyr::across(dplyr::starts_with("date") & !dplyr::where(is.numeric),
+      ~ surveillance::isoWeekYear(.x)$ISOWeek,
+      .names = "{.col}_week"
+    ))
+
+  linelist4 <- linelist4 %>%
+    dplyr::mutate(dplyr::across(dplyr::starts_with("date") & !dplyr::where(is.numeric),
+      ~ surveillance::isoWeekYear(.x)$ISOYear,
+      .names = "{.col}_year"
+    )) %>%
+    dplyr::mutate(dplyr::across(dplyr::starts_with("date") & !dplyr::where(is.numeric),
+      ~ surveillance::isoWeekYear(.x)$ISOWeek,
+      .names = "{.col}_week"
+    ))
+
+
+
+  linelist1_agg <- aggregate_data(linelist1)
+  linelist2_agg <- aggregate_data(linelist2)
+  linelist4_agg <- aggregate_data(linelist4)
+
+
+  expect_equal(data.frame(linelist1_agg), data.frame(year = c(2024, 2024), week = c(40, 41), cases = c(6, 4)))
+  expect_equal(data.frame(linelist2_agg), data.frame(year = c(2024, 2024), week = c(40, 41), cases = c(6, 4), cases_in_outbreak = c(2, 0)))
+  expect_equal(data.frame(linelist4_agg), data.frame(year = rep(2024, 11), week = seq(40, 50, 1), cases = c(6, 4, 0, 0, 0, 0, 0, 0, 1, 7, 2), cases_in_outbreak = c(2, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0)))
+})

@@ -74,7 +74,9 @@ preprocess_data <- function(data) {
   data
 }
 
+
 #' Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek and adds missing isoweeks to the aggregated dataset.
+#' Additionally number of cases part of a known outbreak is added if the variable outbreak_status exists in the data.
 #'
 #' @param data data.frame, linelist of cases to be aggregated
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
@@ -88,7 +90,6 @@ aggregate_data <- function(data,
                            date_var = "date_report",
                            date_start = NULL,
                            date_end = NULL) {
-
   checkmate::check_subset(date_var, names(data))
 
   checkmate::assert(
@@ -116,10 +117,30 @@ aggregate_data <- function(data,
     dplyr::arrange(year, week)
 
   # add the missing isoweeks to the dataset
-  data_agg %>% add_missing_isoweeks(
+  data_agg <- data_agg %>% add_missing_isoweeks(
     date_start = date_start,
     date_end = date_end
   )
+
+  if ("outbreak_status" %in% names(data)) {
+    data_outbreak_agg <- data %>%
+      dplyr::group_by(!!rlang::sym(week_var), !!rlang::sym(year_var)) %>%
+      dplyr::summarize(
+        cases_in_outbreak = sum(outbreak_status == "yes", na.rm = T),
+        .groups = "drop"
+      ) %>%
+      dplyr::select(
+        week = !!rlang::sym(week_var),
+        year = !!rlang::sym(year_var),
+        cases_in_outbreak
+      ) %>%
+      dplyr::arrange(year, week)
+
+    data_agg <- data_agg %>%
+      dplyr::left_join(data_outbreak_agg, by = c("year", "week")) %>%
+      dplyr::mutate(cases_in_outbreak = dplyr::if_else(is.na(cases_in_outbreak), 0, cases_in_outbreak))
+  }
+  data_agg
 }
 
 #' Filter Data Frame by Date Range
@@ -149,16 +170,19 @@ aggregate_data <- function(data,
 #' )
 #'
 #' # Filter data from January 3, 2023 to January 8, 2023 (using Date format)
-#' filtered_data <- filter_by_date(data, date_var = "date_report",
-#'                                 date_start = as.Date("2023-01-03"),
-#'                                 date_end = as.Date("2023-01-08"))
+#' filtered_data <- filter_by_date(data,
+#'   date_var = "date_report",
+#'   date_start = as.Date("2023-01-03"),
+#'   date_end = as.Date("2023-01-08")
+#' )
 #'
 #' # Filter data using character format for dates
-#' filtered_data <- filter_by_date(data, date_var = "date_report",
-#'                                 date_start = "2023-01-03",
-#'                                 date_end = "2023-01-08")
-filter_by_date <- function(data, date_var = "date_report", date_start = NULL, date_end = NULL){
-
+#' filtered_data <- filter_by_date(data,
+#'   date_var = "date_report",
+#'   date_start = "2023-01-03",
+#'   date_end = "2023-01-08"
+#' )
+filter_by_date <- function(data, date_var = "date_report", date_start = NULL, date_end = NULL) {
   checkmate::check_subset(date_var, names(data))
 
   checkmate::assert(
@@ -172,10 +196,10 @@ filter_by_date <- function(data, date_var = "date_report", date_start = NULL, da
     combine = "or"
   )
 
-  if (!is.null(date_start)){
+  if (!is.null(date_start)) {
     data <- data %>% dplyr::filter(!!sym(date_var) >= date_start)
   }
-  if (!is.null(date_end)){
+  if (!is.null(date_end)) {
     data <- data %>% dplyr::filter(!!sym(date_var) <= date_end)
   }
   data
@@ -368,13 +392,13 @@ add_missing_isoweeks <- function(data_agg, date_start = NULL, date_end = NULL) {
 
   # add a date based on isoweek and isoyear
   data_agg <- data_agg %>%
-    dplyr::mutate(date = isoweek_to_date(week,year))
+    dplyr::mutate(date = isoweek_to_date(week, year))
 
   # extend the dataset nevertheless to min date if date_start greater
   min_date <- min(data_agg$date)
   if (is.null(date_start)) {
     date_start <- min_date
-  }else if (date_start > min_date){
+  } else if (date_start > min_date) {
     message("Notice: Your input date_start is greater than the smallest date in the dataset. Missing weeks are nevertheless filled until the smallest date in the dataset")
     date_start <- min_date
   }
@@ -382,21 +406,21 @@ add_missing_isoweeks <- function(data_agg, date_start = NULL, date_end = NULL) {
   max_date <- max(data_agg$date)
   if (is.null(date_end)) {
     date_end <- max_date
-  }else if(date_end < max_date){
+  } else if (date_end < max_date) {
     message("Notice: Your input date_end is smaller than the greatest date in the dataset. Missing weeks are nevertheless filled until the greatest date in the dataset")
     date_end <- max_date
   }
 
   # Generate a sequence of dates from start to end date
   # we add the date_end because the seq ends before date_end when there is a partial week remaining and we also want to have the isoweek of the date_end
-  date_seq <- c(seq.Date(from = as.Date(date_start), to = as.Date(date_end), by = "week"),date_end)
+  date_seq <- c(seq.Date(from = as.Date(date_start), to = as.Date(date_end), by = "week"), date_end)
   # Create a data frame with ISO weeks and ISO years
   df_all_years_weeks <- data.frame(
     year = lubridate::isoyear(date_seq),
     week = lubridate::isoweek(date_seq)
   ) %>%
-  # in case date_end is there twice due to adding before
-  dplyr::distinct(year,week)
+    # in case date_end is there twice due to adding before
+    dplyr::distinct(year, week)
 
 
   # Merge the template with the original data to fill in missing rows

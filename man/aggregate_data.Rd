@@ -2,7 +2,8 @@
 % Please edit documentation in R/data_processing.R
 \name{aggregate_data}
 \alias{aggregate_data}
-\title{Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek and adds missing isoweeks to the aggregated dataset.}
+\title{Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek and adds missing isoweeks to the aggregated dataset.
+Additionally number of cases part of a known outbreak is added if the variable outbreak_status exists in the data.}
 \usage{
 aggregate_data(
   data,
@@ -22,6 +23,7 @@ aggregate_data(
 }
 \description{
 Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek and adds missing isoweeks to the aggregated dataset.
+Additionally number of cases part of a known outbreak is added if the variable outbreak_status exists in the data.
 }
 \examples{
 \dontrun{
