@@ -1,3 +1,10 @@
+* Bug fix in completing aggregated case data with 0 for cases for 53th isoweek.
+* Change function name add_rows_missing_dates() to add_missing_isoweeks()
+* Only perform completion of aggregated data not in add_missing_isoweeks() and not filtering by dates as it was done before in add_rows_missing_dates()
+* Implement a seperate function to filter linelist given date_start and date_end
+* Integrate the add_missing_isoweeks() into the aggregate_data() function such that the aggregated data is complete after having applied aggregate_data()
+
+
 # SignalDetectionTool 0.5.0
 
 * Adding the possibility to filter the data by age.
