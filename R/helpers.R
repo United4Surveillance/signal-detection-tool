@@ -87,6 +87,28 @@ get_iso_week_year <- function(date) {
   return(list(iso_week = iso_week, iso_year = iso_year))
 }
 
+
+#' Create a Date from ISO Year and Week
+#'
+#' This function converts an ISO year and ISO week number into a date. The date returned corresponds to the first day (Monday) of the specified ISO week.
+#'
+#' @param week Integer. The ISO week number (1 to 53).
+#' @param year Integer. The ISO year.
+#' @return A `Date` object representing the first day of the specified ISO week.
+#'
+#' @examples
+#' Example usage:
+#' isoweek_to_date(week = 15, year = 2023)  # Returns the date for the first day of ISO week 15 in 2023
+isoweek_to_date <- function(week, year) {
+  # Format the ISO week string
+  iso_week_str <- sprintf("%d-W%02d-1", year, week)
+
+  # Convert to date (the first day of the ISO week)
+  date <- ISOweek::ISOweek2date(iso_week_str)
+  return(date)
+}
+
+
 #' Get row number of aggregated data which is the isoweek and isoyear corresponding to the date given
 #' @param date character in the format "yyyy-mm-dd"
 #' @param data_aggregated data.frame, aggregated data with case counts

@@ -551,10 +551,13 @@ get_signals_stratified <- function(data,
         sub_data <- data %>% dplyr::filter(.data[[category]] == stratum)
       }
 
-      # aggregate data
       sub_data_agg <- sub_data %>%
-        aggregate_data(date_var = date_var) %>%
-        add_rows_missing_dates(date_start, date_end)
+        # filter the data
+
+        filter_by_date(date_var = date_var, date_start = date_start, date_end = date_end) %>%
+        # aggregate data
+        aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end)
+
 
 
       # run selected algorithm
@@ -701,10 +704,13 @@ get_signals <- function(data,
   }
 
   if (is.null(stratification)) {
-    # preprocess and aggregated data
+
     data_agg <- data %>%
-      aggregate_data(date_var = date_var) %>%
-      add_rows_missing_dates(date_start, date_end)
+      # filter the data
+      filter_by_date(date_start = date_start, date_end = date_end, date_var = date_var) %>%
+      # aggregate and complete the data
+      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end)
+
     if (grepl("glm", method)) {
       results <- fun(data_agg, number_of_weeks, model = model, time_trend = time_trend, intervention_date = intervention_date)
     } else {
