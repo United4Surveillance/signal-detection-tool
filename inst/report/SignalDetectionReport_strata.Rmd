@@ -1,5 +1,5 @@
 
-```{r strata-names-for-user}
+```{r}
 strat_text <- dplyr::case_when(
   strat == "age_group" ~ "agegroup",
   TRUE ~ strat
@@ -9,7 +9,7 @@ strat_text <- dplyr::case_when(
 
 ## Signals stratified by `r strat_text`
 
-```{r signals-strat-text, results='asis'}
+```{r, results='asis'}
 results_analysis <- signals_agg %>%
   dplyr::filter(any_alarms, category %in% strat)
 
@@ -19,7 +19,7 @@ stringr::str_glue(
 )
 ```
 
-```{r barplot-or-map}
+```{r}
 #| fig.cap=paste0("Number of ", params$disease, " cases and signals stratified by ", strat_text, ", ", params$country),
 #| out.width="100%"
 SignalDetectionTool:::decider_barplot_map_table(
@@ -30,7 +30,7 @@ SignalDetectionTool:::decider_barplot_map_table(
 )
 ```
 
-```{r compute-pages}
+```{r}
 df <- signals_padded %>%
   dplyr::filter(category %in% strat) %>%
   SignalDetectionTool:::create_factor_with_unknown()
@@ -51,7 +51,7 @@ txt <- NULL
 ```
 
 
-```{r plot-timeseries-overall}
+```{r}
 #| eval= !eval_paginate,
 #| fig.cap=paste0("Number of ", params$disease, " cases by week and signals stratified by ", strat_text, ", ", params$country),
 #| fig.dim = c(8, number_stratum),
@@ -73,7 +73,7 @@ plot_time_series(df,
   )
 ```
 
-```{r plot-timeseries-stratified, results='asis'}
+```{r, results='asis'}
 #| eval= eval_paginate,
 #| fig.cap=paste0("Number of ", params$disease, " cases by week and signals stratified by ", strat_text, ", ", params$country),
 #| fig.dim = c(8, p_height),
@@ -104,7 +104,7 @@ for (i in seq_len(pages)) {
 
 `r if (params$tables) "### Signal Detection Table"`
 
-```{r signal-table-stratified}
+```{r}
 #| eval= params$tables
 
 if (sum(df$alarms, na.rm = TRUE) != 0) {
@@ -117,7 +117,7 @@ if (sum(df$alarms, na.rm = TRUE) != 0) {
 }
 ```
 
-```{r text-when-no-signals-stratified}
+```{r}
 #|results = "asis"
 #|eval= params$tables & is.character(txt)
 

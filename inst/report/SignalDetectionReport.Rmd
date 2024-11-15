@@ -35,7 +35,7 @@ params:
 ---
 
 
-```{r chunk-options, echo=FALSE}
+```{r, echo=FALSE}
 knitr::opts_chunk$set(eval = TRUE, 
                       echo = FALSE, 
                       fig.align = 'center',
@@ -46,13 +46,13 @@ knitr::opts_chunk$set(eval = TRUE,
 ```
 
 
-```{r run-body-child-rmd, results='asis'}
+```{r, results='asis'}
 res <- knitr::knit_child('SignalDetectionReport_body.Rmd', quiet = TRUE)
 cat(res)
 ```
 
 
-```{r run-strata-child-rmd, results='asis'}
+```{r, results='asis'}
 
 for (strat in params$strata) {
   res <- knitr::knit_child('SignalDetectionReport_strata.Rmd', quiet = TRUE)
