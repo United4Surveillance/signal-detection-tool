@@ -20,7 +20,7 @@ if (is.null(params$data)) {
 - Intervention date: `r params$intervention_date`
 
 
-```{r}
+```{r compute-signal-results}
 if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
   signals_agg <- params$signals_agg
   signals_padded <- params$signals_padded
@@ -64,7 +64,7 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
 
 # Signal Detection 
 
-```{r, results='asis'}
+```{r overview-text, results='asis'}
 results_analysis <- signals_padded %>%
   dplyr::filter(
     is.na(category),
@@ -80,7 +80,7 @@ stringr::str_glue(
 ```
 
 
-```{r}
+```{r plot-timeseries}
 #| fig.cap=paste0("Number of ", params$disease, " cases by week and signals, ", params$country),
 #| out.width="100%"
 SignalDetectionTool::plot_time_series(
@@ -93,7 +93,7 @@ SignalDetectionTool::plot_time_series(
 
 ## Signal Detection Table
 
-```{r}
+```{r signals-table}
 txt <- NULL
 
 if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
@@ -108,7 +108,7 @@ if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
 }
 ```
 
-```{r, results='asis'}
+```{r produce-text-if-no-signals, results='asis'}
 #|eval = is.character(txt)
 
 cat(txt)
