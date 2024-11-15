@@ -75,6 +75,9 @@ run_report <- function(
   # Validate strata
   checkmate::assert_character(strata, null.ok = TRUE, min.len = 1)
   # check that all columns are present in the data
+  if ("None" %in% strata) {
+    strata <- NULL
+  }
   for (col in strata) {
     checkmate::assert(
       checkmate::check_choice(col, choices = names(data))
@@ -95,10 +98,6 @@ run_report <- function(
     combine = "or"
   )
 
-  # render report --------------------------------------------------------------
-  if ("None" %in% strata) {
-    strata <- NULL
-  }
 
   if (is.character(intervention_date)) {
     intervention_date <- as.Date(intervention_date)
