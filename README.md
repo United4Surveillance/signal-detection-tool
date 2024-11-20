@@ -29,6 +29,124 @@ with:
 devtools::install_github("United4Surveillance/signal-detection-tool")
 ```
 
+<details>
+<summary>
+<strong>Installing latest SignalDetectionTool version</strong>
+</summary>
+<ul>
+<li>
+You can download the latest release of the SignalDetectionTool through
+the Releases page
+</li>
+<li>
+To navigate to the Release page, scroll up and look on the right-hand
+side of the page under a section labelled Releases. Click on ‘Releases’
+</li>
+<li>
+You can find the latest tool release at the top of the page
+</li>
+<li>
+There are three possible ways to install the tool:
+</li>
+<ul>
+<li>
+If you just want to run the tool and do not want or need to see the code
+behind, you can follow the installation using .tar.gz
+</li>
+<li>
+If you want to see the code behind the app in addition to running the
+tool, you can follow the installation from source after unzipping the
+zip file
+</li>
+<li>
+If you want to explore the code and work with it, you can best use the
+source code (zip)
+</li>
+</ul>
+</ul>
+<strong>Installation using .tar.gz</strong>
+<ul>
+<li>
+Download the provided .tar.gz file and save it on your computer
+</li>
+<li>
+Install the package <code>remotes</code> by putting
+<span style="color:blue;">install.package(“remotes”)</span> in the
+console
+</li>
+<li>
+Install the package dependencies for the SignalDetectionTool using the
+full path where you stored the .tar.gz file and replace the x.x.x with
+the current version of the binary. For example:
+<span style="color:blue;">remotes::install_deps(“C:/Users/YourUsername/Downloads/SignalDetectionTool_x.x.x.tar.gz”)</span>
+</li>
+<li>
+Execute this command in the console
+</li>
+<li>
+This should also install any dependencies you need to run the tool. Wait
+until the installation finishes successfully
+</li>
+<li>
+Write the following command into the console to install the tool:
+<span style="color:blue;">install.packages(“path_to_the_tool/SignalDetectionTool_x.x.x.tar.gz”,
+repos = NULL, type=“source”)</span>
+</li>
+<li>
+Continue to read ‘Running the shiny application’
+</li>
+</ul>
+<summary>
+<strong>Installation from source after unzipping_source.zip</strong>
+</summary>
+<ul>
+<li>
+Download the provided zip file and save it on your computer
+</li>
+<li>
+Go into the unzipped signal-detection-tool folder and double-click on
+the <code>SignalDetectionTool.Rproj</code> file to open it
+</li>
+<li>
+You can either use the RStudio suggestion to install packages by
+clicking on the ‘Install’ button or copy the following line of code into
+the console: <span style="color:blue;">devtools::install_deps()</span>
+</li>
+<li>
+This command will then ask you if you want to update your installed
+packages. Please type 1 and press enter to install the updates
+</li>
+<li>
+For advanced users: you can also install only the minimal required
+versions written inside the <code>DESCRIPTION</code> file by using
+<span style="color:blue;">remotes::install_version()</span>
+</li>
+<li>
+In case the command
+<span style="color:blue;">devtools::install_deps()</span> gives you an
+error that there is no package called ‘devtools’, you need to install it
+using <span style="color:blue;">install.packages(“devtools”)</span> and
+then run the command again
+</li>
+<li>
+Now the SignalDetectionTool needs to be installed. For this, go to the
+top right window in RStudio and click on the tab ‘Build’. Next, click on
+the ‘Install’ button. You will see that the installation process has
+started
+</li>
+<li>
+Continue to read ‘Running the shiny application’
+</li>
+</ul>
+
+<strong>Running the shiny application</strong><br> To run the shiny app,
+first load the package and then run the app using the following
+commands:<br>
+<span style="color:blue;">library(SignalDetectionTool)</span><br>
+<span style="color:blue;">run_app()</span>
+
+</details>
+
 ## Usage
 
 The shiny application is structured into a **Help**, **Data**, **Input
@@ -60,15 +178,18 @@ View(input_metadata)
 
 In the Input parameters tab you can configure the signal detection you
 want to perform. You can specify filters, stratification variables, time
-periods and the signal detection algorithm which should be used.
-![](man/figures/README-input-parameters-tab.PNG)
+periods and the signal detection algorithm which should be used. For
+some algorithms, a pandemic correction can be applied, incorporating an
+interrupted time series analysis into the outbreak detection methods.
+![](man/figures/README-input_tab.PNG)
 
 ### Signals
 
 The Signals tab can look like this when using the test data and
-stratificaton by age group, county and sex.
-![](man/figures/README-signals-tab-1.PNG)
-![](man/figures/README-signals-tab-2.PNG)
+stratification by age group, county and sex.
+![](man/figures/README-signals_tab.PNG)
+![](man/figures/README-timeseries.PNG)
+![](man/figures/README-signal_detection_table.PNG)
 
 ### Report
 
@@ -84,26 +205,26 @@ project](https://united4surveillance.eu/) will be the maintainers of the
 repository and can contribute directly, third parties can contribute via
 pull requests.
 
-The maintainers will meet regularly and discuss pull request, issues and
-add new issues according to the collected requirements.
+The maintainers are meeting regularly to discuss pull requests, issues
+and to add new issues according to the collected requirements.
 
-Maintainers and contributers can work indepedently on issues.
+Maintainers and contributors can work independently on issues.
 
 For more information on how to contribute, please see our [contributing
 guidelines](https://github.com/United4Surveillance/signal-detection-tool/blob/main/.github/CONTRIBUTING.md).
 
 ## Roadmap
 
-The first version 0.1.0 of the tool was provided to european public
-health institutes for piloting in April 2024. The piloting phase ends in
-November 2024.  
-Our goal is to get as much feedback from the piloting countries as
-possible. Therefore, we adopt an agile development approach with the aim
-to ship improved versions as often and as early as possible. Some of the
-current features we want to develop are:
+The initial version of the tool (0.1.0) was deployed in April 2024 to
+eleven European public health institutes for piloting, which is
+scheduled to conclude in November 2024. Our goal during the pilot phase
+is to gather extensive feedback from the participating countries.
+Therefore, we are adopting an agile development approach aiming to ship
+improved versions as often and as early as possible. By mid-November
+2024, the latest version (0.5.0) was provided to the piloting
+institutes. Some key features we want to develop are:
 
 - possibility to aggregate the time series on different levels
   i.e. daily, biweekly, monthly,…
-- integrate algorithms with possibility to correct for pandemic
 - possibility to combine stratifications
 - retrieve linelist with cases corresponding to signals generated
