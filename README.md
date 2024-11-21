@@ -38,8 +38,7 @@ run_app()
 
 Another way to install the tool is downloading the appropriate file
 found under
-[Releases](https://github.com/United4Surveillance/signal-detection-tool/releases)
-on Github.
+[Releases](https://github.com/United4Surveillance/signal-detection-tool/releases).
 
 <details>
 <summary>
@@ -60,22 +59,24 @@ There are three files you can download:
 </li>
 <ul>
 <li>
-<b>Source code (tar.gz)</b>: This is a tarball. You need to have Rtools
-on your computer to install the tool using .tar.gz. If you only want to
-run the app and use its functionalities this is the correct installation
-for you. In case you are interested to modify code of the app go to
-<b>Source Code (zip)</b>.
+<b>Source code (tar.gz)</b>: This is a tarball. You must have Rtools
+installed on your computer to use this installation method. If you only
+want to run the app and use its functionalities this is the correct
+installation for you. In case you are interested to modify code of the
+app go to <b>Source Code (zip)</b>.
 </li>
 <li>
 <b>SignalDetectionTool_x.x.x.zip</b>: This is a binary. You do not need
-to have Rtools on your computer for this installation.
+to have Rtools installed on your computer to use this installation
+method.
 </li>
 <li>
 <b>Source Code (zip)</b>: This is a zipped folder of the
-SignalDetectionTool repository. It can be unzipped and installed over
-the ‘Build’ tab in Rstudio. This can be used if you want to modify code
-of the app for your usage. Instead you can also just clone the
-repository.
+SignalDetectionTool repository. You must have Rtools installed on your
+computer to use this installation method. It can be unzipped and
+installed over the ‘Build’ tab in Rstudio. This can be used if you want
+to modify code of the app for your usage. Instead you can also just
+clone the repository.
 </li>
 </ul>
 </ul>
@@ -191,13 +192,6 @@ started
 Continue to read ‘Running the shiny application’
 </li>
 </ul>
-
-<strong>Running the shiny application</strong><br> To run the shiny app,
-first load the package and then run the app using the following
-commands:<br>
-<span style="color:blue;">library(SignalDetectionTool)</span><br>
-<span style="color:blue;">run_app()</span>
-
 </details>
 
 ## Usage
