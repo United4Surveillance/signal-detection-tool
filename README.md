@@ -20,7 +20,7 @@ and customised to the user’s needs.
 
 ## Installation
 
-You can install the development version of SignalDetectionTool from
+You can install the most recent release of the SignalDetectionTool from
 [GitHub](https://github.com/United4Surveillance/signal-detection-tool)
 with:
 
@@ -46,7 +46,7 @@ side of the page under a section labelled Releases. Click on ‘Releases’
 You can find the latest tool release at the top of the page
 </li>
 <li>
-There are three possible ways to install the tool:
+There are three files you can download:
 </li>
 <ul>
 <li>
@@ -54,13 +54,14 @@ If you just want to run the tool and do not want or need to see the code
 behind, you can follow the installation using .tar.gz
 </li>
 <li>
-If you want to see the code behind the app in addition to running the
-tool, you can follow the installation from source after unzipping the
-zip file
+This is a binary. You can use this if you do not have Rtools installed
+and you are not interested in modifying the code of the app.
 </li>
 <li>
-If you want to explore the code and work with it, you can best use the
-source code (zip)
+This is just a zipped folder of the repository. It can be unzipped and
+installed over the ‘Build’ tab in Rstudio. This can be used if you want
+to modify code of the app for your usage. You can also just clone the
+repository instead.
 </li>
 </ul>
 </ul>
@@ -96,8 +97,48 @@ repos = NULL, type=“source”)</span>
 Continue to read ‘Running the shiny application’
 </li>
 </ul>
+<strong>Installation using SignalDetectionTool_x.x.x_binary.zip
+file</strong>
+<ul>
+<li>
+Download the provided zip file and save it on your computer and open
+RStudio
+</li>
+<li>
+Install the package remotes by putting
+<span style="color:blue;">install.package(“remotes”)</span> in the
+console
+</li>
+<li>
+Install the package dependencies for the SignalDetectionTool using the
+full path where you stored the .zip file and replace the x.x.x with the
+current version of the binary.For example:
+<span style="color:blue;">remotes::install_deps(“C:/Users/YourUsername/Downloads/SignalDetectionTool_x.x.x.binary.zip”)</span>
+</li>
+<li>
+Execute this command in the console
+</li>
+<li>
+This command will then ask you if you want to update your installed
+packages. Please type 1 and press enter to install the updates. For
+advanced users: you can also install only the minimal required versions
+written inside the DESCRIPTION file by using
+<span style="color:blue;">remotes::install_version()</span>
+</li>
+<li>
+Now the SignalDetectionTool needs to be installed. For this execute this
+command
+<span style="color:blue;">install.packages(“your_path_to_the_zip/SignalDetectionTool_x.x.x_binary.zip”)</span>
+in the console, replacing again your_path_to_the_zip by your system path
+and changing x.x.x to the version specification.
+</li>
+<li>
+Continue to read ‘Running the shiny application’
+</li>
+</ul>
 <summary>
-<strong>Installation from source after unzipping_source.zip</strong>
+<strong>Installation from source after unzipping the Source Code
+(zip):</strong>
 </summary>
 <ul>
 <li>
@@ -198,31 +239,24 @@ results of the Signals Tab.
 
 ## Development Process and Contribution
 
-The tool development is an open source development process.
-
-The participants of Work Package 2.2 of the [United4Surveillance
+The tool development is an open source development process. The
+participants of Work Package 2.2 of the [United4Surveillance
 project](https://united4surveillance.eu/) will be the maintainers of the
 repository and can contribute directly, third parties can contribute via
-pull requests.
-
-The maintainers are meeting regularly to discuss pull requests, issues
-and to add new issues according to the collected requirements.
-
-Maintainers and contributors can work independently on issues.
-
-For more information on how to contribute, please see our [contributing
+pull requests. The maintainers are meeting regularly to discuss pull
+requests, issues and to add new issues according to the collected
+requirements. Maintainers and contributors can work independently on
+issues. For more information on how to contribute, please see our
+[contributing
 guidelines](https://github.com/United4Surveillance/signal-detection-tool/blob/main/.github/CONTRIBUTING.md).
 
 ## Roadmap
 
 The initial version of the tool (0.1.0) was deployed in April 2024 to
-eleven European public health institutes for piloting, which is
-scheduled to conclude in November 2024. Our goal during the pilot phase
-is to gather extensive feedback from the participating countries.
-Therefore, we are adopting an agile development approach aiming to ship
-improved versions as often and as early as possible. By mid-November
-2024, the latest version (0.5.0) was provided to the piloting
-institutes. Some key features we want to develop are:
+eleven European public health institutes for piloting. The official
+piloting phase ended in November 2024. The tool can and is used after
+November 2024 and will still be developed further.<br> Some key features
+we want to develop are:
 
 - possibility to aggregate the time series on different levels
   i.e. daily, biweekly, monthly,…
