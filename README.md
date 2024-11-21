@@ -18,7 +18,7 @@ detection, visualisation of results and generation of reports. The tool
 is interactive and flexible so that it can be used in different contexts
 and customised to the user’s needs.
 
-## Installation
+## Installation and running the app
 
 You can install the most recent release of the SignalDetectionTool from
 [GitHub](https://github.com/United4Surveillance/signal-detection-tool)
@@ -29,39 +29,53 @@ with:
 devtools::install_github("United4Surveillance/signal-detection-tool")
 ```
 
+To run the app you need to type:
+
+``` r
+library(SignalDetectionTool)
+run_app()
+```
+
+Another way to install the tool is downloading the appropriate file
+found under
+[Releases](https://github.com/United4Surveillance/signal-detection-tool/releases)
+on Github.
+
 <details>
 <summary>
-<strong>Installing latest SignalDetectionTool version</strong>
+<strong>Detailed installation guideline for the files in
+Releases.</strong>
 </summary>
 <ul>
-<li>
-You can download the latest release of the SignalDetectionTool through
-the Releases page
-</li>
 <li>
 To navigate to the Release page, scroll up and look on the right-hand
 side of the page under a section labelled Releases. Click on ‘Releases’
 </li>
 <li>
-You can find the latest tool release at the top of the page
+You can find the latest tool release at the top of the page with the
+corresponding version number.
 </li>
 <li>
 There are three files you can download:
 </li>
 <ul>
 <li>
-If you just want to run the tool and do not want or need to see the code
-behind, you can follow the installation using .tar.gz
+<b>Source code (tar.gz)</b>: This is a tarball. You need to have Rtools
+on your computer to install the tool using .tar.gz. If you only want to
+run the app and use its functionalities this is the correct installation
+for you. In case you are interested to modify code of the app go to
+<b>Source Code (zip)</b>.
 </li>
 <li>
-This is a binary. You can use this if you do not have Rtools installed
-and you are not interested in modifying the code of the app.
+<b>SignalDetectionTool_x.x.x.zip</b>: This is a binary. You do not need
+to have Rtools on your computer for this installation.
 </li>
 <li>
-This is just a zipped folder of the repository. It can be unzipped and
-installed over the ‘Build’ tab in Rstudio. This can be used if you want
-to modify code of the app for your usage. You can also just clone the
-repository instead.
+<b>Source Code (zip)</b>: This is a zipped folder of the
+SignalDetectionTool repository. It can be unzipped and installed over
+the ‘Build’ tab in Rstudio. This can be used if you want to modify code
+of the app for your usage. Instead you can also just clone the
+repository.
 </li>
 </ul>
 </ul>
@@ -97,8 +111,7 @@ repos = NULL, type=“source”)</span>
 Continue to read ‘Running the shiny application’
 </li>
 </ul>
-<strong>Installation using SignalDetectionTool_x.x.x_binary.zip
-file</strong>
+<strong>Installation using SignalDetectionTool_x.x.x.zip file</strong>
 <ul>
 <li>
 Download the provided zip file and save it on your computer and open
@@ -112,7 +125,7 @@ console
 <li>
 Install the package dependencies for the SignalDetectionTool using the
 full path where you stored the .zip file and replace the x.x.x with the
-current version of the binary.For example:
+current version of the binary. For example:
 <span style="color:blue;">remotes::install_deps(“C:/Users/YourUsername/Downloads/SignalDetectionTool_x.x.x.binary.zip”)</span>
 </li>
 <li>
@@ -137,8 +150,7 @@ Continue to read ‘Running the shiny application’
 </li>
 </ul>
 <summary>
-<strong>Installation from source after unzipping the Source Code
-(zip):</strong>
+<strong>Installation Source Code (zip):</strong>
 </summary>
 <ul>
 <li>
@@ -192,8 +204,9 @@ commands:<br>
 
 The shiny application is structured into a **Help**, **Data**, **Input
 parameters**, **Signals** and **Report** tab.  
-You can try the shiny application yourself using test data provided with
-the package. The test data is found in dev/data/input/input.csv.
+You can try the shiny application yourself using [test
+data](https://github.com/United4Surveillance/signal-detection-tool/blob/main/dev/data/input/input.csv)
+provided with the package.
 
 ### Help
 
@@ -203,12 +216,13 @@ algorithms.
 
 ### Data
 
-In the Data tab the user can upload the surveillance data for which the
-signal detection should be performed. The input format is a line list of
-infectious disease cases and the tool accepts data in the predefined
-format described in dev/data/input/description.md. A data format check
-is automatically run once the data file has been uploaded. You can also
-view the required input format using
+[Here](https://github.com/United4Surveillance/signal-detection-tool/blob/main/dev/data/input/description.md)
+is the description of the required data format to use the app. The input
+format is a line list of infectious disease cases. In the data tab the
+user can upload surveillance data (Excel or csv) for which the signal
+detection should be performed. A data format check is automatically run
+once the data file has been uploaded and feedback is provided to the
+user. Alternatively you can also view the required input format using:
 
 ``` r
 library(SignalDetectionTool)
@@ -227,7 +241,8 @@ interrupted time series analysis into the outbreak detection methods.
 ### Signals
 
 The Signals tab can look like this when using the test data and
-stratification by age group, county and sex.
+stratification by age group, county and sex and using a timetrend
+algorithm with pandemic correction:
 ![](man/figures/README-signals_tab.PNG)
 ![](man/figures/README-timeseries.PNG)
 ![](man/figures/README-signal_detection_table.PNG)
@@ -235,7 +250,8 @@ stratification by age group, county and sex.
 ### Report
 
 In the Report tab HTML and Word reports can be generated showing the
-results of the Signals Tab.
+results of the Signals Tab. Reports can also be generated using the
+`run_report()` function.
 
 ## Development Process and Contribution
 
