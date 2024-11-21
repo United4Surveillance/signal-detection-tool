@@ -42,156 +42,160 @@ found under
 
 <details>
 <summary>
-<strong>Detailed installation guideline for the files in
-Releases.</strong>
+<strong>Detailed Installation Guideline for the Files in
+Releases</strong>
 </summary>
 <ul>
 <li>
-To navigate to the Release page, scroll up and look on the right-hand
-side of the page under a section labelled Releases. Click on ‘Releases’
-</li>
-<li>
-You can find the latest tool release at the top of the page with the
-corresponding version number.
-</li>
-<li>
-There are three files you can download:
-</li>
+<strong>Navigating to the Release Page</strong>
 <ul>
 <li>
-<b>Source code (tar.gz)</b>: This is a tarball. You must have Rtools
-installed on your computer to use this installation method. If you only
-want to run the app and use its functionalities this is the correct
-installation for you. In case you are interested to modify code of the
-app go to <b>Source Code (zip)</b>.
+Scroll up and look on the right-hand side of the page under a section
+labelled <strong>Releases</strong>.
 </li>
 <li>
-<b>SignalDetectionTool_x.x.x.zip</b>: This is a binary. You do not need
-to have Rtools installed on your computer to use this installation
-method.
-</li>
-<li>
-<b>Source Code (zip)</b>: This is a zipped folder of the
-SignalDetectionTool repository. You must have Rtools installed on your
-computer to use this installation method. It can be unzipped and
-installed over the ‘Build’ tab in Rstudio. This can be used if you want
-to modify code of the app for your usage. Instead you can also just
-clone the repository.
+Click on <strong>Releases</strong> to access the latest tool release.
 </li>
 </ul>
-</ul>
-<strong>Installation using .tar.gz</strong>
+</li>
+
+<br>
+
+<details>
+<summary>
+<strong>Source Code (tar.gz)</strong>
+</summary>
+<p>
+This is a tarball. You must have Rtools installed on your computer to
+use this installation method. If you only want to run the app and use
+its functionalities, this is the correct installation for you. In case
+you are interested in modifying the code of the app, go to
+<strong>Source Code (zip)</strong>.
+</p>
 <ul>
 <li>
-Download the provided .tar.gz file and save it on your computer
+Download the provided <code>.tar.gz</code> file and save it on your
+computer.
 </li>
 <li>
 Install the package <code>remotes</code> by putting
-<span style="color:blue;">install.package(“remotes”)</span> in the
-console
+<code>install.packages(“remotes”)</code> in the console.
 </li>
 <li>
 Install the package dependencies for the SignalDetectionTool using the
-full path where you stored the .tar.gz file and replace the x.x.x with
-the current version of the binary. For example:
-<span style="color:blue;">remotes::install_deps(“C:/Users/YourUsername/Downloads/SignalDetectionTool_x.x.x.tar.gz”)</span>
+full path where you stored the <code>.tar.gz</code> file. Replace
+<code>x.x.x</code> with the current version of the binary. For example:
+<code>remotes::install_deps(“C:/Users/YourUsername/Downloads/SignalDetectionTool_x.x.x.tar.gz”)</code>
 </li>
 <li>
-Execute this command in the console
+Execute this command in the console.
 </li>
 <li>
 This should also install any dependencies you need to run the tool. Wait
-until the installation finishes successfully
+until the installation finishes successfully.
 </li>
 <li>
 Write the following command into the console to install the tool:
-<span style="color:blue;">install.packages(“path_to_the_tool/SignalDetectionTool_x.x.x.tar.gz”,
-repos = NULL, type=“source”)</span>
+<code>install.packages(“path_to_the_tool/SignalDetectionTool_x.x.x.tar.gz”,
+repos = NULL, type=“source”)</code>
 </li>
 <li>
-Continue to read ‘Running the shiny application’
+Go back above the detailed installation instructions to read how to run
+the app.
 </li>
 </ul>
-<strong>Installation using SignalDetectionTool_x.x.x.zip file</strong>
+</details>
+<details>
+<summary>
+<strong>SignalDetectionTool_x.x.x.zip</strong>
+</summary>
+<p>
+This is a binary. You do not need to have Rtools installed on your
+computer to use this installation method.
+</p>
 <ul>
 <li>
-Download the provided zip file and save it on your computer and open
-RStudio
+Download the provided <code>.zip</code> file and save it on your
+computer (do NOT unzip). Open RStudio.
 </li>
 <li>
-Install the package remotes by putting
-<span style="color:blue;">install.package(“remotes”)</span> in the
-console
+Install the package <code>remotes</code> by putting
+<code>install.packages(“remotes”)</code> in the console.
 </li>
 <li>
 Install the package dependencies for the SignalDetectionTool using the
-full path where you stored the .zip file and replace the x.x.x with the
-current version of the binary. For example:
-<span style="color:blue;">remotes::install_deps(“C:/Users/YourUsername/Downloads/SignalDetectionTool_x.x.x.binary.zip”)</span>
+full path where you stored the <code>.zip</code> file. Replace
+<code>x.x.x</code> with the current version of the binary. For example:
+<code>remotes::install_deps(“C:/Users/YourUsername/Downloads/SignalDetectionTool_x.x.x.binary.zip”)</code>
 </li>
 <li>
-Execute this command in the console
+Execute this command in the console.
 </li>
 <li>
-This command will then ask you if you want to update your installed
-packages. Please type 1 and press enter to install the updates. For
-advanced users: you can also install only the minimal required versions
-written inside the DESCRIPTION file by using
-<span style="color:blue;">remotes::install_version()</span>
+This command will ask if you want to update your installed packages.
+Type <code>1</code> and press enter to install the updates. For advanced
+users, you can also install only the minimal required versions written
+inside the <code>DESCRIPTION</code> file by using
+<code>remotes::install_version()</code>.
 </li>
 <li>
-Now the SignalDetectionTool needs to be installed. For this execute this
-command
-<span style="color:blue;">install.packages(“your_path_to_the_zip/SignalDetectionTool_x.x.x_binary.zip”)</span>
-in the console, replacing again your_path_to_the_zip by your system path
-and changing x.x.x to the version specification.
+Install the SignalDetectionTool with:
+<code>install.packages(“your_path_to_the_zip/SignalDetectionTool_x.x.x_binary.zip”)</code>.
 </li>
 <li>
-Continue to read ‘Running the shiny application’
+Go back above the detailed installation instructions to read how to run
+the app.
 </li>
 </ul>
+</details>
+<details>
 <summary>
-<strong>Installation Source Code (zip):</strong>
+<strong>Source Code (zip)</strong>
 </summary>
+<p>
+This is a zipped folder of the SignalDetectionTool repository. You must
+have Rtools installed on your computer to use this installation method.
+It can be unzipped and installed over the ‘Build’ tab in RStudio. This
+is ideal if you want to modify the app’s code. Alternatively, you can
+clone the repository.
+</p>
 <ul>
 <li>
-Download the provided zip file and save it on your computer
+Download the provided <code>.zip</code> file and save it on your
+computer.
 </li>
 <li>
-Go into the unzipped signal-detection-tool folder and double-click on
-the <code>SignalDetectionTool.Rproj</code> file to open it
+Go into the unzipped SignalDetectionTool folder and double-click on the
+<code>SignalDetectionTool.Rproj</code> file to open it.
 </li>
 <li>
-You can either use the RStudio suggestion to install packages by
-clicking on the ‘Install’ button or copy the following line of code into
-the console: <span style="color:blue;">devtools::install_deps()</span>
+Install packages via RStudio’s suggestion (click ‘Install’) or copy this
+line into the console: <code>devtools::install_deps()</code>.
 </li>
 <li>
-This command will then ask you if you want to update your installed
-packages. Please type 1 and press enter to install the updates
+The command may ask if you want to update your installed packages. Type
+<code>1</code> and press enter to install updates.
 </li>
 <li>
-For advanced users: you can also install only the minimal required
-versions written inside the <code>DESCRIPTION</code> file by using
-<span style="color:blue;">remotes::install_version()</span>
+For advanced users, install minimal required versions from the
+<code>DESCRIPTION</code> file using
+<code>remotes::install_version()</code>.
 </li>
 <li>
-In case the command
-<span style="color:blue;">devtools::install_deps()</span> gives you an
-error that there is no package called ‘devtools’, you need to install it
-using <span style="color:blue;">install.packages(“devtools”)</span> and
-then run the command again
+If <code>devtools::install_deps()</code> gives an error (e.g., ‘no
+package called devtools’), install it with:
+<code>install.packages(“devtools”)</code>, then run the command again.
 </li>
 <li>
-Now the SignalDetectionTool needs to be installed. For this, go to the
-top right window in RStudio and click on the tab ‘Build’. Next, click on
-the ‘Install’ button. You will see that the installation process has
-started
+To install the SignalDetectionTool, go to RStudio’s ‘Build’ tab (top
+right window) and click ‘Install’.
 </li>
 <li>
-Continue to read ‘Running the shiny application’
+Go back above the detailed installation instructions to read how to run
+the app.
 </li>
 </ul>
+</details>
 </details>
 
 ## Usage
