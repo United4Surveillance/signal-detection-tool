@@ -56,6 +56,9 @@ labelled <strong>Releases</strong>.
 <li>
 Click on <strong>Releases</strong> to access the latest tool release.
 </li>
+<li>
+There are three different files you can download.
+</li>
 </ul>
 </li>
 
