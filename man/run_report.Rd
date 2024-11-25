@@ -5,59 +5,83 @@
 \title{Renders signal detection report}
 \usage{
 run_report(
-  report_format = "HTML",
   data = SignalDetectionTool::input_example,
-  algo = "farrington",
+  report_format = "HTML",
+  method = "FarringtonFlexible",
   number_of_weeks = 6,
-  strata = c("county_id", "community_id", "sex", "age_group"),
+  strata = c("county", "age_group"),
   interactive = TRUE,
   tables = TRUE,
   output_file = NULL,
+  output_dir = ".",
   signals_padded = NULL,
   signals_agg = NULL,
   intervention_date = NULL
 )
 }
 \arguments{
-\item{report_format}{format of the report: HTML or DOCX}
-
 \item{data}{data.frame containing surveillance data in linelist format}
 
-\item{algo}{algorithm to be used}
+\item{report_format}{character, format of the report: "HTML" or "DOCX"}
 
-\item{number_of_weeks}{number of weeks for which signals are generated}
+\item{method}{character, algorithm to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend".}
 
-\item{strata}{A character vector specifying the columns to stratify
+\item{number_of_weeks}{integer, number of weeks for which signals are generated}
+
+\item{strata}{A character vector specifying the columns to stratify. If `NULL` no strata are used.
 the analysis. Default is NULL.}
 
-\item{interactive}{Logical (only applicable to HTML report)}
+\item{interactive}{Logical, indicating whether interactive elements should be included in the report. Only applicable when `report_format = "HTML"`. Defaults to `TRUE`.}
 
 \item{tables}{Logical. True if tables should be included in report.}
 
-\item{output_file}{The name of the output file \link[rmarkdown]{render}}
+\item{output_file}{A character string specifying the name of the output file (without directory path). If `NULL` (default), the file name is automatically generated to be SignalDetectionReport. See \link[rmarkdown]{render} for more details.}
+
+\item{output_dir}{A character string specifying the output directory for the rendered output file (default is ".", which means the rendered file will be saved in the current working directory. See \link[rmarkdown]{render} for more details. `NULL` is used when running the report from shiny app which will take the Downloads folder as default option for saving.}
 
 \item{signals_padded}{calculated and padded signals (for use within the app, default is NULL)}
 
 \item{signals_agg}{aggregated signals  (for use within the app, default is NULL)}
 
-\item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done.}
+\item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.}
 }
 \value{
 the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 }
 \description{
-Renders signal detection report
+If executed as a standalone function, all filtering must
+be performed beforehand.
+This function is also invoked within the app.
 }
 \examples{
 \dontrun{
+# Example 1: Run report with specified parameters and HTML format output
 run_report(
   report_format = "HTML",
   data = SignalDetectionTool::input_example,
-  algo = "farrington",
-  strata = c("county_id", "community_id", "sex", "age_group"),
+  method = "FarringtonFlexible",
+  strata = c("county", "sex"),
   interactive = TRUE,
   tables = TRUE,
   number_of_weeks = 6
+)
+# Example 2: An example output directory specified
+run_report(
+  method = "EARS",
+  output_dir = "C:/Users/SmithJ/Documents"
+)
+# Example 3: An example output file name is speficied
+run_report(
+  method = "EARS",
+  output_file = "My Signal Report"
+)
+
+# Example 4: No strata are used
+run_report(
+  report_format = "HTML",
+  data = SignalDetectionTool::input_example,
+  method = "EARS",
+  strata = NULL
 )
 }
 }
