@@ -1,0 +1,7 @@
+.more .more-content span {
+  display: none;
+}
+
+.more .more-link {
+  display: block;
+}

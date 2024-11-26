@@ -10,12 +10,6 @@
 mod_tabpanel_data_ui <- function(id) {
   ns <- shiny::NS(id)
 
-  # custom JS/CSS
-  shiny::tags$head(
-    shiny::tags$style(src = "www/addMoreBtn.css"),
-    shiny::tags$script(src = "www/addMoreBtn.js")
-  )
-
   shiny::tabPanel(
     title = "Data",
     icon = icon("file"),
