@@ -1,0 +1,80 @@
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+on:
+  pull_request:
+    paths: ["**.[rR]", "**.[qrR]md", "**.[rR]markdown", "**.[rR]nw", "**.[rR]profile"]
+
+name: style.yaml
+
+permissions: read-all
+
+jobs:
+  style:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Install dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: any::styler, any::roxygen2
+          needs: styler
+
+      - name: Enable styler cache
+        run: styler::cache_activate()
+        shell: Rscript {0}
+
+      - name: Determine cache location
+        id: styler-location
+        run: |
+          cat(
+            "location=",
+            styler::cache_info(format = "tabular")$location,
+            "\n",
+            file = Sys.getenv("GITHUB_OUTPUT"),
+            append = TRUE,
+            sep = ""
+          )
+        shell: Rscript {0}
+
+      - name: Cache styler
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.styler-location.outputs.location }}
+          key: ${{ runner.os }}-styler-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-styler-
+            ${{ runner.os }}-
+
+      - name: Style
+        run: styler::style_pkg()
+        shell: Rscript {0}
+
+      - name: Commit and push changes
+        run: |
+          echo "Current branch: $(git branch --show-current)"
+          BRANCH_NAME=${GITHUB_HEAD_REF}
+          FILES_TO_COMMIT=$(git diff-index --name-only HEAD | egrep --ignore-case '\.(R|[qR]md|Rmarkdown|Rnw|Rprofile)$')
+          if [[ -n "$FILES_TO_COMMIT" ]]; then
+            git config --local user.name "${GITHUB_ACTOR}"
+            git config --local user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+            git add $FILES_TO_COMMIT
+            git commit -m "Style code (GHA)"
+            git pull --rebase origin "$BRANCH_NAME"
+            git push origin HEAD:"$BRANCH_NAME"
+          else
+            echo "No changes to commit."
+          fi
