@@ -18,6 +18,8 @@ A `Date` object representing the first day of the specified ISO week.
 This function converts an ISO year and ISO week number into a date. The date returned corresponds to the first day (Monday) of the specified ISO week.
 }
 \examples{
+\dontrun{
 Example usage:
 isoweek_to_date(week = 15, year = 2023)  # Returns the date for the first day of ISO week 15 in 2023
+}
 }

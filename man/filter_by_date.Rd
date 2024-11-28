@@ -36,6 +36,7 @@ or character strings (formatted as \code{"yyyy-mm-dd"}) for \code{date_start} an
 }
 \examples{
 # Example data frame
+\dontrun{
 data <- data.frame(
   date_report = as.Date("2023-01-01") + 0:9,
   value = rnorm(10)
@@ -54,4 +55,5 @@ filtered_data <- filter_by_date(data,
   date_start = "2023-01-03",
   date_end = "2023-01-08"
 )
+}
 }

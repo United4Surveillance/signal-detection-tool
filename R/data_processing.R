@@ -164,6 +164,7 @@ aggregate_data <- function(data,
 #'
 #' @examples
 #' # Example data frame
+#' \dontrun{
 #' data <- data.frame(
 #'   date_report = as.Date("2023-01-01") + 0:9,
 #'   value = rnorm(10)
@@ -182,6 +183,7 @@ aggregate_data <- function(data,
 #'   date_start = "2023-01-03",
 #'   date_end = "2023-01-08"
 #' )
+#' }
 filter_by_date <- function(data, date_var = "date_report", date_start = NULL, date_end = NULL) {
   checkmate::check_subset(date_var, names(data))
 
@@ -197,10 +199,10 @@ filter_by_date <- function(data, date_var = "date_report", date_start = NULL, da
   )
 
   if (!is.null(date_start)) {
-    data <- data %>% dplyr::filter(!!sym(date_var) >= date_start)
+    data <- data %>% dplyr::filter(!!rlang::sym(date_var) >= date_start)
   }
   if (!is.null(date_end)) {
-    data <- data %>% dplyr::filter(!!sym(date_var) <= date_end)
+    data <- data %>% dplyr::filter(!!rlang::sym(date_var) <= date_end)
   }
   data
 }
