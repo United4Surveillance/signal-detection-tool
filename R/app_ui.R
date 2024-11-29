@@ -6,51 +6,53 @@
 #' @noRd
 app_ui <- function(request) {
   # Leave this function for adding external resources
-  bslib::page_fluid(
-    shinyjs::useShinyjs(),
+  shiny::tagList(
     golem_add_external_resources(),
-    # Application title
-    shiny::div(
-      id = "title-panel",
-      class = "title-panel",
-      shiny::titlePanel(
-        shiny::tagList(
-          shiny::br(),
-          # Logo and headertext
-          shiny::fluidRow(
-            shiny::column(
-              width = 8,
-              shiny::div(
-                style = "text-align: left; margin-left: 20px; font-size: 50px;",
-                "Signal Detection Tool"
-              )
-            ),
-            shiny::column(width = 2, shiny::tags$img(src = "www/img/U4S-BLUE-200x87.png", style = "padding-bottom: 20px;")),
-            shiny::column(width = 2, shiny::tags$img(src = "www/img/EN_V_Co-funded_by_POS.png", height = 95, width = "auto"))
-          )
-        ),
-        windowTitle = "U4S Signal Detection"
-      )
-    ),
+    bslib::page_fluid(
+      shinyjs::useShinyjs(),
+      # Application title
+      shiny::div(
+        id = "title-panel",
+        class = "title-panel",
+        shiny::titlePanel(
+          shiny::tagList(
+            shiny::br(),
+            # Logo and headertext
+            shiny::fluidRow(
+              shiny::column(
+                width = 8,
+                shiny::div(
+                  style = "text-align: left; margin-left: 20px; font-size: 50px;",
+                  "Signal Detection Tool"
+                )
+              ),
+              shiny::column(width = 2, shiny::tags$img(src = "www/U4S-BLUE-200x87.png", style = "padding-bottom: 20px;")),
+              shiny::column(width = 2, shiny::tags$img(src = "www/EN_V_Co-funded_by_POS.png", height = 95, width = "auto"))
+            )
+          ),
+          windowTitle = "U4S Signal Detection"
+        )
+      ),
 
-    # Content
-    shiny::div(
-      class = "content-container",
-      shiny::tabsetPanel(
-        mod_tabpanel_help_ui("help"),
-        mod_tabpanel_data_ui("data"),
-        mod_tabpanel_input_ui("input"),
-        mod_tabpanel_signals_ui("signals"),
-        mod_tabpanel_report_ui("report"),
-        selected = "Data"
-      )
-    ),
+      # Content
+      shiny::div(
+        class = "content-container",
+        shiny::tabsetPanel(
+          mod_tabpanel_help_ui("help"),
+          mod_tabpanel_data_ui("data"),
+          mod_tabpanel_input_ui("input"),
+          mod_tabpanel_signals_ui("signals"),
+          mod_tabpanel_report_ui("report"),
+          selected = "Data"
+        )
+      ),
 
-    # EU Disclaimer
-    shiny::div(
-      id = "footer",
-      class = "footer",
-      p("Co-funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union. Neither the European Union nor the granting authority can be held responsible for them.")
+      # EU Disclaimer
+      shiny::div(
+        id = "footer",
+        class = "footer",
+        p("Co-funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union. Neither the European Union nor the granting authority can be held responsible for them.")
+      )
     )
   )
 }
@@ -69,19 +71,18 @@ golem_add_external_resources <- function() {
     app_sys("app/www")
   )
 
-  golem::bundle_resources(
-    path = app_sys("app/www"),
-    app_title = "SignalDetectionTool"
-  )
+
   shiny::tags$head(
     golem::favicon(
       ico = "https://united4surveillance.eu/wp-content/uploads/2023/03/FAV-150x107.png",
       ext = "png"
-    )
-  )
-  # TODO: move to css file
-  # shiny::tags$head(
-  shiny::tags$style(shiny::HTML("
+    ),
+    golem::bundle_resources(
+      path = app_sys("app/www"),
+      app_title = "SignalDetectionTool"
+    ),
+    # TODO: move to css file
+    shiny::tags$style(shiny::HTML("
       * {
         box-sizing: border-box;
       }
@@ -131,5 +132,5 @@ golem_add_external_resources <- function() {
         padding-bottom: -20px !important; /* Reduce space below the value */
       }
     "))
-  # )
+  )
 }

@@ -9,7 +9,6 @@
 #' @importFrom shiny NS tagList
 mod_tabpanel_data_ui <- function(id) {
   ns <- shiny::NS(id)
-
   shiny::tabPanel(
     title = "Data",
     icon = icon("file"),
