@@ -13,15 +13,12 @@ mod_tabpanel_help_ui <- function(id) {
   shiny::tabPanel(
     title = "Help",
     icon = shiny::icon("question"),
-    bslib::page_fluid(
-      bslib::layout_columns(
-        col_widths = c(12),
-        bslib::card(
-          h2("Table of Contents"),
-          shiny::uiOutput(ns("help_tab_html"))
-        )
+    # bslib::page_fluid(
+      bslib::card(
+        h2("Table of Contents"),
+        shiny::uiOutput(ns("help_tab_html"))
       )
-    )
+    # )
   )
 }
 

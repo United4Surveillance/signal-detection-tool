@@ -19,9 +19,9 @@ mod_tabpanel_report_ui <- function(id) {
       height = "100px",
       width = "100px"
     ),
-    bslib::page_fluid(
+    # bslib::page_fluid(
       shiny::uiOutput(ns("report_tab_ui"))
-    )
+    # )
   )
 }
 

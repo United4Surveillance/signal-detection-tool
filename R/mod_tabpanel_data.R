@@ -20,7 +20,7 @@ mod_tabpanel_data_ui <- function(id) {
       height = "100px",
       width = "100px"
     ),
-    bslib::page_fluid(
+    # bslib::page_fluid(
       bslib::layout_columns(
         col_widths = c(3, 9, 12),
         bslib::card(
@@ -68,7 +68,7 @@ mod_tabpanel_data_ui <- function(id) {
         ),
         shiny::uiOutput(ns("data_dt"))
       )
-    )
+    # )
   )
 }
 
