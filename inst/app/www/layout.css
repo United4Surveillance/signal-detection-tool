@@ -1,0 +1,39 @@
+* {
+  box-sizing: border-box;
+}
+
+.container-fluid {
+  padding: 0 0 0 0 !important;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+  background-color: #f8f9fa;
+  padding-left: calc(var(--bs-gutter-x) * .5);
+  padding-right: calc(var(--bs-gutter-x) * .5);
+}
+
+.tab-content {
+  padding: 23px 3px 23px 3px;
+  flex: 1;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-style: italic;
+  font-size: 12px;
+  padding: 10px;
+  background-color: #ffffff;
+  /* this is important for height calculation */
+  z-index: 100;
+  /* Ensure footer stays at the bottom */
+}

@@ -14,23 +14,14 @@ app_ui <- function(request) {
       shiny::div(
         id = "title-panel",
         class = "title-panel",
-        shiny::titlePanel(
-          shiny::tagList(
-            shiny::br(),
-            # Logo and headertext
-            shiny::fluidRow(
-              shiny::column(
-                width = 8,
-                shiny::div(
-                  style = "text-align: left; margin-left: 20px; font-size: 50px;",
-                  "Signal Detection Tool"
-                )
-              ),
-              shiny::column(width = 2, shiny::tags$img(src = "www/U4S-BLUE-200x87.png", style = "padding-bottom: 20px;")),
-              shiny::column(width = 2, shiny::tags$img(src = "www/EN_V_Co-funded_by_POS.png", height = 95, width = "auto"))
-            )
-          ),
-          windowTitle = "U4S Signal Detection"
+        shiny::div(
+          class = "title-text",
+          "Signal Detection Tool"
+        ),
+        shiny::div(
+          class = "logo-container",
+          shiny::tags$img(src = "www/U4S - BLUE - Transparent_cropped.png", width = "235px"),
+          shiny::tags$img(src = "www/EN Co-Funded by the EU_NEG_resized.png", width = "235px")
         )
       ),
 
@@ -70,8 +61,6 @@ golem_add_external_resources <- function() {
     "www",
     app_sys("app/www")
   )
-
-
   shiny::tags$head(
     golem::favicon(
       ico = "https://united4surveillance.eu/wp-content/uploads/2023/03/FAV-150x107.png",
@@ -80,57 +69,6 @@ golem_add_external_resources <- function() {
     golem::bundle_resources(
       path = app_sys("app/www"),
       app_title = "SignalDetectionTool"
-    ),
-    # TODO: move to css file
-    shiny::tags$style(shiny::HTML("
-      * {
-        box-sizing: border-box;
-      }
-
-      .title-panel {
-        text-align: center;
-      }
-
-      .content-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        overflow: hidden;  /* Ensure no scrollbars on outer container */
-        background-color: #f8f9fa;
-      }
-
-      .tab-content {
-        padding: 10px;
-        flex: 1;
-        overflow-y: auto;
-        height: 100%;
-      }
-
-      .footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        text-align: center;
-        font-style: italic;
-        font-size: 12px;
-        padding: 10px;
-        background-color: #ffffff; /* this is important for height calculation */
-        z-index: 100;  /* Ensure footer stays at the bottom */
-      }
-
-      .bslib-value-box .value-box-title {
-        font-size: 15px !important; /* Adjust the font size */
-        font-weight: bold !important; /* Make the title text bold */
-        padding-top: -20px !important; /* Reduce space above the title */
-        margin-top: -20px !important; /* Reduce space above the title */
-      }
-
-      .bslib-value-box .value-box-value {
-        font-size: 13px !important; /* Adjust the font size */
-        margin-bottom: -20px !important; /* Reduce space below the value */
-        padding-bottom: -20px !important; /* Reduce space below the value */
-      }
-    "))
+    )
   )
 }

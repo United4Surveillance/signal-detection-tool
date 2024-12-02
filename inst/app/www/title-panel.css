@@ -1,0 +1,43 @@
+.title-panel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #2e4793;
+  min-height: 120px;
+  padding-left: 35px;
+  padding-right: 35px;
+  padding-bottom: 10px;
+}
+
+.title-text {
+  color: #f4d00c;
+  font-size: 50px;
+  text-align: center;
+}
+
+.logo-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+
+@media (max-width: 1053px) {
+  .title-panel {
+    flex-direction: column;
+    /* Stack title and logos vertically on small screens */
+    align-items: center;
+    /* Center both text and logos horizontally */
+  }
+
+  .title-text {
+    margin-bottom: 10px;
+    /* Add space below the title text */
+  }
+
+  .logo-container {
+    justify-content: center;
+    /* Center logos horizontally */
+  }
+}

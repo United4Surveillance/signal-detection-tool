@@ -1,0 +1,19 @@
+.bslib-value-box .value-box-title {
+  font-size: 15px !important;
+  /* Adjust the font size */
+  font-weight: bold !important;
+  /* Make the title text bold */
+  padding-top: -20px !important;
+  /* Reduce space above the title */
+  margin-top: -20px !important;
+  /* Reduce space above the title */
+}
+
+.bslib-value-box .value-box-value {
+  font-size: 13px !important;
+  /* Adjust the font size */
+  margin-bottom: -20px !important;
+  /* Reduce space below the value */
+  padding-bottom: -20px !important;
+  /* Reduce space below the value */
+}
