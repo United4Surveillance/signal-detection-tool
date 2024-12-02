@@ -24,6 +24,8 @@
 }
 
 .footer {
+  background-color: #2e4793;
+  color: #f4d00c;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -32,8 +34,5 @@
   font-style: italic;
   font-size: 12px;
   padding: 10px;
-  background-color: #ffffff;
-  /* this is important for height calculation */
   z-index: 100;
-  /* Ensure footer stays at the bottom */
 }
