@@ -7,7 +7,7 @@
 app_server <- function(input, output, session) {
   # Your application server logic
   options(shiny.sanitize.errors = TRUE)
-
+  # bslib::bs_themer()
   mod_tabpanel_help_server("help")
 
   data_load_check_result <- mod_tabpanel_data_server("data")
