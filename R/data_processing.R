@@ -266,23 +266,20 @@ pad_signals <- function(data,
   stopifnot(length(number_of_weeks) == 1)
   stopifnot(length(method) == 1)
 
-  available_thresholds <- list(26, 20, 14, 8, 2)
-  signals_all_timeopts <- dplyr::bind_rows(purrr::map(unlist(available_thresholds), function(timeopt) {
-    signals_timeopt <- get_signals(data,
+  available_thresholds <- c(26, 20, 14, 8, 2)
+  for (timeopt in available_thresholds) {
+    max_time_opt <- timeopt
+    signals_timeopt <- get_signals(
+      data,
       method = method,
       number_of_weeks = timeopt + number_of_weeks
     )
     if (!is.null(signals_timeopt)) {
-      signals_timeopt <- signals_timeopt %>% dplyr::mutate(time_opt = timeopt)
+      break
     }
-  }))
+  }
 
-  time_opts_working <- unique(signals_all_timeopts$time_opt)
-  time_opts_working_named <- available_thresholds[unlist(available_thresholds) %in% time_opts_working]
-  max_time_opt <- max(unlist(time_opts_working_named))
-
-  result_padding_unstratified <- signals_all_timeopts %>%
-    dplyr::filter(time_opt == max_time_opt) %>%
+  result_padding_unstratified <- signals_timeopt %>%
     dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected) %>%
     head(n = -(number_of_weeks - 1))
 
