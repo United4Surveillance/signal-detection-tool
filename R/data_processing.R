@@ -13,9 +13,11 @@ preprocess_data <- function(data) {
   # remove completely empty columns from the dataset
   data <- remove_empty_columns(data)
 
-  yes_no_unknown_vars <- intersect(colnames(data), yes_no_unknown_variables())
+  yes_no_unknown_vars <- intersect(colnames(data),
+                                   yes_no_unknown_variables())
   # get all variables present in the data which might need transformation tolower
-  to_lower_vars <- intersect(colnames(data), c(yes_no_unknown_variables(), "sex"))
+  to_lower_vars <- intersect(colnames(data),
+                             c(yes_no_unknown_variables(), "sex"))
   # get all regional stratification variables
   regional_id_vars <- intersect(colnames(data), region_id_variable_names())
 
