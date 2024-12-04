@@ -13,11 +13,15 @@ preprocess_data <- function(data) {
   # remove completely empty columns from the dataset
   data <- remove_empty_columns(data)
 
-  yes_no_unknown_vars <- intersect(colnames(data),
-                                   yes_no_unknown_variables())
+  yes_no_unknown_vars <- intersect(
+    colnames(data),
+    yes_no_unknown_variables()
+  )
   # get all variables present in the data which might need transformation tolower
-  to_lower_vars <- intersect(colnames(data),
-                             c(yes_no_unknown_variables(), "sex"))
+  to_lower_vars <- intersect(
+    colnames(data),
+    c(yes_no_unknown_variables(), "sex")
+  )
   # get all regional stratification variables
   regional_id_vars <- intersect(colnames(data), region_id_variable_names())
 
@@ -59,9 +63,9 @@ preprocess_data <- function(data) {
       .names = "{.col}_week"
     ))
 
-  if("age" %in% names(data())){
-      data <- data %>%
-        dplyr::mutate(dplyr::across(dplyr::all_of("age"), ~ dplyr::if_else(.x < 0, NA_integer_, .x)))
+  if ("age" %in% names(data())) {
+    data <- data %>%
+      dplyr::mutate(dplyr::across(dplyr::all_of("age"), ~ dplyr::if_else(.x < 0, NA_integer_, .x)))
   }
   # age or age_group is mandatory thus we need to check whether column present in data
   # or else create age_group from age
@@ -89,13 +93,15 @@ aggregate_data <- function(data,
   week_var <- paste0(date_var, "_week")
   year_var <- paste0(date_var, "_year")
 
-  if("outbreak_status" %in% names(data)){
+  if ("outbreak_status" %in% names(data)) {
     data %>%
       dplyr::group_by(!!rlang::sym(week_var), !!rlang::sym(year_var)) %>%
-      dplyr::summarize(cases = dplyr::n(),
-                       cases_in_outbreak = sum(outbreak_status == "yes", na.rm = T),
-                       .groups = "drop") %>%
-      dplyr::mutate(cases_in_outbreak = dplyr::if_else(is.na(cases_in_outbreak),0,cases_in_outbreak)) %>%
+      dplyr::summarize(
+        cases = dplyr::n(),
+        cases_in_outbreak = sum(outbreak_status == "yes", na.rm = T),
+        .groups = "drop"
+      ) %>%
+      dplyr::mutate(cases_in_outbreak = dplyr::if_else(is.na(cases_in_outbreak), 0, cases_in_outbreak)) %>%
       dplyr::select(
         week = !!rlang::sym(week_var),
         year = !!rlang::sym(year_var),
@@ -106,8 +112,10 @@ aggregate_data <- function(data,
   } else {
     data %>%
       dplyr::group_by(!!rlang::sym(week_var), !!rlang::sym(year_var)) %>%
-      dplyr::summarize(cases = dplyr::n(),
-                       .groups = "drop") %>%
+      dplyr::summarize(
+        cases = dplyr::n(),
+        .groups = "drop"
+      ) %>%
       dplyr::select(
         week = !!rlang::sym(week_var),
         year = !!rlang::sym(year_var),
