@@ -117,6 +117,11 @@ aggregate_data <- function(data,
     ) %>%
     dplyr::arrange(year, week)
 
+  # add the missing isoweeks to the dataset
+  data_agg <- data_agg %>% add_missing_isoweeks(
+    date_start = date_start,
+    date_end = date_end
+  )
 
   if ("outbreak_status" %in% names(data)) {
     data_outbreak_agg <- data %>%
