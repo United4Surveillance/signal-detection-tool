@@ -704,7 +704,6 @@ get_signals <- function(data,
   }
 
   if (is.null(stratification)) {
-
     data_agg <- data %>%
       # filter the data
       filter_by_date(date_start = date_start, date_end = date_end, date_var = date_var) %>%

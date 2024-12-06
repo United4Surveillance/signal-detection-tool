@@ -37,6 +37,5 @@ mod_tabpanel_help_server <- function(id) {
     output$help_tab_html <- shiny::renderUI({
       shiny::HTML(html_content)
     })
-
   })
 }
