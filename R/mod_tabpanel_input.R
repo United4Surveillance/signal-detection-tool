@@ -19,7 +19,14 @@ mod_tabpanel_input_ui <- function(id) {
       height = "100px",
       width = "100px"
     ),
-    shiny::uiOutput(ns("input_tab_ui"))
+    shiny::div(
+      class = "content-container",
+      shiny::div(
+        class = "card-container",
+        shiny::uiOutput(ns("input_tab_ui"))
+      ),
+      footer_text
+    )
   )
 }
 

@@ -20,9 +20,14 @@ mod_tabpanel_signals_ui <- function(id) {
       height = "100px",
       width = "100px"
     ),
-    # bslib::page_fluid(
-      shiny::uiOutput(ns("signals_tab_ui"))
-    # )
+    shiny::div(
+      class = "content-container",
+      shiny::div(
+        class = "card-container",
+        shiny::uiOutput(ns("signals_tab_ui"))
+      ),
+      footer_text
+    )
   )
 }
 

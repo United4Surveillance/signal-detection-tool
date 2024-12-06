@@ -44,7 +44,6 @@ app_server <- function(input, output, session) {
   # Calculate tab-content size based on title-panel and footer -----------------
   rv <- reactiveValues(
     title_height = NULL,
-    footer_height = NULL,
     navbar_height = NULL
   )
 
@@ -54,15 +53,12 @@ app_server <- function(input, output, session) {
       // Function to recalculate heights and update Shiny inputs
       function recalculateHeights() {
         var titlePanel = document.getElementById('title-panel');
-        var footer = document.getElementById('footer');
         var navbar = document.querySelector('.nav-tabs'); // Select the navbar element
         // Get the actual height including padding and border
         var titleHeight = titlePanel ? titlePanel.getBoundingClientRect().height : 0;
-        var footerHeight = footer ? footer.getBoundingClientRect().height : 0;
         var navbarHeight = navbar ? navbar.getBoundingClientRect().height : 0;
         // Send new height values to Shiny server
         Shiny.setInputValue('title_panel_height', titleHeight);
-        Shiny.setInputValue('footer_height', footerHeight);
         Shiny.setInputValue('navbar_height', navbarHeight);
       }
       // Recalculate heights on window resize
@@ -76,30 +72,30 @@ app_server <- function(input, output, session) {
   shiny::observeEvent(input$title_panel_height, {
     rv$title_height <- input$title_panel_height
   })
-  shiny::observeEvent(input$footer_height, {
-    rv$footer_height <- input$footer_height
-  })
   shiny::observeEvent(input$navbar_height, {
     rv$navbar_height <- input$navbar_height
   })
 
   # Dynamically adjust the tab content max-height based on title, footer, and navbar heights
   shiny::observe({
-    shiny::req(rv$title_height, rv$footer_height, rv$navbar_height)  # Ensure all heights are available
+    shiny::req(rv$title_height, rv$navbar_height) # Ensure all heights are available
 
     # # Debugging: Print current heights to console
     # print(paste("Title Height:", rv$title_height))
-    # print(paste("Footer Height:", rv$footer_height))
     # print(paste("Navbar Height:", rv$navbar_height))
 
     # Update the CSS for the tab content's maxHeight
     shinyjs::runjs(sprintf("
       var tabContent = document.querySelector('.tab-content');
       if (tabContent) {
-        tabContent.style.maxHeight = 'calc(100vh - %fpx - %fpx - %fpx)';
+        tabContent.style.maxHeight = 'calc(100vh - %fpx - %fpx)';
       }
-    ", rv$title_height, rv$footer_height, rv$navbar_height))
+    ", rv$title_height, rv$navbar_height))
+    shinyjs::runjs(sprintf("
+      var tabPanes = document.querySelectorAll('.content-container');
+      tabPanes.forEach(function(tabPane) {
+        tabPane.style.minHeight = 'calc(100vh - %fpx - %fpx)';
+      });
+    ", rv$title_height, rv$navbar_height))
   })
-
-
 }

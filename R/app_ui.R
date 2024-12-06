@@ -26,23 +26,13 @@ app_ui <- function(request) {
       ),
 
       # Content
-      shiny::div(
-        class = "content-container",
-        shiny::tabsetPanel(
-          mod_tabpanel_help_ui("help"),
-          mod_tabpanel_data_ui("data"),
-          mod_tabpanel_input_ui("input"),
-          mod_tabpanel_signals_ui("signals"),
-          mod_tabpanel_report_ui("report"),
-          selected = "Data"
-        )
-      ),
-
-      # EU Disclaimer
-      shiny::div(
-        id = "footer",
-        class = "footer",
-        p("Co-funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union. Neither the European Union nor the granting authority can be held responsible for them.")
+      shiny::tabsetPanel(
+        mod_tabpanel_help_ui("help"),
+        mod_tabpanel_data_ui("data"),
+        mod_tabpanel_input_ui("input"),
+        mod_tabpanel_signals_ui("signals"),
+        mod_tabpanel_report_ui("report"),
+        selected = "Data"
       )
     )
   )

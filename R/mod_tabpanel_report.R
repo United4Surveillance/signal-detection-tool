@@ -19,9 +19,14 @@ mod_tabpanel_report_ui <- function(id) {
       height = "100px",
       width = "100px"
     ),
-    # bslib::page_fluid(
-      shiny::uiOutput(ns("report_tab_ui"))
-    # )
+    shiny::div(
+      class = "content-container",
+      shiny::div(
+        class = "card-container",
+        shiny::uiOutput(ns("report_tab_ui"))
+      ),
+      footer_text
+    )
   )
 }
 

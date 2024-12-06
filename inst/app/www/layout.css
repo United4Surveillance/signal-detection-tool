@@ -3,36 +3,32 @@
 }
 
 .container-fluid {
-  padding: 0 0 0 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.tab-content {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .content-container {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  overflow: hidden;
-  background-color: #f8f9fa;
-  padding-left: calc(var(--bs-gutter-x) * .5);
-  padding-right: calc(var(--bs-gutter-x) * .5);
 }
 
-.tab-content {
-  padding: 23px 3px 23px 3px;
-  flex: 1;
-  overflow-y: auto;
-  height: 100%;
+.card-container {
+  padding: 23px 10px 0px 10px;
 }
 
 .footer {
+  margin-top: auto !important;
   background-color: #2e4793;
-  color: #f4d00c;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  color: #ffffff;
   text-align: center;
   font-style: italic;
   font-size: 12px;
-  padding: 10px;
-  z-index: 100;
+  padding: 3px;
 }
