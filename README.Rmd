@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # SignalDetectionTool
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/United4Surveillance/signal-detection-tool/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/United4Surveillance/signal-detection-tool/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 ## Overview
 
