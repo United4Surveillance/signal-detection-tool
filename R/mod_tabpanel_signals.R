@@ -112,6 +112,7 @@ mod_tabpanel_signals_server <- function(
             )
           },
           bslib::card(
+            full_screen = TRUE,
             shiny::h3(paste0(
               "Timeseries of weekly cases with signal detection applied to the last ",
               number_of_weeks(), " weeks."
@@ -123,6 +124,7 @@ mod_tabpanel_signals_server <- function(
             plotly::plotlyOutput(ns("time_series_plot"))
           ),
           bslib::card(
+            min_height = "775px",
             shiny::h3("Signal detection table"),
             DT::DTOutput(ns("signals"))
           )
@@ -277,6 +279,7 @@ mod_tabpanel_signals_server <- function(
           }
 
           bslib::card(
+            full_screen = TRUE,
             width = "auto",
             bslib::card_header(shiny::div("Distribution by ", category_label, ",", signal_period())),
             plot
