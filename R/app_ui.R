@@ -20,8 +20,8 @@ app_ui <- function(request) {
         ),
         shiny::div(
           class = "logo-container",
-          shiny::tags$img(src = "www/U4S - BLUE - Transparent_cropped.png", width = "235px"),
-          shiny::tags$img(src = "www/EN Co-Funded by the EU_NEG_resized.png", width = "235px")
+          shiny::tags$img(src = "www/U4S - BLUE - Transparent_cropped.png"),
+          shiny::tags$img(src = "www/EN Co-Funded by the EU_NEG_resized.png")
         )
       ),
 

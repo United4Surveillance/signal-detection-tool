@@ -4,16 +4,14 @@
   justify-content: space-between;
   align-items: center;
   background-color: #2e4793;
-  min-height: 120px;
+  min-height: 10vh;
   padding-left: 35px;
   padding-right: 35px;
-  padding-bottom: 10px;
 }
 
 .title-text {
   color: #ffffff;
-  font-size: 50px;
-  text-align: center;
+  font-size: clamp(20px, 5vh, 50px);
 }
 
 .logo-container {
@@ -22,22 +20,18 @@
   align-items: center;
 }
 
+.logo-container img {
+  height: 5vh;
+}
 
-@media (max-width: 1053px) {
-  .title-panel {
-    flex-direction: column;
-    /* Stack title and logos vertically on small screens */
-    align-items: center;
-    /* Center both text and logos horizontally */
-  }
 
-  .title-text {
-    margin-bottom: 10px;
-    /* Add space below the title text */
-  }
-
+@media (max-width: 1030px) {
   .logo-container {
     justify-content: center;
-    /* Center logos horizontally */
+  }
+  .logo-container img {
+    justify-content: center;
+    max-height: 40px;
   }
 }
+
