@@ -34,3 +34,8 @@ nweeks_error_message <- shiny::tagList(
   shiny::p("Please correct it according to the specification given in the input tab."),
   shiny::br()
 )
+
+footer_text <- shiny::div(
+  class = "footer",
+  "Co-funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union. Neither the European Union nor the granting authority can be held responsible for them."
+)

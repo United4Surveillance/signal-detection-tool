@@ -1,0 +1,34 @@
+* {
+  box-sizing: border-box;
+}
+
+.container-fluid {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.tab-content {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-container {
+  padding: 23px 10px 0px 10px;
+}
+
+.footer {
+  margin-top: auto !important;
+  background-color: #2e4793;
+  color: #ffffff;
+  text-align: center;
+  font-style: italic;
+  font-size: 12px;
+  padding: 3px;
+}

@@ -78,8 +78,7 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
             value = max(data()[[input$filter_var_sel]])
           ),
         )
-      } else if(is_age()) {
-
+      } else if (is_age()) {
         value_ui <- shiny::tagList(
           shiny::div(
             shiny::numericInput(
@@ -88,8 +87,9 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
               value = min(data()[[input$filter_var_sel]], na.rm = T),
               min = min(data()[[input$filter_var_sel]], na.rm = T),
               max = max(data()[[input$filter_var_sel]], na.rm = T)
-              ),
-            style = "display: inline-block; width: 45%; vertical-align: top;"),
+            ),
+            style = "display: inline-block; width: 45%; vertical-align: top;"
+          ),
           shiny::div(
             shiny::numericInput(
               inputId = ns("filter_max_val_sel"),
@@ -98,15 +98,16 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
               max = max(data()[[input$filter_var_sel]], na.rm = T),
               value = max(data()[[input$filter_var_sel]], na.rm = T)
             ),
-            style = "display: inline-block; width: 45%; vertical-align: top;")
+            style = "display: inline-block; width: 45%; vertical-align: top;"
+          )
         )
       } else {
         if (class(data()[[input$filter_var_sel]]) == "factor") {
           filter_choices <- levels(data()[[input$filter_var_sel]]) # keep level ordering if factor
           # without transforming NA to unknown in the data as we want to keep NA as long as possible
           # for easy computation
-          if(any(is.na(data()[[input$filter_var_sel]]))){
-            filter_choices <- c(filter_choices,"unknown")
+          if (any(is.na(data()[[input$filter_var_sel]]))) {
+            filter_choices <- c(filter_choices, "unknown")
           }
         } else {
           filter_choices <- data() %>%
@@ -133,7 +134,7 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
       shiny::req(is_age)
       if (is_date()) {
         values <- c(input$filter_min_val_sel, input$filter_max_val_sel)
-      } else if(is_age()){
+      } else if (is_age()) {
         values <- c(input$filter_min_val_sel, input$filter_max_val_sel)
       } else {
         values <- input$filter_val_sel

@@ -12,15 +12,15 @@ function addMoreBtn() {
         if(content.length > showChar) {
             var c = content.substr(0, showChar);
             var h = content.substr(showChar, content.length - showChar);
-            var html = c + "<span class=\"moreellipses\">" + ellipsestext
-              + "&nbsp;</span><span class=\"morecontent\"><span>" + h
-              + "</span>&nbsp;&nbsp;<a href=\"\" class=\"morelink\">"
+            var html = c + "<span class=\"more-ellipses\">" + ellipsestext
+              + "&nbsp;</span><span class=\"more-content\"><span>" + h
+              + "</span>&nbsp;&nbsp;<a href=\"\" class=\"more-link\">"
               + moretext + "</a></span>";
             $(this).html(html);
         }
     });
 
-    $(".morelink").click(function(){
+    $(".more-link").click(function(){
         if($(this).hasClass("less")) {
             $(this).removeClass("less");
             $(this).html(moretext);

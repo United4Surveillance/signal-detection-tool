@@ -1,0 +1,37 @@
+.title-panel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #2e4793;
+  min-height: 10vh;
+  padding-left: 35px;
+  padding-right: 35px;
+}
+
+.title-text {
+  color: #ffffff;
+  font-size: clamp(20px, 5vh, 50px);
+}
+
+.logo-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.logo-container img {
+  height: 5vh;
+}
+
+
+@media (max-width: 1030px) {
+  .logo-container {
+    justify-content: center;
+  }
+  .logo-container img {
+    justify-content: center;
+    max-height: 40px;
+  }
+}
+
