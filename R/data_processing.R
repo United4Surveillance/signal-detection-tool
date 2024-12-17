@@ -86,6 +86,7 @@ preprocess_data <- function(data) {
 #' \dontrun{
 #' data <- preprocess_data(input_example) %>% aggregate_data()
 #' }
+#' @export
 aggregate_data <- function(data,
                            date_var = "date_report",
                            date_start = NULL,
@@ -373,6 +374,7 @@ convert_to_sts <- function(case_counts) {
 #' updated_data <- add_missing_isoweeks(data_agg)
 #' updated_data
 #' }
+#' @export
 add_missing_isoweeks <- function(data_agg, date_start = NULL, date_end = NULL) {
   checkmate::assert(
     checkmate::check_subset("year", names(data_agg)),

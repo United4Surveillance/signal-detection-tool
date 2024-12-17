@@ -1,3 +1,5 @@
+# SignalDetectionTool 0.5.1
+
 * Bug fix in completing aggregated case data with 0 for cases for 53th isoweek.
 * Change function name add_rows_missing_dates() to add_missing_isoweeks()
 * Only perform completion of aggregated data not in add_missing_isoweeks() and not filtering by dates as it was done before in add_rows_missing_dates()
