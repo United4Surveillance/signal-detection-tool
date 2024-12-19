@@ -4,7 +4,7 @@
   justify-content: space-between;
   align-items: center;
   background-color: #2e4793;
-  min-height: 10vh;
+  min-height: clamp(22px, 10vh, 55px);
   padding-left: 35px;
   padding-right: 35px;
 }
@@ -21,14 +21,11 @@
 }
 
 .logo-container img {
-  height: 5vh;
+  height: clamp(20px, 5vh, 50px);
 }
 
 
 @media (max-width: 1030px) {
-  .logo-container {
-    justify-content: center;
-  }
   .logo-container img {
     justify-content: center;
     max-height: 40px;
