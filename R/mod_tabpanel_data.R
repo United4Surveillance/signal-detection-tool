@@ -41,7 +41,7 @@ mod_tabpanel_data_ui <- function(id) {
           bslib::card(
             bslib::card_title("Data check results", container = shiny::h1),
             shiny::h2("Correct type and values of the columns in your data"),
-            "In this section you receive feedback about the correct type and values of all columns in your data where the column name was written correctly. Columns which are not written in the way it is required by the SOP are not checked for correctness. If there is an error in this section you need to first fix it to be able to use the tool.",
+            shiny::span("In this section you receive feedback about the correct type and values of all columns in your data where the column name was written correctly. Columns which are not written in the way it is required by the SOP are not checked for correctness. If there is an error in this section you need to first fix it to be able to use the tool."),
             shiny::div(
               class = "check-result",
               shiny::htmlOutput(ns("errors"))
