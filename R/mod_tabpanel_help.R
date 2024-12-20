@@ -18,7 +18,7 @@ mod_tabpanel_help_ui <- function(id) {
       shiny::div(
         class = "card-container",
         bslib::card(
-          h2("Table of Contents"),
+          shiny::h1("Table of Contents"),
           shiny::uiOutput(ns("help_tab_html"))
         )
       ),

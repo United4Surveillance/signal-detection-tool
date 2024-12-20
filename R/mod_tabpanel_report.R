@@ -61,7 +61,7 @@ mod_tabpanel_report_server <- function(id,
           bslib::layout_columns(
             col_widths = c(6, 6),
             bslib::card(
-              bslib::card_title("Download Report", container = shiny::h2),
+              bslib::card_title("Download Report", container = shiny::h1),
               shiny::selectInput(NS(id, "format"), "Choose a format:",
                 choices = c("HTML", "DOCX")
               ),

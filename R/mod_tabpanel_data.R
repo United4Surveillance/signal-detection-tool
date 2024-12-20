@@ -26,7 +26,7 @@ mod_tabpanel_data_ui <- function(id) {
         bslib::layout_columns(
           col_widths = c(3, 9, 12),
           bslib::card(
-            bslib::card_title("Load Data", container = shiny::h2),
+            bslib::card_title("Load Data", container = shiny::h1),
             shiny::fileInput(
               inputId = ns("file1"),
               label = "Choose CSV or Excel File",
@@ -39,32 +39,32 @@ mod_tabpanel_data_ui <- function(id) {
             ),
           ),
           bslib::card(
-            bslib::card_title("Data check results", container = shiny::h2),
-            shiny::h4("Correct type and values of the columns in your data"),
+            bslib::card_title("Data check results", container = shiny::h1),
+            shiny::h2("Correct type and values of the columns in your data"),
             "In this section you receive feedback about the correct type and values of all columns in your data where the column name was written correctly. Columns which are not written in the way it is required by the SOP are not checked for correctness. If there is an error in this section you need to first fix it to be able to use the tool.",
             shiny::div(
-              style = "border: 2px solid black; padding: 10px;",
+              class = "check-result",
               shiny::htmlOutput(ns("errors"))
             ),
             # Display errors output
-            shiny::h4("Columns in your dataset which were not checked for correctness"),
+            shiny::h2("Columns in your dataset which were not checked for correctness"),
             shiny::span("In this section you receive feedback about columns which are not checked by the tool. These can be columns with a wrong column name that does not match the predefined names in the SOP, as well as additional columns you provided which are not part of the SOP. You can still continue using the app even when there are notifications in this section."),
             shiny::span("Please check the column names shown and correct those which should match column names defined in the SOP. The additional columns you provided can stay and can be used in stratification and filters."),
             shiny::span("After you corrected the columns please upload your data again for verification."),
             shiny::div(
-              style = "border: 2px solid black; padding: 10px;",
+              class = "check-result",
               shiny::htmlOutput(ns("unused_vars"))
             ),
-            shiny::h4("Data Quality"),
+            shiny::h2("Data Quality"),
             shiny::span("In this section you receive feedback about implausible or inconsistent values and missing data."),
             shiny::span(paste0("The following variables are checked for missingness: ", check_for_missing_values(), ".")),
             shiny::div(
-              style = "border: 2px solid black; padding: 10px;",
+              class = "check-result",
               shiny::uiOutput(ns("missing_vals")),
             ),
             shiny::span(paste0("The following variables are checked for inconsistent/implausible values: age")),
             shiny::div(
-              style = "border: 2px solid black; padding: 10px;",
+              class = "check-result",
               shiny::uiOutput(ns("negative_ages")),
             )
           ),
@@ -174,7 +174,7 @@ mod_tabpanel_data_server <- function(id) {
       shiny::tagList(
         bslib::card(
           min_height = "775px",
-          h2("Uploaded Data"),
+          shiny::h1("Uploaded Data"),
           DT::renderDataTable({
             DT::datatable(
               data(),
