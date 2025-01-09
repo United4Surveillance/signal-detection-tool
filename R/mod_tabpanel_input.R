@@ -293,7 +293,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
             if (class(df[[rlang::as_name(filter_var)]]) == "Date") { # apply filter if filtering date
               df <- df %>%
                 dplyr::filter(!!filter_var %in% seq(filter_val[1], filter_val[2], "day"))
-            } else if(rlang::as_name(filter_var) == "age") {
+            } else if (rlang::as_name(filter_var) == "age") {
               df <- df %>%
                 dplyr::filter(!!filter_var >= filter_val[1], !!filter_var <= filter_val[2])
 

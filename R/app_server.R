@@ -50,5 +50,5 @@ app_server <- function(input, output, session) {
     no_algorithm_possible = datinput$no_algorithm_possible,
     intervention_date = datinput$intervention_date,
     signals_padded = signals_output$signals_padded
-    )
+  )
 }
