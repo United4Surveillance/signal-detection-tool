@@ -56,9 +56,17 @@ app_server <- function(input, output, session) {
         var navbar = document.querySelector('.nav-tabs'); // Select the navbar element
         // Get the actual height including padding and border
         var titleHeight = titlePanel ? titlePanel.getBoundingClientRect().height : 0;
+        if (titlePanel) {
+            var titleStyle = getComputedStyle(titlePanel);
+            var titleTotalHeight = titleHeight
+                + parseFloat(titleStyle.marginTop)
+                + parseFloat(titleStyle.marginBottom);
+        } else {
+            var titleTotalHeight = titleHeight;
+        }
         var navbarHeight = navbar ? navbar.getBoundingClientRect().height : 0;
         // Send new height values to Shiny server
-        Shiny.setInputValue('title_panel_height', titleHeight);
+        Shiny.setInputValue('title_panel_height', titleTotalHeight);
         Shiny.setInputValue('navbar_height', navbarHeight);
       }
       // Recalculate heights on window resize
