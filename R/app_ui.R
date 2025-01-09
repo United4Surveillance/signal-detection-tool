@@ -33,6 +33,7 @@ app_ui <- function(request) {
             mod_tabpanel_input_ui("input"),
             mod_tabpanel_signals_ui("signals"),
             mod_tabpanel_report_ui("report"),
+            mod_tabpanel_investigation_ui("investigation"),
             selected = "Data"
           )
         )

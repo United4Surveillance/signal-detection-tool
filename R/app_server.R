@@ -39,4 +39,16 @@ app_server <- function(input, output, session) {
     signals_agg = signals_output$signals_agg,
     intervention_date = datinput$intervention_date
   )
+
+  mod_tabpanel_investigation_server("investigation",
+    filtered_data = datinput$filtered_data,
+    errors_detected = data_load_check_result$errors_detected,
+    number_of_weeks = datinput$n_weeks,
+    number_of_weeks_input_valid = datinput$weeks_input_valid,
+    strat_vars = datinput$strat_vars,
+    method = datinput$method,
+    no_algorithm_possible = datinput$no_algorithm_possible,
+    intervention_date = datinput$intervention_date,
+    signals_padded = signals_output$signals_padded
+    )
 }
