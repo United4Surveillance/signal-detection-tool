@@ -7,6 +7,12 @@
   min-height: clamp(22px, 10vh, 55px);
   padding-left: 35px;
   padding-right: 35px;
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+   /* Add rounded corners */
+  border-radius: 5px;
 }
 
 .title-text {

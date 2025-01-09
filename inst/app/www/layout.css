@@ -31,4 +31,8 @@
   font-style: italic;
   font-size: 12px;
   padding: 3px;
+  border-radius: 5px;
+  margin-left: 3px;
+  margin-right: 3px;
+  margin-bottom: 3px;
 }
