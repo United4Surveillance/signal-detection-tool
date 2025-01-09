@@ -12,19 +12,17 @@ h1 {
 
 h2 {
   font-weight: bold;
-  font-size: 14pt;
+  font-size: 15pt;
   margin-bottom: 4px;
 }
 
 h3 {
   font-weight: bold;
-  font-style: italic;
-  font-size: 13pt;
+  font-size: 12pt;
 }
 
 h4 {
   font-weight: 600;
-  font-style: italic;
   font-size: 11pt;
 }
 

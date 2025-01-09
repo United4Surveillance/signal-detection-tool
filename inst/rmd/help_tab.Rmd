@@ -108,7 +108,7 @@ This method models the expected number of cases using a harmonic sin-cos regress
 
 #### Harmonic with timetrend
 
-The same as the **Harmonic** method but with fitting a timetrend to account for the underlying trend in the data.
+The same as the Harmonic method but with fitting a timetrend to account for the underlying trend in the data.
 
 
 #### Step harmonic
@@ -117,7 +117,7 @@ This method models the expected number of cases using the season groups defined 
 
 #### Step harmonic with timetrend
 
-The same as the **Step harmonic** method but with fitting a timetrend to account for the underlying trend in the data.
+The same as the Step harmonic method but with fitting a timetrend to account for the underlying trend in the data.
 
 ### Covid19 Pandemic correction
 

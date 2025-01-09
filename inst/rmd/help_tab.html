@@ -426,8 +426,21 @@ SignalDetectionTool?</a></li>
 <li><a href="#workflow-of-the-tool" id="toc-workflow-of-the-tool">Workflow of the tool</a>
 <ul>
 <li><a href="#data-tab" id="toc-data-tab">Data tab</a></li>
-<li><a href="#input-tab" id="toc-input-tab">Input tab</a></li>
-<li><a href="#signals-tab" id="toc-signals-tab">Signals tab</a></li>
+<li><a href="#input-tab" id="toc-input-tab">Input tab</a>
+<ul>
+<li><a href="#pathogen" id="toc-pathogen">Pathogen</a></li>
+<li><a href="#filters" id="toc-filters">Filters</a></li>
+<li><a href="#strata" id="toc-strata">Strata</a></li>
+<li><a href="#signal-detection-period" id="toc-signal-detection-period">Signal detection period</a></li>
+<li><a href="#signal-detection-algorithm" id="toc-signal-detection-algorithm">Signal detection algorithm</a></li>
+<li><a href="#covid19-pandemic-correction" id="toc-covid19-pandemic-correction">Covid19 Pandemic
+correction</a></li>
+</ul></li>
+<li><a href="#signals-tab" id="toc-signals-tab">Signals tab</a>
+<ul>
+<li><a href="#stratification-visualisation" id="toc-stratification-visualisation">Stratification
+visualisation</a></li>
+</ul></li>
 <li><a href="#report-tab" id="toc-report-tab">Report tab</a></li>
 </ul></li>
 <li><a href="#bug-reporting" id="toc-bug-reporting">Bug
@@ -435,15 +448,15 @@ reporting</a></li>
 </ul>
 </div>
 
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
 <p>This tab is meant to help, guide and assist you with any issues or
 questions that might arise while using the SignalDetectionTool app. It
 will cover the background and purpose of the tool, guide you through the
 different options and functionalities provided, and provides a contact
 point for reporting any bugs found while using the tool.</p>
-<div id="united4surveillance" class="section level3">
-<h3>United4Surveillance</h3>
+<div id="united4surveillance" class="section level2">
+<h2>United4Surveillance</h2>
 <p>The SignalDetectionTool is developed under the United4Surveillance
 (U4S) project, work package 2, Task 2 “Outbreak and Signal Detection”.
 The goal of U4S is to ensure better detection of early warning signs and
@@ -454,20 +467,20 @@ reducing harmful consequences. Automated signal detection using tools
 can thereby help identify specific events of concern and manage and
 foster automated data analysis.</p>
 </div>
-<div id="why-use-the-signaldetectiontool" class="section level3">
-<h3>Why use the SignalDetectionTool?</h3>
+<div id="why-use-the-signaldetectiontool" class="section level2">
+<h2>Why use the SignalDetectionTool?</h2>
 <p>Use this Shiny app as what it is - a tool. A tool to help bring
 another perspective to your disease surveillance, while also making it
 easy to generate reports and figures.</p>
 </div>
 </div>
-<div id="input-data" class="section level2">
-<h2>Input data</h2>
+<div id="input-data" class="section level1">
+<h1>Input data</h1>
 <p>This app requires specific input data formatting, which is described
 in detail in MS Teams.</p>
 </div>
-<div id="workflow-of-the-tool" class="section level2">
-<h2>Workflow of the tool</h2>
+<div id="workflow-of-the-tool" class="section level1">
+<h1>Workflow of the tool</h1>
 <p>The SignalDetectionTool app is made up of several tabs, each holding
 different key properties for using the app correctly. The workflow of
 the tool is to move from left to right, in a natural order. However, it
@@ -476,8 +489,8 @@ may be necessary to jump between the <code>Input</code> and
 your needs. Additionally, the <code>Input</code>, <code>Signals</code>
 and <code>Report</code> tabs will be empty until an input data set is
 given.</p>
-<div id="data-tab" class="section level3">
-<h3>Data tab</h3>
+<div id="data-tab" class="section level2">
+<h2>Data tab</h2>
 <p>The data tab is where you provide the tool with the proper input data
 to perform signal detection upon.</p>
 <p>Clicking on the <code>Browse</code> button, you access a File Manager
@@ -512,20 +525,20 @@ then the raw data provided is shown. Otherwise a table of pre-processed
 data, ready for signal detection is presented and you can move on the
 next tab,<code>Input</code>.</p>
 </div>
-<div id="input-tab" class="section level3">
-<h3>Input tab</h3>
+<div id="input-tab" class="section level2">
+<h2>Input tab</h2>
 <p>The input tab is where you can interact, manipulate and shape the
 input data set, to investigate for signals proper. There are multiple
 different features to change, which will be covered in this section.</p>
-<div id="pathogen" class="section level4">
-<h4>Pathogen</h4>
+<div id="pathogen" class="section level3">
+<h3>Pathogen</h3>
 <p>Using this tool, it is only possible to perform signal detection upon
 one kind of pathogen at a time. Thus, if data about multiple pathogens
 exist in data, one will be preselected and can be changed using the
 drop-down list.</p>
 </div>
-<div id="filters" class="section level4">
-<h4>Filters</h4>
+<div id="filters" class="section level3">
+<h3>Filters</h3>
 <p>You can choose to investigate a subset of your data according to the
 filters you select. When filtering upon one or more variables, whether
 it be choosing a specific time period through date_report and / or
@@ -533,8 +546,8 @@ selecting only the age_groups 00-29, thatsubset of data is then used to
 train the outbreak detection algorithms and is shown on the timeseries
 visualisation.</p>
 </div>
-<div id="strata" class="section level4">
-<h4>Strata</h4>
+<div id="strata" class="section level3">
+<h3>Strata</h3>
 <p>You can choose to stratify by up to three variables. Choosing a
 variable for stratification means that signals will be examined for each
 level of chosen strata(s). For example, if the variable age_group is one
@@ -546,14 +559,14 @@ the top of the <code>Signals</code> tab. Choosing a strata will not
 affect the time series visualisation in the <code>Signals</code>
 tab.</p>
 </div>
-<div id="signal-detection-period" class="section level4">
-<h4>Signal detection period</h4>
+<div id="signal-detection-period" class="section level3">
+<h3>Signal detection period</h3>
 <p>Here you can set the number of weeks you want to generate signals
 for. The signals are generated for the most recent weeks, which is also
 dependent on if any filtering is done.</p>
 </div>
-<div id="signal-detection-algorithm" class="section level4">
-<h4>Signal detection algorithm</h4>
+<div id="signal-detection-algorithm" class="section level3">
+<h3>Signal detection algorithm</h3>
 <p>Depending on the number of weeks you want to generate signals for,
 and the filters you set, the choice of algorithms is automatically
 updated to those which are possible to apply for your setting, with
@@ -581,10 +594,11 @@ model seasonality demand more historical data to accurately estimate
 seasonal patterns. As noted above, the app automatically determines
 which methods can be applied based on the amount of historical data
 available in your dataset and only shows you those.</p>
-<div class="tabwid"><style>.cl-99fb8c0c{}.cl-99eecbac{font-family:'Arial';font-size:11pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-99eecbb6{font-family:'Arial';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-99f360f4{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-99f3cd78{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cd82{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cd83{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cd84{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cd85{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cd8c{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cd8d{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cd8e{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cd96{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cd97{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cda0{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cda1{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cdaa{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cdab{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cdac{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cdad{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cdb4{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cdb5{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cdb6{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-99f3cdb7{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style><table data-quarto-disable-processing="true" class="cl-99fb8c0c"><thead><tr style="overflow-wrap:break-word;"><th class="cl-99f3cd78"><p class="cl-99f360f4"><span class="cl-99eecbac">Signal detection algorithm</span></p></th><th class="cl-99f3cd82"><p class="cl-99f360f4"><span class="cl-99eecbac">Time trend</span></p></th><th class="cl-99f3cd83"><p class="cl-99f360f4"><span class="cl-99eecbac">Seasonality</span></p></th><th class="cl-99f3cd84"><p class="cl-99f360f4"><span class="cl-99eecbac">Minimum historic data required</span></p></th></tr></thead><tbody><tr style="overflow-wrap:break-word;"><td class="cl-99f3cd85"><p class="cl-99f360f4"><span class="cl-99eecbb6">FarringtonFlexible</span></p></td><td class="cl-99f3cd8c"><p class="cl-99f360f4"><span class="cl-99eecbb6">Yes</span></p></td><td class="cl-99f3cd8d"><p class="cl-99f360f4"><span class="cl-99eecbb6">Yes</span></p></td><td class="cl-99f3cd8e"><p class="cl-99f360f4"><span class="cl-99eecbb6">1.5 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-99f3cd96"><p class="cl-99f360f4"><span class="cl-99eecbb6">EARS</span></p></td><td class="cl-99f3cd97"><p class="cl-99f360f4"><span class="cl-99eecbb6">No</span></p></td><td class="cl-99f3cda0"><p class="cl-99f360f4"><span class="cl-99eecbb6">No</span></p></td><td class="cl-99f3cda1"><p class="cl-99f360f4"><span class="cl-99eecbb6">7 weeks</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-99f3cd96"><p class="cl-99f360f4"><span class="cl-99eecbb6">CUSUM</span></p></td><td class="cl-99f3cd97"><p class="cl-99f360f4"><span class="cl-99eecbb6">No</span></p></td><td class="cl-99f3cda0"><p class="cl-99f360f4"><span class="cl-99eecbb6">No</span></p></td><td class="cl-99f3cda1"><p class="cl-99f360f4"><span class="cl-99eecbb6">1 week</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-99f3cd85"><p class="cl-99f360f4"><span class="cl-99eecbb6">Mean</span></p></td><td class="cl-99f3cd8c"><p class="cl-99f360f4"><span class="cl-99eecbb6">No</span></p></td><td class="cl-99f3cd8d"><p class="cl-99f360f4"><span class="cl-99eecbb6">No</span></p></td><td class="cl-99f3cd8e"><p class="cl-99f360f4"><span class="cl-99eecbb6">1 year</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-99f3cd85"><p class="cl-99f360f4"><span class="cl-99eecbb6">Timetrend</span></p></td><td class="cl-99f3cd8c"><p class="cl-99f360f4"><span class="cl-99eecbb6">Yes</span></p></td><td class="cl-99f3cd8d"><p class="cl-99f360f4"><span class="cl-99eecbb6">No</span></p></td><td class="cl-99f3cd8e"><p class="cl-99f360f4"><span class="cl-99eecbb6">2 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-99f3cd85"><p class="cl-99f360f4"><span class="cl-99eecbb6">Harmonic</span></p></td><td class="cl-99f3cd8c"><p class="cl-99f360f4"><span class="cl-99eecbb6">No</span></p></td><td class="cl-99f3cd8d"><p class="cl-99f360f4"><span class="cl-99eecbb6">Yes</span></p></td><td class="cl-99f3cd8e"><p class="cl-99f360f4"><span class="cl-99eecbb6">2 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-99f3cd85"><p class="cl-99f360f4"><span class="cl-99eecbb6">Harmonic with timetrend</span></p></td><td class="cl-99f3cd8c"><p class="cl-99f360f4"><span class="cl-99eecbb6">Yes</span></p></td><td class="cl-99f3cd8d"><p class="cl-99f360f4"><span class="cl-99eecbb6">Yes</span></p></td><td class="cl-99f3cd8e"><p class="cl-99f360f4"><span class="cl-99eecbb6">3 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-99f3cdaa"><p class="cl-99f360f4"><span class="cl-99eecbb6">Step harmonic</span></p></td><td class="cl-99f3cdab"><p class="cl-99f360f4"><span class="cl-99eecbb6">No</span></p></td><td class="cl-99f3cdac"><p class="cl-99f360f4"><span class="cl-99eecbb6">Yes</span></p></td><td class="cl-99f3cdad"><p class="cl-99f360f4"><span class="cl-99eecbb6">4 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-99f3cdb4"><p class="cl-99f360f4"><span class="cl-99eecbb6">Step harmonic with timetrend</span></p></td><td class="cl-99f3cdb5"><p class="cl-99f360f4"><span class="cl-99eecbb6">Yes</span></p></td><td class="cl-99f3cdb6"><p class="cl-99f360f4"><span class="cl-99eecbb6">Yes</span></p></td><td class="cl-99f3cdb7"><p class="cl-99f360f4"><span class="cl-99eecbb6">4 years</span></p></td></tr></tbody></table></div>
+<div class="tabwid"><style>.cl-8b500d84{}.cl-8b3ee7ca{font-family:'Arial';font-size:11pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-8b3ee7d4{font-family:'Arial';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-8b43be1c{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-8b43d7e4{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d7ee{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d7ef{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d7f8{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d7f9{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d802{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d803{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d804{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d805{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d80c{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d80d{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d80e{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d80f{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d816{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d817{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d818{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d820{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d821{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d822{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8b43d823{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style><table data-quarto-disable-processing="true" class="cl-8b500d84"><thead><tr style="overflow-wrap:break-word;"><th class="cl-8b43d7e4"><p class="cl-8b43be1c"><span class="cl-8b3ee7ca">Signal detection algorithm</span></p></th><th class="cl-8b43d7ee"><p class="cl-8b43be1c"><span class="cl-8b3ee7ca">Time trend</span></p></th><th class="cl-8b43d7ef"><p class="cl-8b43be1c"><span class="cl-8b3ee7ca">Seasonality</span></p></th><th class="cl-8b43d7f8"><p class="cl-8b43be1c"><span class="cl-8b3ee7ca">Minimum historic data required</span></p></th></tr></thead><tbody><tr style="overflow-wrap:break-word;"><td class="cl-8b43d7f9"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">FarringtonFlexible</span></p></td><td class="cl-8b43d802"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">Yes</span></p></td><td class="cl-8b43d803"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">Yes</span></p></td><td class="cl-8b43d804"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">1.5 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-8b43d805"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">EARS</span></p></td><td class="cl-8b43d80c"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">No</span></p></td><td class="cl-8b43d80d"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">No</span></p></td><td class="cl-8b43d80e"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">7 weeks</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-8b43d805"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">CUSUM</span></p></td><td class="cl-8b43d80c"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">No</span></p></td><td class="cl-8b43d80d"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">No</span></p></td><td class="cl-8b43d80e"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">1 week</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-8b43d7f9"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">Mean</span></p></td><td class="cl-8b43d802"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">No</span></p></td><td class="cl-8b43d803"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">No</span></p></td><td class="cl-8b43d804"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">1 year</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-8b43d7f9"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">Timetrend</span></p></td><td class="cl-8b43d802"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">Yes</span></p></td><td class="cl-8b43d803"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">No</span></p></td><td class="cl-8b43d804"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">2 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-8b43d7f9"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">Harmonic</span></p></td><td class="cl-8b43d802"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">No</span></p></td><td class="cl-8b43d803"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">Yes</span></p></td><td class="cl-8b43d804"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">2 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-8b43d7f9"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">Harmonic with timetrend</span></p></td><td class="cl-8b43d802"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">Yes</span></p></td><td class="cl-8b43d803"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">Yes</span></p></td><td class="cl-8b43d804"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">3 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-8b43d80f"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">Step harmonic</span></p></td><td class="cl-8b43d816"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">No</span></p></td><td class="cl-8b43d817"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">Yes</span></p></td><td class="cl-8b43d818"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">4 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-8b43d820"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">Step harmonic with timetrend</span></p></td><td class="cl-8b43d821"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">Yes</span></p></td><td class="cl-8b43d822"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">Yes</span></p></td><td class="cl-8b43d823"><p class="cl-8b43be1c"><span class="cl-8b3ee7d4">4 years</span></p></td></tr></tbody></table></div>
 <p>For more details about the individual algorithms we recommend to read
 the texts below.</p>
-<p><strong>CUSUM</strong></p>
+<div id="cusum" class="section level4">
+<h4>CUSUM</h4>
 <p>CUSUM (cumulative sum) is an algorithm that detects shifts in the
 mean of a time series. It accumulates deviations of the observed case
 counts from the mean case count and once this accumulation has reached a
@@ -597,7 +611,9 @@ not account for seasonality as it just computes a mean over all case
 counts. CUSUM was originally developed by E. S. Page and typically used
 in industry for monitoring change detection. Rossi et al. (1999) serves
 as reference in the public health context.</p>
-<p><strong>FarringtonFlexible</strong></p>
+</div>
+<div id="farringtonflexible" class="section level4">
+<h4>FarringtonFlexible</h4>
 <p>The FarringtonFlexible uses a generalised linear model (GLM) to model
 the observed case count. In addition to a time trend terms for
 seasonality are also included in this model. For the computation of the
@@ -611,7 +627,9 @@ to calibrate the baseline. FarringtonFlexible (Noufaily et al. 2012) is
 an improved version of the classic Farrington algorithm (Farrington et
 al. 1996). In this tool the implementation from the R package
 surveillance is used which is illustrated in Salmon et al. (2016).</p>
-<p><strong>EARS</strong></p>
+</div>
+<div id="ears" class="section level4">
+<h4>EARS</h4>
 <p>The EARS (Early Aberration Reporting System) algorithm uses a
 window-based approach for outbreak detection. For the EARS C1 algorithm
 implemented in this tool, mean and standard deviation are computed from
@@ -623,7 +641,9 @@ time interval considered, EARS does not take into account seasonality
 and time trends. The baseline is computed using only the last 7 time
 points. EARS was developed by CDC and published in Hutwagner et
 al. (2003).</p>
-<p><strong>Mean</strong></p>
+</div>
+<div id="mean" class="section level4">
+<h4>Mean</h4>
 <p>This method calculates the mean of all previous case counts while
 downweighting past outbreaks, ensuring that the mean remains unbiased by
 previous high case counts. This mean serves as the expected value for
@@ -631,7 +651,9 @@ the current number of cases. A threshold is then determined using a
 prediction interval derived from the mean, applying either a Poisson or
 negative binomial distribution. The choice of distribution is based on
 the fitted dispersion of the data.</p>
-<p><strong>Timetrend</strong></p>
+</div>
+<div id="timetrend" class="section level4">
+<h4>Timetrend</h4>
 <p>This method models the expected number of cases by a regression with
 an intercept and a timetrend. It uses all the full previous data to fit
 the regression. It downweighting past outbreaks, ensuring that the
@@ -640,7 +662,9 @@ counts. A threshold is then determined using a prediction interval
 derived from the mean, applying either a Poisson or negative binomial
 distribution. The choice of distribution is based on the fitted
 dispersion of the data.</p>
-<p><strong>Harmonic</strong></p>
+</div>
+<div id="harmonic" class="section level4">
+<h4>Harmonic</h4>
 <p>This method models the expected number of cases using a harmonic
 sin-cos regression that includes an intercept but no timetrend. The
 harmonic sin-cos wave elements are used to model seasonality which
@@ -651,10 +675,14 @@ threshold is then determined using a prediction interval derived from
 the model’s mean, applying either a Poisson or negative binomial
 distribution. The choice of distribution is based on the fitted
 dispersion of the data.</p>
-<p><strong>Harmonic with timetrend</strong></p>
-<p>The same as the <strong>Harmonic</strong> method but with fitting a
-timetrend to account for the underlying trend in the data.</p>
-<p><strong>Step harmonic</strong></p>
+</div>
+<div id="harmonic-with-timetrend" class="section level4">
+<h4>Harmonic with timetrend</h4>
+<p>The same as the Harmonic method but with fitting a timetrend to
+account for the underlying trend in the data.</p>
+</div>
+<div id="step-harmonic" class="section level4">
+<h4>Step harmonic</h4>
 <p>This method models the expected number of cases using the season
 groups defined in the Farrington outbreak detection algorithm. The year
 is divided into 10 seasonal windows, each with a constant expected case
@@ -668,12 +696,15 @@ previous high case counts. A threshold is then determined using a
 prediction interval derived from the model’s mean, applying either a
 Poisson or negative binomial distribution, depending on the fitted
 dispersion of the data.</p>
-<p><strong>Step harmonic with timetrend</strong></p>
-<p>The same as the <strong>Step harmonic</strong> method but with
-fitting a timetrend to account for the underlying trend in the data.</p>
 </div>
-<div id="covid19-pandemic-correction" class="section level4">
-<h4>Covid19 Pandemic correction</h4>
+<div id="step-harmonic-with-timetrend" class="section level4">
+<h4>Step harmonic with timetrend</h4>
+<p>The same as the Step harmonic method but with fitting a timetrend to
+account for the underlying trend in the data.</p>
+</div>
+</div>
+<div id="covid19-pandemic-correction" class="section level3">
+<h3>Covid19 Pandemic correction</h3>
 <p>The “Covid19 Pandemic Correction” feature, accessible via an
 additional button, applies an interrupted time series analysis to the
 outbreak detection methods. It is possible to apply the correction to
@@ -692,8 +723,8 @@ intervention, meaning it models the case counts which occured during and
 following the pandemic.</p>
 </div>
 </div>
-<div id="signals-tab" class="section level3">
-<h3>Signals tab</h3>
+<div id="signals-tab" class="section level2">
+<h2>Signals tab</h2>
 <p>The <code>Signals</code> tab is split into 2 / 3 “rows”, depending on
 whether any strata were chosen in the <code>Input</code> tab. The first
 row belongs to the visualisations of the respective strata chosen. The
@@ -714,8 +745,8 @@ historical data. As each new week of the signal detection period is
 included, more past weeks are incorporated into the fitting process,
 causing the mean expectation to change over time during the blue signal
 detection period.</p>
-<div id="stratification-visualisation" class="section level4">
-<h4>Stratification visualisation</h4>
+<div id="stratification-visualisation" class="section level3">
+<h3>Stratification visualisation</h3>
 <p>When one of the strata about regions (state, county or community) is
 selected in the <code>Input</code> tab the app tries to provide a map
 visualisation. This currently only works if there are NUTS codes
@@ -729,8 +760,8 @@ map visualisation is currently possible and you will see a table with
 the results instead of a map.</p>
 </div>
 </div>
-<div id="report-tab" class="section level3">
-<h3>Report tab</h3>
+<div id="report-tab" class="section level2">
+<h2>Report tab</h2>
 <p>The <code>Report</code> tab is the final destination in the
 SignalDetectionTool Shiny app. Here, it is possible to produce and
 download a report, using the different parameter selections, filtering
@@ -741,8 +772,8 @@ the U4S logo and expressions, as also found throughout the Shiny
 app.</p>
 </div>
 </div>
-<div id="bug-reporting" class="section level2">
-<h2>Bug reporting</h2>
+<div id="bug-reporting" class="section level1">
+<h1>Bug reporting</h1>
 <p>If you encounter any technical issues or bugs when using the
 SignalDetectionTool, please report them on <a href="https://github.com/United4Surveillance/signal-detection-evaluation-tool/issues/new/choose">Github</a>
 by making an issue. Thank you in advance!</p>
