@@ -201,7 +201,7 @@ convert_columns_integer <- function(data, columns_to_convert) {
 #' This function converts the columns week, year and cases to integer, columns are renamed and category with NA is replaced by None. It can
 #' filter the data based on the `signals_only` parameter giving back only those weeks where a signal was found.
 #'
-#' @param data data.frame containing signals from \code{\link{get_signals()}}
+#' @param data data.frame containing signals from \link{get_signals}
 #' @param signals_only Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.
 #'
 #' @return data.frame
@@ -244,11 +244,16 @@ prepare_signals_table <- function(data,
 
 #' Builds the signal detection results table with different formating options. To get the raw data.frame containing method ald number_of_weeks as well use format = "data.frame", to obtain nicely formated tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".
 #'
-#' This function applies the \code{\link{prepare_signals_table()}} and if format = c("DataTable","Flextable") \code{\link{format_table()}} to create a nicely formated results table based on the input data frame. If format = "data.frame" \code{\link{format_table()}} is not applied and the raw preprocessed signal_results are returned. It can
+#' This function applies the \link{prepare_signals_table} and if format = c("DataTable","Flextable") \link{format_table} to create a nicely formated results table based on the input data frame. If format = "data.frame" \link{format_table} is not applied and the raw preprocessed signal_results are returned. It can
 #' filter the data based on the `signals_only` parameter and converts certain
 #' columns to integers for styling purposes. This table is used to show all signal detection results for different stratifications together in one table.
-#' @param signal_results data.frame containing signals from \code{\link{get_signals()}}
+#' @param signal_results data.frame containing signals from \link{get_signals}
 #' @param signals_only Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.
+#' @param format Character specifying the output format. Must be one of:
+#'   - `"data.frame"`: A standard R data frame.
+#'   - `"DataTable"`: An interactive table using the DataTable library.
+#'   - `"Flextable"`: A formatted table suitable for reporting,i.e. word documents.
+#'  Default is "DataTable".
 #'
 #' @return data.frame or DataTable or Flextable depending on `format`
 #' @export
@@ -299,7 +304,7 @@ build_signals_table <- function(signal_results,
 #' purposes. It orders the strata by the factor levels. This table is used to show stratified signal results for one category, i.e. sex
 #' and results for all the strata no matter whether there are signals or not.
 #'
-#' @param signals_agg A tibble or data.frame containing aggregated signals produced from \code{\link{aggregate_signals(signals,number_of_weeks = 6)}} for only one category
+#' @param signals_agg A tibble or data.frame containing aggregated signals produced from \link{aggregate_signals}(signals,number_of_weeks = 6) for only one category
 #'
 #' @return tibble with preprocessed aggregated signals
 #'
@@ -325,12 +330,16 @@ prepare_signals_agg_table <- function(signals_agg) {
   signals_agg
 }
 
-#' Builds the aggregated signal detection results table with different formating options. To get the raw data.frame use format = "data.frame", to obtain nicely formated tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable". Prepares and formats the aggregated signal results table for one category and orders the strata by the factor levels
+#' Builds the aggregated signal detection results table with different formating options.
 #'
-#' This function combines the preparation of the aggregated signals data.frame with the final formating of the table by applying \code{\link{prepare_signals_agg_table()}} and \code{\link{format_table()}}.
-#' @param signals_agg A tibble or data.frame containing aggregated signals produced from \code{\link{aggregate_signals(signals,number_of_weeks = 6)}}
-#' @param format the format of the output table, one of data.frame, DataTable, FlexTable. Default is DataTable. For getting a raw output dataframe the parameter data.frame should be used. For getting nicely formatted results tables one of DataTable and Flextable should be used. DataTable will be interactive.
-#'   DataTable (default is TRUE).
+#' Prepares and formats the aggregated signal results table for one category and orders the strata by the factor levels.
+#' This function combines the preparation of the aggregated signals data.frame with the final formating of the table by applying \link{prepare_signals_agg_table} and \link{format_table}.
+#' @param signals_agg A tibble or data.frame containing aggregated signals produced from \link{aggregate_signals}(signals,number_of_weeks = 6).
+#' @param format Character specifying the output format. Must be one of:
+#'   - `"data.frame"`: A standard R data frame.
+#'   - `"DataTable"`: An interactive table using the DataTable library.
+#'   - `"Flextable"`: A formatted table suitable for reporting,i.e. word documents.
+#'   Default is "DataTable".
 #'
 #' @return data.frame or DataTable or Flextable depending on `format`
 #'

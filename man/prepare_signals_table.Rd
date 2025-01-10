@@ -7,7 +7,7 @@
 prepare_signals_table(data, signals_only = TRUE)
 }
 \arguments{
-\item{data}{data.frame containing signals from \code{\link{get_signals()}}}
+\item{data}{data.frame containing signals from \link{get_signals}}
 
 \item{signals_only}{Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.}
 }

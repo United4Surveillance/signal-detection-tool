@@ -163,6 +163,7 @@ create_time_trend <- function(ts_len,
 #' Default is `4`.
 #' @return NULL when intervention_start = NULL, otherwise a data frame with a column representing the baseline before and after the intervention (if applicable).
 #' @return A data frame with columns representing the time trend before and after the intervention (if applicable).
+#' @examples
 #' \dontrun{
 #' create_baseline(100)
 #' create_baseline(100,intervention_start = 50)

@@ -7,15 +7,21 @@
 build_signals_table(signal_results, signals_only = TRUE, format = "DataTable")
 }
 \arguments{
-\item{signal_results}{data.frame containing signals from \code{\link{get_signals()}}}
+\item{signal_results}{data.frame containing signals from \link{get_signals}}
 
 \item{signals_only}{Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.}
+
+\item{format}{Character specifying the output format. Must be one of:
+ - `"data.frame"`: A standard R data frame.
+ - `"DataTable"`: An interactive table using the DataTable library.
+ - `"Flextable"`: A formatted table suitable for reporting,i.e. word documents.
+Default is "DataTable".}
 }
 \value{
 data.frame or DataTable or Flextable depending on `format`
 }
 \description{
-This function applies the \code{\link{prepare_signals_table()}} and if format = c("DataTable","Flextable") \code{\link{format_table()}} to create a nicely formated results table based on the input data frame. If format = "data.frame" \code{\link{format_table()}} is not applied and the raw preprocessed signal_results are returned. It can
+This function applies the \link{prepare_signals_table} and if format = c("DataTable","Flextable") \link{format_table} to create a nicely formated results table based on the input data frame. If format = "data.frame" \link{format_table} is not applied and the raw preprocessed signal_results are returned. It can
 filter the data based on the `signals_only` parameter and converts certain
 columns to integers for styling purposes. This table is used to show all signal detection results for different stratifications together in one table.
 }

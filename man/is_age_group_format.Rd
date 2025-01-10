@@ -3,7 +3,7 @@
 \name{is_age_group_format}
 \alias{is_age_group_format}
 \title{checking age_group column only containing digits, separators and <,>,+
-For the first age_group using seperator, i.e. 00-05, <5 is allowed. For the last age group using seperators, i.e. 95-100, >100 and 100+ is allowed. For the age groups in between the seperators -_— are allowed}
+For the first age_group using seperator, i.e. 00-05, <5 is allowed. For the last age group using seperators, i.e. 95-100, >100 and 100+ is allowed. Separators like - (dash), _ (underscore), and — (em dash) are also allowed for intermediate age ranges.}
 \usage{
 is_age_group_format(col)
 }
@@ -15,7 +15,7 @@ boolean, when TRUE all values of col are in the required format, when FALSE at l
 }
 \description{
 checking age_group column only containing digits, separators and <,>,+
-For the first age_group using seperator, i.e. 00-05, <5 is allowed. For the last age group using seperators, i.e. 95-100, >100 and 100+ is allowed. For the age groups in between the seperators -_— are allowed
+For the first age_group using seperator, i.e. 00-05, <5 is allowed. For the last age group using seperators, i.e. 95-100, >100 and 100+ is allowed. Separators like - (dash), _ (underscore), and — (em dash) are also allowed for intermediate age ranges.
 }
 \examples{
 \dontrun{
