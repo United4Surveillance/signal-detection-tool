@@ -106,6 +106,7 @@ mod_tabpanel_signals_server <- function(
           if (!"None" %in% strat_vars()) {
             shiny::tagList(
               bslib::card(
+                shiny::h1("Signals by stratum"),
                 shiny::uiOutput(ns("plot_table_stratas")),
                 shiny::uiOutput(ns("alarm_button"))
               )
@@ -113,7 +114,7 @@ mod_tabpanel_signals_server <- function(
           },
           bslib::card(
             full_screen = TRUE,
-            shiny::h3(paste0(
+            shiny::h1(paste0(
               "Timeseries of weekly cases with signal detection applied to the last ",
               number_of_weeks(), " weeks."
             )),
@@ -125,7 +126,7 @@ mod_tabpanel_signals_server <- function(
           ),
           bslib::card(
             min_height = "775px",
-            shiny::h3("Signal detection table"),
+            shiny::h1("Signal detection table"),
             DT::DTOutput(ns("signals"))
           )
         )

@@ -55,11 +55,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         bslib::layout_columns(
           col_widths = c(6, 6),
           bslib::card(
-            bslib::card_title("Dataset settings", container = shiny::h2),
-            shiny::h4("Pathogen"),
+            bslib::card_title("Dataset settings", container = shiny::h1),
+            shiny::h2("Pathogen"),
             shiny::uiOutput(ns("pathogen_choices")),
             shiny::br(),
-            shiny::h4("Filters"),
+            shiny::h2("Filters"),
             span("You can chose to investigate a subset of your data according to the filters you select. When filtering by date_report you have the possibility select a specific timeperiod you want to investigate. In the timeseries visualisation only the timeperiod you selected will be shown and the outbreak detection algorithms will only train on the data from the timeperiod you selected."),
             shiny::div(
               id = "filter_input",
@@ -80,12 +80,12 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
             mod_input_filter_ui(id = ns("filter0"))
           ),
           bslib::card(
-            bslib::card_title("Signal Detection settings", container = shiny::h2),
-            shiny::h4("Strata"),
+            bslib::card_title("Signal Detection settings", container = shiny::h1),
+            shiny::h2("Strata"),
             shiny::span("Select up to 3 variables you want to stratify by. Signals and visualisations will be generated for each stratum."),
             shiny::uiOutput(ns("strat_choices")),
             shiny::br(),
-            shiny::h4("Signal Detection Period"),
+            shiny::h2("Signal Detection Period"),
             shiny::span("Set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks."),
             shiny::uiOutput(ns("weeks_selection")),
             shiny::textOutput(ns("text_weeks_selection")),
@@ -93,7 +93,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
             shiny::fluidRow(
               shiny::column(
                 width = 6,
-                shiny::h4("Signal detection algorithm"),
+                shiny::h2("Signal detection algorithm"),
                 shiny::span("Depending on the number of weeks you want to generate signals for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
                 shiny::uiOutput(ns("algorithm_choice"))
               ),

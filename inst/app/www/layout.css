@@ -1,3 +1,4 @@
+/* General Layout */
 * {
   box-sizing: border-box;
 }
@@ -31,4 +32,12 @@
   font-style: italic;
   font-size: 12px;
   padding: 3px;
+}
+
+/* Data Tab checks */
+.check-result {
+  margin-top: 8px;
+  margin-bottom: 12px;
+  border: 2px solid black;
+  padding: 10px;
 }

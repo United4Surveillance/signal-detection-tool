@@ -9,6 +9,11 @@ app_ui <- function(request) {
   shiny::tagList(
     golem_add_external_resources(),
     bslib::page_fluid(
+      theme = bslib::bs_theme(
+        "bslib_spacer" = "0.2rem",
+        # "bslib_spacer" = "0rem",
+        "primary" = "#2e4793"
+      ),
       shinyjs::useShinyjs(),
       # Application title
       shiny::div(
@@ -52,6 +57,10 @@ golem_add_external_resources <- function() {
     app_sys("app/www")
   )
   shiny::tags$head(
+    shiny::tags$link(
+      href = "https://fonts.googleapis.com/css?family=Open Sans",
+      rel = "stylesheet"
+    ),
     golem::favicon(
       ico = "https://united4surveillance.eu/wp-content/uploads/2023/03/FAV-150x107.png",
       ext = "png"
