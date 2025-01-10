@@ -65,15 +65,34 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          echo "Current branch: $(git branch --show-current)"
-          BRANCH_NAME=${GITHUB_HEAD_REF}
-          FILES_TO_COMMIT=$(git diff-index --name-only HEAD | egrep --ignore-case '\.(R|[qR]md|Rmarkdown|Rnw|Rprofile)$')
+          echo "Detecting branches..."
+          BRANCH_NAME=${GITHUB_HEAD_REF:-$(git branch --show-current)}
+          BASE_BRANCH=${GITHUB_BASE_REF:-main}  # Default to 'main' if GITHUB_BASE_REF is not set
+          echo "Current branch: $BRANCH_NAME"
+          echo "Base branch: $BASE_BRANCH"
+
+          # Detect files that need committing
+          if ! git rev-parse HEAD >/dev/null 2>&1; then
+            echo "Warning: No commits found in the repository. Nothing to diff."
+            FILES_TO_COMMIT=""
+          else
+            FILES_TO_COMMIT=$(git diff-index --name-only HEAD | egrep --ignore-case '\.(R|[qR]md|Rmarkdown|Rnw|Rprofile)$' || echo "")
+          fi
           if [[ -n "$FILES_TO_COMMIT" ]]; then
+            echo "Files to commit: $FILES_TO_COMMIT"
+
+            # Set up Git user
             git config --local user.name "${GITHUB_ACTOR}"
             git config --local user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+            # Add, commit, and push changes
             git add $FILES_TO_COMMIT
             git commit -m "Style code (GHA)"
-            git pull --rebase origin "$BRANCH_NAME"
+
+            # Ensure the latest changes from the base branch are integrated
+            git pull --rebase origin "$BASE_BRANCH"
+
+            # Push changes back to the PR branch
             git push origin HEAD:"$BRANCH_NAME"
           else
             echo "No changes to commit."
