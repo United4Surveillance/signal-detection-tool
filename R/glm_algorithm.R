@@ -166,7 +166,7 @@ create_time_trend <- function(ts_len,
 #' @examples
 #' \dontrun{
 #' create_baseline(100)
-#' create_baseline(100,intervention_start = 50)
+#' create_baseline(100, intervention_start = 50)
 #' }
 create_baseline <- function(ts_len,
                             intervention_start = NULL,
