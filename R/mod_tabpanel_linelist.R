@@ -55,17 +55,22 @@ mod_tabpanel_linelist_server <- function(
       } else {
         return(shiny::tagList(
           shiny::fluidRow(
-            shiny::column(12,
-                          shiny::wellPanel(
-                          shiny::h3("Investigate signals", style = "color:#304794"),
-                          shiny::span("Click into the table to select the signals you want to investigate."),
-                          shiny::hr(),
-                          shiny::span(paste0("Detected signals using method '",
-                                             get_name_by_value(method(), available_algorithms()), "':"),
-                                      style = "font-size:120%;font-weight: bold"),
-                          shiny::br(),
-                          DT::DTOutput(ns("show_signals_padded"))
-                          )
+            shiny::column(
+              12,
+              shiny::wellPanel(
+                shiny::h3("Investigate signals", style = "color:#304794"),
+                shiny::span("Click into the table to select the signals you want to investigate."),
+                shiny::hr(),
+                shiny::span(
+                  paste0(
+                    "Detected signals using method '",
+                    get_name_by_value(method(), available_algorithms()), "':"
+                  ),
+                  style = "font-size:120%;font-weight: bold"
+                ),
+                shiny::br(),
+                DT::DTOutput(ns("show_signals_padded"))
+              )
             )
           ),
           shiny::br(),
@@ -79,6 +84,7 @@ mod_tabpanel_linelist_server <- function(
 
     true_signals <- shiny::reactive({
       shiny::req(signals_padded)
+
       signals_padded() %>% dplyr::filter(alarms == TRUE)
     })
 
@@ -154,14 +160,13 @@ mod_tabpanel_linelist_server <- function(
 
       DT::datatable(
         cases,
-        extensions = 'Buttons',
+        extensions = "Buttons",
         options = list(
-          dom = 'Bfrtip',
-          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+          dom = "Bfrtip",
+          buttons = c("copy", "csv", "excel", "pdf", "print"),
           scrollX = TRUE
         )
       )
     })
-
   })
 }
