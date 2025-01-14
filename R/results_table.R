@@ -83,7 +83,8 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE,
   )
   checkmate::assert(
     checkmate::check_choice(dt_selection_type,
-                            choices = c("multiple", "single", "none"))
+      choices = c("multiple", "single", "none")
+    )
   )
 
   if (signals_only) {
@@ -285,7 +286,8 @@ build_signals_table <- function(signal_results,
   )
   checkmate::assert(
     checkmate::check_choice(dt_selection_type,
-                            choices = c("multiple", "single", "none"))
+      choices = c("multiple", "single", "none")
+    )
   )
 
   table <- signal_results %>%
@@ -293,8 +295,10 @@ build_signals_table <- function(signal_results,
 
   if (format == "DataTable") {
     table <- table %>%
-      format_table(signals_only = signals_only, interactive = TRUE,
-                   dt_selection_type = dt_selection_type)
+      format_table(
+        signals_only = signals_only, interactive = TRUE,
+        dt_selection_type = dt_selection_type
+      )
   }
   if (format == "Flextable") {
     table <- table %>%

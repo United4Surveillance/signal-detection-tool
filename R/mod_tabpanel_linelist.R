@@ -93,8 +93,8 @@ mod_tabpanel_linelist_server <- function(
       req(!errors_detected())
       req(true_signals)
       build_signals_table(true_signals(),
-                          format = "DataTable",
-                          dt_selection_type = "multiple"
+        format = "DataTable",
+        dt_selection_type = "multiple"
       )
     })
 
