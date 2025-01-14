@@ -40,7 +40,7 @@ app_server <- function(input, output, session) {
     intervention_date = datinput$intervention_date
   )
 
-  mod_tabpanel_investigation_server("investigation",
+  mod_tabpanel_linelist_server("linelist",
     filtered_data = datinput$filtered_data,
     errors_detected = data_load_check_result$errors_detected,
     number_of_weeks = datinput$n_weeks,

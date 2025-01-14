@@ -1,4 +1,4 @@
-#' tabpanel "Data Investigation" UI Function
+#' tabpanel "Signal Line List" UI Function
 #'
 #' @description A shiny Module for a tab to display line list cases related to a
 #' detected signal based on parameters inputs chosen. Ability to download data
@@ -9,10 +9,10 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_tabpanel_investigation_ui <- function(id) {
+mod_tabpanel_linelist_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::tabPanel(
-    title = "Signal Investigation",
+    title = "Signal Line List",
     icon = shiny::icon("magnifying-glass"),
     shinybusy::add_busy_spinner(
       spin = "fading-circle",
@@ -21,15 +21,15 @@ mod_tabpanel_investigation_ui <- function(id) {
       height = "100px",
       width = "100px"
     ),
-    shiny::uiOutput(ns("signal_investigation_tab_ui"))
+    shiny::uiOutput(ns("signal_linelist_tab_ui"))
   )
 }
 
 
-#' tabpanel "Data investigation" Server Functions
+#' tabpanel "Signal Line List" Server Functions
 #'
 #' @noRd
-mod_tabpanel_investigation_server <- function(
+mod_tabpanel_linelist_server <- function(
     id,
     filtered_data,
     errors_detected,
@@ -45,7 +45,7 @@ mod_tabpanel_investigation_server <- function(
 
     # UI-portion of the tab below!
     # ensuring that content is only shown if data check returns no errors
-    output$signal_investigation_tab_ui <- shiny::renderUI({
+    output$signal_linelist_tab_ui <- shiny::renderUI({
       if (errors_detected() == TRUE) {
         return(datacheck_error_message)
       } else if (!number_of_weeks_input_valid()) {
@@ -79,18 +79,16 @@ mod_tabpanel_investigation_server <- function(
 
     true_signals <- shiny::reactive({
       shiny::req(signals_padded)
-      signals_padded() %>% dplyr::filter(alarms == TRUE) %>%
-        dplyr::select(!tidyselect::starts_with("expect"))
+      signals_padded() %>% dplyr::filter(alarms == TRUE)
     })
 
     # output padded signal data in table
-    output$show_signals_padded <- DT::renderDataTable({
+    output$show_signals_padded <- DT::renderDT({
+      req(!errors_detected())
       req(true_signals)
-      DT::datatable(
-        true_signals(),
-        options = list(
-          scrollX = TRUE
-        )
+      build_signals_table(true_signals(),
+                          format = "DataTable",
+                          dt_selection_type = "multiple"
       )
     })
 
