@@ -308,6 +308,40 @@ build_signals_table <- function(signal_results,
   table
 }
 
+#' Create an Empty DataTable with a Custom Message
+#'
+#' This function generates a minimal `DT::datatable` displaying a custom message.
+#' It is useful for placeholder content when there is no data to display.
+#'
+#' @param message A character string specifying the message to display in the table.
+#'
+#' @return A `DT::datatable` object containing a single-row, single-column table with the custom message.
+#'
+#' @details
+#' The resulting DataTable will have the following features:
+#' - No column headers.
+#' - No search box, pagination, or sorting functionality.
+#' - A single-row table displaying the provided message.
+#'
+#' @examples
+#' # Create an empty DataTable with a custom message
+#' build_empty_datatable("No data available")
+#'
+#' @importFrom DT datatable
+#' @export
+build_empty_datatable <- function(message){
+  DT::datatable(
+    data.frame(Message = message),
+    options = list(
+      dom = 't',  # Only show the table body (no search/filter controls)
+      paging = FALSE,
+      ordering = FALSE
+    ),
+    rownames = FALSE,
+    colnames = NULL # Hide the column header
+  )
+}
+
 #' Prepares aggregated signals of one category for producing a table.
 #'
 #' It expects the aggregated signals input to only have one category. It converts certain columns

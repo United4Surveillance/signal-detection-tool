@@ -83,27 +83,30 @@ mod_tabpanel_linelist_server <- function(
     true_signals <- shiny::reactive({
       shiny::req(signals_padded)
 
-      signals_padded() %>% dplyr::filter(alarms == TRUE) %>%
-        dplyr::mutate(signal_id = 1:dplyr::n(), .before = 1)
+      signals <- signals_padded() %>% dplyr::filter(alarms == TRUE)
+      if (nrow(signals) > 0){
+        signals <- signals %>% dplyr::mutate(signal_id = 1:dplyr::n(), .before = 1)
+      }
+      return(signals)
     })
 
     # output padded signal data in table
     output$show_signals_padded <- DT::renderDT({
       req(!errors_detected())
       req(true_signals)
-      build_signals_table(true_signals(),
-        format = "DataTable",
-        dt_selection_type = "multiple"
-      )
-    })
 
-    # Display selected rows
-    output$selected_rows <- renderPrint({
-      selected_rows <- input$show_signals_padded_rows_selected
-      if (length(selected_rows) == 0) {
-        "No rows selected"
+      signals <- true_signals()
+
+      if (nrow(signals) == 0) {
+        # Return a placeholder message
+        build_empty_datatable("No signals found.")
       } else {
-        selected_rows
+        # Render the actual data table
+        build_signals_table(
+          signals,
+          format = "DataTable",
+          dt_selection_type = "multiple"
+        )
       }
     })
 
