@@ -83,7 +83,8 @@ mod_tabpanel_linelist_server <- function(
     true_signals <- shiny::reactive({
       shiny::req(signals_padded)
 
-      signals_padded() %>% dplyr::filter(alarms == TRUE)
+      signals_padded() %>% dplyr::filter(alarms == TRUE) %>%
+        dplyr::mutate(signal_id = 1:dplyr::n(), .before = 1)
     })
 
     # output padded signal data in table
@@ -142,16 +143,16 @@ mod_tabpanel_linelist_server <- function(
       }
 
       # Filter rows for each signal ID
-      cases <- purrr::map_dfr(selected_signal_ids, function(signal_id) {
+      cases <- purrr::map_dfr(selected_signal_ids, function(ssid) {
         # Extract the corresponding row from true_signals()
-        signal_row <- true_signals() %>% dplyr::slice(signal_id)
+        signal_row <- true_signals() %>% dplyr::slice(ssid)
 
         # Apply the filtering function
         filtered_cases <- filter_rows(signal_row, filtered_data())
 
         # Add signal_id column
         filtered_cases <- filtered_cases %>%
-          dplyr::mutate(signal_id = signal_id, .before = 1)
+          dplyr::mutate(signal_id = ssid, .before = 1)
 
         return(filtered_cases)
       })
