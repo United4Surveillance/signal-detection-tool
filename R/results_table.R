@@ -329,11 +329,11 @@ build_signals_table <- function(signal_results,
 #'
 #' @importFrom DT datatable
 #' @export
-build_empty_datatable <- function(message){
+build_empty_datatable <- function(message) {
   DT::datatable(
     data.frame(Message = message),
     options = list(
-      dom = 't',  # Only show the table body (no search/filter controls)
+      dom = "t", # Only show the table body (no search/filter controls)
       paging = FALSE,
       ordering = FALSE
     ),

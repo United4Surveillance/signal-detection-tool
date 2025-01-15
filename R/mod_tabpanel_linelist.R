@@ -84,7 +84,7 @@ mod_tabpanel_linelist_server <- function(
       shiny::req(signals_padded)
 
       signals <- signals_padded() %>% dplyr::filter(alarms == TRUE)
-      if (nrow(signals) > 0){
+      if (nrow(signals) > 0) {
         signals <- signals %>% dplyr::mutate(signal_id = 1:dplyr::n(), .before = 1)
       }
       return(signals)
@@ -167,11 +167,13 @@ mod_tabpanel_linelist_server <- function(
         extensions = "Buttons",
         options = list(
           dom = "Bfrtip",
-          buttons = list("copy",
-                     list(extend = 'csv',   filename =  filename_download),
-                     list(extend = 'excel', filename =  filename_download),
-                     list(extend = 'pdf', filename =  filename_download),
-                      "print"),
+          buttons = list(
+            "copy",
+            list(extend = "csv", filename = filename_download),
+            list(extend = "excel", filename = filename_download),
+            list(extend = "pdf", filename = filename_download),
+            "print"
+          ),
           scrollX = TRUE
         )
       )
