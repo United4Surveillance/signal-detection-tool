@@ -160,12 +160,18 @@ mod_tabpanel_linelist_server <- function(
         return(filtered_cases)
       })
 
+      filename_download <- "signals_line_list"
+
       DT::datatable(
         cases,
         extensions = "Buttons",
         options = list(
           dom = "Bfrtip",
-          buttons = c("copy", "csv", "excel", "pdf", "print"),
+          buttons = list("copy",
+                     list(extend = 'csv',   filename =  filename_download),
+                     list(extend = 'excel', filename =  filename_download),
+                     list(extend = 'pdf', filename =  filename_download),
+                      "print"),
           scrollX = TRUE
         )
       )
