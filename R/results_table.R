@@ -41,6 +41,7 @@ get_float_columns <- function(data) {
 #' @param signals_only Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.
 #' @param interactive Logical indicating whether to create an interactive
 #'   DataTable (default is TRUE).
+#' @param dt_selection_type String controlling the DataTable selection argument. Expected values are "multiple", "single", "none" (default is 'single').
 #'
 #' @return An interactive DataTable or a static gt table, depending on the value
 #'   of `interactive`.
@@ -68,7 +69,8 @@ get_float_columns <- function(data) {
 #'
 #' format_table(data_agg)
 #' }
-format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
+format_table <- function(data, signals_only = TRUE, interactive = TRUE,
+                         dt_selection_type = "single") {
   checkmate::assert(
     checkmate::check_true(interactive),
     checkmate::check_false(interactive),
@@ -78,6 +80,11 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
     checkmate::check_true(signals_only),
     checkmate::check_false(signals_only),
     combine = "or"
+  )
+  checkmate::assert(
+    checkmate::check_choice(dt_selection_type,
+      choices = c("multiple", "single", "none")
+    )
   )
 
   if (signals_only) {
@@ -119,7 +126,7 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
       class = "cell-border stripe hover", rownames = FALSE,
       filter = list(position = "bottom", plain = TRUE),
       extensions = c("Buttons", "RowGroup"),
-      selection = "single",
+      selection = dt_selection_type,
       options = list(
         pageLength = 10,
         rowGroup = list(dataSrc = 0),
@@ -255,6 +262,7 @@ prepare_signals_table <- function(data,
 #'   - `"Flextable"`: A formatted table suitable for reporting,i.e. word documents.
 #'  Default is "DataTable".
 #'
+#' @param dt_selection_type String controlling the DataTable selection argument. Expected values are "multiple", "single", "none" (default is 'single').
 #' @return data.frame or DataTable or Flextable depending on `format`
 #' @export
 #'
@@ -268,7 +276,8 @@ prepare_signals_table <- function(data,
 #' }
 build_signals_table <- function(signal_results,
                                 signals_only = TRUE,
-                                format = "DataTable") {
+                                format = "DataTable",
+                                dt_selection_type = "single") {
   checkmate::assert(
     checkmate::check_choice(format, choices = c(
       "data.frame",
@@ -281,13 +290,21 @@ build_signals_table <- function(signal_results,
     checkmate::check_false(signals_only),
     combine = "or"
   )
+  checkmate::assert(
+    checkmate::check_choice(dt_selection_type,
+      choices = c("multiple", "single", "none")
+    )
+  )
 
   table <- signal_results %>%
     prepare_signals_table(signals_only = signals_only)
 
   if (format == "DataTable") {
     table <- table %>%
-      format_table(signals_only = signals_only, interactive = TRUE)
+      format_table(
+        signals_only = signals_only, interactive = TRUE,
+        dt_selection_type = dt_selection_type
+      )
   }
   if (format == "Flextable") {
     table <- table %>%
@@ -295,6 +312,40 @@ build_signals_table <- function(signal_results,
   }
 
   table
+}
+
+#' Create an Empty DataTable with a Custom Message
+#'
+#' This function generates a minimal `DT::datatable` displaying a custom message.
+#' It is useful for placeholder content when there is no data to display.
+#'
+#' @param message A character string specifying the message to display in the table.
+#'
+#' @return A `DT::datatable` object containing a single-row, single-column table with the custom message.
+#'
+#' @details
+#' The resulting DataTable will have the following features:
+#' - No column headers.
+#' - No search box, pagination, or sorting functionality.
+#' - A single-row table displaying the provided message.
+#'
+#' @examples
+#' # Create an empty DataTable with a custom message
+#' build_empty_datatable("No data available")
+#'
+#' @importFrom DT datatable
+#' @export
+build_empty_datatable <- function(message) {
+  DT::datatable(
+    data.frame(Message = message),
+    options = list(
+      dom = "t", # Only show the table body (no search/filter controls)
+      paging = FALSE,
+      ordering = FALSE
+    ),
+    rownames = FALSE,
+    colnames = NULL # Hide the column header
+  )
 }
 
 #' Prepares aggregated signals of one category for producing a table.
