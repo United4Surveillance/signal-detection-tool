@@ -4,7 +4,12 @@
 \alias{format_table}
 \title{Format the signal results to an interactive or static table}
 \usage{
-format_table(data, signals_only = TRUE, interactive = TRUE)
+format_table(
+  data,
+  signals_only = TRUE,
+  interactive = TRUE,
+  dt_selection_type = "single"
+)
 }
 \arguments{
 \item{data}{A data frame.}
@@ -13,6 +18,8 @@ format_table(data, signals_only = TRUE, interactive = TRUE)
 
 \item{interactive}{Logical indicating whether to create an interactive
 DataTable (default is TRUE).}
+
+\item{dt_selection_type}{String controlling the DataTable selection argument. Expected values are "multiple", "single", "none" (default is 'single').}
 }
 \value{
 An interactive DataTable or a static gt table, depending on the value

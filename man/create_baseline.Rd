@@ -33,6 +33,6 @@ This function generates a baseline data.frame for use in modeling, which can acc
 \examples{
 \dontrun{
 create_baseline(100)
-create_baseline(100,intervention_start = 50)
+create_baseline(100, intervention_start = 50)
 }
 }
