@@ -218,7 +218,7 @@ mod_tabpanel_signals_server <- function(
     signal_results_unstratified <- shiny::reactive({
       shiny::req(signal_results())
       signal_results() %>%
-        dplyr::filter(is.na(stratum)) %>%
+        dplyr::filter(is.na(category)) %>%
         dplyr::arrange(year, week) %>%
         dplyr::slice_tail(n = number_of_weeks())
     })
