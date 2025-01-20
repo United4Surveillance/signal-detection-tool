@@ -111,11 +111,11 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE,
   }
 
   data <- data %>%
-    dplyr::select(-tidyselect::one_of(c("number_of_weeks", "method"))) %>%
+    dplyr::select(-dplyr::one_of(c("number_of_weeks", "method"))) %>%
     dplyr::rename_all(~ stringr::str_to_title(.x)) %>%
-    dplyr::mutate(dplyr::across(tidyselect::where(is.double), round, digits = 2)) %>%
-    dplyr::mutate(dplyr::across(tidyselect::where(is.character), as.factor)) %>%
-    dplyr::relocate(tidyselect::where(is.factor))
+    dplyr::mutate(dplyr::across(dplyr::where(is.double), round, digits = 2)) %>%
+    dplyr::mutate(dplyr::across(dplyr::where(is.character), as.factor)) %>%
+    dplyr::relocate(dplyr::where(is.factor))
 
   # get which columns contain floats
   float_columns <- get_float_columns(data)
