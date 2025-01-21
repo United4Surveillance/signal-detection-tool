@@ -11,3 +11,4 @@ $run_dev.*
 ^doc$
 ^Meta$
 ^README\.Rmd$
+^\.github$
