@@ -29,13 +29,13 @@ app_ui <- function(request) {
           shiny::tags$img(src = "www/EN Co-Funded by the EU_NEG_resized.png")
         )
       ),
-
       # Content
       shiny::tabsetPanel(
         mod_tabpanel_help_ui("help"),
         mod_tabpanel_data_ui("data"),
         mod_tabpanel_input_ui("input"),
         mod_tabpanel_signals_ui("signals"),
+        mod_tabpanel_linelist_ui("linelist"),
         mod_tabpanel_report_ui("report"),
         selected = "Data"
       )

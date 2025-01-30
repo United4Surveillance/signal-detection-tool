@@ -65,6 +65,11 @@ run_report <- function(
     signals_padded = NULL,
     signals_agg = NULL,
     intervention_date = NULL) {
+  # Check that package ggforce is installed as it is required for running the report
+  if (!requireNamespace("ggforce", quietly = TRUE)) {
+    stop("The 'ggforce' package is required to generate the report. Please install it using install.packages('ggforce')")
+  }
+
   # Check inputs ---------------------------------------------------------------
   checkmate::assert_choice(report_format,
     choices = c("HTML", "DOCX"),

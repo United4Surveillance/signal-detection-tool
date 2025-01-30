@@ -40,6 +40,15 @@ app_server <- function(input, output, session) {
     intervention_date = datinput$intervention_date
   )
 
+  mod_tabpanel_linelist_server("linelist",
+    filtered_data = datinput$filtered_data,
+    errors_detected = data_load_check_result$errors_detected,
+    number_of_weeks_input_valid = datinput$weeks_input_valid,
+    method = datinput$method,
+    no_algorithm_possible = datinput$no_algorithm_possible,
+    intervention_date = datinput$intervention_date,
+    signals_padded = signals_output$signals_padded
+  )
 
   # Calculate tab-content size based on title-panel and footer -----------------
   rv <- reactiveValues(

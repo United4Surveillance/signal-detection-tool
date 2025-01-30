@@ -1,4 +1,4 @@
-# SignalDetectionTool 0.5.2
+# SignalDetectionTool 0.6.0
 
 * UI changes
   - added color to title panel and footer
@@ -8,6 +8,9 @@
   - changed size of signals tab value cards to span across the whole window
   - added option for signals tab plots to be viewed in full screen 
   
+* Bug fix correcting number of signals in unstratified results
+* Add functionality to investigate signals and export the corresponding line lists
+
 
 # SignalDetectionTool 0.5.1
 

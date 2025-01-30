@@ -72,7 +72,8 @@ get_signals_cusum <- function(data_aggregated,
 }
 
 #' Implementation of the CUSUM algorithm retrieved from the surveillance package and adapted so that after a signal was triggered the cusum is set to 0
-#' For parameter specification refer to the surveillance algo.cusum description
+#' Parameters are inherited from surveillance algo.cusum
+#' @inheritParams surveillance::algo.cusum
 #' @export
 algo.cusum_with_reset <- function(disProgObj, control = list(range = range, k = 1.04, h = 2.26, m = NULL, trans = "standard", alpha = NULL)) {
   # Set the default values if not yet set
@@ -211,6 +212,11 @@ algo.cusum_with_reset <- function(disProgObj, control = list(range = range, k = 
 
 #' Wrapper around the algo.cusum_with_reset
 #' Copied from the code of the surveillance package and adapted for algo.cusum_with_reset
+#'
+#' @param sts surveillance::sts() format of aggregated timeseries of case counts
+#' @inheritParams surveillance::algo.cusum
+#' @param ... any additional parameters which should be passed onto \link[surveillance]{wrap.algo}
+#'
 #' @export
 cusum_with_reset <- function(sts, control = list(range = range, k = 1.04, h = 2.26, m = NULL, trans = "standard", alpha = NULL), ...) {
   surveillance::wrap.algo(sts, algo = algo.cusum_with_reset, control = control, ...)
