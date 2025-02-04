@@ -241,6 +241,7 @@ aggregate_signals <- function(signals, number_of_weeks) {
 #' Inside the function it is computed what the maximum number of timepoints is the signal detection algorithms can be applied for. This depends on the algorithm and the amount of historic data. The already generated signals dataframe is then extended with the expectation and threshold into the past
 #' @param data A data frame containing the surveillance data preprocessed with [preprocess_data()].
 #' @param signals tibble, output of the \code{\link{get_signals}} function with number of cases and signal per week, year
+#' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @returns tibble, with padded signals
 #' @examples
 #' \dontrun{
@@ -252,7 +253,8 @@ aggregate_signals <- function(signals, number_of_weeks) {
 #' }
 #' @export
 pad_signals <- function(data,
-                        signals) {
+                        signals,
+                        date_var = "date_report") {
   # get the stratification, method and number_of_weeks from the signals data
   stratification <- if (all(is.na(signals$category))) {
     NULL
@@ -270,7 +272,8 @@ pad_signals <- function(data,
   signals_all_timeopts <- dplyr::bind_rows(purrr::map(unlist(available_thresholds), function(timeopt) {
     signals_timeopt <- get_signals(data,
       method = method,
-      number_of_weeks = timeopt + number_of_weeks
+      number_of_weeks = timeopt + number_of_weeks,
+      date_var = date_var
     )
     if (!is.null(signals_timeopt)) {
       signals_timeopt <- signals_timeopt %>% dplyr::mutate(time_opt = timeopt)
@@ -293,7 +296,7 @@ pad_signals <- function(data,
     result_padding_stratified <- SignalDetectionTool::get_signals(
       data = data,
       method = method,
-      date_var = "date_report",
+      date_var = date_var,
       stratification = stratification,
       number_of_weeks = (max_time_opt + number_of_weeks)
     ) %>%

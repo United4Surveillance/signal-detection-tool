@@ -30,7 +30,8 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
     stratification = NULL,
     method = params$method,
     number_of_weeks = params$number_of_weeks,
-    intervention_date = params$intervention_date
+    intervention_date = params$intervention_date,
+    date_var = params$date_var
   )
 
   if (!is.null(params$strata)) {
@@ -39,7 +40,8 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
       stratification = params$strata,
       method = params$method,
       number_of_weeks = params$number_of_weeks,
-      intervention_date = params$intervention_date
+      intervention_date = params$intervention_date,
+      date_var = params$date_var
     )
 
     signal_results <- signal_results %>%
@@ -55,7 +57,8 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
   } else {
     signals_padded <- SignalDetectionTool::pad_signals(
       data_preprocessed,
-      signal_results
+      signal_results,
+      date_var = date_var
     )
   }
 }

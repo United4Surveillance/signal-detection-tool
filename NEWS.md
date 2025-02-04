@@ -1,3 +1,5 @@
+* Allow use of date_onset as date variable for the signal detection
+
 # SignalDetectionTool 0.5.1
 
 * Bug fix in completing aggregated case data with 0 for cases for 53th isoweek.

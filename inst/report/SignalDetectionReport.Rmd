@@ -31,6 +31,7 @@ params:
   signals_padded: NULL
   signals_agg: NULL
   intervention_date: NULL
+  date_var: "date_report"
 
 ---
 

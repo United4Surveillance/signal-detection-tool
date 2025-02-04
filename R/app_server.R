@@ -25,7 +25,8 @@ app_server <- function(input, output, session) {
     errors_detected = data_load_check_result$errors_detected,
     method = datinput$method,
     no_algorithm_possible = datinput$no_algorithm_possible,
-    intervention_date = datinput$intervention_date
+    intervention_date = datinput$intervention_date,
+    date_var = datinput$date_var
   )
 
   mod_tabpanel_report_server("report",
@@ -37,7 +38,8 @@ app_server <- function(input, output, session) {
     number_of_weeks_input_valid = datinput$weeks_input_valid,
     signals_padded = signals_output$signals_padded,
     signals_agg = signals_output$signals_agg,
-    intervention_date = datinput$intervention_date
+    intervention_date = datinput$intervention_date,
+    date_var = datinput$date_var
   )
 
   mod_tabpanel_linelist_server("linelist",
@@ -47,6 +49,7 @@ app_server <- function(input, output, session) {
     method = datinput$method,
     no_algorithm_possible = datinput$no_algorithm_possible,
     intervention_date = datinput$intervention_date,
-    signals_padded = signals_output$signals_padded
+    signals_padded = signals_output$signals_padded,
+    date_var = datinput$date_var
   )
 }

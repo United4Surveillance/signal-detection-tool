@@ -60,9 +60,16 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 span("Pathogen", style = "font-size:100%;font-weight: bold"),
                 shiny::uiOutput(ns("pathogen_choices")),
                 br(),
+                span("Date variable", style = "font-size:100%;font-weight: bold"),
+                br(),
+                span("Choose which date you want to base the signal detection on."),
+                shiny::radioButtons(ns("date_var"), NULL,
+                                    c("date_report", "date_onset")),
+                shiny::textOutput(ns("date_var_feedback")),
+                br(),
                 span("Filters", style = "font-size:100%;font-weight: bold"),
                 br(),
-                span("You can chose to investigate a subset of your data according to the filters you select. When filtering by date_report you have the possibility select a specific timeperiod you want to investigate. In the timeseries visualisation only the timeperiod you selected will be shown and the outbreak detection algorithms will only train on the data from the timeperiod you selected."),
+                span("You can chose to investigate a subset of your data according to the filters you select. When filtering by date_report/date_onset you have the possibility select a specific timeperiod you want to investigate. In the timeseries visualisation only the timeperiod you selected will be shown and the outbreak detection algorithms will only train on the data from the timeperiod you selected."),
                 br(),
                 br(),
                 shiny::div(
@@ -154,10 +161,10 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::req(iv_weeks$is_valid())
 
       # subtracting 1 from input$n_weeks to get correct dates for flooring (issue #256)
-      date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(input$n_weeks - 1),
+      date_floor <- lubridate::floor_date(max(filtered_data()[, input$date_var]) - lubridate::weeks(input$n_weeks - 1),
         week_start = 1, unit = "week"
       )
-      date_ceil <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 7)
+      date_ceil <- lubridate::ceiling_date(max(filtered_data()[, input$date_var]), unit = "week", week_start = 7)
 
       paste("Chosen signal detection period from", date_floor, "to", date_ceil)
     })
@@ -169,6 +176,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       # add subset indicator for selected pathogens
       dat <- data() %>%
         dplyr::mutate(subset = pathogen %in% input$pathogen_vars)
+
+      # fill missing values of date_onset by date_report
+      if(input$date_var == "date_onset"){
+        dat <- dat %>% dplyr::mutate(date_onset = if_else(is.na(date_onset),
+                                                          date_report,
+                                                          date_onset))
+      }
 
       return(dat)
     })
@@ -184,6 +198,21 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       ))
     })
 
+    output$date_var_feedback <- shiny::renderText({
+      shiny::req(!errors_detected())
+      shiny::req(data)
+      shiny::req(input$date_var)
+
+      if (input$date_var == "date_onset"){
+
+        percentage_missing <- nrow(data() %>% dplyr::filter(is.na(date_onset))) / nrow(data())
+        feedback <- paste("Note: 'date_onset' is missing in ",
+                          round(percentage_missing, 2),
+                          "% of the data. These will be filled with respective values of 'date_report'")
+        return(feedback)
+      }
+    })
+
     # variable options for filter ui and strata selection
     available_var_opts <- shiny::reactive({
       shiny::req(data_sub)
@@ -196,11 +225,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       available_vars
     })
 
-    # adding date_report and age to the possible filter vars
+    # adding date variable and age to the possible filter vars
     filter_var_opts <- shiny::reactive({
       shiny::req(available_var_opts())
       shiny::req(data_sub())
-      date_opts <- intersect(names(data_sub()), c("date_report"))
+      date_opts <- intersect(names(data_sub()), c(input$date_var))
       age_opts <- intersect(names(data_sub()), c("age"))
       all_opts <- c("None", date_opts, age_opts, available_var_opts())
       all_opts
@@ -407,7 +436,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         }
       }))
       # for the glm based algorithms we can compute based on the data when which algorithms are possible
-      glm_methods_possible <- get_possible_glm_methods(filtered_data(), number_of_weeks = input$n_weeks)
+      glm_methods_possible <- get_possible_glm_methods(filtered_data(), date_var = input$date_var,
+                                                       number_of_weeks = input$n_weeks)
 
       algorithms_working <- c(glm_methods_possible, unique(signals_cusum_ears_farr$method))
       algorithms_working_named <- available_algorithms()[unlist(available_algorithms()) %in% algorithms_working]
@@ -530,7 +560,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     # get default, min and max dates for intervention date
     valid_dates_intervention <- shiny::reactive({
-      get_valid_dates_intervention_start(filtered_data(), number_of_weeks = input$n_weeks, time_trend = time_trend())
+      get_valid_dates_intervention_start(filtered_data(), date_var = input$date_var,
+                                         number_of_weeks = input$n_weeks, time_trend = time_trend())
     })
 
     # output$valid_dates_intervention <-
@@ -546,7 +577,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       pathogen_vars = shiny::reactive(input$pathogen_vars),
       method = shiny::reactive(input$algorithm_choice),
       no_algorithm_possible = shiny::reactive(no_algorithm_possible()),
-      intervention_date = shiny::reactive(intervention_date())
+      intervention_date = shiny::reactive(intervention_date()),
+      date_var = shiny::reactive(input$date_var)
     ))
   })
 }

@@ -37,7 +37,8 @@ mod_tabpanel_linelist_server <- function(
     method,
     no_algorithm_possible,
     intervention_date,
-    signals_padded) {
+    signals_padded,
+    date_var) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -133,7 +134,7 @@ mod_tabpanel_linelist_server <- function(
         # Dynamic filtering
         filtered_df <- df2 %>%
           dplyr::filter(
-            date_report >= start_date & date_report <= end_date # Filter für das Datum
+            !!sym(date_var()) >= start_date & !!sym(date_var()) <= end_date # Filter für das Datum
           )
 
         # further filtering if stratification was applied

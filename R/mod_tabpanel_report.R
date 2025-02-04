@@ -36,7 +36,8 @@ mod_tabpanel_report_server <- function(id,
                                        number_of_weeks_input_valid,
                                        signals_padded,
                                        signals_agg,
-                                       intervention_date) {
+                                       intervention_date,
+                                       date_var) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -108,7 +109,7 @@ mod_tabpanel_report_server <- function(id,
         "by ", paste0(strat_vars(), collapse = ", "), "for the last",
         number_of_weeks(), " weeks using ",
         names(available_algorithms())[available_algorithms() == method()],
-        " as outbreak detection algorithm."
+        " as outbreak detection algorithm and '", date_var(), "' as the date variable."
       )
     })
 
@@ -137,7 +138,8 @@ mod_tabpanel_report_server <- function(id,
           output_dir = NULL,
           signals_padded = signals_padded(),
           signals_agg = signals_agg(),
-          intervention_date = intervention_date()
+          intervention_date = intervention_date(),
+          date_var = date_var()
         )
       }
     )

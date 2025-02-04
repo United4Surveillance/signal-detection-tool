@@ -37,7 +37,8 @@ mod_tabpanel_signals_server <- function(
     strat_vars,
     method,
     no_algorithm_possible,
-    intervention_date) {
+    intervention_date,
+    date_var) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -183,7 +184,7 @@ mod_tabpanel_signals_server <- function(
         method = method(),
         intervention_date = intervention_date(),
         stratification = strat_vars_tidy(),
-        date_var = "date_report",
+        date_var = date_var(),
         number_of_weeks = number_of_weeks()
       )
       # when stratified signals were computed also add unstratified signals to the dataframe so that all can be visualised
@@ -193,7 +194,7 @@ mod_tabpanel_signals_server <- function(
           method = method(),
           intervention_date = intervention_date(),
           stratification = NULL,
-          date_var = "date_report",
+          date_var = date_var(),
           number_of_weeks = number_of_weeks()
         )
         results <- dplyr::bind_rows(results, results_unstratified)
@@ -295,7 +296,7 @@ mod_tabpanel_signals_server <- function(
         # for those the results are already padded
         signal_results()
       } else {
-        pad_signals(filtered_data(), signal_results())
+        pad_signals(filtered_data(), signal_results(), date_var = date_var())
       }
     })
 

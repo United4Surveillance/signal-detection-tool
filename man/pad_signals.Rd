@@ -5,12 +5,14 @@
 \title{Extend the computed threshold and expectation of the signal detection method to the past for visualisation purposes but not for signal generation
 Inside the function it is computed what the maximum number of timepoints is the signal detection algorithms can be applied for. This depends on the algorithm and the amount of historic data. The already generated signals dataframe is then extended with the expectation and threshold into the past}
 \usage{
-pad_signals(data, signals)
+pad_signals(data, signals, date_var = "date_report")
 }
 \arguments{
 \item{data}{A data frame containing the surveillance data preprocessed with [preprocess_data()].}
 
 \item{signals}{tibble, output of the \code{\link{get_signals}} function with number of cases and signal per week, year}
+
+\item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 }
 \value{
 tibble, with padded signals

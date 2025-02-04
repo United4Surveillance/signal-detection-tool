@@ -16,7 +16,8 @@ run_report(
   output_dir = ".",
   signals_padded = NULL,
   signals_agg = NULL,
-  intervention_date = NULL
+  intervention_date = NULL,
+  date_var = "date_report"
 )
 }
 \arguments{
@@ -44,6 +45,8 @@ the analysis. Default is NULL.}
 \item{signals_agg}{aggregated signals  (for use within the app, default is NULL)}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.}
+
+\item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 }
 \value{
 the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}

@@ -17,6 +17,7 @@
 #' @param signals_padded calculated and padded signals (for use within the app, default is NULL)
 #' @param signals_agg aggregated signals  (for use within the app, default is NULL)
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.
+#' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #'
 #' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 #' @export
@@ -64,7 +65,8 @@ run_report <- function(
     output_dir = ".",
     signals_padded = NULL,
     signals_agg = NULL,
-    intervention_date = NULL) {
+    intervention_date = NULL,
+    date_var = "date_report") {
   # Check that package ggforce is installed as it is required for running the report
   if (!requireNamespace("ggforce", quietly = TRUE)) {
     stop("The 'ggforce' package is required to generate the report. Please install it using install.packages('ggforce')")
@@ -120,7 +122,8 @@ run_report <- function(
     tables = tables,
     signals_padded = signals_padded,
     signals_agg = signals_agg,
-    intervention_date = intervention_date
+    intervention_date = intervention_date,
+    date_var = date_var
   )
 
   report_f <- dplyr::case_when(
