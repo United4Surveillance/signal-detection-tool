@@ -123,7 +123,7 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE,
   if (interactive == TRUE) {
     # create interactive table
     table <- DT::datatable(data,
-                           style = "default",
+      style = "default",
       class = "cell-border stripe hover", rownames = FALSE,
       filter = list(position = "bottom", plain = TRUE),
       extensions = c("Buttons", "RowGroup"),
