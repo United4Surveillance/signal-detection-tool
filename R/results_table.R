@@ -128,7 +128,6 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE,
       filter = list(position = "bottom", plain = TRUE),
       extensions = c("Buttons", "RowGroup"),
       selection = dt_selection_type,
-      fillContainer = TRUE,
       options = list(
         pageLength = 10,
         rowGroup = list(dataSrc = 0),
