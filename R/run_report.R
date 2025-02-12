@@ -65,7 +65,6 @@ run_report <- function(
     signals_padded = NULL,
     signals_agg = NULL,
     intervention_date = NULL) {
-
   # Check inputs ---------------------------------------------------------------
   checkmate::assert_choice(report_format,
     choices = c("HTML", "DOCX"),

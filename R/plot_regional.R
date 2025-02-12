@@ -144,12 +144,14 @@ plot_regional <- function(shape_with_signals,
       ))
     # modifying the interactive plot legend
     # Finding nr of trace with a showlegend = T
-    legends_2_copy <- which(sapply(plot$x$data, function(l){l$showlegend == TRUE}))
+    legends_2_copy <- which(sapply(plot$x$data, function(l) {
+      l$showlegend == TRUE
+    }))
     # Copy trace and show only bordercolor
-    for(idx in legends_2_copy){
+    for (idx in legends_2_copy) {
       n_list <- length(plot$x$data)
-      plot$x$data[[n_list+1]] <- plot$x$data[[idx]]
-      plot$x$data[[n_list+1]]$fillcolor <- "transparent"
+      plot$x$data[[n_list + 1]] <- plot$x$data[[idx]]
+      plot$x$data[[n_list + 1]]$fillcolor <- "transparent"
       plot$x$data[[idx]]$showlegend <- FALSE
     }
   }
