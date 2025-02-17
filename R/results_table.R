@@ -123,6 +123,7 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE,
   if (interactive == TRUE) {
     # create interactive table
     table <- DT::datatable(data,
+      style = "default",
       class = "cell-border stripe hover", rownames = FALSE,
       filter = list(position = "bottom", plain = TRUE),
       extensions = c("Buttons", "RowGroup"),
@@ -132,6 +133,7 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE,
         rowGroup = list(dataSrc = 0),
         columnDefs = list(list(visible = FALSE, targets = 0)),
         dom = "tfrBip",
+        scrollY = FALSE,
         buttons = c("copy", "csv", "excel", "pdf"),
         initComplete = DT::JS(
           "function(settings, json) {",

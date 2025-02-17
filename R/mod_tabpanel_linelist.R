@@ -21,7 +21,18 @@ mod_tabpanel_linelist_ui <- function(id) {
       height = "100px",
       width = "100px"
     ),
-    shiny::uiOutput(ns("signal_linelist_tab_ui"))
+    shiny::div(
+      class = "content-container",
+      shiny::div(
+        class = "card-container",
+        bslib::layout_column_wrap(
+          width = 1, height = "100%",
+          heights_equal = "row",
+          shiny::uiOutput(ns("signal_linelist_tab_ui"))
+        )
+      ),
+      footer_text
+    )
   )
 }
 
@@ -52,29 +63,25 @@ mod_tabpanel_linelist_server <- function(
         return(algorithm_error_message)
       } else {
         return(shiny::tagList(
-          shiny::fluidRow(
-            shiny::column(
-              12,
-              shiny::wellPanel(
-                shiny::h3("Investigate signals", style = "color:#304794"),
-                shiny::span("Click into the table to select the signals you want to investigate."),
-                shiny::hr(),
-                shiny::span(
-                  paste0(
-                    "Detected signals using method '",
-                    get_name_by_value(method(), available_algorithms()), "':"
-                  ),
-                  style = "font-size:120%;font-weight: bold"
-                ),
-                shiny::br(),
-                DT::DTOutput(ns("show_signals_padded"))
-              )
-            )
+          bslib::card(
+            min_height = "700px",
+            shiny::h1("Investigate signals"),
+            shiny::span("Click into the table to select the signals you want to investigate."),
+            shiny::span(
+              paste0(
+                "Detected signals using method '",
+                get_name_by_value(method(), available_algorithms()), "':"
+              ),
+              style = "font-size:120%;font-weight: bold"
+            ),
+            DT::DTOutput(ns("show_signals_padded"))
           ),
-          shiny::br(),
-          shiny::h3("Line list of selected signals", style = "color:#304794"),
-          shiny::span("Click any of the buttons below to export the line list in your desired format."),
-          DT::DTOutput(ns("linelist"))
+          bslib::card(
+            min_height = "500px",
+            shiny::h1("Line list of selected signals"),
+            shiny::span("Click any of the buttons below to export the line list in your desired format."),
+            DT::DTOutput(ns("linelist"))
+          )
         ))
       }
     })
