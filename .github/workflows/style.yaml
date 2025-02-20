@@ -66,10 +66,8 @@ jobs:
       - name: Commit and push changes
         run: |
           echo "Detecting branches..."
-          BRANCH_NAME=${GITHUB_HEAD_REF:-$(git branch --show-current)}
-          BASE_BRANCH=${GITHUB_BASE_REF:-main}  # Default to 'main' if GITHUB_BASE_REF is not set
-          echo "Current branch: $BRANCH_NAME"
-          echo "Base branch: $BASE_BRANCH"
+          SOURCE_BRANCH=${GITHUB_HEAD_REF:-$(git branch --show-current)}
+          echo "Current branch: $SOURCE_BRANCH"
 
           # Detect files that need committing
           if ! git rev-parse HEAD >/dev/null 2>&1; then
@@ -78,22 +76,30 @@ jobs:
           else
             FILES_TO_COMMIT=$(git diff-index --name-only HEAD | egrep --ignore-case '\.(R|[qR]md|Rmarkdown|Rnw|Rprofile)$' || echo "")
           fi
+
           if [[ -n "$FILES_TO_COMMIT" ]]; then
             echo "Files to commit: $FILES_TO_COMMIT"
 
             # Set up Git user
+            echo "Setup Git user"
             git config --local user.name "${GITHUB_ACTOR}"
             git config --local user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
-            # Add, commit, and push changes
-            git add $FILES_TO_COMMIT
+            # Add and commit changes
+            echo "add changed files"
+            for file in $FILES_TO_COMMIT; do
+              git add "$file"
+            done
+            echo "commit added files"
             git commit -m "Style code (GHA)"
 
-            # Ensure the latest changes from the base branch are integrated
-            git pull --rebase origin "$BASE_BRANCH"
+            # Ensure the latest changes from source branch are integrated
+            echo "pull source branch"
+            git pull --rebase origin "$SOURCE_BRANCH"
 
             # Push changes back to the PR branch
-            git push origin HEAD:"$BRANCH_NAME"
+            echo "push GHA changes"
+            git push origin HEAD:"$SOURCE_BRANCH"
           else
             echo "No changes to commit."
           fi
