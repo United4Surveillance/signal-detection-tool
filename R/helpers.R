@@ -98,8 +98,7 @@ get_iso_week_year <- function(date) {
 #' @return A `Date` object representing the first day of the specified ISO week.
 #'
 #' @examples \dontrun{
-#' Example usage:
-#' isoweek_to_date(week = 15, year = 2023)  # Returns the date for the first day of ISO week 15 in 2023
+#' isoweek_to_date(week = 15, year = 2023) # Returns the date for the first day of ISO week 15 in 2023
 #' }
 isoweek_to_date <- function(week, year) {
   # Format the ISO week string
