@@ -1,0 +1,45 @@
+body {
+  font-family: 'Open Sans';
+}
+
+h1 {
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 18pt;
+  color: #2e4793;
+  margin-bottom: 8px;
+}
+
+h2 {
+  font-weight: bold;
+  font-size: 15pt;
+  margin-bottom: 4px;
+}
+
+h3 {
+  font-weight: bold;
+  font-size: 12pt;
+}
+
+h4 {
+  font-weight: 600;
+  font-size: 11pt;
+}
+
+h3, h4{
+  margin-bottom: 0px;
+}
+
+p, span {
+  font-size: 11pt;
+}
+
+p + h1 {
+  margin-top: 20px; /* Add top margin to headings after a paragraph */
+}
+
+p + h2,
+p + h3,
+p + h4 {
+  margin-top: 12px; /* Add top margin to headings after a paragraph */
+}

@@ -41,6 +41,7 @@ get_float_columns <- function(data) {
 #' @param signals_only Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.
 #' @param interactive Logical indicating whether to create an interactive
 #'   DataTable (default is TRUE).
+#' @param dt_selection_type String controlling the DataTable selection argument. Expected values are "multiple", "single", "none" (default is 'single').
 #'
 #' @return An interactive DataTable or a static gt table, depending on the value
 #'   of `interactive`.
@@ -68,7 +69,8 @@ get_float_columns <- function(data) {
 #'
 #' format_table(data_agg)
 #' }
-format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
+format_table <- function(data, signals_only = TRUE, interactive = TRUE,
+                         dt_selection_type = "single") {
   checkmate::assert(
     checkmate::check_true(interactive),
     checkmate::check_false(interactive),
@@ -78,6 +80,11 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
     checkmate::check_true(signals_only),
     checkmate::check_false(signals_only),
     combine = "or"
+  )
+  checkmate::assert(
+    checkmate::check_choice(dt_selection_type,
+      choices = c("multiple", "single", "none")
+    )
   )
 
   if (signals_only) {
@@ -104,11 +111,11 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
   }
 
   data <- data %>%
-    dplyr::select(-tidyselect::one_of(c("number_of_weeks", "method"))) %>%
+    dplyr::select(-dplyr::one_of(c("number_of_weeks", "method"))) %>%
     dplyr::rename_all(~ stringr::str_to_title(.x)) %>%
-    dplyr::mutate(dplyr::across(tidyselect::where(is.double), round, digits = 2)) %>%
-    dplyr::mutate(dplyr::across(tidyselect::where(is.character), as.factor)) %>%
-    dplyr::relocate(tidyselect::where(is.factor))
+    dplyr::mutate(dplyr::across(dplyr::where(is.double), round, digits = 2)) %>%
+    dplyr::mutate(dplyr::across(dplyr::where(is.character), as.factor)) %>%
+    dplyr::relocate(dplyr::where(is.factor))
 
   # get which columns contain floats
   float_columns <- get_float_columns(data)
@@ -116,15 +123,17 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE) {
   if (interactive == TRUE) {
     # create interactive table
     table <- DT::datatable(data,
+      style = "default",
       class = "cell-border stripe hover", rownames = FALSE,
       filter = list(position = "bottom", plain = TRUE),
       extensions = c("Buttons", "RowGroup"),
-      selection = "single",
+      selection = dt_selection_type,
       options = list(
         pageLength = 10,
         rowGroup = list(dataSrc = 0),
         columnDefs = list(list(visible = FALSE, targets = 0)),
         dom = "tfrBip",
+        scrollY = FALSE,
         buttons = c("copy", "csv", "excel", "pdf"),
         initComplete = DT::JS(
           "function(settings, json) {",
@@ -201,7 +210,7 @@ convert_columns_integer <- function(data, columns_to_convert) {
 #' This function converts the columns week, year and cases to integer, columns are renamed and category with NA is replaced by None. It can
 #' filter the data based on the `signals_only` parameter giving back only those weeks where a signal was found.
 #'
-#' @param data data.frame containing signals from \code{\link{get_signals()}}
+#' @param data data.frame containing signals from \link{get_signals}
 #' @param signals_only Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.
 #'
 #' @return data.frame
@@ -244,12 +253,18 @@ prepare_signals_table <- function(data,
 
 #' Builds the signal detection results table with different formating options. To get the raw data.frame containing method ald number_of_weeks as well use format = "data.frame", to obtain nicely formated tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".
 #'
-#' This function applies the \code{\link{prepare_signals_table()}} and if format = c("DataTable","Flextable") \code{\link{format_table()}} to create a nicely formated results table based on the input data frame. If format = "data.frame" \code{\link{format_table()}} is not applied and the raw preprocessed signal_results are returned. It can
+#' This function applies the \link{prepare_signals_table} and if format = c("DataTable","Flextable") \link{format_table} to create a nicely formated results table based on the input data frame. If format = "data.frame" \link{format_table} is not applied and the raw preprocessed signal_results are returned. It can
 #' filter the data based on the `signals_only` parameter and converts certain
 #' columns to integers for styling purposes. This table is used to show all signal detection results for different stratifications together in one table.
-#' @param signal_results data.frame containing signals from \code{\link{get_signals()}}
+#' @param signal_results data.frame containing signals from \link{get_signals}
 #' @param signals_only Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.
+#' @param format Character specifying the output format. Must be one of:
+#'   - `"data.frame"`: A standard R data frame.
+#'   - `"DataTable"`: An interactive table using the DataTable library.
+#'   - `"Flextable"`: A formatted table suitable for reporting,i.e. word documents.
+#'  Default is "DataTable".
 #'
+#' @param dt_selection_type String controlling the DataTable selection argument. Expected values are "multiple", "single", "none" (default is 'single').
 #' @return data.frame or DataTable or Flextable depending on `format`
 #' @export
 #'
@@ -263,7 +278,8 @@ prepare_signals_table <- function(data,
 #' }
 build_signals_table <- function(signal_results,
                                 signals_only = TRUE,
-                                format = "DataTable") {
+                                format = "DataTable",
+                                dt_selection_type = "single") {
   checkmate::assert(
     checkmate::check_choice(format, choices = c(
       "data.frame",
@@ -276,13 +292,21 @@ build_signals_table <- function(signal_results,
     checkmate::check_false(signals_only),
     combine = "or"
   )
+  checkmate::assert(
+    checkmate::check_choice(dt_selection_type,
+      choices = c("multiple", "single", "none")
+    )
+  )
 
   table <- signal_results %>%
     prepare_signals_table(signals_only = signals_only)
 
   if (format == "DataTable") {
     table <- table %>%
-      format_table(signals_only = signals_only, interactive = TRUE)
+      format_table(
+        signals_only = signals_only, interactive = TRUE,
+        dt_selection_type = dt_selection_type
+      )
   }
   if (format == "Flextable") {
     table <- table %>%
@@ -292,6 +316,40 @@ build_signals_table <- function(signal_results,
   table
 }
 
+#' Create an Empty DataTable with a Custom Message
+#'
+#' This function generates a minimal `DT::datatable` displaying a custom message.
+#' It is useful for placeholder content when there is no data to display.
+#'
+#' @param message A character string specifying the message to display in the table.
+#'
+#' @return A `DT::datatable` object containing a single-row, single-column table with the custom message.
+#'
+#' @details
+#' The resulting DataTable will have the following features:
+#' - No column headers.
+#' - No search box, pagination, or sorting functionality.
+#' - A single-row table displaying the provided message.
+#'
+#' @examples
+#' # Create an empty DataTable with a custom message
+#' build_empty_datatable("No data available")
+#'
+#' @importFrom DT datatable
+#' @export
+build_empty_datatable <- function(message) {
+  DT::datatable(
+    data.frame(Message = message),
+    options = list(
+      dom = "t", # Only show the table body (no search/filter controls)
+      paging = FALSE,
+      ordering = FALSE
+    ),
+    rownames = FALSE,
+    colnames = NULL # Hide the column header
+  )
+}
+
 #' Prepares aggregated signals of one category for producing a table.
 #'
 #' It expects the aggregated signals input to only have one category. It converts certain columns
@@ -299,7 +357,7 @@ build_signals_table <- function(signal_results,
 #' purposes. It orders the strata by the factor levels. This table is used to show stratified signal results for one category, i.e. sex
 #' and results for all the strata no matter whether there are signals or not.
 #'
-#' @param signals_agg A tibble or data.frame containing aggregated signals produced from \code{\link{aggregate_signals(signals,number_of_weeks = 6)}} for only one category
+#' @param signals_agg A tibble or data.frame containing aggregated signals produced from \link{aggregate_signals}(signals,number_of_weeks = 6) for only one category
 #'
 #' @return tibble with preprocessed aggregated signals
 #'
@@ -325,12 +383,16 @@ prepare_signals_agg_table <- function(signals_agg) {
   signals_agg
 }
 
-#' Builds the aggregated signal detection results table with different formating options. To get the raw data.frame use format = "data.frame", to obtain nicely formated tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable". Prepares and formats the aggregated signal results table for one category and orders the strata by the factor levels
+#' Builds the aggregated signal detection results table with different formating options.
 #'
-#' This function combines the preparation of the aggregated signals data.frame with the final formating of the table by applying \code{\link{prepare_signals_agg_table()}} and \code{\link{format_table()}}.
-#' @param signals_agg A tibble or data.frame containing aggregated signals produced from \code{\link{aggregate_signals(signals,number_of_weeks = 6)}}
-#' @param format the format of the output table, one of data.frame, DataTable, FlexTable. Default is DataTable. For getting a raw output dataframe the parameter data.frame should be used. For getting nicely formatted results tables one of DataTable and Flextable should be used. DataTable will be interactive.
-#'   DataTable (default is TRUE).
+#' Prepares and formats the aggregated signal results table for one category and orders the strata by the factor levels.
+#' This function combines the preparation of the aggregated signals data.frame with the final formating of the table by applying \link{prepare_signals_agg_table} and \link{format_table}.
+#' @param signals_agg A tibble or data.frame containing aggregated signals produced from \link{aggregate_signals}(signals,number_of_weeks = 6).
+#' @param format Character specifying the output format. Must be one of:
+#'   - `"data.frame"`: A standard R data frame.
+#'   - `"DataTable"`: An interactive table using the DataTable library.
+#'   - `"Flextable"`: A formatted table suitable for reporting,i.e. word documents.
+#'   Default is "DataTable".
 #'
 #' @return data.frame or DataTable or Flextable depending on `format`
 #'

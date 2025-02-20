@@ -1,3 +1,17 @@
+# SignalDetectionTool 0.6.0
+
+* UI changes
+  - added color to title panel and footer
+  - fixed the position of the title panel and navbar
+  - moved the footer to the bottom of tab content
+  - increased resolution of logo images and changed crop/layout
+  - changed size of signals tab value cards to span across the whole window
+  - added option for signals tab plots to be viewed in full screen 
+  
+* Bug fix correcting number of signals in unstratified results
+* Add functionality to investigate signals and export the corresponding line lists
+
+
 # SignalDetectionTool 0.5.1
 
 * Bug fix in completing aggregated case data with 0 for cases for 53th isoweek.

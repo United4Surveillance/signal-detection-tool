@@ -20,7 +20,14 @@ mod_tabpanel_signals_ui <- function(id) {
       height = "100px",
       width = "100px"
     ),
-    shiny::uiOutput(ns("signals_tab_ui"))
+    shiny::div(
+      class = "content-container",
+      shiny::div(
+        class = "card-container",
+        shiny::uiOutput(ns("signals_tab_ui"))
+      ),
+      footer_text
+    )
   )
 }
 
@@ -45,19 +52,16 @@ mod_tabpanel_signals_server <- function(
     # ensuring that content is only shown if data check returns no errors
     output$signals_tab_ui <- shiny::renderUI({
       if (errors_detected() == TRUE) {
-        return(datacheck_error_message)
+        datacheck_error_message
       } else if (!number_of_weeks_input_valid()) {
-        return(nweeks_error_message)
+        nweeks_error_message
       } else if (no_algorithm_possible() == TRUE) {
-        return(algorithm_error_message)
+        algorithm_error_message
       } else {
-        return(shiny::tagList(
-          shiny::tags$div(
-            shiny::br(),
-            # Prevents boxes from taking up the entire width of the page
-            style = "max-width: 900px; margin: 0 auto;",
-            bslib::layout_column_wrap(
-              width = 1 / 3,
+        shiny::tagList(
+          bslib::layout_column_wrap(
+            width = ifelse("None" %in% strat_vars(), 1 / 2, 1 / 3),
+            !!!(list(
               bslib::value_box(
                 height = 135,
                 theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
@@ -92,24 +96,40 @@ mod_tabpanel_signals_server <- function(
                     )
                   )
                 )
+              } else {
+                NULL
               }
+            ) %>%
+              purrr::compact()
             )
           ),
-          shiny::uiOutput(ns("plot_table_stratas")),
-          shiny::uiOutput(ns("alarm_button")),
-          shiny::br(),
-          shiny::h3(paste0(
-            "Timeseries of weekly cases with signal detection applied to the last ",
-            number_of_weeks(), " weeks."
-          )),
-          shiny::uiOutput(ns("ts_filter_var")),
-          shiny::uiOutput(ns("ts_filter_val")),
-          tags$style(shiny::HTML(paste0("#", id, "-ts_filter_var{display:inline-block}"))),
-          tags$style(shiny::HTML(paste0("#", id, "-ts_filter_val{display:inline-block; vertical-align: top;}"))),
-          plotly::plotlyOutput(ns("time_series_plot")),
-          shiny::h3("Signal detection table"),
-          DT::DTOutput(ns("signals"))
-        ))
+          if (!"None" %in% strat_vars()) {
+            shiny::tagList(
+              bslib::card(
+                shiny::h1("Signals by stratum"),
+                shiny::uiOutput(ns("plot_table_stratas")),
+                shiny::uiOutput(ns("alarm_button"))
+              )
+            )
+          },
+          bslib::card(
+            full_screen = TRUE,
+            shiny::h1(paste0(
+              "Timeseries of weekly cases with signal detection applied to the last ",
+              number_of_weeks(), " weeks."
+            )),
+            shiny::uiOutput(ns("ts_filter_var")),
+            shiny::uiOutput(ns("ts_filter_val")),
+            tags$style(shiny::HTML(paste0("#", id, "-ts_filter_var{display:inline-block}"))),
+            tags$style(shiny::HTML(paste0("#", id, "-ts_filter_val{display:inline-block; vertical-align: top;}"))),
+            plotly::plotlyOutput(ns("time_series_plot"))
+          ),
+          bslib::card(
+            min_height = "775px",
+            shiny::h1("Signal detection table"),
+            DT::DTOutput(ns("signals"))
+          )
+        )
       }
     })
 
@@ -218,7 +238,7 @@ mod_tabpanel_signals_server <- function(
     signal_results_unstratified <- shiny::reactive({
       shiny::req(signal_results())
       signal_results() %>%
-        dplyr::filter(is.na(stratum)) %>%
+        dplyr::filter(is.na(category)) %>%
         dplyr::arrange(year, week) %>%
         dplyr::slice_tail(n = number_of_weeks())
     })
@@ -260,6 +280,7 @@ mod_tabpanel_signals_server <- function(
           }
 
           bslib::card(
+            full_screen = TRUE,
             width = "auto",
             bslib::card_header(shiny::div("Distribution by ", category_label, ",", signal_period())),
             plot

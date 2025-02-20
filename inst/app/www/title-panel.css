@@ -1,0 +1,40 @@
+.title-panel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #2e4793;
+  min-height: clamp(22px, 10vh, 55px);
+  padding-left: 35px;
+  padding-right: 35px;
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+   /* Add rounded corners */
+  border-radius: 5px;
+}
+
+.title-text {
+  color: #ffffff;
+  font-size: clamp(20px, 5vh, 50px);
+}
+
+.logo-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.logo-container img {
+  height: clamp(20px, 5vh, 50px);
+}
+
+
+@media (max-width: 1030px) {
+  .logo-container img {
+    justify-content: center;
+    max-height: 40px;
+  }
+}
+

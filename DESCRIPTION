@@ -26,7 +26,6 @@ Imports:
     dplyr (>= 1.1.4),
     DT (>= 0.26),
     flextable (>= 0.9.2),
-    ggforce (>= 0.4.2), 
     ggplot2 (>= 3.4.4),
     golem (>= 0.4.1),
     grDevices,
@@ -56,6 +55,7 @@ Imports:
     plyr (>= 1.8.8)
 Suggests: 
     knitr (>= 1.42),
+    ggforce (>= 0.4.2), 
     spelling (>= 2.3.0),
     testthat (>= 3.1.5)
 VignetteBuilder: 
