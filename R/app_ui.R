@@ -10,7 +10,7 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     bslib::page_fluid(
       theme = bslib::bs_theme(
-        "bslib_spacer" = "0.2rem",
+        "bslib_spacer" = "0.5rem",
         # "bslib_spacer" = "0rem",
         "primary" = "#2e4793"
       ),
