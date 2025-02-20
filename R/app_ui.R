@@ -5,44 +5,39 @@
 #' @import shiny
 #' @noRd
 app_ui <- function(request) {
+  # Leave this function for adding external resources
   shiny::tagList(
-    # Leave this function for adding external resources
     golem_add_external_resources(),
-    # Your application UI logic
     bslib::page_fluid(
+      theme = bslib::bs_theme(
+        "bslib_spacer" = "0.5rem",
+        # "bslib_spacer" = "0rem",
+        "primary" = "#2e4793"
+      ),
       shinyjs::useShinyjs(),
       # Application title
-      ## Logo and headertext
-      shiny::titlePanel(
+      shiny::div(
+        id = "title-panel",
+        class = "title-panel",
         shiny::div(
-          shiny::br(),
-          shiny::fluidRow(
-            shiny::column(width = 8, shiny::h1("Signal Detection Tool")),
-            shiny::column(width = 2, shiny::tags$img(src = "www/U4S-BLUE-200x87.png", style = "padding-bottom: 20px;")),
-            shiny::column(width = 2, shiny::tags$img(src = "www/EN_V_Co-funded_by_POS.png", height = 95, width = "auto"))
-          ),
+          class = "title-text",
+          "Signal Detection Tool"
         ),
-        windowTitle = "U4S Signal Detection"
-      ),
-      shiny::fluidRow(
-        shiny::column(
-          width = 12,
-          shiny::tabsetPanel(
-            mod_tabpanel_help_ui("help"),
-            mod_tabpanel_data_ui("data"),
-            mod_tabpanel_input_ui("input"),
-            mod_tabpanel_signals_ui("signals"),
-            mod_tabpanel_linelist_ui("linelist"),
-            mod_tabpanel_report_ui("report"),
-            selected = "Data"
-          )
+        shiny::div(
+          class = "logo-container",
+          shiny::tags$img(src = "www/U4S_BLUE_Transparent_cropped.png"),
+          shiny::tags$img(src = "www/EN_Co-Funded_by_the_EU_NEG_resized.png")
         )
       ),
-
-      # EU Disclaimer
-      shiny::tags$footer(
-        shiny::p("Co-funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union. Neither the European Union nor the granting authority can be held responsible for them."),
-        style = "text-align: center; font-style: italic; font-size: 12px; padding-top: 20px; padding-bottom: 20px;"
+      # Content
+      shiny::tabsetPanel(
+        mod_tabpanel_help_ui("help"),
+        mod_tabpanel_data_ui("data"),
+        mod_tabpanel_input_ui("input"),
+        mod_tabpanel_signals_ui("signals"),
+        mod_tabpanel_linelist_ui("linelist"),
+        mod_tabpanel_report_ui("report"),
+        selected = "Data"
       )
     )
   )
@@ -61,30 +56,18 @@ golem_add_external_resources <- function() {
     "www",
     app_sys("app/www")
   )
-
-  tags$head(
+  shiny::tags$head(
+    shiny::tags$link(
+      href = "https://fonts.googleapis.com/css?family=Open Sans",
+      rel = "stylesheet"
+    ),
     golem::favicon(
       ico = "https://united4surveillance.eu/wp-content/uploads/2023/03/FAV-150x107.png",
       ext = "png"
     ),
-    bundle_resources(
+    golem::bundle_resources(
       path = app_sys("app/www"),
       app_title = "SignalDetectionTool"
-    ),
-    tags$style(HTML("
-      .bslib-value-box .value-box-title {
-        font-size: 15px !important; /* Adjust the font size */
-        font-weight: bold !important; /* Make the title text bold */
-        padding-top: -20px !important; /* Reduce space above the title */
-        margin-top: -20px !important; /* Reduce space above the title */
-      }
-      .bslib-value-box .value-box-value {
-        font-size: 13px !important; /* Adjust the font size */
-        margin-bottom: -20px !important; /* Reduce space below the value */
-        padding-bottom: -20px !important; /* Reduce space below the value */
-      }
-    "))
-    # Add here other external resources
-    # for example, you can add shinyalert::useShinyalert()
+    )
   )
 }
