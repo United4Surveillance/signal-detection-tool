@@ -3,7 +3,7 @@
 \name{algo.cusum_with_reset}
 \alias{algo.cusum_with_reset}
 \title{Implementation of the CUSUM algorithm retrieved from the surveillance package and adapted so that after a signal was triggered the cusum is set to 0
-For parameter specification refer to the surveillance algo.cusum description}
+Parameters are inherited from surveillance algo.cusum}
 \usage{
 algo.cusum_with_reset(
   disProgObj,
@@ -11,7 +11,48 @@ algo.cusum_with_reset(
     NULL)
 )
 }
+\arguments{
+\item{disProgObj}{object of class disProg (including the observed and the state chain)}
+
+\item{control}{control object: 
+            \describe{
+            \item{\code{range}}{determines the desired time points which should be evaluated}
+            \item{\code{k}}{is the reference value}
+            \item{\code{h}}{the decision boundary}
+            \item{\code{m}}{how to determine the expected number of cases -- 
+                the following arguments are possible
+                \describe{
+                \item{\code{numeric}}{a vector of values having the
+                    same length as \code{range}. If a single numeric
+                    value is specified then this value is replicated
+                    \code{length(range)} times.}
+                \item{\code{NULL}}{A single value is estimated by
+                    taking the mean of all observations previous to
+                    the first \code{range} value.}
+                \item{\code{"glm"}}{ A GLM of the form \deqn{\log(m_t)
+                      = \alpha + \beta t + \sum_{s=1}^S (\gamma_s
+                      \sin(\omega_s t) + \delta_s \cos(\omega_s t)),}
+                    where \eqn{\omega_s = \frac{2\pi}{52}s}{\\omega_s = 2\\pi/52 s} are the
+                    Fourier frequencies is fitted. Then this model is
+                    used to predict the \code{range} values.}
+                }}
+            \item{\code{trans}}{one of the following transformations (warning: Anscombe and NegBin transformations are experimental)
+                \describe{
+                \item{\code{rossi}}{standardized variables z3 as proposed by Rossi}
+                \item{\code{standard}}{standardized variables z1 (based
+             on asymptotic normality) - This is the default.}
+                \item{\code{anscombe}}{anscombe residuals -- experimental}
+                \item{\code{anscombe2nd}}{ anscombe residuals as in Pierce and Schafer (1986) based on 2nd order approximation of E(X)  -- experimental}
+                \item{\code{pearsonNegBin}}{compute Pearson residuals for NegBin -- experimental}
+                \item{\code{anscombeNegBin}}{anscombe residuals for NegBin -- experimental}
+                \item{\code{none}}{ no transformation}
+                }
+              }
+              \item{\code{alpha}}{parameter of the negative binomial distribution, s.t. the variance is \eqn{m+\alpha *m^2} }
+        }
+      }
+}
 \description{
 Implementation of the CUSUM algorithm retrieved from the surveillance package and adapted so that after a signal was triggered the cusum is set to 0
-For parameter specification refer to the surveillance algo.cusum description
+Parameters are inherited from surveillance algo.cusum
 }

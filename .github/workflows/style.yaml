@@ -65,16 +65,41 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          echo "Current branch: $(git branch --show-current)"
-          BRANCH_NAME=${GITHUB_HEAD_REF}
-          FILES_TO_COMMIT=$(git diff-index --name-only HEAD | egrep --ignore-case '\.(R|[qR]md|Rmarkdown|Rnw|Rprofile)$')
+          echo "Detecting branches..."
+          SOURCE_BRANCH=${GITHUB_HEAD_REF:-$(git branch --show-current)}
+          echo "Current branch: $SOURCE_BRANCH"
+
+          # Detect files that need committing
+          if ! git rev-parse HEAD >/dev/null 2>&1; then
+            echo "Warning: No commits found in the repository. Nothing to diff."
+            FILES_TO_COMMIT=""
+          else
+            FILES_TO_COMMIT=$(git diff-index --name-only HEAD | egrep --ignore-case '\.(R|[qR]md|Rmarkdown|Rnw|Rprofile)$' || echo "")
+          fi
+
           if [[ -n "$FILES_TO_COMMIT" ]]; then
+            echo "Files to commit: $FILES_TO_COMMIT"
+
+            # Set up Git user
+            echo "Setup Git user"
             git config --local user.name "${GITHUB_ACTOR}"
             git config --local user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-            git add $FILES_TO_COMMIT
+
+            # Add and commit changes
+            echo "add changed files"
+            for file in $FILES_TO_COMMIT; do
+              git add "$file"
+            done
+            echo "commit added files"
             git commit -m "Style code (GHA)"
-            git pull --rebase origin "$BRANCH_NAME"
-            git push origin HEAD:"$BRANCH_NAME"
+
+            # Ensure the latest changes from source branch are integrated
+            echo "pull source branch"
+            git pull --rebase origin "$SOURCE_BRANCH"
+
+            # Push changes back to the PR branch
+            echo "push GHA changes"
+            git push origin HEAD:"$SOURCE_BRANCH"
           else
             echo "No changes to commit."
           fi

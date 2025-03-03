@@ -266,7 +266,7 @@ check_type_and_value_age_group <- function(data) {
   } else {
     # check whether age_group contains only digits and allowed separators
     if (!is_age_group_format(data$age_group)) {
-      errors <- append(errors, "Age group does not follow the required format containing only digits and special characters < > - — _ +")
+      errors <- append(errors, "Age group does not follow the required format containing only digits and special characters: <, >, -, \u2014, _, +.")
     }
     # check that last age_group follows the format either using xxsepxx (sep being the separator used) or xx+ but no other format
     else {
@@ -376,7 +376,7 @@ check_region_region_id_consistency <- function(data, regions) {
 
 
 #' checking age_group column only containing digits, separators and <,>,+
-#' For the first age_group using seperator, i.e. 00-05, <5 is allowed. For the last age group using seperators, i.e. 95-100, >100 and 100+ is allowed. For the age groups in between the seperators -_— are allowed
+#' For the first age_group using seperator, i.e. 00-05, <5 is allowed. For the last age group using seperators, i.e. 95-100, >100 and 100+ is allowed. Separators like - (dash), _ (underscore), and — (em dash) are also allowed for intermediate age ranges.
 #' @param col character vector, vector containing age groups to check
 #' @returns boolean, when TRUE all values of col are in the required format, when FALSE at least one is not in required format
 #' @examples
@@ -388,7 +388,7 @@ check_region_region_id_consistency <- function(data, regions) {
 #' is_age_group_format(c("<30", "30-35", "40+45", "45+")) # Should return FALSE
 #' }
 is_age_group_format <- function(col) {
-  all(grepl("^<?\\d{1,}[-_—]?\\d{0,}$|^\\d{1,}[+]$|^>\\d{1,}$", col) | is.na(col) | col == "" | col == "unknown" | col == "NA")
+  all(grepl("^<?\\d{1,}[-_\u2014]?\\d{0,}$|^\\d{1,}[+]$|^>\\d{1,}$", col) | is.na(col) | col == "" | col == "unknown" | col == "NA")
 }
 
 #' checking the format of the last/biggest age group to follow the format digit separator digit, digit+ or >digit
@@ -413,7 +413,7 @@ is_last_age_group_format <- function(col) {
   final_age_groups <- col[grep(max_age_str, col)]
   # regex checking format being only allowed format
   # digit sep digit or digit+
-  all(grepl("^\\d{1,}[-_—]\\d{1,}$|^\\d{1,}[+]$|^>\\d{1,}$", final_age_groups))
+  all(grepl("^\\d{1,}[-_\u2014]\\d{1,}$|^\\d{1,}[+]$|^>\\d{1,}$", final_age_groups))
 }
 
 

@@ -67,6 +67,7 @@ We welcome contributions from the community! Whether you're reporting a bug, sug
 - For documentation use [roxygen comments](https://cran.r-project.org/web/packages/roxygen2/vignettes/roxygen2.html).
 - Keep dependencies updated and minimize external dependencies where possible.
 - For repository structure use [devtools package skeleton](https://bookdown.org/rdpeng/RProgDA/the-devtools-package.html)
+- Run an R-CMD Check using devtools::check() locally before submitting your PR. This helps you already to identify and fix problems. An R-CMD Check will also be initiated automatically after your PR submission as this is one of our Github Actions.
 - The code should be compatible/runnable with R-version 4.0.2
 
 ### Commit Message Guidelines

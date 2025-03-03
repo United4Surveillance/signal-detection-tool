@@ -26,11 +26,13 @@ Default is `4`.}
 NULL when intervention_start = NULL, otherwise a data frame with a column representing the baseline before and after the intervention (if applicable).
 
 A data frame with columns representing the time trend before and after the intervention (if applicable).
-\dontrun{
-create_baseline(100)
-create_baseline(100,intervention_start = 50)
-}
 }
 \description{
 This function generates a baseline data.frame for use in modeling, which can account for different baselines before and after an intervention. If no intervention is done (intervention_start = NULL) NULL is returned as the regression can just use ~1 in the formula.
+}
+\examples{
+\dontrun{
+create_baseline(100)
+create_baseline(100, intervention_start = 50)
+}
 }
