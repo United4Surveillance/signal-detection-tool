@@ -7,7 +7,7 @@
 #' @export
 #' @importFrom shiny shinyApp
 #' @importFrom golem with_golem_options
-run_app <- function(
+run_app <- function(path_to_yaml = NULL,
     onStart = function() {
       cat("Warnings are turned off\n")
       options(warn = -1)
@@ -21,6 +21,14 @@ run_app <- function(
     enableBookmarking = NULL,
     uiPattern = "/",
     ...) {
+  # read yaml file
+  if(!is.null(path_to_yaml)){
+
+    config <<- config::get(file = path_to_yaml)
+
+  }
+
+
   with_golem_options(
     app = shinyApp(
       ui = app_ui,
