@@ -63,6 +63,9 @@ rsconnect/
 !header_logo.html
 !inst/rmd/help_tab.html
 
+# yml file
+inst/config.yml
+
 
 # Temporary idea files
 .idea/
