@@ -47,3 +47,59 @@ get_golem_config <- function(
     use_parent = use_parent
   )
 }
+
+#' Retrieve a Configuration Value from DATA_CONFIG
+#'
+#' This function retrieves a configuration value from the global `DATA_CONFIG` list
+#' using a colon-separated parameter name. If the parameter is not found, a default
+#' value is returned. Optionally, the retrieved value can be checked against a set
+#' of acceptable values.
+#'
+#' @param parameter_name A character string specifying the configuration parameter.
+#'   The parameter can be a colon-separated path to a nested value.
+#' @param default_value The value to return if the parameter is not found in `DATA_CONFIG`.
+#'   Defaults to `NULL`.
+#' @param acceptable_values An optional vector of acceptable values. If provided,
+#'   the function returns the intersection of the retrieved value and this set.
+#'   If no intersection is found, the `default_value` is returned.
+#'
+#' @return The retrieved configuration value if found. If `acceptable_values` is provided,
+#'   the function returns the intersection of the retrieved value and `acceptable_values`,
+#'   or `default_value` if there is no intersection. If the parameter is not found,
+#'   `default_value` is returned.
+#'
+#' @examples
+#' # Assuming DATA_CONFIG is defined as:
+#' DATA_CONFIG <- list(api = list(endpoint = "https://example.com", timeout = 30))
+#'
+#' # Retrieve a nested value
+#' get_data_config_value("api:endpoint", default_value = "https://fallback.com")
+#'
+#' # Retrieve with acceptable values
+#' get_data_config_value("api:timeout", default_value = 10, acceptable_values = c(10, 20, 30))
+#'
+#' @importFrom purrr pluck
+#' @export
+get_data_config_value <- function(parameter_name,
+                                  default_value=NULL,
+                                  acceptable_values=NULL){
+
+  if(!exists("DATA_CONFIG")){
+    return(default_value)
+  }
+  # turn colon separated into list of parameters
+  params <- as.list(unlist(strsplit(parameter_name, ":")))
+  # prepare arguments for pluck
+  args <- c(list(DATA_CONFIG), params, list(.default=default_value))
+  # get values from config
+  config_value <- do.call(purrr::pluck, args)
+
+  if(!is.null(acceptable_values)){
+    intersection <- base::intersect(config_value, acceptable_values)
+    if(length(intersection)){
+      return(intersection)
+    } else { return(default_value)}
+  } else{
+    return(config_value)
+  }
+}

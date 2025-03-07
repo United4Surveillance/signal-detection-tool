@@ -14,11 +14,10 @@ read_csv_both_sep <- function(filepath) {
 
 #' Read csv or excel files
 #' Checks the input file for its type and then reads the file
-#' @param filename character, filename
 #' @param filepath character, filepath
 #' @returns data.frame, loaded dataset provided by the user which is a linelist of surveillance data
-read_csv_or_excel <- function(filename, filepath) {
-  filetype <- tools::file_ext(filename)
+read_csv_or_excel <- function(filepath) {
+  filetype <- tools::file_ext(filepath)
 
   if (filetype == "csv") {
     data <- read_csv_both_sep(filepath)
