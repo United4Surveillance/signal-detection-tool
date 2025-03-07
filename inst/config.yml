@@ -1,0 +1,40 @@
+default:
+  datasource:
+    file: TRUE # TRUE when external csv or excel should be used, FALSE when db should be used
+    filepath: "/path/to/data.csv"  # If using a file
+    db: # If using access to db
+      host: "localhost"
+      port: 5432
+      user: "my_user"
+      password: "my_password"
+      database: "my_database"
+  params:
+    pathogen: Pertussis
+    strata:
+      - age_group
+      - community
+    signal_detection_period: 6
+    signal_detection_algorithm: EARS
+  shapefile_path: ~
+
+pertussis:
+  params:
+    pathogen: Pertussis
+    strata:
+      - age_group
+      - community
+      - sex
+    signal_detection_period: 6
+    signal_detection_algorithm: FarringtonFlexible
+  shapefile_path: ~
+
+
+salmonella:
+  params:
+    pathogen: Salmonella
+    strata:
+      - subtype
+      - county
+      - sex
+    signal_detection_algorithm: FarringtonFlexible
+  shapefile_path: ~
