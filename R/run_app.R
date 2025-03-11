@@ -21,13 +21,11 @@ run_app <- function(path_to_yaml = NULL,
     enableBookmarking = NULL,
     uiPattern = "/",
     ...) {
+
   # read yaml file
   if(!is.null(path_to_yaml)){
-
-    config <<- config::get(file = path_to_yaml)
-
+    DATA_CONFIG <<- config::get(file = path_to_yaml, config="default")
   }
-
 
   with_golem_options(
     app = shinyApp(

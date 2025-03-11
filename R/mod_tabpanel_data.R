@@ -97,13 +97,21 @@ mod_tabpanel_data_server <- function(id) {
       # input$file1 will be NULL initially. After the user selects
       # and uploads a file, head of that data file by default,
       # or all rows if selected, will be shown.
-      shiny::req(input$file1)
+      shiny::req(
+        shiny::isTruthy(input$file1) || shiny::isTruthy(get_data_config_value("datasource:filepath"))
+      )
+
+      if(shiny::isTruthy(input$file1)){
+        data_filepath <- input$file1$datapath
+      } else{
+        data_filepath <- get_data_config_value("datasource:filepath")
+      }
 
       # check on the filetype
-      ext <- tools::file_ext(input$file1$name)
+      ext <- tools::file_ext(data_filepath)
       shiny::validate(need(ext == "csv" | ext == "xlsx" | ext == "xls", "Please upload a csv, xlsx or xls file"))
       # read data
-      read_csv_or_excel(input$file1$name, input$file1$datapath)
+      read_csv_or_excel(data_filepath)
     })
 
     errors <- shiny::reactive({
