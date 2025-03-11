@@ -14,7 +14,7 @@ default:
       - age_group
       - community
     signal_detection_period: 6
-    signal_detection_algorithm: EARS
+    signal_detection_algorithm: ears
   shapefile_path: ~
 
 pertussis:
@@ -22,10 +22,11 @@ pertussis:
     pathogen: Pertussis
     strata:
       - age_group
-      - community
       - sex
     signal_detection_period: 6
-    signal_detection_algorithm: FarringtonFlexible
+    signal_detection_algorithm: glm harmonic
+    pandemic_correction: TRUE
+    intervention_date: 2020-03-18
   shapefile_path: ~
 
 
@@ -36,5 +37,5 @@ salmonella:
       - subtype
       - county
       - sex
-    signal_detection_algorithm: FarringtonFlexible
+    signal_detection_algorithm: farrington
   shapefile_path: ~
