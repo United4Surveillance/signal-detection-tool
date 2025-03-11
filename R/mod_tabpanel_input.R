@@ -99,7 +99,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 width = 6,
                 shiny::conditionalPanel(
                   condition = sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
-                  checkboxInput(ns("pandemic_correction"), "Covid19 Pandemic Correction", value = FALSE)
+                  checkboxInput(ns("pandemic_correction"), "Covid19 Pandemic Correction",
+                                value = get_data_config_value("params:pandemic_correction",
+                                                              FALSE, c(TRUE, FALSE)))
                 ),
                 shiny::uiOutput(ns("conditional_date_input"))
               )
@@ -488,8 +490,18 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         if (is.null(valid_dates$valid_start_date)) {
           shiny::p("Your dataset does not have sufficient number of weeks to do a pandemic correction.")
         } else {
+
+          intervention_date_config <- as.Date(get_data_config_value("params:intervention_date"))
+          valid_intervention_interval <- lubridate::interval(valid_dates$valid_start_date, valid_dates$valid_end_date)
+
+          if(isTRUE(intervention_date_config %within% valid_intervention_interval)){
+            default_intervention_date <- intervention_date_config
+          } else{
+            default_intervention_date <- valid_dates$default_intervention
+          }
+
           shiny::dateInput(ns("intervention_date"), "Choose the date when you first notice a significant change in the number of cases.",
-            value = valid_dates$default_intervention, min = valid_dates$valid_start_date, max = valid_dates$valid_end_date,
+            value = default_intervention_date, min = valid_dates$valid_start_date, max = valid_dates$valid_end_date,
             width = "90%"
           )
         }
