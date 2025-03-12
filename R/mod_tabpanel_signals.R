@@ -352,9 +352,12 @@ mod_tabpanel_signals_server <- function(
     })
 
     # visualisation of the timeseries
+    # visualisation of the timeseries
     output$time_series_plot <- plotly::renderPlotly({
       shiny::req(signals_padded_filtered())
-      plot_time_series(signals_padded_filtered(), interactive = TRUE, intervention_date = intervention_date())
+      if (nrow(signals_padded_filtered()) > 0) {
+        plot_time_series(signals_padded_filtered(), interactive = TRUE, intervention_date = intervention_date())
+      }
     })
 
     # signals table

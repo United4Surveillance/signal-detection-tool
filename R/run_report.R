@@ -70,6 +70,7 @@ run_report <- function(
     stop("The 'ggforce' package is required to generate the report. Please install it using install.packages('ggforce')")
   }
 
+
   # Check inputs ---------------------------------------------------------------
   checkmate::assert_choice(report_format,
     choices = c("HTML", "DOCX"),
