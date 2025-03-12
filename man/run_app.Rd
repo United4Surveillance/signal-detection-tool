@@ -5,6 +5,8 @@
 \title{Run the Shiny Application}
 \usage{
 run_app(
+  path_to_yaml = NULL,
+  config_set = "default",
   onStart = function() {
      cat("Warnings are turned off\\n")
      options(warn = -1)

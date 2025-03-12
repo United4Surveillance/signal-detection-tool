@@ -5,11 +5,9 @@
 \title{Read csv or excel files
 Checks the input file for its type and then reads the file}
 \usage{
-read_csv_or_excel(filename, filepath)
+read_csv_or_excel(filepath)
 }
 \arguments{
-\item{filename}{character, filename}
-
 \item{filepath}{character, filepath}
 }
 \value{
