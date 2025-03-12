@@ -103,3 +103,33 @@ get_data_config_value <- function(parameter_name,
     return(config_value)
   }
 }
+
+#' Get Shapefile: Read from Config or Use Internal Dataset
+#'
+#' This function retrieves a shapefile based on a path specified in a configuration file.
+#' - If a valid path exists in the configuration, the shapefile is read from that location.
+#' - If no path is provided, the function defaults to using an internal shapefile (`nuts_shp`).
+#' - To improve performance, the shapefile is cached in `app_cache_env$shp`, preventing
+#'   multiple unnecessary reads during an application session (e.g., when plotting maps).
+#'
+#' @return An `sf` object representing the geographic data (either from the config path or `nuts_shp`).
+#' @examples
+#' shp_data <- get_shp_config_or_internal()
+#'
+get_shp_config_or_internal <- function(){
+
+  shp_path <- get_data_config_value("shapefile_path")
+
+  if(!is.null(shp_path)){
+    if(!exists("shp", envir = app_cache_env)){
+      # usage of app_cache_env to not read in the dataset multiple times in one app session as this function
+      # is called each time a map is plotted
+      # thus save time
+      app_cache_env$shp <- sf::st_read(shp_path)
+    }
+  # only assign internal dataset when no shapefile path is not given in config
+  }else{
+    app_cache_env$shp <- nuts_shp
+  }
+  app_cache_env$shp
+}

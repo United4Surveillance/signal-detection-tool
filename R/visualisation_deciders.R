@@ -6,7 +6,10 @@
 #' @param data_surveillance data.frame, surveillance linelist
 #' @param region character, specifying the variable for the region to be shown should be one of ("country","state",
 #' "county","community","region_level1", "region_level2","region_level3")
-#' @param shape sf, shapefile default set to internal europe shapefile nuts_shp
+#' @param shape sf. The shapefile used for mapping.
+#'   - If an external shapefile path is provided in the configuration file, it is used.
+#'   - Otherwise, the function defaults to the internal European shapefile (`nuts_shp`).
+#'   - By default, this parameter is set to `get_shp_config_or_internal()`, which handles this logic dynamically.
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @returns a table or a plot depending on whether the matching of the NUTS IDs was fully possible, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
@@ -21,7 +24,7 @@
 create_map_or_table <- function(signals_agg,
                                 data_surveillance,
                                 region,
-                                shape = nuts_shp,
+                                shape = get_shp_config_or_internal(),
                                 interactive = TRUE,
                                 toggle_alarms = FALSE) {
   checkmate::assertChoice(region, region_variable_names())
@@ -35,6 +38,11 @@ create_map_or_table <- function(signals_agg,
   checkmate::assertClass(shape, "sf")
   checkmate::assertClass(data_surveillance, "data.frame")
   checkmate::assertClass(signals_agg, "data.frame")
+
+  #
+  if (is.character(shape)){
+
+  }
 
   signals_agg <- signals_agg %>%
     dplyr::filter(category == region)
