@@ -8,6 +8,7 @@
 #' @importFrom shiny shinyApp
 #' @importFrom golem with_golem_options
 run_app <- function(path_to_yaml = NULL,
+                    config_set = "default",
     onStart = function() {
       cat("Warnings are turned off\n")
       options(warn = -1)
@@ -24,7 +25,7 @@ run_app <- function(path_to_yaml = NULL,
 
   # read yaml file
   if(!is.null(path_to_yaml)){
-    DATA_CONFIG <<- config::get(file = path_to_yaml, config="default")
+    DATA_CONFIG <<- config::get(file = path_to_yaml, config=config_set)
   }
 
   with_golem_options(
