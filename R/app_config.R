@@ -126,10 +126,15 @@ get_shp_config_or_internal <- function(){
       # is called each time a map is plotted
       # thus save time
       app_cache_env$shp <- sf::st_read(shp_path)
+      # transform NUTS_ID to character (we assume this in the matching)
+      app_cache_env$shp$NUTS_ID <- as.character(app_cache_env$shp$NUTS_ID)
     }
-  # only assign internal dataset when no shapefile path is not given in config
   }else{
-    app_cache_env$shp <- nuts_shp
+    # only assign once to app cache to avoid going in multiple times as described above
+    if(!exists("shp", envir = app_cache_env)){
+      # only assign internal dataset when no shapefile path is not given in config
+      app_cache_env$shp <- nuts_shp
+    }
   }
   app_cache_env$shp
 }
