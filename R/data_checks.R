@@ -110,8 +110,8 @@ check_type_and_value_mandatory_variables <- function(data) {
     }
   }
   if ("country_id" %in% data_columns) {
-    if (!checkmate::test_character(data$country_id)) {
-      errors <- append(errors, "country_id is not a character")
+    if (!checkmate::qtest(data$case_id, c("s", "n"))) {
+      errors <- append(errors, "country_id is not a character or a numeric")
     }
   }
   if ("pathogen" %in% data_columns) {
@@ -152,8 +152,8 @@ check_type_and_value_optional_variables <- function(data) {
   id_vars <- setdiff(id_vars, c("case_id", "country_id"))
 
   for (id_var in id_vars) {
-    if (!checkmate::test_character(data[[id_var]])) {
-      errors <- append(errors, paste0(id_var, " is not a character"))
+    if (!checkmate::qtest(data[[id_var]],c("s", "n"))) {
+      errors <- append(errors, paste0(id_var, " is not a character or a numeric"))
     }
   }
 
