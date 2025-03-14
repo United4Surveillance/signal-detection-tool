@@ -1,4 +1,5 @@
 app_cache_env <- new.env()
+print(app_cache_env$DATA_CONFIG)
 app_cache_env$sex_levels <- c("male", "female", "diverse", NA_character_)
 app_cache_env$age_group_levels <- c("00-04", "05-09", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90-94", "95-99", "100-104", "105-109", NA_character_)
 
@@ -84,13 +85,13 @@ get_data_config_value <- function(parameter_name,
                                   default_value=NULL,
                                   acceptable_values=NULL){
 
-  if(!exists("DATA_CONFIG")){
+  if(!exists("DATA_CONFIG", envir = app_cache_env)){
     return(default_value)
   }
   # turn colon separated into list of parameters
   params <- as.list(unlist(strsplit(parameter_name, ":")))
   # prepare arguments for pluck
-  args <- c(list(DATA_CONFIG), params, list(.default=default_value))
+  args <- c(list(app_cache_env$DATA_CONFIG), params, list(.default=default_value))
   # get values from config
   config_value <- do.call(purrr::pluck, args)
 

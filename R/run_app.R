@@ -25,7 +25,7 @@ run_app <- function(path_to_yaml = NULL,
 
   # read yaml file
   if(!is.null(path_to_yaml)){
-    DATA_CONFIG <<- config::get(file = path_to_yaml, config=config_set)
+    app_cache_env$DATA_CONFIG <- config::get(file = path_to_yaml, config=config_set)
   }
 
   with_golem_options(
