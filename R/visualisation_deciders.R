@@ -39,11 +39,6 @@ create_map_or_table <- function(signals_agg,
   checkmate::assertClass(data_surveillance, "data.frame")
   checkmate::assertClass(signals_agg, "data.frame")
 
-  #
-  if (is.character(shape)){
-
-  }
-
   signals_agg <- signals_agg %>%
     dplyr::filter(category == region)
 
