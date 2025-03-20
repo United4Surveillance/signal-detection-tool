@@ -195,14 +195,13 @@ check_type_and_value_optional_variables <- function(data) {
 check_type_and_value_date <- function(data, date_var) {
   errors <- list()
 
-  # case when column type was already read in as date by read_excel then transform to character for checks
-  if (lubridate::is.POSIXct(data[[date_var]])) {
-    data[[date_var]] <- as.character(data[[date_var]])
-  }
+  is_date <- lubridate::is.Date(data[[date_var]])
+  is_character <- checkmate::test_character(data[[date_var]])
 
-  if (!checkmate::test_character(data[[date_var]])) {
-    errors <- append(errors, paste0(date_var, " is not a character"))
-  } else {
+  if (!is_character & !is_date) {
+    errors <- append(errors, paste0(date_var, " is not a character nor of type Date."))
+  }
+  if(is_character){
     if (!is_ISO8601(data[[date_var]])) {
       errors <- append(errors, paste0(date_var, " is not in ISO 8601 format YYYY-MM-DD"))
     } else if (!is_ISO8601_detailed(data[[date_var]])) {
