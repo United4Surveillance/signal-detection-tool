@@ -217,110 +217,86 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     # add filters
     shiny::observeEvent(input$add_filter, {
-      if (n_filters() < (length(filter_var_opts()) - 1)) {
-        # id to add
-        new_filter_id <- paste0("filter", input$add_filter)
-        # add ui
-        shiny::insertUI(
-          selector = "#filter_input",
-          where = "afterEnd",
-          ui = mod_input_filter_ui(id = ns(new_filter_id))
-        )
-        # add parameters
-        all_filters[[new_filter_id]] <- mod_input_filter_server(
-          id = new_filter_id,
-          data = data_sub,
-          filter_opts = filter_var_opts(),
-          all_filters = all_filters,
-          n_filters = n_filters
-        )
-        # update filter count
-        n_filters(n_filters() + 1)
-      }
+      shiny::req(n_filters() < (length(filter_var_opts()) - 1))
+      # id to add
+      new_filter_id <- paste0("filter", n_filters())
+      # add ui
+      shiny::insertUI(
+        selector = "#filter_input",
+        where = "afterEnd",
+        ui = mod_input_filter_ui(id = ns(new_filter_id))
+      )
+      # add parameters
+      all_filters[[new_filter_id]] <- mod_input_filter_server(
+        id = new_filter_id,
+        data = data_sub,
+        filter_opts = filter_var_opts(),
+        all_filters = all_filters,
+        n_filters = n_filters
+      )
+      # update filter count
+      n_filters(n_filters() + 1)
     })
 
     # remove last filter added
     shiny::observeEvent(input$remove_filter, {
-      if (n_filters() > 0) {
-        # id to remove
-        remove_filter_id <- names(all_filters)[length(names(all_filters))]
-        # remove ui
-        shiny::removeUI(
-          selector = paste0("#", id, "-", remove_filter_id),
-          immediate = TRUE
-        )
-        # remove parameters
-        removeReactiveValuesIndex(all_filters, remove_filter_id)
-        # update filter count
-        n_filters(max(0, n_filters() - 1)) # needs to be updated here to trigger filtered_data()
-      }
+      shiny::req(n_filters() > 0)
+      # id to remove
+      remove_filter_id <- tail(names(all_filters), 1)
+      # remove ui
+      shiny::removeUI(
+        selector = paste0("#", ns(remove_filter_id)),
+        immediate = TRUE
+      )
+      # remove parameters
+      removeReactiveValuesIndex(all_filters, remove_filter_id)
+
+      # update filter count
+      n_filters(n_filters() - 1) # needs to be updated here to trigger filtered_data()
     })
 
-    # apply filters to data_sub
+
+    # Apply filters
     filtered_data <- shiny::reactive({
       shiny::req(data_sub())
-      shiny::req(lapply(shiny::reactiveValuesToList(all_filters), function(x) {
-        lapply(x, function(y) do.call(y, list()))
-      }))
+
+      #shiny::req(lapply(shiny::reactiveValuesToList(all_filters), function(x) {
+     #  lapply(x, function(y) do.call(y, list()))
+     # }))
+
       df <- data_sub()
-      n_filters() # triggers reevaluation whenever a filter is removed
-      # resetting the levels to the original values
-      # when filters are removed or new dataset is uploaded then they are reset
+      n_filters()  # Ensures reactivity
+
+      # reset levels
       app_cache_env$sex_levels <- c("male", "female", "diverse", NA_character_)
       app_cache_env$age_group_levels <- create_age_group_levels(df)
 
       for (filter in names(all_filters)) {
-        if (all_filters[[filter]]$filter_var() != "None") {
-          filter_var <- rlang::sym(all_filters[[filter]]$filter_var())
+        params <- all_filters[[filter]]
+        shiny::req(params$filter_var() != "None")
 
-          filter_val <- all_filters[[filter]]$filter_val()
+        filter_var <- rlang::sym(params$filter_var())
+        filter_val <- params$filter_val()
+        shiny::req(!is.null(filter_val))
 
-          if (!is.null(filter_val)) {
-            if (class(df[[rlang::as_name(filter_var)]]) == "Date") { # apply filter if filtering date
-              df <- df %>%
-                dplyr::filter(!!filter_var %in% seq(filter_val[1], filter_val[2], "day"))
-            } else if (rlang::as_name(filter_var) == "age") {
-              df <- df %>%
-                dplyr::filter(!!filter_var >= filter_val[1], !!filter_var <= filter_val[2])
-
-              sorted_filter_val <- stringr::str_sort(unique(df$age_group), numeric = TRUE)
-              app_cache_env$age_group_levels <- sorted_filter_val
-            } else if ("N/A" %in% filter_val) { # apply filter if filtering for NAs
-              df <- df %>%
-                dplyr::filter(
-                  is.na(!!filter_var) |
-                    !!filter_var %in% filter_val[filter_val != "N/A"]
-                )
-            } else if (class(data()[[filter_var]]) == "factor") { # apply filter for factors (dropping levels)
-              # backtransform "unknown" to NA as we did not transform the data but only what is displayed to the user
-              filter_val <- sapply(filter_val, function(x) if (x == "unknown") NA_character_ else x)
-
-              df <- df %>%
-                dplyr::filter(!!filter_var %in% filter_val) %>%
-                dplyr::mutate(!!filter_var := factor(!!filter_var, levels = filter_val))
-              # update the factor levels in app_cache_env
-              if (filter_var == "sex") {
-                sex_order <- c("male", "female", "diverse")
-                sorted_filter_val <- filter_val[match(sex_order, filter_val)]
-                app_cache_env$sex_levels <- sorted_filter_val
-              }
-              if (filter_var == "age_group") {
-                sorted_filter_val <- stringr::str_sort(unique(df$age_group), numeric = TRUE)
-                app_cache_env$age_group_levels <- sorted_filter_val
-              }
-            } else { # otherwise
-              df <- df %>%
-                dplyr::filter(!!filter_var %in% filter_val)
-            }
-          } else {
-          }
+        df <- if (lubridate::is.Date(df[[rlang::as_name(filter_var)]])) {
+          dplyr::filter(df, !!filter_var %in% seq(filter_val[1], filter_val[2], "day"))
+        } else if (rlang::as_name(filter_var) == "age") {
+          dplyr::filter(df, between(!!filter_var, filter_val[1], filter_val[2]))
         } else {
-          df
+          dplyr::filter(df, !!filter_var %in% filter_val |
+                          (is.na(!!filter_var) & "unknown" %in% filter_val))
         }
       }
+
+      # update levels
+      sex_levels_char <- as.character(unique(df$sex))
+      filtered_levels <- if(any(is.na(df$sex))) c(sex_levels_char, NA_character_) else sex_levels_char
+      app_cache_env$sex_levels <- intersect(app_cache_env$sex_levels, filtered_levels)
+      app_cache_env$age_group_levels <- create_age_group_levels(df)
+
       df
     })
-
 
 
     output$strat_choices <- shiny::renderUI({

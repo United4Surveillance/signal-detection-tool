@@ -25,6 +25,20 @@ mod_input_filter_ui <- function(id) {
   )
 }
 
+create_date_numeric_input <- function(shiny_input_func, ns, input_id, label, data, filter_var) {
+  min_val <- min(data()[[filter_var]], na.rm = TRUE)
+  max_val <- max(data()[[filter_var]], na.rm = TRUE)
+
+  shiny_input_func(
+    inputId = ns(input_id),
+    label = label,
+    value = if (grepl("min", input_id, fixed=TRUE)) min_val else max_val,
+    min = min_val,
+    max = max_val
+  )
+}
+
+
 #' input_filter Server Functions
 #'
 #' @noRd
@@ -50,10 +64,10 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
       class(data()[[input$filter_var_sel]]) == "Date"
     })
 
-    # This can be transformed is_numeric, if we allow other numerical variables to the filtering in some point
-    is_age <- shiny::reactive({
+
+    is_numeric <- shiny::reactive({
       shiny::req(input$filter_var_sel)
-      input$filter_var_sel == "age"
+      is.numeric(data()[[input$filter_var_sel]])
     })
 
     # filter value
@@ -63,41 +77,17 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
 
       if (is_date()) {
         value_ui <- shiny::tagList(
-          shiny::dateInput(
-            inputId = ns("filter_min_val_sel"),
-            label = "Minimum Date",
-            value = min(data()[[input$filter_var_sel]]),
-            min = min(data()[[input$filter_var_sel]]),
-            max = max(data()[[input$filter_var_sel]])
-          ),
-          shiny::dateInput(
-            inputId = ns("filter_max_val_sel"),
-            label = "Maximum Date",
-            min = min(data()[[input$filter_var_sel]]),
-            max = max(data()[[input$filter_var_sel]]),
-            value = max(data()[[input$filter_var_sel]])
-          ),
+          create_date_numeric_input(shiny::dateInput, ns, "filter_min_val_sel", "Minimum Date", data, input$filter_var_sel),
+          create_date_numeric_input(shiny::dateInput, ns, "filter_max_val_sel", "Maximum Date", data, input$filter_var_sel),
         )
-      } else if (is_age()) {
+      } else if (is_numeric()) {
         value_ui <- shiny::tagList(
           shiny::div(
-            shiny::numericInput(
-              inputId = ns("filter_min_val_sel"),
-              label = "Minimum Age",
-              value = min(data()[[input$filter_var_sel]], na.rm = T),
-              min = min(data()[[input$filter_var_sel]], na.rm = T),
-              max = max(data()[[input$filter_var_sel]], na.rm = T)
-            ),
+            create_date_numeric_input(shiny::numericInput, ns, "filter_min_val_sel", "Minimum Age", data, input$filter_var_sel),
             style = "display: inline-block; width: 45%; vertical-align: top;"
           ),
           shiny::div(
-            shiny::numericInput(
-              inputId = ns("filter_max_val_sel"),
-              label = "Maximum Age",
-              min = min(data()[[input$filter_var_sel]], na.rm = T),
-              max = max(data()[[input$filter_var_sel]], na.rm = T),
-              value = max(data()[[input$filter_var_sel]], na.rm = T)
-            ),
+            create_date_numeric_input(shiny::numericInput, ns, "filter_max_val_sel", "Maximum Age", data, input$filter_var_sel),
             style = "display: inline-block; width: 45%; vertical-align: top;"
           )
         )
@@ -131,10 +121,8 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
     # return values to filter for
     filter_val <- shiny::reactive({
       shiny::req(is_date)
-      shiny::req(is_age)
-      if (is_date()) {
-        values <- c(input$filter_min_val_sel, input$filter_max_val_sel)
-      } else if (is_age()) {
+      shiny::req(is_numeric)
+      if (is_date() || is_numeric()) {
         values <- c(input$filter_min_val_sel, input$filter_max_val_sel)
       } else {
         values <- input$filter_val_sel
@@ -175,21 +163,38 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
       }
     })
 
+
+    #' Get Selected Filter Variables
+    #'
+    #' This function retrieves the currently selected filter variables from `all_filters`.
+    #' It converts the `reactiveValues` object into a list, extracts the `filter_var`
+    #' values from each filter, and returns them as a character vector.
+    #'
+    #' @return A character vector of selected filter variables.
+    #' @import shiny
+    get_taken_filter_vars <- function() {
+      lapply(shiny::reactiveValuesToList(all_filters), function(x) x[["filter_var"]]()) %>% unlist()
+    }
+
     # update filter_var choices depending on all_filters (n_filters is required
     # to trigger event when a filter is removed from all_filters)
     shiny::observeEvent(
       {
-        c(lapply(shiny::reactiveValuesToList(all_filters), function(x) {
-          do.call(x[["filter_var"]], list())
-        }), n_filters())
+        # The event is triggered when either:
+        # 1. The set of selected filter variables (`get_taken_vars()`) changes.
+        # 2. The number of filters (`n_filters()`) changes (ensuring updates when filters are removed).
+        c(get_taken_filter_vars(), n_filters())
       },
       {
-        shiny::req(input$filter_var_sel)
-        taken_vars <- lapply(shiny::reactiveValuesToList(all_filters), function(x) {
-          do.call(x[["filter_var"]], list())
-        }) %>% unlist()
-        taken_vars <- taken_vars[!taken_vars %in% c("None", input$filter_var_sel)]
-        remaining_vars <- filter_opts[!filter_opts %in% taken_vars]
+        # Ensure `filter_var_sel` exists before proceeding.
+        if (is.null(input$filter_var_sel)) return()
+
+        # Retrieve currently taken filter variables and exclude "None" and the currently selected value.
+        taken_vars <- setdiff(get_taken_filter_vars(), c("None", input$filter_var_sel))
+        # Determine the remaining available filter options.
+        remaining_vars <- setdiff(filter_opts, taken_vars)
+
+        # Update the select input for filter selection, preserving the current selection.
         shiny::updateSelectInput(
           inputId = "filter_var_sel",
           selected = input$filter_var_sel,
