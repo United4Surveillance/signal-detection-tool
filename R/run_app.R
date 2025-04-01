@@ -1,5 +1,7 @@
 #' Run the Shiny Application
 #'
+#' @param path_to_yaml A character string specifying the file path to the .yml configuration file on the user's computer. If no external .yml file is used, set this parameter to NULL.
+#' @param config_set A character string specifying the name of the configuration to read from the .yml file.
 #' @param ... arguments to pass to golem_opts.
 #' See `?golem::get_golem_options` for more details.
 #' @inheritParams shiny::shinyApp
