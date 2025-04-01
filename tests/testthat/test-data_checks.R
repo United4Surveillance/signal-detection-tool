@@ -22,13 +22,13 @@ test_that("date check works as expected", {
   input_example4 <- input_example %>%
     dplyr::mutate(date_new = as.Date("2020/03/09"))
   input_example5 <- input_example %>%
-    dplyr::mutate(date_new = as.Date("09-03-2020", format ="%d-%m-%Y"))
+    dplyr::mutate(date_new = as.Date("09-03-2020", format = "%d-%m-%Y"))
 
 
 
-  expect_equal(length(check_type_and_value_date(input_example,"date_report")), 0)
-  expect_equal(length(check_type_and_value_date(input_example2,"date_report")), 0)
-  expect_equal(check_type_and_value_date(input_example3,"date_new")[[1]], "date_new is not in ISO 8601 format YYYY-MM-DD")
-  expect_equal(length(check_type_and_value_date(input_example4,"date_new")), 0)
-  expect_equal(length(check_type_and_value_date(input_example5,"date_new")), 0)
+  expect_equal(length(check_type_and_value_date(input_example, "date_report")), 0)
+  expect_equal(length(check_type_and_value_date(input_example2, "date_report")), 0)
+  expect_equal(check_type_and_value_date(input_example3, "date_new")[[1]], "date_new is not in ISO 8601 format YYYY-MM-DD")
+  expect_equal(length(check_type_and_value_date(input_example4, "date_new")), 0)
+  expect_equal(length(check_type_and_value_date(input_example5, "date_new")), 0)
 })

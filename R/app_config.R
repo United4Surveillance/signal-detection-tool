@@ -81,25 +81,26 @@ get_golem_config <- function(
 #' @importFrom purrr pluck
 #' @export
 get_data_config_value <- function(parameter_name,
-                                  default_value=NULL,
-                                  acceptable_values=NULL){
-
-  if(!exists("DATA_CONFIG", envir = app_cache_env)){
+                                  default_value = NULL,
+                                  acceptable_values = NULL) {
+  if (!exists("DATA_CONFIG", envir = app_cache_env)) {
     return(default_value)
   }
   # turn colon separated into list of parameters
   params <- as.list(unlist(strsplit(parameter_name, ":")))
   # prepare arguments for pluck
-  args <- c(list(app_cache_env$DATA_CONFIG), params, list(.default=default_value))
+  args <- c(list(app_cache_env$DATA_CONFIG), params, list(.default = default_value))
   # get values from config
   config_value <- do.call(purrr::pluck, args)
 
-  if(!is.null(acceptable_values)){
+  if (!is.null(acceptable_values)) {
     intersection <- base::intersect(config_value, acceptable_values)
-    if(length(intersection)){
+    if (length(intersection)) {
       return(intersection)
-    } else { return(default_value)}
-  } else{
+    } else {
+      return(default_value)
+    }
+  } else {
     return(config_value)
   }
 }
@@ -116,12 +117,11 @@ get_data_config_value <- function(parameter_name,
 #' @examples
 #' shp_data <- get_shp_config_or_internal()
 #'
-get_shp_config_or_internal <- function(){
-
+get_shp_config_or_internal <- function() {
   shp_path <- get_data_config_value("shapefile_path")
 
-  if(!is.null(shp_path)){
-    if(!exists("shp", envir = app_cache_env)){
+  if (!is.null(shp_path)) {
+    if (!exists("shp", envir = app_cache_env)) {
       # usage of app_cache_env to not read in the dataset multiple times in one app session as this function
       # is called each time a map is plotted
       # thus save time
@@ -129,9 +129,9 @@ get_shp_config_or_internal <- function(){
       # transform NUTS_ID to character (we assume this in the matching)
       app_cache_env$shp$NUTS_ID <- as.character(app_cache_env$shp$NUTS_ID)
     }
-  }else{
+  } else {
     # only assign once to app cache to avoid going in multiple times as described above
-    if(!exists("shp", envir = app_cache_env)){
+    if (!exists("shp", envir = app_cache_env)) {
       # only assign internal dataset when no shapefile path is not given in config
       app_cache_env$shp <- nuts_shp
     }
