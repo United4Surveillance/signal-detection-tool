@@ -1,6 +1,6 @@
 Package: SignalDetectionTool
 Title: Automated Signal Detection for Infectious Disease Surveillance
-Version: 0.6.0
+Version: 0.7.0
 Authors@R: 
     c(
     person("Ann Christin", "Vietor", email = "VietorA@rki.de" ,role = c("aut","cre")),

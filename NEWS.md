@@ -1,3 +1,17 @@
+# SignalDetectionTool 0.7.0
+
+* Relaxing restrictions on data types for input data
+  - dates such as date_report, date_onset, ... can now be of type character or date
+  - all _id variables can now be of type character or numeric
+  - updating the metadata file and adding a column type 
+* Allowing to run the app using a config.yml file
+  - enables to load data from a given path to a csv or Excel
+  - enables user to specify path to own shapefile which can be used
+  - enables user to directly load data from database into the app
+  - added example functions for loading data from database in database.R which can be overwritten in an external R script
+* Bug fix global environment app_cache_env is reset to an empty environment each time the app is closed
+* Bug fix that error was showing up when switching between different time series shown in the signals tab 
+
 # SignalDetectionTool 0.6.0
 
 * UI changes
