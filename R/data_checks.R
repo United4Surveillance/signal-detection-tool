@@ -152,7 +152,7 @@ check_type_and_value_optional_variables <- function(data) {
   id_vars <- setdiff(id_vars, c("case_id", "country_id"))
 
   for (id_var in id_vars) {
-    if (!checkmate::qtest(data[[id_var]],c("s", "n"))) {
+    if (!checkmate::qtest(data[[id_var]], c("s", "n"))) {
       errors <- append(errors, paste0(id_var, " is not a character or a numeric"))
     }
   }
@@ -202,7 +202,7 @@ check_type_and_value_date <- function(data, date_var) {
   if (!is_character & !is_date) {
     errors <- append(errors, paste0(date_var, " is not a character nor of type Date."))
   }
-  if(is_character){
+  if (is_character) {
     if (!is_ISO8601(data[[date_var]])) {
       errors <- append(errors, paste0(date_var, " is not in ISO 8601 format YYYY-MM-DD"))
     } else if (!is_ISO8601_detailed(data[[date_var]])) {

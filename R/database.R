@@ -5,8 +5,7 @@
 #'
 #' @return A data frame containing the queried and transformed data.
 #' @export
-load_data_db <- function(){
-
+load_data_db <- function() {
   dbcon <- get_database_connection()
 
   dbdata <- query_database(dbcon)
@@ -21,11 +20,11 @@ load_data_db <- function(){
 #'
 #' @return A database connection object.
 #' @export
-get_database_connection <- function(){
-
+get_database_connection <- function() {
   # load data into temporary db
   dbcon <- DBI::dbConnect(RSQLite::SQLite(),
-                          dbname=system.file("extdata/example_db.sqlite", package="SignalDetectionTool"))
+    dbname = system.file("extdata/example_db.sqlite", package = "SignalDetectionTool")
+  )
 
   dbcon
 }
@@ -38,8 +37,7 @@ get_database_connection <- function(){
 #' @param db_connection A database connection object.
 #' @return A data frame containing the query results.
 #' @export
-query_database <- function(db_connection){
-
+query_database <- function(db_connection) {
   # can use dbplyr
   dbtable <- dplyr::tbl(db_connection, "cases")
   pathogen <- get_data_config_value("params:pathogen")
@@ -62,7 +60,7 @@ query_database <- function(db_connection){
 #' @param data A data frame containing the raw query results.
 #' @return A data frame with transformed data.
 #' @export
-transform_required_format <- function(data){
+transform_required_format <- function(data) {
   # convert to app required formats
   data %>% dplyr::mutate(sex = dplyr::case_when(
     sex == "f" ~ "female",

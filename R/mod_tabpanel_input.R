@@ -100,8 +100,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 shiny::conditionalPanel(
                   condition = sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
                   checkboxInput(ns("pandemic_correction"), "Covid19 Pandemic Correction",
-                                value = get_data_config_value("params:pandemic_correction",
-                                                              FALSE, c(TRUE, FALSE)))
+                    value = get_data_config_value(
+                      "params:pandemic_correction",
+                      FALSE, c(TRUE, FALSE)
+                    )
+                  )
                 ),
                 shiny::uiOutput(ns("conditional_date_input"))
               )
@@ -165,9 +168,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         inputId = ns("pathogen_vars"),
         label = "Select a pathogen",
         choices = unique(data()$pathogen),
-        selected = get_data_config_value("params:pathogen",
-                                         unique(data()$pathogen)[1],
-                                         unique(data()$pathogen)),
+        selected = get_data_config_value(
+          "params:pathogen",
+          unique(data()$pathogen)[1],
+          unique(data()$pathogen)
+        ),
         width = "40%"
       ))
     })
@@ -409,8 +414,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     # farrington when the number of weeks is changed but stays with the last selected
     # algorithm as this algorithm is still working
     last_selected_algorithm <- shiny::reactiveVal(
-        get_data_config_value("params:signal_detection_algorithm", "farrington")
-        )
+      get_data_config_value("params:signal_detection_algorithm", "farrington")
+    )
 
     shiny::observeEvent(input$algorithm_choice, {
       last_selected_algorithm(input$algorithm_choice)
@@ -490,13 +495,12 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         if (is.null(valid_dates$valid_start_date)) {
           shiny::p("Your dataset does not have sufficient number of weeks to do a pandemic correction.")
         } else {
-
           intervention_date_config <- as.Date(get_data_config_value("params:intervention_date"))
           valid_intervention_interval <- lubridate::interval(valid_dates$valid_start_date, valid_dates$valid_end_date)
 
-          if(isTRUE(intervention_date_config %within% valid_intervention_interval)){
+          if (isTRUE(intervention_date_config %within% valid_intervention_interval)) {
             default_intervention_date <- intervention_date_config
-          } else{
+          } else {
             default_intervention_date <- valid_dates$default_intervention
           }
 

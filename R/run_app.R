@@ -9,23 +9,22 @@
 #' @importFrom golem with_golem_options
 run_app <- function(path_to_yaml = NULL,
                     config_set = "default",
-    onStart = function() {
-      cat("Warnings are turned off\n")
-      options(warn = -1)
+                    onStart = function() {
+                      cat("Warnings are turned off\n")
+                      options(warn = -1)
 
-      onStop(function() {
-        options(warn = 0)
-        cat("Warnings turned on\n")
-      })
-    },
-    options = list(),
-    enableBookmarking = NULL,
-    uiPattern = "/",
-    ...) {
-
+                      onStop(function() {
+                        options(warn = 0)
+                        cat("Warnings turned on\n")
+                      })
+                    },
+                    options = list(),
+                    enableBookmarking = NULL,
+                    uiPattern = "/",
+                    ...) {
   # read yaml file
-  if(!is.null(path_to_yaml)){
-    app_cache_env$DATA_CONFIG <- config::get(file = path_to_yaml, config=config_set)
+  if (!is.null(path_to_yaml)) {
+    app_cache_env$DATA_CONFIG <- config::get(file = path_to_yaml, config = config_set)
   }
 
   with_golem_options(
