@@ -189,6 +189,7 @@ check_type_and_value_optional_variables <- function(data) {
 }
 
 #' Checking type and values of date variables
+#' date variable can be of type character or date
 #' @param data data.frame, raw linelist of surveillance cases
 #' @param date_var character, date variable to check
 #' @returns list, empty when no errors occured or filled with error messages
