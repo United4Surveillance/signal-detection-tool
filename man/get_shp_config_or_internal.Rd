@@ -16,7 +16,3 @@ This function retrieves a shapefile based on a path specified in a configuration
 - To improve performance, the shapefile is cached in `app_cache_env$shp`, preventing
   multiple unnecessary reads during an application session (e.g., when plotting maps).
 }
-\examples{
-shp_data <- get_shp_config_or_internal()
-
-}

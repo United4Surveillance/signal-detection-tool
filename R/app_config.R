@@ -114,8 +114,6 @@ get_data_config_value <- function(parameter_name,
 #'   multiple unnecessary reads during an application session (e.g., when plotting maps).
 #'
 #' @return An `sf` object representing the geographic data (either from the config path or `nuts_shp`).
-#' @examples
-#' shp_data <- get_shp_config_or_internal()
 #'
 get_shp_config_or_internal <- function() {
   shp_path <- get_data_config_value("shapefile_path")
