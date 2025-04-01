@@ -304,8 +304,8 @@ get_signals_glm <- function(data_aggregated,
 
     phi <- max(summary(fit_glm)$dispersion, 1)
 
-    s <- surveillance:::anscombe.residuals(fit_glm, phi)
-    omega <- surveillance:::algo.farrington.assign.weights(s)
+    s <- surveillance::anscombe.residuals(fit_glm, phi)
+    omega <- surveillance::algo.farrington.assign.weights(s)
     # fit a weighted glm using weighted anscombe residulas
     fit_glm <- glm(formula,
       data = fit_data,

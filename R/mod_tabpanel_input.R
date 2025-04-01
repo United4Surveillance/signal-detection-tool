@@ -99,7 +99,12 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 width = 6,
                 shiny::conditionalPanel(
                   condition = sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
-                  checkboxInput(ns("pandemic_correction"), "Covid19 Pandemic Correction", value = FALSE)
+                  checkboxInput(ns("pandemic_correction"), "Covid19 Pandemic Correction",
+                    value = get_data_config_value(
+                      "params:pandemic_correction",
+                      FALSE, c(TRUE, FALSE)
+                    )
+                  )
                 ),
                 shiny::uiOutput(ns("conditional_date_input"))
               )
@@ -114,7 +119,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::numericInput(
         inputId = ns("n_weeks"),
         label = "",
-        value = 6,
+        value = get_data_config_value("params:signal_detection_period", 6),
         min = 1,
         max = 52,
         step = 1,
@@ -163,6 +168,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         inputId = ns("pathogen_vars"),
         label = "Select a pathogen",
         choices = unique(data()$pathogen),
+        selected = get_data_config_value(
+          "params:pathogen",
+          unique(data()$pathogen)[1],
+          unique(data()$pathogen)
+        ),
         width = "40%"
       ))
     })
@@ -317,6 +327,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     })
 
 
+
     output$strat_choices <- shiny::renderUI({
       shiny::req(!errors_detected())
       shiny::req(available_var_opts)
@@ -328,7 +339,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
           "None",
           available_var_opts()
         ),
-        selected = "None",
+        selected = get_data_config_value("params:strata", "None", available_var_opts()),
         multiple = TRUE,
         options = list(maxItems = 3),
         width = "40%"
@@ -348,7 +359,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
         if (length(new_selection) > 0) {
           # if lastest selection is 'None', only keep 'None'
-          if (new_selection == "None") {
+          if (any(new_selection == "None")) {
             Selected <- "None"
             # if latest selection is not 'None', keep everything except 'None'
           } else {
@@ -402,7 +413,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     # implementing that the algorithm choice does not always move back to the default
     # farrington when the number of weeks is changed but stays with the last selected
     # algorithm as this algorithm is still working
-    last_selected_algorithm <- shiny::reactiveVal("farrington")
+    last_selected_algorithm <- shiny::reactiveVal(
+      get_data_config_value("params:signal_detection_algorithm", "farrington")
+    )
 
     shiny::observeEvent(input$algorithm_choice, {
       last_selected_algorithm(input$algorithm_choice)
@@ -482,8 +495,17 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         if (is.null(valid_dates$valid_start_date)) {
           shiny::p("Your dataset does not have sufficient number of weeks to do a pandemic correction.")
         } else {
+          intervention_date_config <- as.Date(get_data_config_value("params:intervention_date"))
+          valid_intervention_interval <- lubridate::interval(valid_dates$valid_start_date, valid_dates$valid_end_date)
+
+          if (isTRUE(intervention_date_config %within% valid_intervention_interval)) {
+            default_intervention_date <- intervention_date_config
+          } else {
+            default_intervention_date <- valid_dates$default_intervention
+          }
+
           shiny::dateInput(ns("intervention_date"), "Choose the date when you first notice a significant change in the number of cases.",
-            value = valid_dates$default_intervention, min = valid_dates$valid_start_date, max = valid_dates$valid_end_date,
+            value = default_intervention_date, min = valid_dates$valid_start_date, max = valid_dates$valid_end_date,
             width = "90%"
           )
         }

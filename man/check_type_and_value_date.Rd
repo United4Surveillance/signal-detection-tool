@@ -2,7 +2,8 @@
 % Please edit documentation in R/data_checks.R
 \name{check_type_and_value_date}
 \alias{check_type_and_value_date}
-\title{Checking type and values of date variables}
+\title{Checking type and values of date variables
+date variable can be of type character or date}
 \usage{
 check_type_and_value_date(data, date_var)
 }
@@ -16,4 +17,5 @@ list, empty when no errors occured or filled with error messages
 }
 \description{
 Checking type and values of date variables
+date variable can be of type character or date
 }

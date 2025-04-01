@@ -8,7 +8,7 @@ create_map_or_table(
   signals_agg,
   data_surveillance,
   region,
-  shape = nuts_shp,
+  shape = get_shp_config_or_internal(),
   interactive = TRUE,
   toggle_alarms = FALSE
 )
@@ -21,7 +21,10 @@ create_map_or_table(
 \item{region}{character, specifying the variable for the region to be shown should be one of ("country","state",
 "county","community","region_level1", "region_level2","region_level3")}
 
-\item{shape}{sf, shapefile default set to internal europe shapefile nuts_shp}
+\item{shape}{sf. The shapefile used for mapping.
+- If an external shapefile path is provided in the configuration file, it is used.
+- Otherwise, the function defaults to the internal European shapefile (`nuts_shp`).
+- By default, this parameter is set to `get_shp_config_or_internal()`, which handles this logic dynamically.}
 
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
 

@@ -108,7 +108,7 @@ run_report <- function(
     intervention_date <- as.Date(intervention_date)
   }
   # transform the method name used in the app to the method names in the background
-  method <- SignalDetectionTool:::available_algorithms()[method]
+  method <- available_algorithms()[method]
 
   report_params <- list(
     data = data,
