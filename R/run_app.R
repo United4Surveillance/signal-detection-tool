@@ -1,5 +1,7 @@
 #' Run the Shiny Application
 #'
+#' @param path_to_yaml A character string specifying the file path to the .yml configuration file on the user's computer. If no external .yml file is used, set this parameter to NULL.
+#' @param config_set A character string specifying the name of the configuration to read from the .yml file.
 #' @param ... arguments to pass to golem_opts.
 #' See `?golem::get_golem_options` for more details.
 #' @inheritParams shiny::shinyApp
@@ -7,20 +9,26 @@
 #' @export
 #' @importFrom shiny shinyApp
 #' @importFrom golem with_golem_options
-run_app <- function(
-    onStart = function() {
-      cat("Warnings are turned off\n")
-      options(warn = -1)
+run_app <- function(path_to_yaml = NULL,
+                    config_set = "default",
+                    onStart = function() {
+                      cat("Warnings are turned off\n")
+                      options(warn = -1)
 
-      onStop(function() {
-        options(warn = 0)
-        cat("Warnings turned on\n")
-      })
-    },
-    options = list(),
-    enableBookmarking = NULL,
-    uiPattern = "/",
-    ...) {
+                      onStop(function() {
+                        options(warn = 0)
+                        cat("Warnings turned on\n")
+                      })
+                    },
+                    options = list(),
+                    enableBookmarking = NULL,
+                    uiPattern = "/",
+                    ...) {
+  # read yaml file
+  if (!is.null(path_to_yaml)) {
+    app_cache_env$DATA_CONFIG <- config::get(file = path_to_yaml, config = config_set)
+  }
+
   with_golem_options(
     app = shinyApp(
       ui = app_ui,

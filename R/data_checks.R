@@ -110,8 +110,8 @@ check_type_and_value_mandatory_variables <- function(data) {
     }
   }
   if ("country_id" %in% data_columns) {
-    if (!checkmate::test_character(data$country_id)) {
-      errors <- append(errors, "country_id is not a character")
+    if (!checkmate::qtest(data$case_id, c("s", "n"))) {
+      errors <- append(errors, "country_id is not a character or a numeric")
     }
   }
   if ("pathogen" %in% data_columns) {
@@ -152,8 +152,8 @@ check_type_and_value_optional_variables <- function(data) {
   id_vars <- setdiff(id_vars, c("case_id", "country_id"))
 
   for (id_var in id_vars) {
-    if (!checkmate::test_character(data[[id_var]])) {
-      errors <- append(errors, paste0(id_var, " is not a character"))
+    if (!checkmate::qtest(data[[id_var]], c("s", "n"))) {
+      errors <- append(errors, paste0(id_var, " is not a character or a numeric"))
     }
   }
 
@@ -189,20 +189,20 @@ check_type_and_value_optional_variables <- function(data) {
 }
 
 #' Checking type and values of date variables
+#' date variable can be of type character or date
 #' @param data data.frame, raw linelist of surveillance cases
 #' @param date_var character, date variable to check
 #' @returns list, empty when no errors occured or filled with error messages
 check_type_and_value_date <- function(data, date_var) {
   errors <- list()
 
-  # case when column type was already read in as date by read_excel then transform to character for checks
-  if (lubridate::is.POSIXct(data[[date_var]])) {
-    data[[date_var]] <- as.character(data[[date_var]])
-  }
+  is_date <- lubridate::is.Date(data[[date_var]])
+  is_character <- checkmate::test_character(data[[date_var]])
 
-  if (!checkmate::test_character(data[[date_var]])) {
-    errors <- append(errors, paste0(date_var, " is not a character"))
-  } else {
+  if (!is_character & !is_date) {
+    errors <- append(errors, paste0(date_var, " is not a character nor of type Date."))
+  }
+  if (is_character) {
     if (!is_ISO8601(data[[date_var]])) {
       errors <- append(errors, paste0(date_var, " is not in ISO 8601 format YYYY-MM-DD"))
     } else if (!is_ISO8601_detailed(data[[date_var]])) {

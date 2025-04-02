@@ -5,6 +5,8 @@
 \title{Run the Shiny Application}
 \usage{
 run_app(
+  path_to_yaml = NULL,
+  config_set = "default",
   onStart = function() {
      cat("Warnings are turned off\\n")
      options(warn = -1)
@@ -22,6 +24,10 @@ run_app(
 )
 }
 \arguments{
+\item{path_to_yaml}{A character string specifying the file path to the .yml configuration file on the user's computer. If no external .yml file is used, set this parameter to NULL.}
+
+\item{config_set}{A character string specifying the name of the configuration to read from the .yml file.}
+
 \item{onStart}{A function that will be called before the app is actually run.
 This is only needed for \code{shinyAppObj}, since in the \code{shinyAppDir}
 case, a \code{global.R} file can be used for this purpose.}
