@@ -254,6 +254,77 @@ In the Report tab HTML and Word reports can be generated showing the
 results of the Signals Tab. Reports can also be generated using the
 `run_report()` function.
 
+## Data Configuration File
+There is the possibility to start the app with a predefined configuration. This means you don't have to go through all the manual steps like selecting an input file, specifying stratification or choosing an algorithm.
+To use this functionality simply alter the command to start the app.
+Instead of `run_app()` you can use `run_app(path_to_yaml="./path/config_file.yaml")`.
+An example is part of the external data of the SignalDetectionTool package and can also be found here: [data config example](https://raw.githubusercontent.com/United4Surveillance/signal-detection-tool/refs/heads/main/inst/extdata/data_config_example.yml).
+
+The YAML file needs to adhere to a particular structure and parameter values. It consists of mappings, sequences, and scalars that configure data sources, analytical settings, and pathogen-specific overrides.  
+
+### Config File Structure  
+
+The YAML document is organized into **root keys**, each representing a distinct configuration profile.  
+
+#### 1. **Default Configuration (`default`)**  
+The `default` root key provides global settings applied unless overridden by pathogen-specific mappings.  
+
+##### **Data Source (`datasource`)** *(Mapping)*  
+Specifies how input data is retrieved.  
+- `file` *(Scalar: Boolean)*  
+  - `TRUE` → Use an external file (CSV or Excel).  
+  - `FALSE` → Use a database.  
+- `filepath` *(Scalar: String)* Path to the external file, applicable when `file: TRUE`.  
+- `db` *(Nested Mapping)* Defines database connection details (used when `file: FALSE`).  
+  - `host` *(Scalar: String)* – Database server address (e.g., `localhost`).  
+  - `port` *(Scalar: Integer)* – Database port (e.g., `5432`).  
+  - `database` *(Scalar: String)* – Name of the database.  
+
+##### **Analysis Parameters (`params`)** *(Mapping)*  
+Defines key variables for analysis and signal detection.  
+- `pathogen` *(Scalar: String)* – Default pathogen under analysis (e.g., *Pertussis*).  
+- `strata` *(Sequence of Scalars: List of Strings)* – Categories used to stratify the analysis (e.g., `age_group`, `community`).  
+- `signal_detection_period` *(Scalar: Integer)* – Time period (in weeks or months) for detecting signals.  
+- `signal_detection_algorithm` *(Scalar: String)* – Method used for signal detection (e.g., `ears`).  
+- `pandemic_correction`: *(Scalar: Boolean)* Correct for the effects of the COVID-19 pandemic, only used in GLM algorithms
+- `intervention_date`: *(Scalar: String, Date format `YYYY-MM-DD`)* - Date for the intervention in the pandemic correction models
+
+##### **Shapefile Path (`shapefile_path`)** *(Scalar: Null or String)*  
+Specifies the file path for geographic boundary data. The `~` value indicates that no shapefile is provided.  
+
+---
+
+#### 2. **Pathogen-Specific Mappings**  
+In addition to the default configuration, you can also define pathogen-specific configurations as another root key. 
+These mappings inherit values from `default` unless explicitly overridden.  
+This way it is possible to adjust parameters and algorithm choice to the pathogen of interest.
+
+---
+
+Note that the tool might only recognize and use certain values supplied via the config file.
+Currently, there is a limited set of valid values for stratification and algorithm choice.
+Possible strata values:
+- None
+- age_group
+- state
+- country
+- county
+- community
+- sex
+
+Possible algorithms values:
+- farrington
+- ears
+- cusum
+- "glm mean" 
+- "glm timetrend"
+- "glm harmonic"
+- "glm harmonic with timetrend"
+- "glm farrington" 
+- "glm farrington with timetrend" 
+
+In the future we will strive to make the tool even more flexible and convenient.
+
 ## Development Process and Contribution
 
 The tool development is an open source development process. The
