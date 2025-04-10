@@ -258,7 +258,7 @@ results of the Signals Tab. Reports can also be generated using the
 There is the possibility to start the app with a predefined configuration. This means you don't have to go through all the manual steps like selecting an input file, specifying stratification or choosing an algorithm.
 To use this functionality simply alter the command to start the app.
 Instead of `run_app()` you can use `run_app(path_to_yaml="./path/config_file.yaml")`.
-An example is part of the external data of the SignalDetectionTool package and can also be found here: [data config example](https://raw.githubusercontent.com/United4Surveillance/signal-detection-tool/refs/heads/main/inst/extdata/data_config_example.yml).
+An example yaml file is part of the external data of the SignalDetectionTool package and can also be found here: [data config example](https://raw.githubusercontent.com/United4Surveillance/signal-detection-tool/refs/heads/main/inst/extdata/data_config_example.yml).
 
 The YAML file needs to adhere to a particular structure and parameter values. It consists of mappings, sequences, and scalars that configure data sources, analytical settings, and pathogen-specific overrides.  
 
@@ -270,7 +270,7 @@ The YAML document is organized into **root keys**, each representing a distinct 
 The `default` root key provides global settings applied unless overridden by pathogen-specific mappings.  
 
 ##### **Data Source (`datasource`)** *(Mapping)*  
-Specifies how input data is retrieved.  
+Specifies how input data is retrieved. Currently only supports file based data sources out of the box.
 - `file` *(Scalar: Boolean)*  
   - `TRUE` → Use an external file (CSV or Excel).  
   - `FALSE` → Use a database.  
@@ -279,6 +279,10 @@ Specifies how input data is retrieved.
   - `host` *(Scalar: String)* – Database server address (e.g., `localhost`).  
   - `port` *(Scalar: Integer)* – Database port (e.g., `5432`).  
   - `database` *(Scalar: String)* – Name of the database.  
+  
+Do note that there is no true database support right now! The DB related parameters are merely placeholders at the moment.
+To actually connect your own database to the tool, you will need to [define custom functions and apply monkey patching](https://gist.github.com/mlbach/0a75ffa695f81e0d777973d3928d9013).
+We plan to add full database support in the future.
 
 ##### **Analysis Parameters (`params`)** *(Mapping)*  
 Defines key variables for analysis and signal detection.  
