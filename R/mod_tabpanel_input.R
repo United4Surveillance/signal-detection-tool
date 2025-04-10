@@ -211,9 +211,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       n_filters = n_filters
     )
 
-    shiny::observeEvent(lapply(filter0_reactives, function(x) do.call(x, list())), {
-      all_filters$filter0 <- filter0_reactives
-    })
+    all_filters$filter0 <- filter0_reactives
 
     # add filters
     shiny::observeEvent(input$add_filter, {
@@ -259,10 +257,6 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     # Apply filters
     filtered_data <- shiny::reactive({
       shiny::req(data_sub())
-
-      #shiny::req(lapply(shiny::reactiveValuesToList(all_filters), function(x) {
-     #  lapply(x, function(y) do.call(y, list()))
-     # }))
 
       df <- data_sub()
       n_filters()  # Ensures reactivity
