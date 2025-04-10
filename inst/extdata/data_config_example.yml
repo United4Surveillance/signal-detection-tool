@@ -2,7 +2,7 @@ default:
   datasource:
     file: TRUE # TRUE when external csv or excel should be used, FALSE when db should be used
     filepath: "/path/to/data.csv"  # If using a file
-    db: # If using access to db
+    db: # not really used right now
       host: "localhost"
       port: 5432
       database: "my_database"
