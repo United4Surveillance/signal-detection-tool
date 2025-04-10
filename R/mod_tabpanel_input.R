@@ -272,24 +272,23 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       app_cache_env$age_group_levels <- create_age_group_levels(df)
 
       for (filter in names(all_filters)) {
-        if (all_filters[[filter]]$filter_var() != "None") {
-          params <- all_filters[[filter]]
-          #shiny::req(params$filter_var() != "None")
 
-          filter_var <- rlang::sym(params$filter_var())
-          filter_val <- params$filter_val()
-          if (!is.null(filter_val)) {
+        params <- all_filters[[filter]]
 
-            df <- if (lubridate::is.Date(df[[rlang::as_name(filter_var)]])) {
-              dplyr::filter(df, !!filter_var %in% seq(filter_val[1], filter_val[2], "day"))
-            } else if (rlang::as_name(filter_var) == "age") {
-              dplyr::filter(df, between(!!filter_var, filter_val[1], filter_val[2]))
-            } else {
-              dplyr::filter(df, !!filter_var %in% filter_val |
-                          (is.na(!!filter_var) & "unknown" %in% filter_val))
-            }
-          }
+        if (params$filter_var() == "None" | is.null(params$filter_val)) next
+
+        filter_var <- rlang::sym(params$filter_var())
+        filter_val <- params$filter_val()
+
+        df <- if (lubridate::is.Date(df[[rlang::as_name(filter_var)]])) {
+          dplyr::filter(df, !!filter_var %in% seq(filter_val[1], filter_val[2], "day"))
+        } else if (rlang::as_name(filter_var) == "age") {
+          dplyr::filter(df, between(!!filter_var, filter_val[1], filter_val[2]))
+        } else {
+          dplyr::filter(df, !!filter_var %in% filter_val |
+                      (is.na(!!filter_var) & "unknown" %in% filter_val))
         }
+
       }
 
       # update levels
@@ -357,7 +356,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     # apply signal detection on country level to the filtered data to check which algorithms are working
     # this is checking whether there is enough training data for the algorithm to compute a baseline
     algorithms_possible <- shiny::reactive({
-      #browser()
+
       shiny::req(filtered_data)
       shiny::req(input$n_weeks)
       shiny::req(iv_weeks$is_valid())
