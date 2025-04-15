@@ -9,3 +9,5 @@ We give constructive feedback. For pull requests in particular:
 - we outline areas of improvement to the code regardless of our review decision
 
 When we would like to work on an issue that is already assigned to someone else, we reach out to that person and ask what the status is and if we might take over. We don't just take the issue from them.
+
+For guidance on how to contribute, please refer to our [Contributing Guidelines](CONTRIBUTING.md).
