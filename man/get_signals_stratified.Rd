@@ -14,7 +14,7 @@ get_signals_stratified(
   date_start = NULL,
   date_end = NULL,
   date_var = "date_report",
-  number_of_weeks = 52
+  number_of_weeks = 6
 )
 }
 \arguments{
