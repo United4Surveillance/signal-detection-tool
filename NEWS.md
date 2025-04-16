@@ -1,3 +1,8 @@
+* Rewriting the vignette
+  - contains information about internal data
+  - instructions for get_signals()
+  - instructions for run_report()
+
 # SignalDetectionTool 0.7.0
 
 * Relaxing restrictions on data types for input data
