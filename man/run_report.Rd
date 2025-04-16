@@ -20,11 +20,12 @@ run_report(
 )
 }
 \arguments{
-\item{data}{data.frame containing surveillance data in linelist format}
+\item{data}{data.frame containing surveillance data in linelist format following the format specified in `input_metadata`}
 
 \item{report_format}{character, format of the report: "HTML" or "DOCX"}
 
-\item{method}{character, algorithm to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend".}
+\item{method}{a character string, signal detection method to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend".
+You can retrieve the full list using [names(available_algorithms())].}
 
 \item{number_of_weeks}{integer, number of weeks for which signals are generated}
 
@@ -84,4 +85,7 @@ run_report(
   strata = NULL
 )
 }
+}
+\seealso{
+[names(available_algorithms())]
 }
