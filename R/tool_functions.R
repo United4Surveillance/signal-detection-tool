@@ -481,7 +481,7 @@ get_signals_stratified <- function(data,
                                    date_start = NULL,
                                    date_end = NULL,
                                    date_var = "date_report",
-                                   number_of_weeks = 52) {
+                                   number_of_weeks = 6) {
   # check that all columns are present in the data
   for (col in stratification_columns) {
     checkmate::assert(
@@ -605,8 +605,14 @@ get_signals_stratified <- function(data,
 #' specified method.
 #'
 #' @param data A data frame containing the surveillance data preprocessed with [preprocess_data()].
-#' @param method The method to use for signal detection (currently supports
-#'   "farrington").
+#' @param method A character string specifying the signal detection method to use.
+#'   Available options include:
+#'   `"farrington"`, `"ears"`, `"cusum"`, `"glm mean"`, `"glm timetrend"`,
+#'   `"glm harmonic"`, `"glm harmonic with timetrend"`,
+#'   `"glm farrington"`, `"glm farrington with timetrend"`.
+#'   You can retrieve the full list using [available_algorithms()].
+#'
+#' @seealso [available_algorithms()]
 #' @param intervention_date A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.
 #' @param stratification A character vector specifying the columns to stratify
 #'   the analysis. Default is NULL.
@@ -633,7 +639,7 @@ get_signals <- function(data,
                         date_start = NULL,
                         date_end = NULL,
                         date_var = "date_report",
-                        number_of_weeks = 52) {
+                        number_of_weeks = 6) {
   # check that input method and stratification are correct
   checkmate::assert(
     checkmate::check_choice(method, choices = available_algorithms())

@@ -4,9 +4,12 @@
 #' be performed beforehand.
 #' This function is also invoked within the app.
 #'
-#' @param data data.frame containing surveillance data in linelist format
+#' @param data data.frame containing surveillance data in linelist format following the format specified in `input_metadata`
 #' @param report_format character, format of the report: "HTML" or "DOCX"
-#' @param method character, algorithm to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend".
+#' @param method a character string, signal detection method to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend".
+#'   You can retrieve the full list using [names(available_algorithms())].
+#'
+#' @seealso [names(available_algorithms())]
 #' @param number_of_weeks integer, number of weeks for which signals are generated
 #' @param strata A character vector specifying the columns to stratify. If `NULL` no strata are used.
 #'   the analysis. Default is NULL.
