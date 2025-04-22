@@ -317,9 +317,9 @@ Possible strata values:
 - sex
 
 Possible algorithms values:
-- farrington
-- ears
-- cusum
+- "farrington"
+- "ears"
+- "cusum"
 - "glm mean" 
 - "glm timetrend"
 - "glm harmonic"
