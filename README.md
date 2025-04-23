@@ -275,7 +275,7 @@ Specifies how input data is retrieved. Currently only supports file based data s
   - `TRUE` → Use an external file (CSV or Excel).  
   - `FALSE` → Use a database.  
 - `filepath` *(Scalar: String)* Path to the external file, applicable when `file: TRUE`.  
-- `db` *(Nested Mapping)* Defines database connection details (used when `file: FALSE`).  
+- `db` *(Nested Mapping)* Child elements define database connection details (used when `file: FALSE`).  
   - `host` *(Scalar: String)* – Database server address (e.g., `localhost`).  
   - `port` *(Scalar: Integer)* – Database port (e.g., `5432`).  
   - `database` *(Scalar: String)* – Name of the database.  
