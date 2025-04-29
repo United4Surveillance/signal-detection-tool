@@ -32,7 +32,7 @@ create_date_numeric_input <- function(shiny_input_func, ns, input_id, label, dat
   shiny_input_func(
     inputId = ns(input_id),
     label = label,
-    value = if (grepl("min", input_id, fixed=TRUE)) min_val else max_val,
+    value = if (grepl("min", input_id, fixed = TRUE)) min_val else max_val,
     min = min_val,
     max = max_val
   )
@@ -187,7 +187,9 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
       },
       {
         # Ensure `filter_var_sel` exists before proceeding.
-        if (is.null(input$filter_var_sel)) return()
+        if (is.null(input$filter_var_sel)) {
+          return()
+        }
 
         # Retrieve currently taken filter variables and exclude "None" and the currently selected value.
         taken_vars <- setdiff(get_taken_filter_vars(), c("None", input$filter_var_sel))

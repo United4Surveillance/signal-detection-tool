@@ -152,7 +152,7 @@ check_type_and_value_optional_variables <- function(data) {
   id_vars <- setdiff(id_vars, c("case_id", "country_id"))
 
   for (id_var in id_vars) {
-    if (!checkmate::qtest(data[[id_var]],c("s", "n"))) {
+    if (!checkmate::qtest(data[[id_var]], c("s", "n"))) {
       errors <- append(errors, paste0(id_var, " is not a character or a numeric"))
     }
   }

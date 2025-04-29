@@ -100,8 +100,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 shiny::conditionalPanel(
                   condition = sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
                   checkboxInput(ns("pandemic_correction"), "Covid19 Pandemic Correction",
-                                value = get_data_config_value("params:pandemic_correction",
-                                                              FALSE, c(TRUE, FALSE)))
+                    value = get_data_config_value(
+                      "params:pandemic_correction",
+                      FALSE, c(TRUE, FALSE)
+                    )
+                  )
                 ),
                 shiny::uiOutput(ns("conditional_date_input"))
               )
@@ -165,9 +168,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         inputId = ns("pathogen_vars"),
         label = "Select a pathogen",
         choices = unique(data()$pathogen),
-        selected = get_data_config_value("params:pathogen",
-                                         unique(data()$pathogen)[1],
-                                         unique(data()$pathogen)),
+        selected = get_data_config_value(
+          "params:pathogen",
+          unique(data()$pathogen)[1],
+          unique(data()$pathogen)
+        ),
         width = "40%"
       ))
     })
@@ -259,14 +264,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::req(data_sub())
 
       df <- data_sub()
-      n_filters()  # Ensures reactivity
+      n_filters() # Ensures reactivity
 
       # reset levels
       app_cache_env$sex_levels <- c("male", "female", "diverse", NA_character_)
       app_cache_env$age_group_levels <- create_age_group_levels(df)
 
       for (filter in names(all_filters)) {
-
         params <- all_filters[[filter]]
 
         if (params$filter_var() == "None" | is.null(params$filter_val)) next
@@ -280,14 +284,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
           dplyr::filter(df, between(!!filter_var, filter_val[1], filter_val[2]))
         } else {
           dplyr::filter(df, !!filter_var %in% filter_val |
-                      (is.na(!!filter_var) & "unknown" %in% filter_val))
+            (is.na(!!filter_var) & "unknown" %in% filter_val))
         }
-
       }
 
       # update levels
       sex_levels_char <- as.character(unique(df$sex))
-      filtered_levels <- if(any(is.na(df$sex))) c(sex_levels_char, NA_character_) else sex_levels_char
+      filtered_levels <- if (any(is.na(df$sex))) c(sex_levels_char, NA_character_) else sex_levels_char
       app_cache_env$sex_levels <- intersect(app_cache_env$sex_levels, filtered_levels)
       app_cache_env$age_group_levels <- create_age_group_levels(df)
 
@@ -350,7 +353,6 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     # apply signal detection on country level to the filtered data to check which algorithms are working
     # this is checking whether there is enough training data for the algorithm to compute a baseline
     algorithms_possible <- shiny::reactive({
-
       shiny::req(filtered_data)
       shiny::req(input$n_weeks)
       shiny::req(iv_weeks$is_valid())
@@ -382,8 +384,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     # farrington when the number of weeks is changed but stays with the last selected
     # algorithm as this algorithm is still working
     last_selected_algorithm <- shiny::reactiveVal(
-        get_data_config_value("params:signal_detection_algorithm", "farrington")
-        )
+      get_data_config_value("params:signal_detection_algorithm", "farrington")
+    )
 
     shiny::observeEvent(input$algorithm_choice, {
       last_selected_algorithm(input$algorithm_choice)
@@ -463,13 +465,12 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         if (is.null(valid_dates$valid_start_date)) {
           shiny::p("Your dataset does not have sufficient number of weeks to do a pandemic correction.")
         } else {
-
           intervention_date_config <- as.Date(get_data_config_value("params:intervention_date"))
           valid_intervention_interval <- lubridate::interval(valid_dates$valid_start_date, valid_dates$valid_end_date)
 
-          if(isTRUE(intervention_date_config %within% valid_intervention_interval)){
+          if (isTRUE(intervention_date_config %within% valid_intervention_interval)) {
             default_intervention_date <- intervention_date_config
-          } else{
+          } else {
             default_intervention_date <- valid_dates$default_intervention
           }
 

@@ -102,13 +102,13 @@ mod_tabpanel_data_server <- function(id) {
       )
 
       # get data from DB instead of file
-      if(!shiny::isTruthy(input$file1) && !isTRUE(get_data_config_value("datasource:file", TRUE))){
+      if (!shiny::isTruthy(input$file1) && !isTRUE(get_data_config_value("datasource:file", TRUE))) {
         return(load_data_db())
       }
 
-      if(shiny::isTruthy(input$file1)){
+      if (shiny::isTruthy(input$file1)) {
         data_filepath <- input$file1$datapath
-      } else{
+      } else {
         data_filepath <- get_data_config_value("datasource:filepath")
       }
 
