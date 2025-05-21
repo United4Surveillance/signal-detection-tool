@@ -273,7 +273,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       for (filter in names(all_filters)) {
         params <- all_filters[[filter]]
 
-        if (params$filter_var() == "None" | is.null(params$filter_val)) next
+        if (params$filter_var() == "None" | is.null(params$filter_val())) next
 
         filter_var <- rlang::sym(params$filter_var())
         filter_val <- params$filter_val()
