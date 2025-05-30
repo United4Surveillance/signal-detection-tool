@@ -1,0 +1,86 @@
+---
+title: "Signal Detection Report"
+date: "Report generated on `r Sys.Date()`"
+lang: "en"
+output: 
+  html_document:
+    includes:
+      before_body: "header_logo.html"
+    theme: cerulean
+    css: "style.css"
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    embed-resources: true
+    self-contained: true
+  word_document:
+    reference_docx: "template.docx"
+  pdf_document:
+    includes:
+      in_header: "preamble.tex"
+params: 
+  data: NULL
+  disease: !r c("Enterobacter", "Pertussis")
+  country: "Austria"
+  number_of_weeks: 6
+  method: "farrington"
+  strata: !r c("county") 
+  interactive: false
+  tables: true
+  signals_padded: NULL
+  signals_agg: NULL
+  intervention_date: NULL
+---
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(eval = TRUE, 
+                      echo = FALSE, 
+                      fig.align = 'center',
+                      fig.width = 13,
+                      fig.height = 5,
+                      message = FALSE, 
+                      warning = FALSE)
+```
+
+
+```{r include=FALSE}
+library(dplyr)
+library(SignalDetectionTool)
+```
+
+```{r}
+if (is.null(params$data)) {
+  data <- SignalDetectionTool::input_example
+}
+```
+
+# {.tabset}
+
+## Top view
+
+here information for all pathogens
+
+```{r}
+signals_padded_list <- list()
+signals_agg_list <- list()
+for(pathogen in params$disease){
+  signals_padded_list[[pathogen]] <- 
+    readRDS(here::here(paste0("data/signals/padded_", pathogen, ".rds")))
+  signals_agg_list[[pathogen]] <- 
+    readRDS(here::here(paste0("data/signals/agg_", pathogen, ".rds")))
+}
+```
+
+
+## Pathogens {.tabset}
+
+```{r, results="asis"}
+src <- lapply(params$disease, function(i) {
+  knitr::knit_expand('SignalDetectionMultiReport_body_template.rmd', 
+                     pathogen = i)
+})
+
+res <- knitr::knit_child(text = unlist(src), quiet = TRUE)
+cat(res, sep = "\n")
+```
+
