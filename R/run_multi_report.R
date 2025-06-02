@@ -78,8 +78,8 @@ run_multi_report <- function(
 
   # Check inputs ---------------------------------------------------------------
   checkmate::assert_choice(report_format,
-                           choices = c("HTML", "DOCX"),
-                           null.ok = FALSE
+    choices = c("HTML", "DOCX"),
+    null.ok = FALSE
   )
   checkmate::assert_data_frame(data)
   # Validate strata
@@ -146,9 +146,9 @@ run_multi_report <- function(
   )
   rmd_path <- system.file("report/SignalDetectionMultiReport.Rmd", package = "SignalDetectionTool")
   rmarkdown::render(rmd_path,
-                    output_format = report_f,
-                    params = report_params,
-                    output_file = output_file,
-                    output_dir = output_dir
+    output_format = report_f,
+    params = report_params,
+    output_file = output_file,
+    output_dir = output_dir
   )
 }
