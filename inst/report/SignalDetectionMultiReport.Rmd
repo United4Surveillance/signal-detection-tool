@@ -61,14 +61,14 @@ if (is.null(params$data)) {
 here information for all pathogens
 
 ```{r}
-signals_padded_list <- list()
-signals_agg_list <- list()
-for(pathogen in params$disease){
-  signals_padded_list[[pathogen]] <- 
-    readRDS(here::here(paste0("data/signals/padded_", pathogen, ".rds")))
-  signals_agg_list[[pathogen]] <- 
-    readRDS(here::here(paste0("data/signals/agg_", pathogen, ".rds")))
-}
+# signals_padded_list <- list()
+# signals_agg_list <- list()
+# for(pathogen in params$disease){
+#   signals_padded_list[[pathogen]] <-
+#     readRDS(here::here(paste0("inst/extdata/signals/padded_", pathogen, ".rds")))
+#   signals_agg_list[[pathogen]] <-
+#     readRDS(here::here(paste0("inst/extdata/signals/agg_", pathogen, ".rds")))
+# }
 ```
 
 
