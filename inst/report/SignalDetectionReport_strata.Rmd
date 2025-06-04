@@ -6,8 +6,9 @@ strat_text <- dplyr::case_when(
 )
 ```
 
-
-## Signals stratified by `r strat_text`
+Row {data-height=400}
+-------------------------------------
+### Signals stratified by `r strat_text`
 
 ```{r, results='asis'}
 results_analysis <- signals_agg %>%

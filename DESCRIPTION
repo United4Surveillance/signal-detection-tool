@@ -55,11 +55,12 @@ Imports:
     plyr (>= 1.8.8)
 Suggests: 
     knitr (>= 1.42),
-    ggforce (>= 0.4.2), 
+    ggforce (>= 0.4.2),
     spelling (>= 2.3.0),
     testthat (>= 3.1.5),
     DBI (>= 1.2.3),
-    RSQLite (>= 2.3.9)
+    RSQLite (>= 2.3.9),
+    flexdashboard
 VignetteBuilder: 
     knitr
 Config/testthat/edition: 3

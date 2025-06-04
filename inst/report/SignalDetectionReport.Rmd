@@ -4,21 +4,9 @@ subtitle: "Signal Detection Report"
 date: "Report generated on `r Sys.Date()`"
 lang: "en"
 output: 
-  html_document:
-    includes:
-      before_body: "header_logo.html"
-    theme: cerulean
-    css: "style.css"
-    toc: true
-    toc_depth: 3
-    toc_float: true
-    embed-resources: true
-    self-contained: true
-  word_document:
-    reference_docx: "template.docx"
-  pdf_document:
-    includes:
-      in_header: "preamble.tex"
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: scroll
 params: 
   data: NULL
   disease: "Pertussis"
@@ -44,7 +32,6 @@ knitr::opts_chunk$set(eval = TRUE,
                       message = FALSE, 
                       warning = FALSE)
 ```
-
 
 ```{r, results='asis'}
 res <- knitr::knit_child('SignalDetectionReport_body.Rmd', quiet = TRUE)
