@@ -2,6 +2,7 @@
   - contains information about internal data
   - instructions for get_signals()
   - instructions for run_report()
+* Increasing maximum file upload size to 500MB
 
 # SignalDetectionTool 0.7.0
 

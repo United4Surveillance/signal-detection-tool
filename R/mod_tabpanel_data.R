@@ -89,8 +89,8 @@ mod_tabpanel_data_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    # set maximum file size to 50MB
-    options(shiny.maxRequestSize = 50 * 1024^2)
+    # set maximum file size to 500MB
+    options(shiny.maxRequestSize = 500 * 1024^2)
 
     # Load data
     data <- shiny::reactive({
