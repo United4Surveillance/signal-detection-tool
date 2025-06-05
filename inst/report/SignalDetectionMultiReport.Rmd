@@ -1,23 +1,8 @@
 ---
 title: "Signal Detection Report"
-date: "Report generated on `r Sys.Date()`"
-lang: "en"
 output: 
-  html_document:
-    includes:
-      before_body: "header_logo.html"
-    theme: cerulean
-    css: "style.css"
-    toc: true
-    toc_depth: 3
-    toc_float: true
-    embed-resources: true
-    self-contained: true
-  word_document:
-    reference_docx: "template.docx"
-  pdf_document:
-    includes:
-      in_header: "preamble.tex"
+  flexdashboard::flex_dashboard:
+  
 params: 
   data: NULL
   disease: !r c("Enterobacter", "Pertussis")
@@ -54,25 +39,23 @@ if (is.null(params$data)) {
 }
 ```
 
-# {.tabset}
-
-## Top view
+Landing Page
+================================================================================
 
 here information for all pathogens
 
 ```{r}
-# signals_padded_list <- list()
-# signals_agg_list <- list()
-# for(pathogen in params$disease){
-#   signals_padded_list[[pathogen]] <-
-#     readRDS(here::here(paste0("inst/extdata/signals/padded_", pathogen, ".rds")))
-#   signals_agg_list[[pathogen]] <-
-#     readRDS(here::here(paste0("inst/extdata/signals/agg_", pathogen, ".rds")))
-# }
+signals_padded_list <- list()
+signals_agg_list <- list()
+for(pathogen in params$disease){
+  signals_padded_list[[pathogen]] <-
+    readRDS(here::here(paste0("inst/extdata/signals/padded_", pathogen, ".rds")))
+  signals_agg_list[[pathogen]] <-
+    readRDS(here::here(paste0("inst/extdata/signals/agg_", pathogen, ".rds")))
+}
 ```
 
 
-## Pathogens {.tabset}
 
 ```{r, results="asis"}
 src <- lapply(params$disease, function(i) {

@@ -4,7 +4,7 @@ strat_text <- ifelse(strat_text == "age_group", "agegroup", "{{strat}}")
 ```
 
 
-##### `r strat_text`
+#### `r strat_text`
 
 ```{r, results='asis'}
 results_analysis <- signals_agg %>%
@@ -94,7 +94,7 @@ for (i in seq_len(pages)) {
 }
 ```
 
-`r if (params$tables) "###### Signal Detection Table"`
+`r if (params$tables) "##### Signal Detection Table"`
 
 ```{r}
 #| eval= params$tables

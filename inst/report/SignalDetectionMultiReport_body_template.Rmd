@@ -1,4 +1,5 @@
-### {{pathogen}}
+{{pathogen}} {data-navmenu="Pathogen"}
+=====================================
 
 ```{r eval=FALSE, include=FALSE}
 if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
@@ -19,7 +20,7 @@ if (!is.null(signals_padded_list) & !is.null(signals_agg_list)) {
 }
 ```
 
-#### Signal detection
+### Signal detection
 
 ```{r, results='asis'}
 results_analysis <- signals_padded %>%
@@ -44,7 +45,7 @@ SignalDetectionTool::plot_time_series(
 )
 ```
 
-#### Signal Detection Table
+### Signal Detection Table
 
 ```{r}
 if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
@@ -60,7 +61,7 @@ if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
 }
 ```
 
-#### Strata {.tabset}
+### Strata {.tabset}
 
 ```{r, results="asis"}
 src <- lapply(params$strata, function(j) {
