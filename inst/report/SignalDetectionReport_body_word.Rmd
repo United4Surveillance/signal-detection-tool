@@ -3,8 +3,6 @@
 ```{r libraries}
 library(dplyr)
 library(SignalDetectionTool)
-library(htmltools)
-library(flexdashboard)
 ```
 
 ```{r parameters}
@@ -13,9 +11,8 @@ if (is.null(params$data)) {
 }
 ```
 
-Row {data-height=100}
--------------------------------------
-### Data and Methods 
+
+# Data and Methods 
 
 - Method used: `r names(available_algorithms()[which(available_algorithms() == params$method)])`
 - Length of signal detection period: `r params$number_of_weeks` weeks
@@ -63,10 +60,22 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
   }
 }
 ```
+# Summary
 
-Row {data-height=650}
--------------------------------------
-### Signal Detection 
+```{r, results='asis'}
+
+for (strat in params$strata){
+  p <- SignalDetectionTool:::decider_barplot_map_table(
+  signals_agg,
+  data,
+  strat,
+  interactive = params$interactive
+)
+  print(htmltools::tagList(p))
+}
+  
+```
+# Signal Detection 
 
 ```{r, results='asis'}
 results_analysis <- signals_padded %>%
@@ -95,9 +104,7 @@ SignalDetectionTool::plot_time_series(
 )
 ```
 
-Row {data-height=400}
--------------------------------------
-### Signal Detection Table
+## Signal Detection Table
 
 ```{r}
 txt <- NULL

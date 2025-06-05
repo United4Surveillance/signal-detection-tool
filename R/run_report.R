@@ -72,6 +72,11 @@ run_report <- function(
   if (!requireNamespace("ggforce", quietly = TRUE)) {
     stop("The 'ggforce' package is required to generate the report. Please install it using install.packages('ggforce')")
   }
+  # This needs to be checked as flexdashboard is only in Suggests
+  # ToDo: return this message to the user in the shiny app in the report tab
+  if(report_format == "HTML" & !rlang::is_installed("flexdashboard")){
+    stop("The 'flexdashboard' package is required to generate the HTML report. Please install it using install.packages('flexdashboard')")
+  }
 
 
   # Check inputs ---------------------------------------------------------------
@@ -128,14 +133,16 @@ run_report <- function(
   )
 
   report_f <- dplyr::case_when(
-    report_format == "HTML" ~ "html_document",
+    report_format == "HTML" ~ "flex_dashboard",
     report_format == "DOCX" ~ "word_document",
-    report_format == "PDF" ~ "pdf_document",
     TRUE ~ NA_character_
   )
   rmd_path <- system.file("report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
+  #TODO we need to change this because otherwise all sub settings in the section
+  # output:
+  # flexdashboard::flex_dashboard: is replaced and not taken
   rmarkdown::render(rmd_path,
-    output_format = report_f,
+    #output_format = report_f,
     params = report_params,
     output_file = output_file,
     output_dir = output_dir
