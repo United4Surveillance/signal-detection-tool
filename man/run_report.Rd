@@ -9,6 +9,7 @@ run_report(
   report_format = "HTML",
   method = "FarringtonFlexible",
   number_of_weeks = 6,
+  pathogens = c("Pertussis"),
   strata = c("county", "age_group"),
   interactive = TRUE,
   tables = TRUE,
@@ -29,6 +30,8 @@ You can retrieve the full list using [names(available_algorithms())].}
 
 \item{number_of_weeks}{integer, number of weeks for which signals are generated}
 
+\item{pathogens}{A character vector specifying which pathogens should be included in report.}
+
 \item{strata}{A character vector specifying the columns to stratify. If `NULL` no strata are used.
 the analysis. Default is NULL.}
 
@@ -40,9 +43,9 @@ the analysis. Default is NULL.}
 
 \item{output_dir}{A character string specifying the output directory for the rendered output file (default is ".", which means the rendered file will be saved in the current working directory. See \link[rmarkdown]{render} for more details. `NULL` is used when running the report from shiny app which will take the Downloads folder as default option for saving.}
 
-\item{signals_padded}{calculated and padded signals (for use within the app, default is NULL)}
+\item{signals_padded}{List of calculated and padded signals (for use within the app, default is NULL)}
 
-\item{signals_agg}{aggregated signals  (for use within the app, default is NULL)}
+\item{signals_agg}{List of aggregated signals  (for use within the app, default is NULL)}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.}
 }

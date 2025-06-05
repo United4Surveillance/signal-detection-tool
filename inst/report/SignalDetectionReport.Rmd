@@ -1,12 +1,12 @@
 ---
-title: "`r params$disease` - `r params$country`"
-subtitle: "Signal Detection Report"
+title: "Signal Detection Report - `r params$country`"
 date: "Report generated on `r Sys.Date()`"
 lang: "en"
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
     vertical_layout: scroll
+
 params: 
   data: NULL
   disease: "Pertussis"
@@ -33,20 +33,32 @@ knitr::opts_chunk$set(eval = TRUE,
                       warning = FALSE)
 ```
 
-```{r, results='asis'}
-res <- knitr::knit_child('SignalDetectionReport_body.Rmd', quiet = TRUE)
-cat(res)
+```{r include=FALSE}
+# loading libraries in landing page level
+library(dplyr)
+library(SignalDetectionTool)
+library(htmltools)
+library(flexdashboard)
 ```
 
+<!-- Landing page -->
+
+Landing Page
+================================================================================
+
+here information for all pathogens
+
+<!-- Pathogen pages -->
 
 ```{r, results='asis'}
+src <- lapply(params$disease, function(i) {
+  knitr::knit_expand('SignalDetectionReport_body.rmd', 
+                     pathogen = i)
+})
 
-for (strat in params$strata) {
-  res <- knitr::knit_child('SignalDetectionReport_strata.Rmd', quiet = TRUE)
-  cat(res, sep = '\n')
-}
+res <- knitr::knit_child(text = unlist(src), quiet = TRUE)
+cat(res, sep = "\n")
 ```
-
 
 
 

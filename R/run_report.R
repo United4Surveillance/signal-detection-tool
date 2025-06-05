@@ -11,14 +11,15 @@
 #'
 #' @seealso [names(available_algorithms())]
 #' @param number_of_weeks integer, number of weeks for which signals are generated
+#' @param pathogens A character vector specifying which pathogens should be included in report.
 #' @param strata A character vector specifying the columns to stratify. If `NULL` no strata are used.
 #'   the analysis. Default is NULL.
 #' @param interactive Logical, indicating whether interactive elements should be included in the report. Only applicable when `report_format = "HTML"`. Defaults to `TRUE`.
 #' @param tables Logical. True if tables should be included in report.
 #' @param output_file A character string specifying the name of the output file (without directory path). If `NULL` (default), the file name is automatically generated to be SignalDetectionReport. See \link[rmarkdown]{render} for more details.
 #' @param output_dir A character string specifying the output directory for the rendered output file (default is ".", which means the rendered file will be saved in the current working directory. See \link[rmarkdown]{render} for more details. `NULL` is used when running the report from shiny app which will take the Downloads folder as default option for saving.
-#' @param signals_padded calculated and padded signals (for use within the app, default is NULL)
-#' @param signals_agg aggregated signals  (for use within the app, default is NULL)
+#' @param signals_padded List of calculated and padded signals (for use within the app, default is NULL)
+#' @param signals_agg List of aggregated signals  (for use within the app, default is NULL)
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.
 #'
 #' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
@@ -60,6 +61,7 @@ run_report <- function(
     report_format = "HTML",
     method = "FarringtonFlexible",
     number_of_weeks = 6,
+    pathogens = c("Pertussis"),
     strata = c("county", "age_group"),
     interactive = TRUE,
     tables = TRUE,
@@ -118,10 +120,17 @@ run_report <- function(
   # transform the method name used in the app to the method names in the background
   method <- available_algorithms()[method]
 
+  # assert pathogens exist in dataframe or padded signals
+  checkmate::assert(
+    checkmate::check_subset(pathogens, choices = unique(data$pathogen)),
+    checkmate::check_subset(pathogens, choices = names(signals_padded_list)),
+    combine = "or"
+  )
+
   report_params <- list(
     data = data,
     country = unique(data$country),
-    disease = unique(data$pathogen),
+    disease = pathogens,
     number_of_weeks = number_of_weeks,
     method = method,
     strata = strata,
