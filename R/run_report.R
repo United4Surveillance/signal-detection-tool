@@ -76,7 +76,7 @@ run_report <- function(
   }
   # This needs to be checked as flexdashboard is only in Suggests
   # ToDo: return this message to the user in the shiny app in the report tab
-  if(report_format == "HTML" & !rlang::is_installed("flexdashboard")){
+  if (report_format == "HTML" & !rlang::is_installed("flexdashboard")) {
     stop("The 'flexdashboard' package is required to generate the HTML report. Please install it using install.packages('flexdashboard')")
   }
 
@@ -147,11 +147,11 @@ run_report <- function(
     TRUE ~ NA_character_
   )
   rmd_path <- system.file("report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
-  #TODO we need to change this because otherwise all sub settings in the section
+  # TODO we need to change this because otherwise all sub settings in the section
   # output:
   # flexdashboard::flex_dashboard: is replaced and not taken
   rmarkdown::render(rmd_path,
-    #output_format = report_f,
+    # output_format = report_f,
     params = report_params,
     output_file = output_file,
     output_dir = output_dir
