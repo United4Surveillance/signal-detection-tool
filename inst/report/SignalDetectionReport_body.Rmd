@@ -61,9 +61,11 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
 }
 ```
 
-Row {data-height=650}
+Row {.tabset}
 -------------------------------------
-### Signal Detection 
+### Signal Detection
+
+#### Timeseries 
 
 ```{r, results='asis'}
 results_analysis <- signals_padded %>%
@@ -79,7 +81,7 @@ Using the `r params$method` algorithm, `r sum(results_analysis$alarms)` `r ifels
 
 ```{r}
 #| fig.cap=paste0("Number of {{pathogen}} cases by week and signals, ", params$country),
-#| out.width="100%"
+
 SignalDetectionTool::plot_time_series(
   signals_padded %>%
     dplyr::filter(is.na(category)),
@@ -88,9 +90,7 @@ SignalDetectionTool::plot_time_series(
 )
 ```
 
-Row {data-height=400}
--------------------------------------
-### Signal Detection Table
+#### Signal Detection Table
 
 ```{r}
 txt <- NULL

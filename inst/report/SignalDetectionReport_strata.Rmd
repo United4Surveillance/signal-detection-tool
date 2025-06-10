@@ -6,8 +6,6 @@ strat_text <- dplyr::case_when(
 )
 ```
 
-Row {data-height=400}
--------------------------------------
 ### Signals stratified by `r strat_text`
 
 ```{r, results='asis'}
@@ -48,6 +46,7 @@ eval_paginate <- !grepl("html", format, ignore.case = TRUE)
 txt <- NULL
 ```
 
+#### Plot
 
 ```{r}
 #| eval= !eval_paginate,
@@ -100,7 +99,7 @@ for (i in seq_len(pages)) {
 ```
 
 
-`r if (params$tables) "### Signal Detection Table"`
+`r if (params$tables) "#### Signal Detection Table"`
 
 ```{r}
 #| eval= params$tables

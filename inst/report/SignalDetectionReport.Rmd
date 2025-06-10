@@ -5,7 +5,6 @@ lang: "en"
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
-    vertical_layout: scroll
 
 params: 
   data: NULL
