@@ -45,7 +45,61 @@ library(flexdashboard)
 Landing Page
 ================================================================================
 
-here information for all pathogens
+```{r}
+text_diseases <- ifelse(
+  length(params$disease) == 1, 
+  params$disease, 
+  paste0(length(params$disease),
+         " diseases (",
+         paste0(params$disease, collapse = ", "),
+         ")")
+)
+
+text_strata <- ""
+if(length(params$strata) >= 1){
+  text_strata <- ", as well as stratified by "
+  if(length(params$strata) == 1){
+    text_strata <- paste0(text_strata, params$strata)
+  } else if(length(params$strata) == 2){
+     text_strata <- paste0(text_strata,
+                           params$strata[1], " and ", params$strata[2])
+  } else {
+    text_strata <- paste0(text_strata,
+                          paste0(params$strata[1:(length(params$strata) - 1)],
+                               collapse = ", "), 
+                          ", and ", tail(params$strata, 1))
+  }
+} 
+```
+
+
+This Report contains an overview of signals observed using the `r params$method` algorithm for the last `r params$number_of_weeks` weeks for `r text_diseases` in `r params$country`.
+
+For each disease, you can find an unstratified overview of the observed signals`r text_strata`. 
+
+```{r}
+results_cases <- params$signals_padded %>% 
+  dplyr::bind_rows() %>% 
+  dplyr::filter(!is.na(alarms)) %>% 
+  dplyr::group_by(pathogen, category, stratum) %>% 
+  dplyr::summarise(cases = sum(cases),
+                   signals = sum(alarms))
+```
+
+For the last `r params$number_of_weeks` weeks there were:
+
+```{r, results='asis'}
+for(pat in params$disease){
+  tmp <- results_cases %>% filter(pathogen == pat, is.na(category))
+  cat("-", tmp$cases, "cases of", pat, "\n")
+  cat("\t -", tmp$signals, "signals (unstratified) \n")
+  for(cate in params$strata){
+    tmp <- results_cases %>% filter(pathogen == pat, category == cate)
+    cat("\t -", sum(tmp$signals), "signals stratified by", cate, "\n")
+  }
+}
+```
+
 
 <!-- Pathogen pages -->
 

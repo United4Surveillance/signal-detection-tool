@@ -117,11 +117,13 @@ cat(txt)
 <!-- Strata subpages -->
 
 ```{r, results='asis'}
-src <- lapply(params$strata, function(j) {
-  knitr::knit_expand('SignalDetectionReport_strata.rmd', 
-                     strat = j, pathogen = "{{pathogen}}")
-})
-
-res <- knitr::knit_child(text = unlist(src), quiet = TRUE)
-cat(res, sep = "\n")
+if(!is.null(params$strata)){
+  src <- lapply(params$strata, function(j) {
+    knitr::knit_expand('SignalDetectionReport_strata.rmd', 
+                       strat = j, pathogen = "{{pathogen}}")
+  })
+  
+  res <- knitr::knit_child(text = unlist(src), quiet = TRUE)
+  cat(res, sep = "\n")
+}
 ```
