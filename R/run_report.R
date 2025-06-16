@@ -133,41 +133,43 @@ run_report <- function(
   # transform the method name used in the app to the method names in the background
   method <- available_algorithms()[method]
 
-  if (is.null(pathogens)){
+  if (is.null(pathogens)) {
     # usage of linelist
-    if(is.null(signals_agg)|is.null(signals_padded)){
+    if (is.null(signals_agg) | is.null(signals_padded)) {
       pathogens <- unique(data$pathogen)
-    # usage of signals_agg, signals_pad
-    }else{
+      # usage of signals_agg, signals_pad
+    } else {
       pathogens <- unique(signals_padded$pathogen)
     }
   }
 
   # compute signals if not provided to run_report by the user
-  if(is.null(signals_agg)|is.null(signals_padded)){
-
+  if (is.null(signals_agg) | is.null(signals_padded)) {
     preprocessed_data <- data %>% preprocess_data()
 
     signals_agg_list <- list()
     signals_padded_list <- list()
 
-    for (pathogen in pathogens){
+    for (pathogen in pathogens) {
       preprocessed_data <- preprocessed_data %>%
         dplyr::filter(pathogen == pathogen)
 
       signals <- get_signals_all(preprocessed_data,
-                                 method = method,
-                                 intervention_date = intervention_date,
-                                 stratification = strata,
-                                 date_start = NULL,
-                                 date_end = NULL,
-                                 date_var = "date_report",
-                                 number_of_weeks = number_of_weeks) %>%
+        method = method,
+        intervention_date = intervention_date,
+        stratification = strata,
+        date_start = NULL,
+        date_end = NULL,
+        date_var = "date_report",
+        number_of_weeks = number_of_weeks
+      ) %>%
         dplyr::mutate(pathogen = pathogen)
-      signals_agg_pad <- aggregate_pad_signals(signals,
-                                               preprocessed_data,
-                                               number_of_weeks,
-                                               method)
+      signals_agg_pad <- aggregate_pad_signals(
+        signals,
+        preprocessed_data,
+        number_of_weeks,
+        method
+      )
 
       signals_agg <- signals_agg_pad$signals_agg
       signals_padded <- signals_agg_pad$signals_padded
