@@ -13,8 +13,10 @@ Row {data-height=150}
 -------------------------------------
 ```{r}
 if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
-  signals_agg <- params$signals_agg[["{{pathogen}}"]]
-  signals_padded <- params$signals_padded[["{{pathogen}}"]]
+  signals_agg <- params$signals_agg %>% 
+    filter(pathogen == "{{pathogen}}")
+  signals_padded <- params$signals_padded %>% 
+    filter(pathogen == "{{pathogen}}")
 } else {
   stop("Provide signals_agg and signals padded") 
 }
@@ -80,15 +82,10 @@ for(st in params$strata){
    signals_agg,
    data,
    st,
-   interactive = params$interactive
+   interactive = TRUE
   ) 
   
-  #plot function depends on interactive or not
-  if(params$interactive){
-    print(htmltools::tagList(plot_st))
-  } else {
-    print(plot_st)
-  }
+  print(htmltools::tagList(plot_st))
   
   cat("\n\n")
 }
@@ -107,7 +104,7 @@ SignalDetectionTool::plot_time_series(
   signals_padded %>%
     dplyr::filter(is.na(category)),
   intervention_date = params$intervention_date,
-  interactive = params$interactive
+  interactive = TRUE
 )
 ```
 
@@ -119,11 +116,10 @@ Row
 txt <- NULL
 
 if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
-  format <- ifelse(params$interactive, "DataTable", "Flextable")
   SignalDetectionTool::build_signals_table(
     signals_padded %>%
       dplyr::filter(is.na(category)),
-    format = format
+    format = "DataTable"
   )
 } else {
   txt <- "No signals were detected."

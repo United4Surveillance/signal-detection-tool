@@ -62,9 +62,8 @@ plot_time_series(df,
 #| eval= params$tables
 
 if (sum(df$alarms, na.rm = TRUE) != 0) {
-  format <- ifelse(params$interactive, "DataTable", "Flextable")
   SignalDetectionTool::build_signals_table(df,
-    format = format
+    format = "DataTable"
   )
 } else {
   txt <- "No signals were detected."

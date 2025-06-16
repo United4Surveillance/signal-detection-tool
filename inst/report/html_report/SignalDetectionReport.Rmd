@@ -14,7 +14,6 @@ params:
   number_of_weeks: 6
   method: "farrington"
   strata: !r c("county_id", "community_id", "sex", "age_group") 
-  interactive: false
   tables: true
   signals_padded: NULL
   signals_agg: NULL
@@ -80,7 +79,6 @@ For each disease, you can find an unstratified overview of the observed signals`
 
 ```{r}
 results_cases <- params$signals_padded %>% 
-  dplyr::bind_rows() %>% 
   dplyr::filter(!is.na(alarms)) %>% 
   dplyr::group_by(pathogen, category, stratum) %>% 
   dplyr::summarise(cases = sum(cases),

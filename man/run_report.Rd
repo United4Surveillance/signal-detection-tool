@@ -11,7 +11,6 @@ run_report(
   number_of_weeks = 6,
   pathogens = c("Pertussis"),
   strata = c("county", "age_group"),
-  interactive = TRUE,
   tables = TRUE,
   output_file = NULL,
   output_dir = ".",
@@ -34,8 +33,6 @@ You can retrieve the full list using [names(available_algorithms())].}
 
 \item{strata}{A character vector specifying the columns to stratify. If `NULL` no strata are used.
 the analysis. Default is NULL.}
-
-\item{interactive}{Logical, indicating whether interactive elements should be included in the report. Only applicable when `report_format = "HTML"`. Defaults to `TRUE`.}
 
 \item{tables}{Logical. True if tables should be included in report.}
 
@@ -65,7 +62,6 @@ run_report(
   data = SignalDetectionTool::input_example,
   method = "FarringtonFlexible",
   strata = c("county", "sex"),
-  interactive = TRUE,
   tables = TRUE,
   number_of_weeks = 6
 )
