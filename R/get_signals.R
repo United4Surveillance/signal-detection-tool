@@ -40,8 +40,7 @@ get_signals_all <- function(preprocessed_data,
                             date_start = NULL,
                             date_end = NULL,
                             date_var = "date_report",
-                            number_of_weeks = 6){
-
+                            number_of_weeks = 6) {
   results <- get_signals(
     data = preprocessed_data,
     method = method,
@@ -419,15 +418,15 @@ get_signals <- function(data,
 #' }
 #' @export
 aggregate_pad_signals <- function(signal_results,
-                                   number_of_weeks,
-                                   method){
+                                  number_of_weeks,
+                                  method) {
   # aggregate signals for report
   signals_agg <- aggregate_signals(signal_results, number_of_weeks = number_of_weeks)
 
 
   # padd timeseries so it also has information before detection period
-  logic_apply_padding <- function(){
-    if(grepl("glm", method)) {
+  logic_apply_padding <- function() {
+    if (grepl("glm", method)) {
       # for those the results are already padded
       return(signal_results)
     }
@@ -436,8 +435,10 @@ aggregate_pad_signals <- function(signal_results,
 
   signals_padded <- logic_apply_padding()
 
-  list(signals_agg = signals_agg,
-       signals_padded = signals_padded)
+  list(
+    signals_agg = signals_agg,
+    signals_padded = signals_padded
+  )
 }
 
 #' Aggregate cases and signals over the number of weeks.
