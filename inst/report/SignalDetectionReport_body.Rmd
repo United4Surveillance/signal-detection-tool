@@ -11,13 +11,7 @@ if (is.null(params$data)) {
 
 Row {data-height=100}
 -------------------------------------
-### Data and Methods 
-
-- Method used: `r names(available_algorithms()[which(available_algorithms() == params$method)])`
-- Length of signal detection period: `r params$number_of_weeks` weeks
-- Strata selected: `r paste(params$strata, collapse = ", ")`
-- Intervention date: `r params$intervention_date`
-
+### Color Box
 
 ```{r}
 if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
@@ -25,47 +19,8 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
   signals_padded <- params$signals_padded[["{{pathogen}}"]]
 } else {
   stop("Provide signals_agg and signals padded") 
-  # data_preprocessed <- SignalDetectionTool::preprocess_data(data)
-  # signal_results <- SignalDetectionTool::get_signals(data_preprocessed,
-  #   stratification = NULL,
-  #   method = params$method,
-  #   number_of_weeks = params$number_of_weeks,
-  #   intervention_date = params$intervention_date
-  # )
-  # 
-  # if (!is.null(params$strata)) {
-  #   signal_results_stratified <- SignalDetectionTool::get_signals(
-  #     data_preprocessed,
-  #     stratification = params$strata,
-  #     method = params$method,
-  #     number_of_weeks = params$number_of_weeks,
-  #     intervention_date = params$intervention_date
-  #   )
-  # 
-  #   signal_results <- signal_results %>%
-  #     dplyr::bind_rows(signal_results_stratified)
-  # 
-  #   signals_agg <- SignalDetectionTool::aggregate_signals(signal_results_stratified,
-  #     number_of_weeks = params$number_of_weeks
-  #   )
-  # }
-  # 
-  # if (grepl("glm", params$method)) {
-  #   signals_padded <- signal_results
-  # } else {
-  #   signals_padded <- SignalDetectionTool::pad_signals(
-  #     data_preprocessed,
-  #     signal_results
-  #   )
-  # }
 }
 ```
-
-Row {.tabset}
--------------------------------------
-### Signal Detection
-
-#### Timeseries 
 
 ```{r, results='asis'}
 results_analysis <- signals_padded %>%
@@ -79,8 +34,38 @@ In the signal detection period - last `r params$number_of_weeks` weeks available
 
 Using the `r params$method` algorithm, `r sum(results_analysis$alarms)` `r ifelse(sum(results_analysis$n_alarms) == 1, 'signal', 'signals')` `r ifelse(sum(results_analysis$n_alarms) == 1, ' was', ' were')` detected.
 
-```{r}
-#| fig.cap=paste0("Number of {{pathogen}} cases by week and signals, ", params$country),
+Row {data-height=300}
+-------------------------------------
+```{r, results='asis'}
+for(st in params$strata){
+  cat("### Distribution by", st, "\n\n")
+  
+  plot_st <- SignalDetectionTool:::decider_barplot_map_table(
+   signals_agg,
+   data,
+   st,
+   interactive = params$interactive
+  ) 
+  
+  #plot function depends on interactive or not
+  if(params$interactive){
+    print(htmltools::tagList(plot_st))
+  } else {
+    print(plot_st)
+  }
+  
+  cat("\n\n")
+}
+```
+
+
+Row {data-height=550}
+-----------------------------------------------
+### Timeseries 
+
+```{r, out.width="500px"}
+#| fig.cap=paste0("Number of {{pathogen}} cases by week and signals, ", params$country)
+
 
 SignalDetectionTool::plot_time_series(
   signals_padded %>%
@@ -90,7 +75,9 @@ SignalDetectionTool::plot_time_series(
 )
 ```
 
-#### Signal Detection Table
+Row 
+-------------------------------------
+### Signal Detection Table
 
 ```{r}
 txt <- NULL
@@ -113,8 +100,9 @@ if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
 cat(txt)
 ```
 
-
 <!-- Strata subpages -->
+Row {.tabset}
+-------------------------------------------
 
 ```{r, results='asis'}
 if(!is.null(params$strata)){
