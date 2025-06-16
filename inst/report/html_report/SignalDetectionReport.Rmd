@@ -89,8 +89,9 @@ For the last `r params$number_of_weeks` weeks there were:
 
 ```{r, results='asis'}
 for(pat in params$disease){
+  pat_link <- paste0("[", pat, "]")
   tmp <- results_cases %>% filter(pathogen == pat, is.na(category))
-  cat("-", tmp$cases, "cases of", pat, "\n")
+  cat("-", tmp$cases, "cases of", pat_link, "\n")
   cat("\t -", tmp$signals, "signals (unstratified) \n")
   for(cate in params$strata){
     tmp <- results_cases %>% filter(pathogen == pat, category == cate)
