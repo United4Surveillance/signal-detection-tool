@@ -12,14 +12,10 @@ if (is.null(params$data)) {
 Row {data-height=150}
 -------------------------------------
 ```{r}
-if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
-  signals_agg <- params$signals_agg %>% 
-    filter(pathogen == "{{pathogen}}")
-  signals_padded <- params$signals_padded %>% 
-    filter(pathogen == "{{pathogen}}")
-} else {
-  stop("Provide signals_agg and signals padded") 
-}
+
+signals_agg <- params$signals_agg %>% dplyr::filter(pathogen == pathogen)
+signals_padded <- params$signals_padded %>% dplyr::filter(pathogen == pathogen)
+
 ```
 
 ```{r, results='asis'}
