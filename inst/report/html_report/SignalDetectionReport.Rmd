@@ -78,7 +78,6 @@ For each disease, you can find an unstratified overview of the observed signals`
 
 ```{r}
 results_cases <- params$signals_padded %>% 
-  dplyr::bind_rows() %>% 
   dplyr::filter(!is.na(alarms)) %>% 
   dplyr::group_by(pathogen, category, stratum) %>% 
   dplyr::summarise(cases = sum(cases),
@@ -89,11 +88,11 @@ For the last `r params$number_of_weeks` weeks there were:
 
 ```{r, results='asis'}
 for(pat in params$disease){
-  tmp <- results_cases %>% filter(pathogen == pat, is.na(category))
+  tmp <- results_cases %>% dplyr::filter(pathogen == pat, is.na(category))
   cat("-", tmp$cases, "cases of", pat, "\n")
   cat("\t -", tmp$signals, "signals (unstratified) \n")
   for(cate in params$strata){
-    tmp <- results_cases %>% filter(pathogen == pat, category == cate)
+    tmp <- results_cases %>% dplyr::filter(pathogen == pat, category == cate)
     cat("\t -", sum(tmp$signals), "signals stratified by", cate, "\n")
   }
 }
