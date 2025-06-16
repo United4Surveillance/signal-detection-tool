@@ -52,7 +52,7 @@ get_signals_all <- function(preprocessed_data,
     number_of_weeks = number_of_weeks
   )
   # when stratified signals were computed also add unstratified signals to the dataframe so that all can be visualised
-  if (!is.null(stratification_variables)) {
+  if (!is.null(stratification)) {
     results_unstratified <- get_signals(
       data = preprocessed_data,
       method = method,
