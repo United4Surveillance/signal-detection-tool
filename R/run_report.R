@@ -136,9 +136,9 @@ run_report <- function(
     intervention_date = intervention_date
   )
 
-  if(report_format == "HTML"){
+  if (report_format == "HTML") {
     rmd_path <- system.file("report/html_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
-  }else{
+  } else {
     rmd_path <- system.file("report/word_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
   }
 
