@@ -178,7 +178,6 @@ run_report <- function(
 
     signals_agg <- dplyr::bind_rows(signals_agg_list)
     signals_padded <- dplyr::bind_rows(signals_padded_list)
-    browser()
 
     # Clean up as these can be large
     rm(signals_agg_list, signals_padded_list)
