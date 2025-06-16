@@ -390,6 +390,7 @@ get_signals <- function(data,
 #'
 #' @param signal_results A tibble returned by [get_signals()], containing weekly
 #'   signal detection results (cases, alarms, upperbound, expected, etc.).
+#' @param preprocessed A data frame containing the surveillance data preprocessed with [preprocess_data()].
 #' @param number_of_weeks Integer specifying how many weeks to include in the aggregation.
 #' @param method A character string specifying the method used to generate the signals.
 #'   Determines whether padding is necessary. For `"glm"` methods, padding is skipped
@@ -412,12 +413,13 @@ get_signals <- function(data,
 #' @examples
 #' \dontrun{
 #' results <- get_signals(preprocessed_data, method = "farrington")
-#' output <- aggregate_padd_signals(results, number_of_weeks = 6, method = "farrington")
+#' output <- aggregate_pad_signals(results, number_of_weeks = 6, method = "farrington")
 #' output$signals_agg
 #' output$signals_padded
 #' }
 #' @export
 aggregate_pad_signals <- function(signal_results,
+                                  preprocessed,
                                   number_of_weeks,
                                   method) {
   # aggregate signals for report
