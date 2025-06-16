@@ -12,7 +12,7 @@ results_analysis <- signals_agg %>%
   dplyr::filter(any_alarms, category %in% "{{strat}}")
 ```
 
-When stratifying by `r strat_text`, the `r params$method` algorithm detects `r sum(results_analysis$n_alarms)` `r ifelse(sum(results_analysis$n_alarms) == 1, 'signal', 'signals')`  in the signal detection period.
+<!-- When stratifying by `r strat_text`, the `r params$method` algorithm detects `r sum(results_analysis$n_alarms)` `r ifelse(sum(results_analysis$n_alarms) == 1, 'signal', 'signals')`  in the signal detection period. -->
 
 ```{r}
 df <- signals_padded %>%
