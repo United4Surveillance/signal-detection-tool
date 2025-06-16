@@ -28,14 +28,11 @@ if (number_stratum <= 10) {
 }
 
 pages <- ceiling(number_stratum / 12)
-format <- knitr::opts_knit$get("rmarkdown.pandoc.to")
-eval_paginate <- !grepl("html", format, ignore.case = TRUE)
 
 txt <- NULL
 ```
 
 ```{r}
-#| eval= !eval_paginate,
 #| fig.cap=paste0("Number of {{pathogen}} cases by week and signals stratified by ", strat_text, ", ", params$country),
 #| out.width="65%",
 #| out.height="65%"
