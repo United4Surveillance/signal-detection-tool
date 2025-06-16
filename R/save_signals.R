@@ -109,9 +109,9 @@ conjure_filename <- function(data) {
   # resulting filename will be
   # signals_method_country_pathogen_date-start_date-end.csv
   filename <- paste("signals", data[1, "method"], data[1, "country"],
-                    data[1, "pathogen"],
-                    min(data$date), max(data$date), ".csv",
-                    sep = "_"
+    data[1, "pathogen"],
+    min(data$date), max(data$date), ".csv",
+    sep = "_"
   )
 
   return(paste(directory, filename, sep = "/"))
