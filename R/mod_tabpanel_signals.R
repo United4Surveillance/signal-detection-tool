@@ -198,27 +198,12 @@ mod_tabpanel_signals_server <- function(
       shiny::req(!errors_detected())
       shiny::req(!no_algorithm_possible())
 
-      results <- SignalDetectionTool::get_signals(
-        data = filtered_data(),
-        method = method(),
-        intervention_date = intervention_date(),
-        stratification = strat_vars_tidy(),
-        date_var = "date_report",
-        number_of_weeks = number_of_weeks()
-      )
-      # when stratified signals were computed also add unstratified signals to the dataframe so that all can be visualised
-      if (!is.null(strat_vars_tidy())) {
-        results_unstratified <- SignalDetectionTool::get_signals(
-          data = filtered_data(),
-          method = method(),
-          intervention_date = intervention_date(),
-          stratification = NULL,
-          date_var = "date_report",
-          number_of_weeks = number_of_weeks()
-        )
-        results <- dplyr::bind_rows(results, results_unstratified)
-      }
-      results
+      results <- get_signals_all(data = filtered_data(),
+                                 method = method(),
+                                 intervention_date = intervention_date(),
+                                 stratification = strat_vars_tidy(),
+                                 date_var = "date_report",
+                                 number_of_weeks = number_of_weeks())
     })
 
     signals_agg <- shiny::reactive({
