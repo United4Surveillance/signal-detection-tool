@@ -86,7 +86,7 @@ SignalDetectionTool::plot_time_series(
   signals_padded %>%
     dplyr::filter(is.na(category)),
   intervention_date = params$intervention_date,
-  interactive = params$interactive
+  interactive = TRUE
 )
 ```
 
@@ -96,11 +96,10 @@ SignalDetectionTool::plot_time_series(
 txt <- NULL
 
 if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
-  format <- ifelse(params$interactive, "DataTable", "Flextable")
   SignalDetectionTool::build_signals_table(
     signals_padded %>%
       dplyr::filter(is.na(category)),
-    format = format
+    format = "DataTable"
   )
 } else {
   txt <- "No signals were detected."

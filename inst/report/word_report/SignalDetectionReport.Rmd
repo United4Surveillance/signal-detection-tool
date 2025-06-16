@@ -4,21 +4,8 @@ subtitle: "Signal Detection Report"
 date: "Report generated on `r Sys.Date()`"
 lang: "en"
 output: 
-  html_document:
-    includes:
-      before_body: "header_logo.html"
-    theme: cerulean
-    css: "style.css"
-    toc: true
-    toc_depth: 3
-    toc_float: true
-    embed-resources: true
-    self-contained: true
   word_document:
     reference_docx: "template.docx"
-  pdf_document:
-    includes:
-      in_header: "preamble.tex"
 params: 
   data: NULL
   disease: "Pertussis"
@@ -26,7 +13,6 @@ params:
   number_of_weeks: 6
   method: "farrington"
   strata: !r c("county_id", "community_id", "sex", "age_group") 
-  interactive: false
   tables: true
   signals_padded: NULL
   signals_agg: NULL

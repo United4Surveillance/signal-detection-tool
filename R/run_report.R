@@ -14,7 +14,6 @@
 #' @param pathogens A character vector specifying which pathogens should be included in report.
 #' @param strata A character vector specifying the columns to stratify. If `NULL` no strata are used.
 #'   the analysis. Default is NULL.
-#' @param interactive Logical, indicating whether interactive elements should be included in the report. Only applicable when `report_format = "HTML"`. Defaults to `TRUE`.
 #' @param tables Logical. True if tables should be included in report.
 #' @param output_file A character string specifying the name of the output file (without directory path). If `NULL` (default), the file name is automatically generated to be SignalDetectionReport. See \link[rmarkdown]{render} for more details.
 #' @param output_dir A character string specifying the output directory for the rendered output file (default is ".", which means the rendered file will be saved in the current working directory. See \link[rmarkdown]{render} for more details. `NULL` is used when running the report from shiny app which will take the Downloads folder as default option for saving.
@@ -33,7 +32,6 @@
 #'   data = SignalDetectionTool::input_example,
 #'   method = "FarringtonFlexible",
 #'   strata = c("county", "sex"),
-#'   interactive = TRUE,
 #'   tables = TRUE,
 #'   number_of_weeks = 6
 #' )
@@ -63,7 +61,6 @@ run_report <- function(
     number_of_weeks = 6,
     pathogens = c("Pertussis"),
     strata = c("county", "age_group"),
-    interactive = TRUE,
     tables = TRUE,
     output_file = NULL,
     output_dir = ".",
@@ -101,7 +98,6 @@ run_report <- function(
   checkmate::assert(
     checkmate::check_choice(method, choices = names(available_algorithms()))
   )
-  checkmate::assert_logical(interactive)
   checkmate::assert_logical(tables)
   # Validate `output_dir`
   checkmate::assert_string(output_dir, null.ok = TRUE)
@@ -134,24 +130,19 @@ run_report <- function(
     number_of_weeks = number_of_weeks,
     method = method,
     strata = strata,
-    interactive = ifelse(report_format != "HTML", FALSE, interactive),
     tables = tables,
     signals_padded = signals_padded,
     signals_agg = signals_agg,
     intervention_date = intervention_date
   )
 
-  report_f <- dplyr::case_when(
-    report_format == "HTML" ~ "flex_dashboard",
-    report_format == "DOCX" ~ "word_document",
-    TRUE ~ NA_character_
-  )
-  rmd_path <- system.file("report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
-  # TODO we need to change this because otherwise all sub settings in the section
-  # output:
-  # flexdashboard::flex_dashboard: is replaced and not taken
+  if(report_format == "HTML"){
+    rmd_path <- system.file("report/html_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
+  }else{
+    rmd_path <- system.file("report/word_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
+  }
+
   rmarkdown::render(rmd_path,
-    # output_format = report_f,
     params = report_params,
     output_file = output_file,
     output_dir = output_dir

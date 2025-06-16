@@ -1,38 +1,33 @@
 
 ```{r}
 strat_text <- dplyr::case_when(
-  strat == "age_group" ~ "agegroup",
-  TRUE ~ strat
+  "{{strat}}" == "age_group" ~ "agegroup",
+  TRUE ~ "{{strat}}"
 )
 ```
 
-
-## Signals stratified by `r strat_text`
+### Signals stratified by `r strat_text`
 
 ```{r, results='asis'}
 results_analysis <- signals_agg %>%
-  dplyr::filter(any_alarms, category %in% strat)
-
-stringr::str_glue(
-  "When stratifying by {strat_text}, the {names(params$method)} algorithm detects ",
-  "{sum(results_analysis$n_alarms)} signal{ifelse(sum(results_analysis$n_alarms) == 1, '', 's')} in the signal detection period."
-)
+  dplyr::filter(any_alarms, category %in% "{{strat}}")
 ```
 
+When stratifying by `r strat_text`, the `r params$method` algorithm detects `r sum(results_analysis$n_alarms)` `r ifelse(sum(results_analysis$n_alarms) == 1, 'signal', 'signals')`  in the signal detection period.
+
 ```{r}
-#| fig.cap=paste0("Number of ", params$disease, " cases and signals stratified by ", strat_text, ", ", params$country),
+#| fig.cap=paste0("Number of {{pathogen}} cases and signals stratified by ", strat_text, ", ", params$country),
 #| out.width="100%"
 SignalDetectionTool:::decider_barplot_map_table(
   signals_agg,
   data,
-  strat,
-  interactive = params$interactive
+  "{{strat}}"
 )
 ```
 
 ```{r}
 df <- signals_padded %>%
-  dplyr::filter(category %in% strat) %>%
+  dplyr::filter(category %in% "{{strat}}") %>%
   SignalDetectionTool:::create_factor_with_unknown()
 
 number_stratum <- dplyr::n_distinct(df$stratum)
@@ -50,10 +45,11 @@ eval_paginate <- !grepl("html", format, ignore.case = TRUE)
 txt <- NULL
 ```
 
+#### Plot
 
 ```{r}
 #| eval= !eval_paginate,
-#| fig.cap=paste0("Number of ", params$disease, " cases by week and signals stratified by ", strat_text, ", ", params$country),
+#| fig.cap=paste0("Number of {{pathogen}} cases by week and signals stratified by ", strat_text, ", ", params$country),
 #| fig.dim = c(8, number_stratum),
 #| fig.fullwidth=TRUE
 
@@ -75,7 +71,7 @@ plot_time_series(df,
 
 ```{r, results='asis'}
 #| eval= eval_paginate,
-#| fig.cap=paste0("Number of ", params$disease, " cases by week and signals stratified by ", strat_text, ", ", params$country),
+#| fig.cap=paste0("Number of {{pathogen}} cases by week and signals stratified by ", strat_text, ", ", params$country),
 #| fig.dim = c(8, p_height),
 #| fig.fullwidth=TRUE
 
@@ -102,15 +98,14 @@ for (i in seq_len(pages)) {
 ```
 
 
-`r if (params$tables) "### Signal Detection Table"`
+`r if (params$tables) "#### Signal Detection Table"`
 
 ```{r}
 #| eval= params$tables
 
 if (sum(df$alarms, na.rm = TRUE) != 0) {
-  format <- ifelse(params$interactive, "DataTable", "Flextable")
   SignalDetectionTool::build_signals_table(df,
-    format = format
+    format = "DataTable"
   )
 } else {
   txt <- "No signals were detected."
