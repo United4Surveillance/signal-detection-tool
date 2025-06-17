@@ -199,13 +199,15 @@ mod_tabpanel_signals_server <- function(
       shiny::req(!no_algorithm_possible())
 
       results <- get_signals_all(
-        data = filtered_data(),
+        preprocessed_data = filtered_data(),
         method = method(),
         intervention_date = intervention_date(),
         stratification = strat_vars_tidy(),
         date_var = "date_report",
         number_of_weeks = number_of_weeks()
       )
+
+      results
     })
 
     signals_agg <- shiny::reactive({
