@@ -58,4 +58,3 @@ test_that("run_report() successfully works for a different number of weeks", {
 
   expect_true(file.exists(paste0(output_path, ".html")))
 })
-
