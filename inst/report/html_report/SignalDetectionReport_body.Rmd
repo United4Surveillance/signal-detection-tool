@@ -13,8 +13,8 @@ Row {data-height=150}
 -------------------------------------
 ```{r}
 
-signals_agg <- params$signals_agg %>% dplyr::filter(pathogen == pathogen)
-signals_padded <- params$signals_padded %>% dplyr::filter(pathogen == pathogen)
+signals_agg <- params$signals_agg %>% dplyr::filter(pathogen == "{{pathogen}}")
+signals_padded <- params$signals_padded %>% dplyr::filter(pathogen == "{{pathogen}}")
 
 ```
 
