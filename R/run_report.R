@@ -150,11 +150,11 @@ run_report <- function(
     signals_agg_list <- list()
     signals_padded_list <- list()
 
-    for (pathogen in pathogens) {
-      preprocessed_data <- preprocessed_data %>%
-        dplyr::filter(pathogen == pathogen)
+    for (pat in pathogens) {
+      preprocessed_data_pat <- preprocessed_data %>%
+        dplyr::filter(pathogen == pat)
 
-      signals <- get_signals_all(preprocessed_data,
+      signals <- get_signals_all(preprocessed_data_pat,
         method = method,
         intervention_date = intervention_date,
         stratification = strata,
@@ -163,10 +163,11 @@ run_report <- function(
         date_var = "date_report",
         number_of_weeks = number_of_weeks
       ) %>%
-        dplyr::mutate(pathogen = pathogen)
+        dplyr::mutate(pathogen = pat)
+
       signals_agg_pad <- aggregate_pad_signals(
         signals,
-        preprocessed_data,
+        preprocessed_data_pat,
         number_of_weeks,
         method
       )
@@ -174,8 +175,8 @@ run_report <- function(
       signals_agg <- signals_agg_pad$signals_agg
       signals_padded <- signals_agg_pad$signals_padded
 
-      signals_agg_list[[pathogen]] <- signals_agg %>% dplyr::mutate(pathogen = pathogen)
-      signals_padded_list[[pathogen]] <- signals_padded %>% dplyr::mutate(pathogen = pathogen)
+      signals_agg_list[[pat]] <- signals_agg %>% dplyr::mutate(pathogen = pat)
+      signals_padded_list[[pat]] <- signals_padded %>% dplyr::mutate(pathogen = pat)
     }
 
     signals_agg <- dplyr::bind_rows(signals_agg_list)
