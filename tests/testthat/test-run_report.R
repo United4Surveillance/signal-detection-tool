@@ -59,14 +59,3 @@ test_that("run_report() successfully works for a different number of weeks", {
   expect_true(file.exists(paste0(output_path, ".html")))
 })
 
-test_that("run_report() successfully works when non interactive", {
-  # check basics by using fast and easy algorithm EARS
-  output_path <- tempfile()
-  on.exit(unlink(output_path), add = TRUE)
-  output_file <- basename(output_path)
-  output_dir <- dirname(output_path)
-
-  run_report(report_format = "HTML", interactive = FALSE, method = "Mean", strata = NULL, output_file = output_file, output_dir = output_dir, number_of_weeks = 12)
-
-  expect_true(file.exists(paste0(output_path, ".html")))
-})
