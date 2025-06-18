@@ -1,24 +1,17 @@
 {{pathogen}} {data-navmenu="Pathogen"}
 =====================================
 
-```{r}
-if (is.null(params$data)) {
-  data <- SignalDetectionTool::input_example
-}
-```
-
 <!-- Pathogen without stratification page -->
 
-Row {data-height=150}
--------------------------------------
 ```{r}
+signals_agg <- params$signals_agg %>% 
+  dplyr::filter(pathogen == "{{pathogen}}")
 
-signals_agg <- params$signals_agg %>% dplyr::filter(pathogen == "{{pathogen}}")
-signals_padded <- params$signals_padded %>% dplyr::filter(pathogen == "{{pathogen}}")
-
+signals_padded <- params$signals_padded %>% 
+  dplyr::filter(pathogen == "{{pathogen}}")
 ```
 
-```{r, results='asis'}
+```{r}
 results_analysis <- signals_padded %>%
   dplyr::filter(
     is.na(category),
@@ -26,7 +19,8 @@ results_analysis <- signals_padded %>%
   )
 ```
 
-<!-- Valueboxes colour: less than 10% = primary, less than 50% = warning, else = danger -->
+Row
+-------------------------------------------------------------------------------
 
 ### Number of cases
 ```{r}
@@ -50,43 +44,52 @@ valueBox(value = sum(results_analysis$alarms),
          )
 ```
 
-### Stratified signals
-```{r}
-n_signals_st <- nrow(signals_agg %>% filter(any_alarms))
-n_signals_st_col <- ifelse(
-  n_signals_st/nrow(signals_agg) < 0.10, "primary",
-  ifelse(n_signals_st/nrow(signals_agg) < 0.50, "warning", "danger")
-  )
+Row
+-------------------------------------------------------------------------------
 
-valueBox(value = n_signals_st,
-         caption = "Strata with signals", 
-         color = n_signals_st_col)
+<!-- Gauges for showing signals in strata. I didn't find a way to make it work 
+with a normal loop -->
+
+```{r, results='asis'}
+src <- lapply(params$strata, function(i) {
+  knitr::knit_expand('SignalDetectionReport_gauges.rmd', 
+                     category = i, pathogen="{{pathogen}}")
+})
+
+res <- knitr::knit_child(text = unlist(src), quiet = TRUE)
+cat(res, sep = "\n")
 ```
 
+Row {data-height=400}
+-------------------------------------------------------------------------------
 
-<!-- In the signal detection period - last `r params$number_of_weeks` weeks available in the data - there were `r sum(results_analysis$cases)` cases of {{pathogen}} in `r params$country`.
-
-Using the `r params$method` algorithm, `r sum(results_analysis$alarms)` `r ifelse(sum(results_analysis$n_alarms) == 1, 'signal', 'signals')` `r ifelse(sum(results_analysis$n_alarms) == 1, ' was', ' were')` detected. -->
-
-Row {data-height=300}
--------------------------------------
 ```{r, results='asis'}
-for(st in params$strata){
-  cat("### Distribution by", st, "\n\n")
+for(cate in params$strata){
+  cat("### Distribution by", cate, "\n\n")
   
-  plot_st <- SignalDetectionTool:::decider_barplot_map_table(
-   signals_agg,
-   data,
-   st,
-   interactive = TRUE
-  ) 
+  dist_plot <- SignalDetectionTool:::decider_barplot_map_table(
+     signals_agg,
+     data,
+     cate,
+     interactive = TRUE
+    ) 
   
-  print(htmltools::tagList(plot_st))
-  
-  cat("\n\n")
+  print(htmltools::tagList(dist_plot))
 }
 ```
 
+Row {data-height=50}
+-------------------------------------------------------------------------------
+
+```{r, results='asis'}
+for(cate in params$strata){
+  pate <- tolower("{{pathogen}}")
+  cate_link <- paste0("[", cate, "](#",pate ,"-", cate, ")")
+  
+  cat("### Link \n")
+  cat("-", cate_link, "\n\n")
+}
+```
 
 Row {data-height=550}
 -----------------------------------------------
@@ -129,8 +132,6 @@ cat(txt)
 ```
 
 <!-- Strata subpages -->
-Row {.tabset}
--------------------------------------------
 
 ```{r, results='asis'}
 if(!is.null(params$strata)){

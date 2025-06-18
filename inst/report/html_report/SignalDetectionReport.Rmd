@@ -46,34 +46,40 @@ Landing Page
 ================================================================================
 
 ```{r}
+# For calculating week of start and end
+records <- signals_padded %>% 
+  dplyr::filter(!is.na(alarms)) %>% 
+  dplyr::count(year, week) %>% 
+  dplyr::mutate(yearweek = sprintf("%d-W%02d", year, week))
+
+# Selected pathogens
 text_diseases <- ifelse(
   length(params$disease) == 1, 
   params$disease, 
-  paste0(length(params$disease),
-         " diseases (",
-         paste0(params$disease, collapse = ", "),
-         ")")
+  paste0(paste0(params$disease, collapse = ", "),
+         ", ")
 )
 
+# selected stratifications
 text_strata <- ""
 if(length(params$strata) >= 1){
   text_strata <- ", as well as stratified by "
   if(length(params$strata) == 1){
     text_strata <- paste0(text_strata, params$strata)
   } else if(length(params$strata) == 2){
-     text_strata <- paste0(text_strata,
-                           params$strata[1], " and ", params$strata[2])
+    text_strata <- paste0(text_strata,
+                          params$strata[1], " and ", params$strata[2])
   } else {
     text_strata <- paste0(text_strata,
                           paste0(params$strata[1:(length(params$strata) - 1)],
-                               collapse = ", "), 
+                                 collapse = ", "), 
                           ", and ", tail(params$strata, 1))
   }
 } 
 ```
 
 
-This Report contains an overview of signals observed using the `r params$method` algorithm for the last `r params$number_of_weeks` weeks for `r text_diseases` in `r params$country`.
+This report contains an overview of signals observed for the period `r head(records$yearweek, 1)` to `r tail(records$yearweek, 1)` for `r text_diseases` in `r params$country`. The signals were calculated using the `r params$method` algorithm.
 
 For each disease, you can find an unstratified overview of the observed signals`r text_strata`. 
 
@@ -86,7 +92,7 @@ results_cases <- params$signals_padded %>%
 ```
 
 For the last `r params$number_of_weeks` weeks there were:
-
+  
 ```{r, results='asis'}
 for(pat in params$disease){
   pat_link <- paste0("[", pat, "]")

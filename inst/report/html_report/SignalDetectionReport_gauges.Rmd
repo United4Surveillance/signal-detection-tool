@@ -1,0 +1,18 @@
+### Signals in {{category}}
+
+<!-- Gauge colour: less than 10% = primary, less than 50% = warning, else = danger -->
+
+```{r}
+n_signals <- signals_agg %>% dplyr::filter(category == "{{category}}")
+gauge(
+ value = sum(n_signals$n_alarms),
+ min = 0, max = nrow(n_signals) * params$number_of_weeks,
+ label = "Signals",
+ sectors = gaugeSectors(
+   success = c(0, 0.1*nrow(n_signals)),
+   warning = c(0.1*nrow(n_signals), 0.5*nrow(n_signals)),
+   danger = c(0.5*nrow(n_signals), nrow(n_signals)),
+   colors = c("primary", "warning", "danger")
+ )
+)
+```
