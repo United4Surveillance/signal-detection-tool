@@ -53,7 +53,7 @@ with a normal loop -->
 ```{r, results='asis'}
 src <- lapply(params$strata, function(i) {
   knitr::knit_expand('SignalDetectionReport_gauges.rmd', 
-                     category = i, pathogen="{{pathogen}}")
+                     category = i)
 })
 
 res <- knitr::knit_child(text = unlist(src), quiet = TRUE)

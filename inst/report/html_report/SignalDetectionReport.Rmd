@@ -106,6 +106,32 @@ for(pat in params$disease){
 }
 ```
 
+Row
+--------------------------------------------------------------
+### Signals heatmap
+```{r}
+signals_padded %>% 
+  dplyr::filter(!is.na(alarms)) %>%
+  dplyr::mutate(
+    date = isoweek_to_date(week, year),
+    category = dplyr::case_when(
+      is.na(category)~"Unstratified", 
+      .default = category
+    )
+  ) %>%
+  dplyr::group_by(pathogen, category, date) %>%
+  dplyr::summarise(signals = sum(alarms)) %>%
+  ggplot2::ggplot(ggplot2::aes(x = date, y = category, fill = signals)) +
+  ggplot2::geom_tile(colour = "white") +
+  ggplot2::facet_wrap(pathogen~., ncol = 1) +
+  ggplot2::scale_x_date(
+    date_breaks = "2 weeks",
+    date_labels = "%Y-W%V"
+  ) + 
+  ggplot2::scale_fill_viridis_c(option = "C") +
+  ggplot2::theme_minimal()
+```
+
 
 <!-- Pathogen pages -->
 
