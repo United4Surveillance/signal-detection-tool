@@ -51,13 +51,15 @@ Row
 with a normal loop -->
 
 ```{r, results='asis'}
-src <- lapply(params$strata, function(i) {
-  knitr::knit_expand('SignalDetectionReport_gauges.rmd', 
-                     category = i)
-})
-
-res <- knitr::knit_child(text = unlist(src), quiet = TRUE)
-cat(res, sep = "\n")
+if(!is.null(params$strata)){
+  src <- lapply(params$strata, function(i) {
+    knitr::knit_expand('SignalDetectionReport_gauges.rmd', 
+                       category = i)
+  })
+  
+  res <- knitr::knit_child(text = unlist(src), quiet = TRUE)
+  cat(res, sep = "\n")
+}
 ```
 
 Row {data-height=400}
