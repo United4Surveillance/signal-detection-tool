@@ -1,5 +1,4 @@
-<style>
-  th,td{
+th,td{
     padding:3px 30px 3px 30px;
     border-bottom: 1px solid #ddd;
   }
@@ -17,5 +16,4 @@ th {
   background-color: #304898;
     color: white;
 }
-</style>
-
+.navbar, [data-toggle=tab], .navbar-brand  {   background-color:#304898;   border-color:black;   color:white; }

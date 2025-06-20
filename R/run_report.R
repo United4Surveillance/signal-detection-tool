@@ -21,7 +21,8 @@
 #' @param signals_padded List of calculated and padded signals (for use within the app, default is NULL)
 #' @param signals_agg List of aggregated signals  (for use within the app, default is NULL)
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.
-#'
+#' @param custom_logo A character string with a path to a png or svg logo, to replace the default United 4 Surveillance logo.
+#' @param custom_css A character string with a path to a css, to replace the default United 4 Surveillance css.
 #' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 #' @export
 #'
@@ -69,7 +70,9 @@ run_report <- function(
     output_dir = ".",
     signals_padded = NULL,
     signals_agg = NULL,
-    intervention_date = NULL) {
+    intervention_date = NULL,
+    custom_logo = NULL,
+    custom_css = NULL) {
   # Check that package ggforce is installed as it is required for running the report
   if (!requireNamespace("ggforce", quietly = TRUE)) {
     stop("The 'ggforce' package is required to generate the report. Please install it using install.packages('ggforce')")
@@ -146,14 +149,63 @@ run_report <- function(
     report_format == "DOCX" ~ "word_document",
     TRUE ~ NA_character_
   )
+
   rmd_path <- system.file("report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
-  # TODO we need to change this because otherwise all sub settings in the section
-  # output:
-  # flexdashboard::flex_dashboard: is replaced and not taken
+  rmd_dir <- dirname(normalizePath(rmd_path))
+  if(is.null(custom_css)){
+    css_name = "style.css"
+  } else{
+    css_abs  <- normalizePath(custom_css,  mustWork = TRUE)
+    css_dst  <- file.copy(css_abs,  rmd_dir, overwrite = TRUE)
+    css_name <- basename(css_abs)
+  }
+
+  if(is.null(custom_logo)){
+    logo_abs <- normalizePath(system.file("report/logo.png", package = "SignalDetectionTool"))
+    logo_name <- basename(logo_abs)
+  } else{
+    logo_abs <- normalizePath(custom_logo, mustWork = TRUE)
+    file.copy(logo_abs, rmd_dir, overwrite = TRUE)
+    logo_name <- basename(logo_abs)
+  }
+
+  # encode the logo directly in the HTML for standalone file
+  mime_type <- if (grepl("\\.svg$", logo_abs, ignore.case = TRUE)){
+    "image/svg+xml"} else {"image/png"}
+  logo_data <- base64enc::dataURI(file = logo_abs, mime = mime_type)
+
+  js_code <- sprintf(
+    '<script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var nav = document.querySelector(".navbar.navbar-inverse .container-fluid") ||
+                document.querySelector(".navbar.navbar-fixed-top");
+      if (!nav) return;
+
+      var img = document.createElement("img");
+      img.src   = "%s";            // one data-URI, no file needed
+      img.alt   = "logo";
+      img.title = "logo";
+      img.style.cssText = "height:46px;position:absolute;right:16px;top:50%%;transform:translateY(-50%%);";
+      nav.appendChild(img);
+    });
+    </script>',
+    logo_data
+    )
+  logo_html <- file.path(rmd_dir, "injected_logo.html")
+  writeLines(js_code, logo_html)
+
+  output_format <- flexdashboard::flex_dashboard(
+    orientation = "rows",
+    css         = css_name,
+    includes    = rmarkdown::includes(after_body = basename(logo_html)),
+    theme       = bslib::bs_theme(version = 5)
+  )
+
   rmarkdown::render(rmd_path,
-    # output_format = report_f,
+    output_format = output_format,
     params = report_params,
     output_file = output_file,
     output_dir = output_dir
   )
 }
+

@@ -17,7 +17,9 @@ run_report(
   output_dir = ".",
   signals_padded = NULL,
   signals_agg = NULL,
-  intervention_date = NULL
+  intervention_date = NULL,
+  custom_logo = NULL,
+  custom_css = NULL
 )
 }
 \arguments{
@@ -48,6 +50,10 @@ the analysis. Default is NULL.}
 \item{signals_agg}{List of aggregated signals  (for use within the app, default is NULL)}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.}
+
+\item{custom_logo}{A character string with a path to a png or svg logo, to replace the default United 4 Surveillance logo.}
+
+\item{custom_css}{A character string with a path to a css, to replace the default United 4 Surveillance css.}
 }
 \value{
 the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}

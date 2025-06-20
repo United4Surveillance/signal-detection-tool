@@ -2,9 +2,8 @@
 title: "Signal Detection Report - `r params$country`"
 date: "Report generated on `r Sys.Date()`"
 lang: "en"
-output: 
-  flexdashboard::flex_dashboard:
-    orientation: rows
+
+
 
 params: 
   data: NULL
