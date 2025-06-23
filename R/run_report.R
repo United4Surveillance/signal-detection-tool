@@ -11,18 +11,28 @@
 #'
 #' @seealso [names(available_algorithms())]
 #' @param number_of_weeks integer, number of weeks for which signals are generated
-#' @param pathogens A character vector specifying which pathogens should be included in report.
+#' @param pathogens A character vector specifying which pathogens should be included in report. If `NULL` (default) all pathogens provided in `data` or in `signals_padded`, `signals_agg` are used.
 #' @param strata A character vector specifying the columns to stratify. If `NULL` no strata are used.
 #'   the analysis. Default is NULL.
-#' @param interactive Logical, indicating whether interactive elements should be included in the report. Only applicable when `report_format = "HTML"`. Defaults to `TRUE`.
 #' @param tables Logical. True if tables should be included in report.
 #' @param output_file A character string specifying the name of the output file (without directory path). If `NULL` (default), the file name is automatically generated to be SignalDetectionReport. See \link[rmarkdown]{render} for more details.
 #' @param output_dir A character string specifying the output directory for the rendered output file (default is ".", which means the rendered file will be saved in the current working directory. See \link[rmarkdown]{render} for more details. `NULL` is used when running the report from shiny app which will take the Downloads folder as default option for saving.
-#' @param signals_padded List of calculated and padded signals (for use within the app, default is NULL)
-#' @param signals_agg List of aggregated signals  (for use within the app, default is NULL)
+#' @param signals_padded A tibble of precomputed and padded signals containing a `pathogen` column.
+#'   If multiple pathogens are present, the tibble should represent all of them stacked together
+#'   (e.g., using `dplyr::bind_rows()`).
+#'   Defaults to `NULL`, in which case the signal data will be computed from the linelist
+#'   within the `run_report()` function.
+#'   If not `NULL`, the provided `signals_padded` is used as-is, and signals are not recomputed.
+#' @param signals_agg A tibble of aggregated signals containing a `pathogen` column.
+#'   If multiple pathogens are included, the tibble should represent all of them stacked together
+#'   (e.g., using `dplyr::bind_rows()`).
+#'   Defaults to `NULL`, in which case the aggregated signals are computed from the linelist
+#'   within the `run_report()` function.
+#'   If not `NULL`, the provided `signals_agg` is used directly and signals are not recomputed.
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.
 #' @param custom_logo A character string with a path to a png or svg logo, to replace the default United 4 Surveillance logo.
 #' @param custom_css A character string with a path to a css, to replace the default United 4 Surveillance css.
+#'
 #' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 #' @export
 #'
@@ -34,7 +44,6 @@
 #'   data = SignalDetectionTool::input_example,
 #'   method = "FarringtonFlexible",
 #'   strata = c("county", "sex"),
-#'   interactive = TRUE,
 #'   tables = TRUE,
 #'   number_of_weeks = 6
 #' )
@@ -43,7 +52,7 @@
 #'   method = "EARS",
 #'   output_dir = "C:/Users/SmithJ/Documents"
 #' )
-#' # Example 3: An example output file name is speficied
+#' # Example 3: An example output file name is specified
 #' run_report(
 #'   method = "EARS",
 #'   output_file = "My Signal Report"
@@ -62,9 +71,8 @@ run_report <- function(
     report_format = "HTML",
     method = "FarringtonFlexible",
     number_of_weeks = 6,
-    pathogens = c("Pertussis"),
+    pathogens = NULL,
     strata = c("county", "age_group"),
-    interactive = TRUE,
     tables = TRUE,
     output_file = NULL,
     output_dir = ".",
@@ -104,7 +112,6 @@ run_report <- function(
   checkmate::assert(
     checkmate::check_choice(method, choices = names(available_algorithms()))
   )
-  checkmate::assert_logical(interactive)
   checkmate::assert_logical(tables)
   # Validate `output_dir`
   checkmate::assert_string(output_dir, null.ok = TRUE)
@@ -116,6 +123,13 @@ run_report <- function(
     combine = "or"
   )
 
+  # assert pathogens is NULL (default includes all pathogens) or exist in dataframe or padded signals
+  checkmate::assert(
+    checkmate::check_null(pathogens),
+    checkmate::check_subset(pathogens, choices = unique(data$pathogen)),
+    checkmate::check_subset(pathogens, choices = unique(signals_padded$pathogen)),
+    combine = "or"
+  )
 
   if (is.character(intervention_date)) {
     intervention_date <- as.Date(intervention_date)
@@ -123,12 +137,59 @@ run_report <- function(
   # transform the method name used in the app to the method names in the background
   method <- available_algorithms()[method]
 
-  # assert pathogens exist in dataframe or padded signals
-  checkmate::assert(
-    checkmate::check_subset(pathogens, choices = unique(data$pathogen)),
-    checkmate::check_subset(pathogens, choices = names(signals_padded_list)),
-    combine = "or"
-  )
+  if (is.null(pathogens)) {
+    # usage of linelist
+    if (is.null(signals_agg) | is.null(signals_padded)) {
+      pathogens <- unique(data$pathogen)
+      # usage of signals_agg, signals_pad
+    } else {
+      pathogens <- unique(signals_padded$pathogen)
+    }
+  }
+
+  # compute signals if not provided to run_report by the user
+  if (is.null(signals_agg) | is.null(signals_padded)) {
+    preprocessed_data <- data %>% preprocess_data()
+
+    signals_agg_list <- list()
+    signals_padded_list <- list()
+
+    for (pat in pathogens) {
+      preprocessed_data_pat <- preprocessed_data %>%
+        dplyr::filter(pathogen == pat)
+
+      signals <- get_signals_all(preprocessed_data_pat,
+        method = method,
+        intervention_date = intervention_date,
+        stratification = strata,
+        date_start = NULL,
+        date_end = NULL,
+        date_var = "date_report",
+        number_of_weeks = number_of_weeks
+      ) %>%
+        dplyr::mutate(pathogen = pat)
+
+      signals_agg_pad <- aggregate_pad_signals(
+        signals,
+        preprocessed_data_pat,
+        number_of_weeks,
+        method
+      )
+
+      signals_agg <- signals_agg_pad$signals_agg
+      signals_padded <- signals_agg_pad$signals_padded
+
+      signals_agg_list[[pat]] <- signals_agg %>% dplyr::mutate(pathogen = pat)
+      signals_padded_list[[pat]] <- signals_padded %>% dplyr::mutate(pathogen = pat)
+    }
+
+    signals_agg <- dplyr::bind_rows(signals_agg_list)
+    signals_padded <- dplyr::bind_rows(signals_padded_list)
+
+    # Clean up as these can be large
+    rm(signals_agg_list, signals_padded_list)
+    gc()
+  }
 
   report_params <- list(
     data = data,
@@ -137,45 +198,39 @@ run_report <- function(
     number_of_weeks = number_of_weeks,
     method = method,
     strata = strata,
-    interactive = ifelse(report_format != "HTML", FALSE, interactive),
     tables = tables,
     signals_padded = signals_padded,
     signals_agg = signals_agg,
     intervention_date = intervention_date
   )
 
-  report_f <- dplyr::case_when(
-    report_format == "HTML" ~ "flex_dashboard",
-    report_format == "DOCX" ~ "word_document",
-    TRUE ~ NA_character_
-  )
+  if (report_format == "HTML") {
+    rmd_path <- system.file("report/html_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
+    rmd_dir <- dirname(normalizePath(rmd_path))
+    if(is.null(custom_css)){
+      css_name = "style.css"
+    } else{
+      css_abs  <- normalizePath(custom_css,  mustWork = TRUE)
+      css_dst  <- file.copy(css_abs,  rmd_dir, overwrite = TRUE)
+      css_name <- basename(css_abs)
+    }
 
-  rmd_path <- system.file("report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
-  rmd_dir <- dirname(normalizePath(rmd_path))
-  if(is.null(custom_css)){
-    css_name = "style.css"
-  } else{
-    css_abs  <- normalizePath(custom_css,  mustWork = TRUE)
-    css_dst  <- file.copy(css_abs,  rmd_dir, overwrite = TRUE)
-    css_name <- basename(css_abs)
-  }
+    if(is.null(custom_logo)){
+      logo_abs <- normalizePath(system.file("report/logo.png", package = "SignalDetectionTool"))
+      logo_name <- basename(logo_abs)
+    } else{
+      logo_abs <- normalizePath(custom_logo, mustWork = TRUE)
+      file.copy(logo_abs, rmd_dir, overwrite = TRUE)
+      logo_name <- basename(logo_abs)
+    }
 
-  if(is.null(custom_logo)){
-    logo_abs <- normalizePath(system.file("report/logo.png", package = "SignalDetectionTool"))
-    logo_name <- basename(logo_abs)
-  } else{
-    logo_abs <- normalizePath(custom_logo, mustWork = TRUE)
-    file.copy(logo_abs, rmd_dir, overwrite = TRUE)
-    logo_name <- basename(logo_abs)
-  }
+    # encode the logo directly in the HTML for standalone file
+    mime_type <- if (grepl("\\.svg$", logo_abs, ignore.case = TRUE)){
+      "image/svg+xml"} else {"image/png"}
+    logo_data <- base64enc::dataURI(file = logo_abs, mime = mime_type)
 
-  # encode the logo directly in the HTML for standalone file
-  mime_type <- if (grepl("\\.svg$", logo_abs, ignore.case = TRUE)){
-    "image/svg+xml"} else {"image/png"}
-  logo_data <- base64enc::dataURI(file = logo_abs, mime = mime_type)
-
-  js_code <- sprintf(
-    '<script>
+    js_code <- sprintf(
+      '<script>
     document.addEventListener("DOMContentLoaded", function () {
       var nav = document.querySelector(".navbar.navbar-inverse .container-fluid") ||
                 document.querySelector(".navbar.navbar-fixed-top");
@@ -189,17 +244,23 @@ run_report <- function(
       nav.appendChild(img);
     });
     </script>',
-    logo_data
+      logo_data
     )
-  logo_html <- file.path(rmd_dir, "injected_logo.html")
-  writeLines(js_code, logo_html)
+    logo_html <- file.path(rmd_dir, "injected_logo.html")
+    writeLines(js_code, logo_html)
 
-  output_format <- flexdashboard::flex_dashboard(
-    orientation = "rows",
-    css         = css_name,
-    includes    = rmarkdown::includes(after_body = basename(logo_html)),
-    theme       = bslib::bs_theme(version = 5)
-  )
+    output_format <- flexdashboard::flex_dashboard(
+      orientation = "rows",
+      vertical_layout = "scroll",
+      bootswatch = "cosmo",
+      css = css_name,
+      includes = rmarkdown::includes(after_body = basename(logo_html)),
+      theme = bslib::bs_theme(version = 5, "enable-rounded" = TRUE)
+    )
+  } else {
+    rmd_path <- system.file("report/word_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
+    output_format <- "word_document"
+  }
 
   rmarkdown::render(rmd_path,
     output_format = output_format,

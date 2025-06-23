@@ -1,0 +1,75 @@
+```{r}
+strat_text <- dplyr::case_when(
+  "{{strat}}" == "age_group" ~ "agegroup",
+  TRUE ~ "{{strat}}"
+)
+```
+
+### Signals Timeseries by `r strat_text`
+
+```{r, results='asis'}
+results_analysis <- signals_agg %>%
+  dplyr::filter(any_alarms, category %in% "{{strat}}")
+```
+
+<!-- When stratifying by `r strat_text`, the `r params$method` algorithm detects `r sum(results_analysis$n_alarms)` `r ifelse(sum(results_analysis$n_alarms) == 1, 'signal', 'signals')`  in the signal detection period. -->
+
+```{r}
+df <- signals_padded %>%
+  dplyr::filter(category %in% "{{strat}}") %>%
+  SignalDetectionTool:::create_factor_with_unknown()
+
+number_stratum <- dplyr::n_distinct(df$stratum)
+
+if (number_stratum <= 10) {
+  p_height <- ceiling(dplyr::n_distinct(df$stratum) / 2) * 2
+} else {
+  p_height <- 12
+}
+
+pages <- ceiling(number_stratum / 12)
+
+txt <- NULL
+```
+
+```{r}
+#| fig.cap=paste0("Number of {{pathogen}} cases by week and signals stratified by ", strat_text, ", ", params$country),
+#| out.width="65%",
+#| out.height="65%"
+
+plot_time_series(df,
+  number_of_weeks = 52,
+  intervention_date = params$intervention_date,
+  interactive = FALSE
+) +
+  ggplot2::facet_wrap(~stratum,
+    nrow = 2,
+    scales = "free_y",
+    drop = FALSE
+  ) +
+  ggplot2::scale_x_date(
+    date_breaks = "2 months", date_labels = "%Y-%m-%d",
+    expand = c(0, 0)
+  )
+```
+
+`r if (params$tables) paste("### Signals table by", strat_text)`
+
+```{r}
+#| eval= params$tables
+
+if (sum(df$alarms, na.rm = TRUE) != 0) {
+  SignalDetectionTool::build_signals_table(df,
+    format = "DataTable"
+  )
+} else {
+  txt <- "No signals were detected."
+}
+```
+
+```{r}
+#|results = "asis"
+#|eval= params$tables & is.character(txt)
+
+cat(txt)
+```

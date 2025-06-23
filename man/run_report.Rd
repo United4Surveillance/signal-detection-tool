@@ -9,9 +9,8 @@ run_report(
   report_format = "HTML",
   method = "FarringtonFlexible",
   number_of_weeks = 6,
-  pathogens = c("Pertussis"),
+  pathogens = NULL,
   strata = c("county", "age_group"),
-  interactive = TRUE,
   tables = TRUE,
   output_file = NULL,
   output_dir = ".",
@@ -32,12 +31,10 @@ You can retrieve the full list using [names(available_algorithms())].}
 
 \item{number_of_weeks}{integer, number of weeks for which signals are generated}
 
-\item{pathogens}{A character vector specifying which pathogens should be included in report.}
+\item{pathogens}{A character vector specifying which pathogens should be included in report. If `NULL` (default) all pathogens provided in `data` or in `signals_padded`, `signals_agg` are used.}
 
 \item{strata}{A character vector specifying the columns to stratify. If `NULL` no strata are used.
 the analysis. Default is NULL.}
-
-\item{interactive}{Logical, indicating whether interactive elements should be included in the report. Only applicable when `report_format = "HTML"`. Defaults to `TRUE`.}
 
 \item{tables}{Logical. True if tables should be included in report.}
 
@@ -45,9 +42,19 @@ the analysis. Default is NULL.}
 
 \item{output_dir}{A character string specifying the output directory for the rendered output file (default is ".", which means the rendered file will be saved in the current working directory. See \link[rmarkdown]{render} for more details. `NULL` is used when running the report from shiny app which will take the Downloads folder as default option for saving.}
 
-\item{signals_padded}{List of calculated and padded signals (for use within the app, default is NULL)}
+\item{signals_padded}{A tibble of precomputed and padded signals containing a `pathogen` column.
+If multiple pathogens are present, the tibble should represent all of them stacked together
+(e.g., using `dplyr::bind_rows()`).
+Defaults to `NULL`, in which case the signal data will be computed from the linelist
+within the `run_report()` function.
+If not `NULL`, the provided `signals_padded` is used as-is, and signals are not recomputed.}
 
-\item{signals_agg}{List of aggregated signals  (for use within the app, default is NULL)}
+\item{signals_agg}{A tibble of aggregated signals containing a `pathogen` column.
+If multiple pathogens are included, the tibble should represent all of them stacked together
+(e.g., using `dplyr::bind_rows()`).
+Defaults to `NULL`, in which case the aggregated signals are computed from the linelist
+within the `run_report()` function.
+If not `NULL`, the provided `signals_agg` is used directly and signals are not recomputed.}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.}
 
@@ -71,7 +78,6 @@ run_report(
   data = SignalDetectionTool::input_example,
   method = "FarringtonFlexible",
   strata = c("county", "sex"),
-  interactive = TRUE,
   tables = TRUE,
   number_of_weeks = 6
 )
@@ -80,7 +86,7 @@ run_report(
   method = "EARS",
   output_dir = "C:/Users/SmithJ/Documents"
 )
-# Example 3: An example output file name is speficied
+# Example 3: An example output file name is specified
 run_report(
   method = "EARS",
   output_file = "My Signal Report"
