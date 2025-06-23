@@ -13,10 +13,7 @@ signals_padded <- params$signals_padded %>%
 
 ```{r}
 results_analysis <- signals_padded %>%
-  dplyr::filter(
-    is.na(category),
-    !is.na(alarms)
-  )
+  dplyr::filter(!is.na(alarms))
 ```
 
 Row
@@ -24,19 +21,25 @@ Row
 
 ### Number of cases
 ```{r}
-valueBox(value = sum(results_analysis$cases), 
+valueBox(value = sum(results_analysis$cases[is.na(results_analysis$category)]), 
          caption = "cases of {{pathogen}}")
 ```
 
 ### Number of signals
 ```{r}
+# signals across all strata
 n_signals_week <- sum(results_analysis$alarms)
+
+# max possible signals in assessment period
+possible_signals <- sum(dplyr::count(signals_agg, category) %>%
+                          dplyr::pull(n)) * params$number_of_weeks
+
 n_signals_week_col <- ifelse(
-  n_signals_week/params$number_of_weeks < 0.10, "primary",
-  ifelse(n_signals_week/params$number_of_weeks < 0.50, "warning", "danger")
+  n_signals_week < 0.10 * possible_signals, "primary",
+  ifelse(n_signals_week < 0.50 * possible_signals, "warning", "danger")
   )
 
-valueBox(value = sum(results_analysis$alarms),
+valueBox(value = n_signals_week,
          caption = paste("Number of signals in the last",
                          params$number_of_weeks, 
                          "weeks"),
@@ -54,7 +57,7 @@ with a normal loop -->
 if(!is.null(params$strata)){
   src <- lapply(params$strata, function(i) {
     knitr::knit_expand('SignalDetectionReport_gauges.rmd', 
-                       category = i)
+                       category = i, pathogen = "{{pathogen}}")
   })
   
   res <- knitr::knit_child(text = unlist(src), quiet = TRUE)
