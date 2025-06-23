@@ -110,26 +110,119 @@ Row
 --------------------------------------------------------------
 ### Signals heatmap
 ```{r}
-signals_padded %>% 
+# following example from https://www.r-bloggers.com/2023/04/heatmap-formatting-of-a-table-with-dt/
+
+# counts signals in category
+tmp_df <- signals_padded %>%
   dplyr::filter(!is.na(alarms)) %>%
   dplyr::mutate(
-    date = isoweek_to_date(week, year),
+    date = paste0("Y",year, ".W", week),
+  ) %>% 
+  dplyr::group_by(pathogen, category, date) %>%
+  dplyr::summarise(signals = sum(alarms)) 
+
+# dates
+dates <- unique(tmp_df$date)
+
+# add max possible signals per category
+tmp_df <- tmp_df %>% 
+  dplyr::left_join(signals_agg %>% dplyr::count(pathogen, category),
+                   by = c("pathogen", "category")) %>%
+  dplyr::mutate(signals_p = signals/n)
+
+
+# generate colors
+colsFunc <- colorRamp(c("white", "red"))
+color_df <- tmp_df %>%
+  dplyr::mutate(
+    color = rgb(colsFunc(signals_p)[,1],
+                colsFunc(signals_p)[,2],
+                colsFunc(signals_p)[,3], 
+                maxColorValue = 255)
+  ) %>%
+  dplyr::select(pathogen, category, date, color) %>%
+  tidyr::pivot_wider(id_cols = c(pathogen, category),
+                     names_from = date,
+                     values_from = color)
+  
+# generate signals table
+tmp_df <- tmp_df %>%
+  dplyr::select(pathogen, category, date, signals) %>% 
+  dplyr::mutate(
+    pathogen = paste0("<a href='#", tolower(pathogen),"'>", pathogen,"</a>"),
     category = dplyr::case_when(
       is.na(category)~"Unstratified", 
       .default = category
     )
-  ) %>%
+  ) %>% 
+  tidyr::pivot_wider(id_cols = c(pathogen, category),
+                     names_from = date,
+                     values_from = signals) %>%
+  dplyr::mutate(total = rowSums(dplyr::across(is.integer))) 
+
+
+dt <- DT::datatable(
+  tmp_df,
+  rownames = FALSE,
+  extensions = "RowGroup",
+  options = list(
+    rowGroup = list(dataSrc = list(0)),
+    columnDefs = list(list(targets = 0, visible = FALSE)
+  )),
+  escape = FALSE
+  )
+
+# color columns
+for(d in dates){
+  dt <- dt %>% 
+    DT::formatStyle(
+      d, 
+      backgroundColor = DT::styleEqual(tmp_df[[d]], color_df[[d]])
+    )
+}
+
+dt
+```
+
+```{r, eval=FALSE}
+# Links with plotly apparently don't work inside flexdashboard
+
+tmp_df <- signals_padded %>%
+  dplyr::filter(!is.na(alarms)) %>%
+  dplyr::mutate(
+    date = paste0("Y",year, ".W", week),
+    category = dplyr::case_when(
+      is.na(category)~"Unstratified", 
+      .default = category
+    )
+  ) %>% 
   dplyr::group_by(pathogen, category, date) %>%
-  dplyr::summarise(signals = sum(alarms)) %>%
-  ggplot2::ggplot(ggplot2::aes(x = date, y = category, fill = signals)) +
-  ggplot2::geom_tile(colour = "white") +
-  ggplot2::facet_wrap(pathogen~., ncol = 1) +
-  ggplot2::scale_x_date(
-    date_breaks = "2 weeks",
-    date_labels = "%Y-W%V"
-  ) + 
-  ggplot2::scale_fill_viridis_c(option = "C") +
-  ggplot2::theme_minimal()
+  dplyr::summarise(signals = sum(alarms)) 
+
+split(tmp_df, tmp_df$pathogen) %>% 
+  lapply(function(x){
+    
+    pat <- unique(x$pathogen)
+    
+    m <- matrix(x$signals, 
+                nrow = length(params$strata)+1,
+                ncol = params$number_of_weeks,
+                byrow = T)
+    
+    rownames(m) <- unique(tmp_df$category)
+    colnames(m) <- unique(tmp_df$date)
+    
+    plotly::plot_ly(x = colnames(m), y=rownames(m), z=m, type = "heatmap") %>%
+       plotly::add_annotations(
+         text = paste0("<a href='#", tolower(pat),"'>", pat,"</a>"), 
+         x = -0.5,
+         y = length(params$strata)+1,
+         showarrow = FALSE, xref = "x", yref = "y", 
+         font = list(size = 14)
+       )
+  }
+  ) %>% 
+  plotly::subplot(nrows = 3, shareX = TRUE)
 ```
 
 
