@@ -45,6 +45,9 @@ library(flexdashboard)
 Landing Page
 ================================================================================
 
+sidebar {.sidebar}
+--------------------------------------------------------------------------------
+
 ```{r}
 # For calculating week of start and end
 records <- params$signals_padded %>% 
@@ -56,8 +59,12 @@ records <- params$signals_padded %>%
 text_diseases <- ifelse(
   length(params$disease) == 1, 
   params$disease, 
-  paste0(paste0(params$disease, collapse = ", "),
-         ", ")
+  ifelse(length(params$disease) == 2, 
+         paste0(params$disease, collapse = " and "),
+         paste0(paste0(params$disease[1:(length(params$disease)-1)], collapse = ", "),
+                ", and ", tail(params$disease, 1))
+         )
+
 )
 
 # selected stratifications
@@ -98,91 +105,72 @@ for(pat in params$disease){
   pat_link <- paste0("[", pat, "]")
   tmp <- results_cases %>% dplyr::filter(pathogen == pat, is.na(category))
   cat("-", tmp$cases, "cases of", pat_link, "\n")
-  cat("\t -", tmp$signals, "signals (unstratified) \n")
-  for(cate in params$strata){
-    tmp <- results_cases %>% dplyr::filter(pathogen == pat, category == cate)
-    cat("\t -", sum(tmp$signals), "signals stratified by", cate, "\n")
-  }
 }
 ```
 
 Row
 --------------------------------------------------------------
-### Signals heatmap
+### Summary
 ```{r}
-# following example from https://www.r-bloggers.com/2023/04/heatmap-formatting-of-a-table-with-dt/
-
-# counts signals in category
+# Summary all signals
 tmp_df <- params$signals_padded %>%
   dplyr::filter(!is.na(alarms)) %>%
   dplyr::mutate(
-    date = paste0("Y",year, ".W", week),
-  ) %>% 
-  dplyr::group_by(pathogen, category, date) %>%
-  dplyr::summarise(signals = sum(alarms)) 
-
-# dates
-dates <- unique(tmp_df$date)
-
-# add max possible signals per category
-tmp_df <- tmp_df %>% 
-  dplyr::left_join(signals_agg %>% dplyr::count(pathogen, category),
-                   by = c("pathogen", "category")) %>%
-  dplyr::mutate(signals_p = signals/n)
-
-
-# generate colors
-colsFunc <- colorRamp(c("white", "red"))
-color_df <- tmp_df %>%
-  dplyr::mutate(
-    color = rgb(colsFunc(signals_p)[,1],
-                colsFunc(signals_p)[,2],
-                colsFunc(signals_p)[,3], 
-                maxColorValue = 255)
-  ) %>%
-  dplyr::select(pathogen, category, date, color) %>%
-  tidyr::pivot_wider(id_cols = c(pathogen, category),
-                     names_from = date,
-                     values_from = color)
-  
-# generate signals table
-tmp_df <- tmp_df %>%
-  dplyr::select(pathogen, category, date, signals) %>% 
-  dplyr::mutate(
-    pathogen = paste0("<a href='#", tolower(pathogen),"'>", pathogen,"</a>"),
     category = dplyr::case_when(
       is.na(category)~"Unstratified", 
       .default = category
-    )
+      )
   ) %>% 
-  tidyr::pivot_wider(id_cols = c(pathogen, category),
-                     names_from = date,
-                     values_from = signals) %>%
-  dplyr::mutate(total = rowSums(dplyr::across(is.integer))) 
+  dplyr::group_by(pathogen, category) %>%
+  dplyr::summarise(signals = sum(alarms))
 
-
-dt <- DT::datatable(
-  tmp_df,
-  rownames = FALSE,
-  extensions = "RowGroup",
-  options = list(
-    rowGroup = list(dataSrc = list(0)),
-    columnDefs = list(list(targets = 0, visible = FALSE)
-  )),
-  escape = FALSE
+# max number of signals in category in period
+maxsignals <- params$signals_agg %>% 
+  dplyr::filter(pathogen == params$disease[1]) %>% 
+  dplyr::group_by(category) %>% 
+  dplyr::summarise(max_signals = n()*params$number_of_weeks) %>% 
+  dplyr::mutate(
+    category = dplyr::case_when(
+      is.na(category)~"Unstratified", 
+      .default = category
+      )
   )
 
-# color columns
-for(d in dates){
+dt <- DT::datatable(
+  tmp_df %>%
+    tidyr::pivot_wider(
+      id_cols = pathogen, 
+      names_from = category,
+      values_from = signals
+    ) %>% 
+    dplyr::mutate(
+      pathogen = paste0("<a href='#", tolower(pathogen),"'>", pathogen,"</a>"),
+      total = rowSums(dplyr::across(is.integer))
+    ),
+  rownames = FALSE,
+  escape = FALSE,
+  caption = paste0("Number of signals encountered in each stratification level in the last ",
+                   params$number_of_weeks, " weeks")
+  )
+
+for(cate in c("Unstratified", strata)){
+  max_s <- maxsignals$max_signals[maxsignals$category == cate]
+  cuts <- seq(0, max_s, length.out = 11)
+  values <- colorRamp(c("white", "red"))(cuts/max_s)
+  values <- rgb(values[,1],
+                values[,2],
+                values[,3], 
+                maxColorValue = 255)
+  
   dt <- dt %>% 
-    DT::formatStyle(
-      d, 
-      backgroundColor = DT::styleEqual(tmp_df[[d]], color_df[[d]])
+    DT::formatStyle(cate, 
+    backgroundColor = DT::styleInterval(cuts[2:11], values)
     )
 }
 
-dt
+dt %>% DT::formatStyle("total", fontWeight = "bold")
 ```
+
 
 ```{r, eval=FALSE}
 # Links with plotly apparently don't work inside flexdashboard
