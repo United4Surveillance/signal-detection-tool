@@ -35,8 +35,22 @@ library(dplyr)
 library(SignalDetectionTool)
 library(htmltools)
 library(flexdashboard)
+library(bslib)
 ```
 
+```{r}
+# Make the branded bslib colors directly available
+brand_colors <- bs_get_variables(
+  bs_current_theme() ,
+  c(
+    "brand-primary",
+    "brand-success",
+    "brand-info",
+    "brand-warning",
+    "brand-danger"
+  )
+)
+```
 <!-- Landing page -->
 
 Landing Page
@@ -164,8 +178,9 @@ dt <- DT::datatable(
   extensions = "RowGroup",
   options = list(
     rowGroup = list(dataSrc = list(0)),
-    columnDefs = list(list(targets = 0, visible = FALSE)
-  )),
+    columnDefs = list(list(targets = 0, visible = FALSE)),
+    paging = FALSE
+  ),
   escape = FALSE
   )
 
@@ -179,6 +194,17 @@ for(d in dates){
 }
 
 dt
+```
+
+```{css, echo=FALSE}
+/* Fix bug where data table shows only small table when bslib theme is used, see also https://github.com/rstudio/DT/issues/951 */
+.datatables.html-widget.html-widget-static-bound { 
+  height: auto !important;
+  width: 90vw !important;
+}
+.dataTables_scrollBody {
+  height: unset !important;
+}
 ```
 
 ```{r, eval=FALSE}

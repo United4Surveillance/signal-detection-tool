@@ -31,7 +31,7 @@
 #'   If not `NULL`, the provided `signals_agg` is used directly and signals are not recomputed.
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.
 #' @param custom_logo A character string with a path to a png or svg logo, to replace the default United 4 Surveillance logo.
-#' @param custom_css A character string with a path to a css, to replace the default United 4 Surveillance css.
+#' @param custom_theme A bslib::bs_theme() to replace the default United 4 Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact.
 #'
 #' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 #' @export
@@ -80,7 +80,7 @@ run_report <- function(
     signals_agg = NULL,
     intervention_date = NULL,
     custom_logo = NULL,
-    custom_css = NULL) {
+    custom_theme = NULL) {
   # Check that package ggforce is installed as it is required for running the report
   if (!requireNamespace("ggforce", quietly = TRUE)) {
     stop("The 'ggforce' package is required to generate the report. Please install it using install.packages('ggforce')")
@@ -207,16 +207,9 @@ run_report <- function(
   if (report_format == "HTML") {
     rmd_path <- system.file("report/html_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
     rmd_dir <- dirname(normalizePath(rmd_path))
-    if(is.null(custom_css)){
-      css_name = "style.css"
-    } else{
-      css_abs  <- normalizePath(custom_css,  mustWork = TRUE)
-      css_dst  <- file.copy(css_abs,  rmd_dir, overwrite = TRUE)
-      css_name <- basename(css_abs)
-    }
 
     if(is.null(custom_logo)){
-      logo_abs <- normalizePath(system.file("report/logo.png", package = "SignalDetectionTool"))
+      logo_abs <- normalizePath(system.file("report/html_report/logo.png", package = "SignalDetectionTool"))
       logo_name <- basename(logo_abs)
     } else{
       logo_abs <- normalizePath(custom_logo, mustWork = TRUE)
@@ -229,6 +222,7 @@ run_report <- function(
       "image/svg+xml"} else {"image/png"}
     logo_data <- base64enc::dataURI(file = logo_abs, mime = mime_type)
 
+    # Java Script to move the logo to the right of the navbar
     js_code <- sprintf(
       '<script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -249,13 +243,35 @@ run_report <- function(
     logo_html <- file.path(rmd_dir, "injected_logo.html")
     writeLines(js_code, logo_html)
 
+    # use the default U4S theme if none is specified
+    # primary and warning were specified by styleguide, the rest not
+    if(is.null(custom_theme)){
+      custom_theme <- bslib::bs_theme(
+        version = "3",
+        bg = "white",
+        fg = "black",
+        primary = "#304898",
+        success = "#579931",
+        info = "#669ed4",
+        warning = "#F4D015",
+        danger = "#be1622"
+      )
+      # BS3 slightly changes the navbar color from the primary
+      # We overwrite this behavior and set the navbar color directly
+      custom_theme <- bs_add_variables(
+        custom_theme,
+        "navbar-inverse-bg" = "#304898",
+        "navbar-inverse-border" = "#304898",
+        "navbar-inverse-link-color" = "#ffffff",
+        "navbar-inverse-link-hover-color" = "#ffffff"
+      )
+    }
+
     output_format <- flexdashboard::flex_dashboard(
       orientation = "rows",
       vertical_layout = "scroll",
-      bootswatch = "cosmo",
-      css = css_name,
       includes = rmarkdown::includes(after_body = basename(logo_html)),
-      theme = bslib::bs_theme(version = 5, "enable-rounded" = TRUE)
+      theme = custom_theme
     )
   } else {
     rmd_path <- system.file("report/word_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")

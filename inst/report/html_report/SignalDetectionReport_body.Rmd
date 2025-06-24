@@ -25,15 +25,16 @@ Row
 ### Number of cases
 ```{r}
 valueBox(value = sum(results_analysis$cases), 
-         caption = "cases of {{pathogen}}")
+         caption = "cases of {{pathogen}}",
+         color = brand_colors["brand-info"])
 ```
 
 ### Number of signals
 ```{r}
 n_signals_week <- sum(results_analysis$alarms)
 n_signals_week_col <- ifelse(
-  n_signals_week/params$number_of_weeks < 0.10, "primary",
-  ifelse(n_signals_week/params$number_of_weeks < 0.50, "warning", "danger")
+  n_signals_week/params$number_of_weeks < 0.10, brand_colors["brand-success"],
+  ifelse(n_signals_week/params$number_of_weeks < 0.50, brand_colors["brand-warning"], brand_colors["brand-danger"])
   )
 
 valueBox(value = sum(results_analysis$alarms),
@@ -47,8 +48,7 @@ valueBox(value = sum(results_analysis$alarms),
 Row
 -------------------------------------------------------------------------------
 
-<!-- Gauges for showing signals in strata. I didn't find a way to make it work 
-with a normal loop -->
+<!-- Gauges for showing signals in strata. I didn't find a way to make it work with a normal loop -->
 
 ```{r, results='asis'}
 if(!is.null(params$strata)){

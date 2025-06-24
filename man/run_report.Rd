@@ -18,7 +18,7 @@ run_report(
   signals_agg = NULL,
   intervention_date = NULL,
   custom_logo = NULL,
-  custom_css = NULL
+  custom_theme = NULL
 )
 }
 \arguments{
@@ -60,7 +60,7 @@ If not `NULL`, the provided `signals_agg` is used directly and signals are not r
 
 \item{custom_logo}{A character string with a path to a png or svg logo, to replace the default United 4 Surveillance logo.}
 
-\item{custom_css}{A character string with a path to a css, to replace the default United 4 Surveillance css.}
+\item{custom_theme}{A bslib::bs_theme() to replace the default United 4 Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact.}
 }
 \value{
 the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
