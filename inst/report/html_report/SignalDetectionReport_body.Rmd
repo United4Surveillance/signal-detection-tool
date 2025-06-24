@@ -121,8 +121,7 @@ txt <- NULL
 
 if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
   SignalDetectionTool::build_signals_table(
-    signals_padded %>%
-      dplyr::filter(is.na(category)),
+    signals_padded,
     format = "DataTable"
   )
 } else {
