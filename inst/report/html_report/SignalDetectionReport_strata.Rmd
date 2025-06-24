@@ -1,4 +1,4 @@
-{{pathogen}}-{{strat}} {data-orientation=columns .hidden}
+{{pathogen}}-{{strat}} {.hidden}
 ===========================================================================
 
 ```{r}
@@ -7,8 +7,6 @@ strat_text <- dplyr::case_when(
   TRUE ~ "{{strat}}"
 )
 ```
-
-### Signals Timeseries by `r strat_text`
 
 ```{r, results='asis'}
 results_analysis <- signals_agg %>%
@@ -33,47 +31,26 @@ pages <- ceiling(number_stratum / 12)
 txt <- NULL
 ```
 
-```{r}
-#| fig.cap=paste0("Number of {{pathogen}} cases by week and signals stratified by ", strat_text, ", ", params$country),
-#| out.width="65%",
-#| out.height="65%"
-
-plot_time_series(df,
-  number_of_weeks = 52,
-  intervention_date = params$intervention_date,
-  interactive = FALSE
-) +
-  ggplot2::facet_wrap(~stratum,
-    nrow = 2,
-    scales = "free_y",
-    drop = FALSE
+Row {.tabset}
+-------------------------------------------------------------------------------
+```{r, results='asis'}
+for(st in unique(df$stratum)){
+  cat("### Signals Timeseries - ", st, "\n")
+  
+  plot_stratum <- plot_time_series(
+    df %>% dplyr::filter(.data[["stratum"]] == st),
+    number_of_weeks = 52,
+    intervention_date = params$intervention_date,
+    interactive = FALSE
   ) +
   ggplot2::scale_x_date(
     date_breaks = "2 months", date_labels = "%Y-%m-%d",
     expand = c(0, 0)
   )
-```
-
-`r if (params$tables) paste("### Signals table by", strat_text)`
-
-```{r}
-#| eval= params$tables
-
-if (sum(df$alarms, na.rm = TRUE) != 0) {
-  SignalDetectionTool::build_signals_table(df,
-    format = "DataTable"
-  )
-} else {
-  txt <- "No signals were detected."
+  
+  print(plot_stratum)
+  
+  cat("\n\n\n")
 }
 ```
-
-```{r}
-#|results = "asis"
-#|eval= params$tables & is.character(txt)
-
-cat(txt)
-```
-
-
 
