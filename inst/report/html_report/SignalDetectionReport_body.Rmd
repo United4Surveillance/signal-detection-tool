@@ -70,7 +70,9 @@ Row {data-height=400}
 
 ```{r, results='asis'}
 for(cate in params$strata){
-  cat("### Distribution by", cate, "\n\n")
+  pate <- tolower("{{pathogen}}")
+  cate_link <- paste0("[", cate, "](#",pate ,"-", cate, ")")
+  cat("### Distribution by", cate_link, "\n\n")
   
   dist_plot <- SignalDetectionTool:::decider_barplot_map_table(
      signals_agg,
@@ -80,19 +82,6 @@ for(cate in params$strata){
     ) 
   
   print(htmltools::tagList(dist_plot))
-}
-```
-
-Row {data-height=50}
--------------------------------------------------------------------------------
-
-```{r, results='asis'}
-for(cate in params$strata){
-  pate <- tolower("{{pathogen}}")
-  cate_link <- paste0("[", cate, "](#",pate ,"-", cate, ")")
-  
-  cat("### Link \n")
-  cat("-", cate_link, "\n\n")
 }
 ```
 
