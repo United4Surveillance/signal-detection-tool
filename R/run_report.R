@@ -208,18 +208,21 @@ run_report <- function(
     rmd_path <- system.file("report/html_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
     rmd_dir <- dirname(normalizePath(rmd_path))
 
-    if(is.null(custom_logo)){
+    if (is.null(custom_logo)) {
       logo_abs <- normalizePath(system.file("report/html_report/logo.png", package = "SignalDetectionTool"))
       logo_name <- basename(logo_abs)
-    } else{
+    } else {
       logo_abs <- normalizePath(custom_logo, mustWork = TRUE)
       file.copy(logo_abs, rmd_dir, overwrite = TRUE)
       logo_name <- basename(logo_abs)
     }
 
     # encode the logo directly in the HTML for standalone file
-    mime_type <- if (grepl("\\.svg$", logo_abs, ignore.case = TRUE)){
-      "image/svg+xml"} else {"image/png"}
+    mime_type <- if (grepl("\\.svg$", logo_abs, ignore.case = TRUE)) {
+      "image/svg+xml"
+    } else {
+      "image/png"
+    }
     logo_data <- base64enc::dataURI(file = logo_abs, mime = mime_type)
 
     # Java Script to move the logo to the right of the navbar
@@ -245,7 +248,7 @@ run_report <- function(
 
     # use the default U4S theme if none is specified
     # primary and warning were specified by styleguide, the rest not
-    if(is.null(custom_theme)){
+    if (is.null(custom_theme)) {
       custom_theme <- bslib::bs_theme(
         version = "3",
         bg = "white",
@@ -285,4 +288,3 @@ run_report <- function(
     output_dir = output_dir
   )
 }
-
