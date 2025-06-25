@@ -1,16 +1,12 @@
 {{pathogen}}-{{strat}} {.hidden}
 ===========================================================================
 
+<!-- Filtering strata -->
 ```{r}
 strat_text <- dplyr::case_when(
   "{{strat}}" == "age_group" ~ "agegroup",
   TRUE ~ "{{strat}}"
 )
-```
-
-```{r, results='asis'}
-results_analysis <- signals_agg %>%
-  dplyr::filter(any_alarms, category %in% "{{strat}}")
 ```
 
 ```{r}
@@ -33,9 +29,11 @@ txt <- NULL
 
 Row {.tabset}
 -------------------------------------------------------------------------------
+<!-- Print plot for each stratum -->
+
 ```{r, results='asis'}
 for(st in unique(df$stratum)){
-  cat("### Signals Timeseries - ", st, "\n")
+  cat("### timeseries -", st, "\n")
   
   plot_stratum <- plot_time_series(
     df %>% dplyr::filter(.data[["stratum"]] == st),

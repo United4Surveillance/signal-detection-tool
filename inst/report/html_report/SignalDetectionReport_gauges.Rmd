@@ -8,7 +8,7 @@ max_signals <- nrow(n_signals) * params$number_of_weeks
 gauge(
  value = sum(n_signals$n_alarms),
  min = 0, max = max_signals,
- label = "Signals",
+ label = paste("Signals in last", params$number_of_weeks, "weeks"),
  sectors = gaugeSectors(
    success = c(0, 0.1*max_signals),
    warning = c(0.1*max_signals, 0.5*max_signals),

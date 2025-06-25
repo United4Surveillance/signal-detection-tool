@@ -88,7 +88,7 @@ for(cate in params$strata){
 
 Row {data-height=550}
 -----------------------------------------------
-### Timeseries 
+### Unstratified timeseries 
 
 ```{r, out.width="500px"}
 #| fig.cap=paste0("Number of {{pathogen}} cases by week and signals, ", params$country)
@@ -125,7 +125,7 @@ if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
 cat(txt)
 ```
 
-<!-- Strata subpages -->
+<!-- Strata timeseries pages -->
 
 ```{r, results='asis'}
 if(!is.null(params$strata)){
