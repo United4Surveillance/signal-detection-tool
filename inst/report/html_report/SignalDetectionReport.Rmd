@@ -2,10 +2,7 @@
 title: "Signal Detection Report - `r params$country`"
 date: "Report generated on `r Sys.Date()`"
 lang: "en"
-output: 
-  flexdashboard::flex_dashboard:
-    orientation: rows
-    vertical_layout: scroll
+
 
 params: 
   data: NULL
@@ -38,8 +35,22 @@ library(dplyr)
 library(SignalDetectionTool)
 library(htmltools)
 library(flexdashboard)
+library(bslib)
 ```
 
+```{r}
+# Make the branded bslib colors directly available
+brand_colors <- bs_get_variables(
+  bs_current_theme() ,
+  c(
+    "brand-primary",
+    "brand-success",
+    "brand-info",
+    "brand-warning",
+    "brand-danger"
+  )
+)
+```
 <!-- Landing page -->
 
 Landing Page
@@ -171,6 +182,16 @@ for(cate in c("Unstratified", strata)){
 dt %>% DT::formatStyle("total", fontWeight = "bold")
 ```
 
+```{css, echo=FALSE}
+/* Fix bug where data table shows only small table when bslib theme is used, see also https://github.com/rstudio/DT/issues/951 */
+.datatables.html-widget.html-widget-static-bound { 
+  height: auto !important;
+  width: 90vw !important;
+}
+.dataTables_scrollBody {
+  height: unset !important;
+}
+```
 
 ```{r, eval=FALSE}
 # Links with plotly apparently don't work inside flexdashboard
@@ -212,7 +233,6 @@ split(tmp_df, tmp_df$pathogen) %>%
   ) %>% 
   plotly::subplot(nrows = min(length(params$disease),3), shareX = TRUE)
 ```
-
 
 <!-- Pathogen pages -->
 

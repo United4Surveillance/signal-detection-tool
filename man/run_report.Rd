@@ -16,7 +16,9 @@ run_report(
   output_dir = ".",
   signals_padded = NULL,
   signals_agg = NULL,
-  intervention_date = NULL
+  intervention_date = NULL,
+  custom_logo = NULL,
+  custom_theme = NULL
 )
 }
 \arguments{
@@ -55,6 +57,10 @@ within the `run_report()` function.
 If not `NULL`, the provided `signals_agg` is used directly and signals are not recomputed.}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.}
+
+\item{custom_logo}{A character string with a path to a png or svg logo, to replace the default United 4 Surveillance logo.}
+
+\item{custom_theme}{A bslib::bs_theme() to replace the default United 4 Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact.}
 }
 \value{
 the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}

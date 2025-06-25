@@ -22,7 +22,8 @@ Row
 ### Number of cases
 ```{r}
 valueBox(value = sum(results_analysis$cases[is.na(results_analysis$category)]), 
-         caption = "cases of {{pathogen}}")
+         caption = "cases of {{pathogen}}",
+         color = brand_colors["brand-info"])
 ```
 
 ### Number of signals
@@ -35,8 +36,9 @@ possible_signals <- sum(dplyr::count(signals_agg, category) %>%
                           dplyr::pull(n)) * params$number_of_weeks
 
 n_signals_week_col <- ifelse(
-  n_signals_week < 0.10 * possible_signals, "primary",
-  ifelse(n_signals_week < 0.50 * possible_signals, "warning", "danger")
+  n_signals_week < 0.10 * possible_signals, brand_colors["brand-success"],
+  ifelse(n_signals_week < 0.50 * possible_signals, 
+         brand_colors["brand-warning"], brand_colors["brand-danger"])
   )
 
 valueBox(value = n_signals_week,
@@ -50,8 +52,7 @@ valueBox(value = n_signals_week,
 Row
 -------------------------------------------------------------------------------
 
-<!-- Gauges for showing signals in strata. I didn't find a way to make it work 
-with a normal loop -->
+<!-- Gauges for showing signals in strata. I didn't find a way to make it work with a normal loop -->
 
 ```{r, results='asis'}
 if(!is.null(params$strata)){
