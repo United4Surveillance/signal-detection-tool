@@ -261,7 +261,7 @@ run_report <- function(
       )
       # BS3 slightly changes the navbar color from the primary
       # We overwrite this behavior and set the navbar color directly
-      custom_theme <- bs_add_variables(
+      custom_theme <- bslib::bs_add_variables(
         custom_theme,
         "navbar-inverse-bg" = "#304898",
         "navbar-inverse-border" = "#304898",
