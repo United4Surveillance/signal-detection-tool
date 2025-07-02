@@ -240,8 +240,9 @@ split(tmp_df, tmp_df$pathogen) %>%
 <!-- Pathogen pages -->
 
 ```{r, results='asis'}
+path_sdt_report_body <- system.file("report","html_report", "SignalDetectionReport_body.rmd", package = "SignalDetectionTool")
 src <- lapply(params$disease, function(i) {
-  knitr::knit_expand('SignalDetectionReport_body.rmd', 
+  knitr::knit_expand(path_sdt_report_body, 
                      pathogen = i)
 })
 

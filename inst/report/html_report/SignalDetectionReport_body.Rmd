@@ -127,8 +127,9 @@ cat(txt)
 
 ```{r, results='asis'}
 if(!is.null(params$strata)){
+  path_sdt_report_strata <- system.file("report","html_report", "SignalDetectionReport_strata.rmd", package = "SignalDetectionTool")
   src <- lapply(params$strata, function(j) {
-    knitr::knit_expand('SignalDetectionReport_strata.rmd', 
+    knitr::knit_expand(path_sdt_report_strata, 
                        strat = j, pathogen = "{{pathogen}}")
   })
   
