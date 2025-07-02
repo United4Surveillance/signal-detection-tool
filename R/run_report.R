@@ -250,7 +250,7 @@ run_report <- function(
     # primary and warning were specified by styleguide, the rest not
     if (is.null(custom_theme)) {
       custom_theme <- bslib::bs_theme(
-        version = "3",
+        version = "5",
         bg = "white",
         fg = "black",
         primary = "#304898",
@@ -258,16 +258,16 @@ run_report <- function(
         info = "#669ed4",
         warning = "#F4D015",
         danger = "#be1622"
-      )
-      # BS3 slightly changes the navbar color from the primary
-      # We overwrite this behavior and set the navbar color directly
-      custom_theme <- bslib::bs_add_variables(
-        custom_theme,
-        "navbar-inverse-bg" = "#304898",
-        "navbar-inverse-border" = "#304898",
-        "navbar-inverse-link-color" = "#ffffff",
-        "navbar-inverse-link-hover-color" = "#ffffff"
-      )
+      ) %>%
+        bslib::bs_add_variables(
+          # BS5 spaces the rows too far apart -> manually reduce space
+          spacer           = "0rem",
+          # reducing the spacer makes the navbar too small -> manually increase
+          "navbar-padding-y"       = "0.5rem",
+          "navbar-brand-padding-y" = "0.5rem",
+          "navbar-toggler-padding-y" = "0.25rem"
+        )
+
     }
 
     output_format <- flexdashboard::flex_dashboard(

@@ -18,12 +18,11 @@ results_analysis <- signals_padded %>%
 
 Row
 -------------------------------------------------------------------------------
-
 ### Number of cases
 ```{r}
 valueBox(value = sum(results_analysis$cases[is.na(results_analysis$category)]), 
          caption = "cases of {{pathogen}}",
-         color = brand_colors["brand-info"])
+         color = brand_colors["info"])
 ```
 
 ### Number of signals
@@ -36,9 +35,9 @@ possible_signals <- sum(dplyr::count(signals_agg, category) %>%
                           dplyr::pull(n)) * params$number_of_weeks
 
 n_signals_week_col <- ifelse(
-  n_signals_week < 0.10 * possible_signals, brand_colors["brand-success"],
+  n_signals_week < 0.10 * possible_signals, brand_colors["success"],
   ifelse(n_signals_week < 0.50 * possible_signals, 
-         brand_colors["brand-warning"], brand_colors["brand-danger"])
+         brand_colors["warning"], brand_colors["danger"])
   )
 
 valueBox(value = n_signals_week,
@@ -89,7 +88,6 @@ for(cate in params$strata){
 Row {data-height=550}
 -----------------------------------------------
 ### Unstratified timeseries 
-
 ```{r, out.width="500px"}
 #| fig.cap=paste0("Number of {{pathogen}} cases by week and signals, ", params$country)
 

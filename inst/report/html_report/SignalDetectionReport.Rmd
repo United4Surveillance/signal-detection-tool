@@ -17,7 +17,11 @@ params:
   intervention_date: NULL
 
 ---
-
+```{css, echo = FALSE}
+.hidden{
+display: none;
+}
+```
 
 ```{r, echo=FALSE}
 knitr::opts_chunk$set(eval = TRUE, 
@@ -41,13 +45,13 @@ library(bslib)
 ```{r}
 # Make the branded bslib colors directly available
 brand_colors <- bs_get_variables(
-  bs_current_theme() ,
+  bs_global_get() ,
   c(
-    "brand-primary",
-    "brand-success",
-    "brand-info",
-    "brand-warning",
-    "brand-danger"
+    "primary",
+    "success",
+    "info",
+    "warning",
+    "danger"
   )
 )
 ```
@@ -95,7 +99,6 @@ if(length(params$strata) >= 1){
   }
 } 
 ```
-
 
 This report contains an overview of signals observed for the period `r head(records$yearweek, 1)` to `r tail(records$yearweek, 1)` for `r text_diseases` in `r params$country`. The signals were calculated using the `r params$method` algorithm.
 
