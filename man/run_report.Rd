@@ -5,7 +5,7 @@
 \title{Renders signal detection report}
 \usage{
 run_report(
-  data = SignalDetectionTool::input_example,
+  data,
   report_format = "HTML",
   method = "FarringtonFlexible",
   number_of_weeks = 6,

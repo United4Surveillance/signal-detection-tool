@@ -67,7 +67,7 @@
 #' )
 #' }
 run_report <- function(
-    data = SignalDetectionTool::input_example,
+    data,
     report_format = "HTML",
     method = "FarringtonFlexible",
     number_of_weeks = 6,
