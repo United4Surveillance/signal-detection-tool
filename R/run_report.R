@@ -261,13 +261,12 @@ run_report <- function(
       ) %>%
         bslib::bs_add_variables(
           # BS5 spaces the rows too far apart -> manually reduce space
-          spacer           = "0rem",
+          spacer = "0rem",
           # reducing the spacer makes the navbar too small -> manually increase
-          "navbar-padding-y"       = "0.5rem",
+          "navbar-padding-y" = "0.5rem",
           "navbar-brand-padding-y" = "0.5rem",
           "navbar-toggler-padding-y" = "0.25rem"
         )
-
     }
 
     output_format <- flexdashboard::flex_dashboard(
