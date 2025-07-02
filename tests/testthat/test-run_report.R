@@ -5,7 +5,7 @@ test_that("run_report() successfully produces an HTML", {
   output_file <- basename(output_path)
   output_dir <- dirname(output_path)
 
-  run_report(report_format = "HTML", method = "EARS", strata = "age_group", output_file = output_file, output_dir = output_dir)
+  run_report(data = input_example, report_format = "HTML", method = "EARS", strata = "age_group", output_file = output_file, output_dir = output_dir)
 
   expect_true(file.exists(paste0(output_path, ".html")))
 })
@@ -17,7 +17,7 @@ test_that("run_report() successfully produces a docx", {
   output_file <- basename(output_path)
   output_dir <- dirname(output_path)
 
-  run_report(report_format = "DOCX", method = "EARS", strata = "age_group", output_file = output_file, output_dir = output_dir)
+  run_report(data = input_example, report_format = "DOCX", method = "EARS", strata = "age_group", output_file = output_file, output_dir = output_dir)
 
   expect_true(file.exists(paste0(output_path, ".docx")))
 })
@@ -30,7 +30,7 @@ test_that("run_report() successfully works without any strata selected", {
   output_file <- basename(output_path)
   output_dir <- dirname(output_path)
 
-  run_report(report_format = "HTML", method = "EARS", strata = NULL, output_file = output_file, output_dir = output_dir)
+  run_report(data = input_example, report_format = "HTML", method = "EARS", strata = NULL, output_file = output_file, output_dir = output_dir)
 
   expect_true(file.exists(paste0(output_path, ".html")))
 })
@@ -42,7 +42,7 @@ test_that("run_report() successfully works for a selected intervention_date", {
   output_file <- basename(output_path)
   output_dir <- dirname(output_path)
 
-  run_report(report_format = "HTML", method = "Mean", strata = NULL, output_file = output_file, output_dir = output_dir, intervention_date = "2021-03-01")
+  run_report(data = input_example, report_format = "HTML", method = "Mean", strata = NULL, output_file = output_file, output_dir = output_dir, intervention_date = "2021-03-01")
 
   expect_true(file.exists(paste0(output_path, ".html")))
 })
@@ -54,7 +54,7 @@ test_that("run_report() successfully works for a different number of weeks", {
   output_file <- basename(output_path)
   output_dir <- dirname(output_path)
 
-  run_report(report_format = "HTML", method = "Mean", strata = NULL, output_file = output_file, output_dir = output_dir, number_of_weeks = 12)
+  run_report(data = input_example, report_format = "HTML", method = "Mean", strata = NULL, output_file = output_file, output_dir = output_dir, number_of_weeks = 12)
 
   expect_true(file.exists(paste0(output_path, ".html")))
 })
