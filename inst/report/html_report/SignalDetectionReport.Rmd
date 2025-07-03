@@ -47,6 +47,7 @@ library(bslib)
 brand_colors <- bs_get_variables(
   bs_global_get() ,
   c(
+    "bg",
     "primary",
     "success",
     "info",
@@ -167,18 +168,24 @@ dt <- DT::datatable(
   escape = FALSE,
   caption = paste0("Number of signals encountered in each stratification level in the last ",
                    params$number_of_weeks, " weeks"),
-  fillContainer = FALSE
+  fillContainer = FALSE,
+  class = list(stripe = FALSE)
   )
 
 for(cate in c("Unstratified", strata)){
+  # Calculates bins for colouring
   max_s <- maxsignals$max_signals[maxsignals$category == cate]
   cuts <- seq(0, max_s, length.out = 11)
-  values <- colorRamp(c("white", "red"))(cuts/max_s)
+  
+  # colours for interpolate, uses brand color
+  colours <- c(brand_colors["bg"], brand_colors["warning"], brand_colors["danger"])
+  values <- colorRamp(colours)(cuts/max_s)
   values <- rgb(values[,1],
                 values[,2],
                 values[,3], 
                 maxColorValue = 255)
   
+  # assign each column the colour formatting 
   dt <- dt %>% 
     DT::formatStyle(cate, 
     backgroundColor = DT::styleInterval(cuts[2:11], values)
