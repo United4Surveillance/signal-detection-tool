@@ -265,7 +265,9 @@ run_report <- function(
           # reducing the spacer makes the navbar too small -> manually increase
           "navbar-padding-y" = "0.5rem",
           "navbar-brand-padding-y" = "0.5rem",
-          "navbar-toggler-padding-y" = "0.25rem"
+          "navbar-toggler-padding-y" = "0.25rem",
+          "dropdown-padding-y" = "0.5rem",
+          "dropdown-padding-x" = "0.5rem"
         )
     }
 
