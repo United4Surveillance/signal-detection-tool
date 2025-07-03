@@ -149,7 +149,9 @@ maxsignals <- params$signals_agg %>%
       .default = category
       )
   )
+```
 
+```{r, out.width="1000px"}
 dt <- DT::datatable(
   tmp_df %>%
     tidyr::pivot_wider(
@@ -164,7 +166,8 @@ dt <- DT::datatable(
   rownames = FALSE,
   escape = FALSE,
   caption = paste0("Number of signals encountered in each stratification level in the last ",
-                   params$number_of_weeks, " weeks")
+                   params$number_of_weeks, " weeks"),
+  fillContainer = FALSE
   )
 
 for(cate in c("Unstratified", strata)){
@@ -183,17 +186,6 @@ for(cate in c("Unstratified", strata)){
 }
 
 dt %>% DT::formatStyle("total", fontWeight = "bold")
-```
-
-```{css, echo=FALSE}
-/* Fix bug where data table shows only small table when bslib theme is used, see also https://github.com/rstudio/DT/issues/951 */
-.datatables.html-widget.html-widget-static-bound { 
-  height: auto !important;
-  width: 90vw !important;
-}
-.dataTables_scrollBody {
-  height: unset !important;
-}
 ```
 
 ```{r, eval=FALSE}

@@ -85,13 +85,11 @@ for(cate in params$strata){
 }
 ```
 
-Row {data-height=550}
+Row
 -----------------------------------------------
 ### Unstratified timeseries 
-```{r, out.width="500px"}
-#| fig.cap=paste0("Number of {{pathogen}} cases by week and signals, ", params$country)
 
-
+```{r}
 SignalDetectionTool::plot_time_series(
   signals_padded %>%
     dplyr::filter(is.na(category)),
@@ -99,6 +97,8 @@ SignalDetectionTool::plot_time_series(
   interactive = TRUE
 )
 ```
+
+> `r paste0("Number of {{pathogen}} cases by week and signals, ", params$country)`
 
 Row 
 -------------------------------------
