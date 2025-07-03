@@ -56,7 +56,11 @@ Row
 ```{r, results='asis'}
 if(!is.null(params$strata)){
   src <- lapply(params$strata, function(i) {
-    knitr::knit_expand('SignalDetectionReport_gauges.rmd', 
+    path_sdt_report_gauges <- system.file(
+      "report", "html_report", "SignalDetectionReport_gauges.rmd",
+      package = "SignalDetectionTool")
+    
+    knitr::knit_expand(path_sdt_report_gauges, 
                        category = i, pathogen = "{{pathogen}}")
   })
   
