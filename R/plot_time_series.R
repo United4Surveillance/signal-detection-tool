@@ -26,6 +26,15 @@ plot_time_series <- function(results, interactive = FALSE,
   padding_expected <- "expected_pad" %in% colnames(results)
   padding <- any(padding_expected, padding_upperbound)
 
+  # round up and change data types
+  # results <- results %>%
+  #   dplyr::mutate(
+  #     dplyr::across(c("year", "week", "cases", "number_of_weeks"),
+  #                   ~as.integer(.x)),
+  #     dplyr::across(c("upperbound", "expected", "upperbound_pad", "expected_pad"),
+  #                   ~round(.x, 1))
+  #     )
+
   results <- results %>%
     dplyr::mutate(
       isoweek = paste0(
@@ -134,6 +143,8 @@ plot_time_series <- function(results, interactive = FALSE,
   # ymax overall for rectangle background
   ymax_data <- max(results$ymax)
 
+
+
   col.threshold <- "#2297E6"
   col.expected <- "#000000"
   col.alarm <- "#FF0000"
@@ -148,130 +159,142 @@ plot_time_series <- function(results, interactive = FALSE,
 
   half_week <- lubridate::days(3)
 
-  plt <-
-    results %>%
-    ggplot2::ggplot(ggplot2::aes(x = date, group = 1, text = hover_text)) +
-    ggplot2::geom_rect(
-      data = period_dates_df, inherit.aes = FALSE,
-      ggplot2::aes(
-        x = NULL, y = NULL,
-        xmin = start, xmax = end,
-        fill = paste0("bg_", set_status)
-      ),
-      ymin = 0, ymax = ymax_data,
-      colour = "white", linewidth = 0.5, alpha = 0.2
-    ) +
-    ggplot2::geom_col(
-      ggplot2::aes(
-        x = date + half_week, # center bars around mid-week
-        y = cases, fill = set_status
+  if(interactive){
+    plt <- plotly::plot_ly() %>%
+      plotly::add_trace(
+        type = "bar",
+        x = results$date[results$set_status == "Training data"],
+        y = results$cases[results$set_status == "Training data"],
+        marker = list(color = col.training),
+        hovertemplate = paste("Observed: %{y}",
+                              "<extra></extra>"),
+        legendgroup = "obs",
+        showlegend = F
+      ) %>%
+      plotly::add_trace(
+        name = "Signal detection period",
+        type = "bar",
+        x = results$date[results$set_status == "Test data"],
+        y = results$cases[results$set_status == "Test data"],
+        marker = list(color = col.test),
+        hovertemplate = paste("Observed: %{y}",
+                              "<extra></extra>"),
+        legendgroup = "obs"
+      ) %>%
+      plotly::add_trace(
+        name = "Threshold",
+        type = "scatter",
+        mode = "lines",
+        line = list(shape = "hvh", width = 1),
+        x = results$date[!is.na(results$alarms)],
+        y = results$upperbound[!is.na(results$alarms)],
+        color = I(col.threshold),
+        hovertemplate = paste("Threshold: %{y:.1f}",
+                              "<extra></extra>"),
+        legendgroup = "upp.threshold"
+      ) %>%
+      plotly::layout(
+        shapes = list(
+          list(type = "rect", fillcolor = col.test, opacity = 0.2, line = list(width = 0),
+               x0 = period_dates_df$start[period_dates_df$set_status == "Test data"],
+               x1 = period_dates_df$end[period_dates_df$set_status == "Test data"], xref = "x",
+               y0 = 0, y1 = 1, yref = "paper")
+        ),
+        hovermode = "x unified",
+        xaxis = list(hoverformat = "Week: %Y-W%W")
       )
-    ) +
-    ggplot2::geom_step(ggplot2::aes(y = upperbound, color = "Threshold"),
-      linewidth = 1.3, direction = "hv"
-    )
 
-  if (padding_upperbound && any(!is.na(results$upperbound_pad))) {
-    plt <- plt +
-      ggplot2::geom_step(
-        ggplot2::aes(y = upperbound_pad, color = "Threshold", linetype = "Test data"),
-        linewidth = 0.3, direction = "hv"
+    if (padding_upperbound && any(!is.na(results$upperbound_pad))){
+      plt <- plt %>%
+        plotly::add_trace(
+          name = "Threshold",
+          type = "scatter",
+          mode = "lines",
+          line = list(shape = "hvh", width = 0.5),
+          x = results$date[!is.na(results$upperbound_pad)],
+          y = results$upperbound_pad[!is.na(results$upperbound_pad)],
+          color = I(col.threshold),
+          hovertemplate = paste("Threshold: %{y:.1f}",
+                                "<extra></extra>"),
+          legendgroup = "upp.threshold",
+          showlegend = F
+        )
+    }
+
+    if (padding_expected && any(!is.na(results$expected_pad))){
+      plt <- plt %>%
+        plotly::add_trace(
+          name = "Expected",
+          type = "scatter",
+          mode = "lines",
+          line = list(shape = "hvh", width = 1),
+          x = results$date[!is.na(results$expected)],
+          y = results$expected[!is.na(results$expected)],
+          color = I(col.expected),
+          hovertemplate = paste("Expected: %{y:.1f}",
+                                "<extra></extra>"),
+          legendgroup = "exp"
+        ) %>%
+        plotly::add_trace(
+          name = "Expected",
+          type = "scatter",
+          mode = "lines",
+          line = list(shape = "hvh", width = 0.5),
+          x = results$date[!is.na(results$expected_pad)],
+          y = results$expected_pad[!is.na(results$expected_pad)],
+          color = I(col.expected),
+          hovertemplate = paste("Expected: %{y:.1f}",
+                                "<extra></extra>"),
+          legendgroup = "exp",
+          showlegend = F
+        )
+    } else if (any(!is.na(results$expected))) {
+      plt <- plt %>%
+        plotly::add_trace(
+          name = "Expected",
+          type = "scatter",
+          mode = "lines",
+          line = list(shape = "hvh", width = 1),
+          x = results$date[!is.na(results$expected)],
+          y = results$expected[!is.na(results$expected)],
+          color = I(col.expected),
+          hovertemplate = paste("Expected: %{y:.1f}",
+                                "<extra></extra>")
+        )
+    }
+
+    if (!is.null(intervention_date)) {
+      plt <- plt %>%
+        plotly::layout(
+          shapes = list(
+            list(type = "line", y0 = 0, y1 = 1, yref = "paper",
+                 x0 = intervention_date, x1 = intervention_date,
+                 line = list(color = I(col.intervention), dash = "dot"))
+          )
+        )
+    }
+
+    plt <- plt %>%
+      plotly::add_trace(
+        name = "Signal",
+        type = "scatter",
+        mode = "markers",
+        x = results$date[!is.na(results$alarms) & results$alarms == T],
+        y = results$cases[!is.na(results$alarms) & results$alarms == T],
+        marker = list(symbol = "star", size = 10),
+        color = I(col.alarm),
+        hovertemplate = paste("Signal",
+                              "<extra></extra>")
       )
-  }
 
-  if (padding_expected && any(!is.na(results$expected_pad))) {
-    plt <- plt +
-      ggplot2::geom_step(ggplot2::aes(y = expected, color = "Expected"),
-        linewidth = 1.3, direction = "hv"
-      ) +
-      ggplot2::geom_step(ggplot2::aes(y = expected_pad, color = "Expected", linetype = "Training data"),
-        linewidth = 0.3, direction = "hv"
-      )
-  } else if (any(!is.na(results$expected))) {
-    plt <- plt +
-      ggplot2::geom_step(ggplot2::aes(y = expected, color = "Expected"),
-        linewidth = 1.3, direction = "hv"
-      )
-  }
-
-  # adding intervention vertical line
-  if (!is.null(intervention_date)) {
-    plt <- plt +
-      ggplot2::geom_vline(xintercept = intervention_date, linetype = "dashed", color = col.intervention, size = 0.7)
-    legend_values <- c(legend_values, "Intervention" = col.intervention)
-  }
-
-  # adding signal points
-  plt <- plt +
-    ggplot2::geom_point(
-      data = dplyr::filter(results, alarms == TRUE),
-      ggplot2::aes(x = date + half_week, y = cases, shape = alarms, stroke = 1),
-      color = col.alarm, size = 6
-    )
-
-  plt <- plt +
-    ggplot2::scale_x_date(
-      date_breaks = "month", date_labels = "%Y-%m-%d",
-      expand = c(0, 0)
-    ) +
-    ggplot2::scale_y_continuous(
-      breaks = scales::breaks_pretty(n = 5),
-      expand = ggplot2::expansion(mult = c(0, 0.1))
-    ) +
-    ggplot2::scale_shape_manual(
-      values = c("TRUE" = 8),
-      labels = c("TRUE" = "Signal")
-    ) +
-    ggplot2::scale_color_manual(values = legend_values) +
-    ggplot2::scale_fill_manual(
-      values = c(
-        "Test data" = col.test, "Training data" = col.training,
-        "bg_Training data" = "white", "bg_Test data" = col.threshold
-      ),
-      labels = c("Test data" = "Signal detection period"),
-      breaks = c("Test data")
-    ) +
-    ggplot2::scale_linetype_manual(values = c("Training data" = 1, "Test data" = 1), name = "", guide = "none") +
-    ggplot2::theme(
-      legend.position = "top",
-      legend.background = ggplot2::element_blank(),
-      legend.key = ggplot2::element_blank(),
-      legend.text = ggplot2::element_text(size = 12),
-      panel.background = ggplot2::element_blank(),
-      panel.grid.major.x = ggplot2::element_blank(),
-      panel.grid.minor.x = ggplot2::element_blank(),
-      panel.grid.major.y = ggplot2::element_line(colour = "grey75"),
-      panel.grid.minor.y = ggplot2::element_blank(),
-      axis.line = ggplot2::element_blank(),
-      axis.ticks.length.x = ggplot2::unit(0.25, "cm"),
-      axis.text = ggplot2::element_text(size = 12),
-      axis.text.x = ggplot2::element_text(angle = 15, hjust = 1, vjust = 1),
-      axis.title.x = ggplot2::element_text(face = "bold", size = 14),
-      axis.title.y = ggplot2::element_text(face = "bold", size = 14)
-    ) +
-    ggplot2::guides(
-      fill = ggplot2::guide_legend(order = 1),
-      color = ggplot2::guide_legend(order = 2),
-      shape = ggplot2::guide_legend(order = 3)
-    ) +
-    ggplot2::labs(
-      x = "Time",
-      y = "Number of infected",
-      color = NULL,
-      fill = NULL,
-      shape = NULL
-    )
-
-  if (interactive) {
-    range_dates_all <- range(results$date)
-    plt <- plotly::ggplotly(plt, tooltip = "text", dynamicTicks = TRUE) %>%
+    plt <- plt %>%
       plotly::layout(
         xaxis = list(
           type = "date",
           autorange = FALSE,
           range = range_dates_year,
           rangeslider = list(
-            range = range_dates_all,
+            range = range(results$date),
             visible = TRUE,
             yaxis = list(
               range = c(0, ymax_data),
@@ -288,28 +311,20 @@ plot_time_series <- function(results, interactive = FALSE,
             )
           )
         ),
-        yaxis = list(range = c(
-          0,
-          results %>%
-            # pick the default x-range view
-            dplyr::filter(date >= range_dates_year[1]) %>%
-            dplyr::select("ymax") %>% max()
-        )),
+        # yaxis = list(range = c(
+        #   0,
+        #   results %>%
+        #     # pick the default x-range view
+        #     dplyr::filter(date >= range_dates_year[1]) %>%
+        #     dplyr::select("ymax") %>% max()
+        # )),
         legend = list(
-          orientation = "h", x = 0.5, y = -0.9,
-          yanchor = "top", xanchor = "center"
+          orientation = "h",
+          x = 0.5, y = -0.5,
+          xref = "paper", yref = "paper",
+          xanchor = "center", yanchor = "top"
         )
-      ) %>%
-      plotly::config(modeBarButtonsToRemove = c(
-        "autoScale2d",
-        "select2d",
-        "lasso2d",
-        "zoomIn2d",
-        "zoomOut2d",
-        "pan2d",
-        "zoom2d",
-        "toggleSpikelines"
-      ))
+      )
 
     # JavaScript callback function using htmlwidgets::onRender() to listen for
     # the plotly_relayout event when x-axis range is adjusted.
@@ -318,77 +333,198 @@ plot_time_series <- function(results, interactive = FALSE,
     # 2. Fix to plotly rangeselector step="all", which extends x-axis into
     ##   the future, when signal markers are present. See
     ##   https://github.com/United4Surveillance/signal-detection-tool/issues/231
-    update_axes <- function(plot) {
-      htmlwidgets::onRender(plot, "
-          function(el, x, jsondata) {
-            el.on('plotly_relayout', function(eventdata) {
-              var x_autorange = eventdata['xaxis.autorange'];
-              if(x_autorange === true) {
-                // correct possible plotly-auto-extended x-axis
-                // use a copy of full date range to avoid modification
-                var data_xrange = [...jsondata['date_range']];
-                Plotly.relayout(el, {'xaxis.rangeslider.range': data_xrange,
-                                     'xaxis.range': data_xrange});
-              }
+    range_dates_all <- range(results$date)
 
-              var x_range = eventdata['xaxis.range'];
-                // undefined when x_autorange is true
-              if(x_range) {
-                // adapt ymax on y-axis to zoomed data
-                var x_min = x_range[0];
-                var x_max = x_range[1];
-                var max_y_in_view =
-                  Math.max.apply(null, jsondata['results'].filter(function(d) {
-                      return d.date >= x_min && d.date <= x_max;
-                    }).map(d => d.ymax)
-                  );
-                Plotly.relayout(el, {'yaxis.range': [0, max_y_in_view]});
-              }
-            });
-          }
-      ", data = list(
-        results = dplyr::select(results, c("date", "ymax")),
-        date_range = range_dates_all
-      ))
+      update_axes <- function(plot) {
+        htmlwidgets::onRender(plot, "
+            function(el, x, jsondata) {
+              el.on('plotly_relayout', function(eventdata) {
+                var x_autorange = eventdata['xaxis.autorange'];
+                if(x_autorange === true) {
+                  // correct possible plotly-auto-extended x-axis
+                  // use a copy of full date range to avoid modification
+                  var data_xrange = [...jsondata['date_range']];
+                  Plotly.relayout(el, {'xaxis.rangeslider.range': data_xrange,
+                                       'xaxis.range': data_xrange});
+                }
+
+                var x_range = eventdata['xaxis.range'];
+                  // undefined when x_autorange is true
+                if(x_range) {
+                  // adapt ymax on y-axis to zoomed data
+                  var x_min = x_range[0];
+                  var x_max = x_range[1];
+                  var max_y_in_view =
+                    Math.max.apply(null, jsondata['results'].filter(function(d) {
+                        return d.date >= x_min && d.date <= x_max;
+                      }).map(d => d.ymax)
+                    );
+                  Plotly.relayout(el, {'yaxis.range': [0, max_y_in_view]});
+                }
+              });
+            }
+        ", data = list(
+          results = dplyr::select(results, c("date", "ymax")),
+          date_range = range_dates_all
+        ))
+      }
+      # Update the plot with dynamic y-axis adjustment and x-axis bugfix
+      plt <- update_axes(plt)
+
+  } else {
+    plt <-
+      results %>%
+      ggplot2::ggplot(ggplot2::aes(x = date, group = 1, text = hover_text)) +
+      ggplot2::geom_rect(
+        data = period_dates_df, inherit.aes = FALSE,
+        ggplot2::aes(
+          x = NULL, y = NULL,
+          xmin = start, xmax = end,
+          fill = paste0("bg_", set_status)
+        ),
+        ymin = 0, ymax = ymax_data,
+        colour = "white", linewidth = 0.5, alpha = 0.2
+      ) +
+      ggplot2::geom_col(
+        ggplot2::aes(
+          x = date + half_week, # center bars around mid-week
+          y = cases, fill = set_status
+        )
+      ) +
+      ggplot2::geom_step(ggplot2::aes(y = upperbound, color = "Threshold"),
+                         linewidth = 1.3, direction = "hv"
+      )
+
+    if (padding_upperbound && any(!is.na(results$upperbound_pad))) {
+      plt <- plt +
+        ggplot2::geom_step(
+          ggplot2::aes(y = upperbound_pad, color = "Threshold", linetype = "Test data"),
+          linewidth = 0.3, direction = "hv"
+        )
     }
-    # Update the plot with dynamic y-axis adjustment and x-axis bugfix
-    plt <- update_axes(plt)
 
-    # modifying the interactive plot legend
-    # This is horrible, we need to find a solution at some point to do this differently
-    plt$x$data[[1]]$showlegend <-
-      plt$x$data[[2]]$showlegend <- FALSE
-    plt$x$data[[1]]$hoverinfo <-
-      plt$x$data[[2]]$hoverinfo <- "skip"
-    plt$x$data[[3]]$showlegend <- FALSE
-    plt$x$data[[4]]$name <- plt$x$data[[4]]$legendgroup <- "Signal detection period"
-    plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Threshold"
-    plt$x$data[[6]]$showlegend <- FALSE
-
-    if (padding && any(!is.na(results$expected_pad))) {
-      plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Expected"
-      if (!is.null(intervention_date)) {
-        plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Intervention (pandemic)"
-        plt$x$data[[8]]$showlegend <- TRUE
-      }
-
-      if (length(plt$x$data) == 9 && any(results$alarms == TRUE, na.rm = TRUE)) {
-        if (is.null(intervention_date)) {
-          plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Signal"
-        } else {
-          plt$x$data[[9]]$name <- plt$x$data[[9]]$legendgroup <- "Signal"
-          plt$x$data[[9]]$showlegend <- TRUE
-        }
-      } else {
-        if (any(results$alarms == TRUE, na.rm = TRUE)) {
-          plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Signal"
-        }
-      }
-    } else {
-      if (any(results$alarms == TRUE, na.rm = TRUE)) {
-        plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Signal"
-      }
+    if (padding_expected && any(!is.na(results$expected_pad))) {
+      plt <- plt +
+        ggplot2::geom_step(ggplot2::aes(y = expected, color = "Expected"),
+                           linewidth = 1.3, direction = "hv"
+        ) +
+        ggplot2::geom_step(ggplot2::aes(y = expected_pad, color = "Expected", linetype = "Training data"),
+                           linewidth = 0.3, direction = "hv"
+        )
+    } else if (any(!is.na(results$expected))) {
+      plt <- plt +
+        ggplot2::geom_step(ggplot2::aes(y = expected, color = "Expected"),
+                           linewidth = 1.3, direction = "hv"
+        )
     }
+
+    # adding intervention vertical line
+    if (!is.null(intervention_date)) {
+      plt <- plt +
+        ggplot2::geom_vline(xintercept = intervention_date, linetype = "dashed", color = col.intervention, size = 0.7)
+      legend_values <- c(legend_values, "Intervention" = col.intervention)
+    }
+
+    # adding signal points
+    plt <- plt +
+      ggplot2::geom_point(
+        data = dplyr::filter(results, alarms == TRUE),
+        ggplot2::aes(x = date + half_week, y = cases, shape = alarms, stroke = 1),
+        color = col.alarm, size = 6
+      )
+
+    plt <- plt +
+      ggplot2::scale_x_date(
+        date_breaks = "month", date_labels = "%Y-%m-%d",
+        expand = c(0, 0)
+      ) +
+      ggplot2::scale_y_continuous(
+        breaks = scales::breaks_pretty(n = 5),
+        expand = ggplot2::expansion(mult = c(0, 0.1))
+      ) +
+      ggplot2::scale_shape_manual(
+        values = c("TRUE" = 8),
+        labels = c("TRUE" = "Signal")
+      ) +
+      ggplot2::scale_color_manual(values = legend_values) +
+      ggplot2::scale_fill_manual(
+        values = c(
+          "Test data" = col.test, "Training data" = col.training,
+          "bg_Training data" = "white", "bg_Test data" = col.threshold
+        ),
+        labels = c("Test data" = "Signal detection period"),
+        breaks = c("Test data")
+      ) +
+      ggplot2::scale_linetype_manual(values = c("Training data" = 1, "Test data" = 1), name = "", guide = "none") +
+      ggplot2::theme(
+        legend.position = "top",
+        legend.background = ggplot2::element_blank(),
+        legend.key = ggplot2::element_blank(),
+        legend.text = ggplot2::element_text(size = 12),
+        panel.background = ggplot2::element_blank(),
+        panel.grid.major.x = ggplot2::element_blank(),
+        panel.grid.minor.x = ggplot2::element_blank(),
+        panel.grid.major.y = ggplot2::element_line(colour = "grey75"),
+        panel.grid.minor.y = ggplot2::element_blank(),
+        axis.line = ggplot2::element_blank(),
+        axis.ticks.length.x = ggplot2::unit(0.25, "cm"),
+        axis.text = ggplot2::element_text(size = 12),
+        axis.text.x = ggplot2::element_text(angle = 15, hjust = 1, vjust = 1),
+        axis.title.x = ggplot2::element_text(face = "bold", size = 14),
+        axis.title.y = ggplot2::element_text(face = "bold", size = 14)
+      ) +
+      ggplot2::guides(
+        fill = ggplot2::guide_legend(order = 1),
+        color = ggplot2::guide_legend(order = 2),
+        shape = ggplot2::guide_legend(order = 3)
+      ) +
+      ggplot2::labs(
+        x = "Time",
+        y = "Number of infected",
+        color = NULL,
+        fill = NULL,
+        shape = NULL
+      )
   }
+
+
+
+  #
+  #   # modifying the interactive plot legend
+  #   # This is horrible, we need to find a solution at some point to do this differently
+  #   plt$x$data[[1]]$showlegend <-
+  #     plt$x$data[[2]]$showlegend <- FALSE
+  #   plt$x$data[[1]]$hoverinfo <-
+  #     plt$x$data[[2]]$hoverinfo <- "skip"
+  #   plt$x$data[[3]]$showlegend <- FALSE
+  #   plt$x$data[[4]]$name <- plt$x$data[[4]]$legendgroup <- "Signal detection period"
+  #   plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Threshold"
+  #   plt$x$data[[6]]$showlegend <- FALSE
+  #
+  #   if (padding && any(!is.na(results$expected_pad))) {
+  #     plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Expected"
+  #     if (!is.null(intervention_date)) {
+  #       plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Intervention (pandemic)"
+  #       plt$x$data[[8]]$showlegend <- TRUE
+  #     }
+  #
+  #     if (length(plt$x$data) == 9 && any(results$alarms == TRUE, na.rm = TRUE)) {
+  #       if (is.null(intervention_date)) {
+  #         plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Signal"
+  #       } else {
+  #         plt$x$data[[9]]$name <- plt$x$data[[9]]$legendgroup <- "Signal"
+  #         plt$x$data[[9]]$showlegend <- TRUE
+  #       }
+  #     } else {
+  #       if (any(results$alarms == TRUE, na.rm = TRUE)) {
+  #         plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Signal"
+  #       }
+  #     }
+  #   } else {
+  #     if (any(results$alarms == TRUE, na.rm = TRUE)) {
+  #       plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Signal"
+  #     }
+  #   }
+  # }
   return(plt)
 }
