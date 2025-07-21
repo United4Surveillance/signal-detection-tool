@@ -96,7 +96,7 @@ plot_time_series <- function(results, interactive = FALSE,
     dplyr::group_by(.data$set_status) %>%
     dplyr::summarise(
       start = min(.data$date),
-      end = max(.data$date) + lubridate::days(7)
+      end = max(.data$date) + lubridate::days(3)
     )
   # number of days in _signal _detection _period
   ndays_sdp <- dplyr::filter(
@@ -109,14 +109,14 @@ plot_time_series <- function(results, interactive = FALSE,
     as.numeric()
   # Add dummy week to `results` to end the threshold line by a
   #   horizontal segment (geom_step) in the final week
-  results <- results %>%
-    dplyr::filter(date == max(.data$date)) %>% # final week-date
-    dplyr::mutate(
-      cases = NA, alarms = NA,
-      date = .data$date + lubridate::days(7),
-      hover_text = "" # don't show misleading hover at dummy data
-    ) %>%
-    dplyr::bind_rows(results, .)
+  # results <- results %>%
+  #   dplyr::filter(date == max(.data$date)) %>% # final week-date
+  #   dplyr::mutate(
+  #     cases = NA, alarms = NA,
+  #     date = .data$date + lubridate::days(7),
+  #     hover_text = "" # don't show misleading hover at dummy data
+  #   ) %>%
+  #   dplyr::bind_rows(results, .)
 
   # function to find a nice-looking ymax value for y-axis range
   #   (plotly does not work with ymax=Inf)
@@ -161,42 +161,41 @@ plot_time_series <- function(results, interactive = FALSE,
 
   if(interactive){
     plt <- plotly::plot_ly() %>%
-      plotly::add_trace(
+      plotly::add_trace( # Training Data Bars
+        name = "Observed",
         type = "bar",
         x = results$date[results$set_status == "Training data"],
         y = results$cases[results$set_status == "Training data"],
         marker = list(color = col.training),
-        hovertemplate = paste("Observed: %{y}",
-                              "<extra></extra>"),
+        hoverinfo = "name + y",
         legendgroup = "obs",
         showlegend = F
       ) %>%
-      plotly::add_trace(
+      plotly::add_trace( # Test Data Bars
         name = "Signal detection period",
         type = "bar",
         x = results$date[results$set_status == "Test data"],
         y = results$cases[results$set_status == "Test data"],
         marker = list(color = col.test),
-        hovertemplate = paste("Observed: %{y}",
-                              "<extra></extra>"),
+        hoverinfo = "y",
+        hovertemplate = "Observed : %{y}<extra></extra>",
         legendgroup = "obs"
       ) %>%
-      plotly::add_trace(
+      plotly::add_trace( # Threshold Test period
         name = "Threshold",
         type = "scatter",
         mode = "lines",
-        line = list(shape = "hvh", width = 1),
+        line = list(shape = "hvh", width = 1.3),
         x = results$date[!is.na(results$alarms)],
         y = results$upperbound[!is.na(results$alarms)],
         color = I(col.threshold),
-        hovertemplate = paste("Threshold: %{y:.1f}",
-                              "<extra></extra>"),
+        hoverinfo = "name + y",
         legendgroup = "upp.threshold"
       ) %>%
       plotly::layout(
-        shapes = list(
+        shapes = list( # Shaded area Test period
           list(type = "rect", fillcolor = col.test, opacity = 0.2, line = list(width = 0),
-               x0 = period_dates_df$start[period_dates_df$set_status == "Test data"],
+               x0 = period_dates_df$start[period_dates_df$set_status == "Test data"] - 3,
                x1 = period_dates_df$end[period_dates_df$set_status == "Test data"], xref = "x",
                y0 = 0, y1 = 1, yref = "paper")
         ),
@@ -206,7 +205,7 @@ plot_time_series <- function(results, interactive = FALSE,
 
     if (padding_upperbound && any(!is.na(results$upperbound_pad))){
       plt <- plt %>%
-        plotly::add_trace(
+        plotly::add_trace( # Threshold Training period
           name = "Threshold",
           type = "scatter",
           mode = "lines",
@@ -214,8 +213,7 @@ plot_time_series <- function(results, interactive = FALSE,
           x = results$date[!is.na(results$upperbound_pad)],
           y = results$upperbound_pad[!is.na(results$upperbound_pad)],
           color = I(col.threshold),
-          hovertemplate = paste("Threshold: %{y:.1f}",
-                                "<extra></extra>"),
+          hoverinfo = "name + y",
           legendgroup = "upp.threshold",
           showlegend = F
         )
@@ -223,19 +221,18 @@ plot_time_series <- function(results, interactive = FALSE,
 
     if (padding_expected && any(!is.na(results$expected_pad))){
       plt <- plt %>%
-        plotly::add_trace(
+        plotly::add_trace( # Expected Test period
           name = "Expected",
           type = "scatter",
           mode = "lines",
-          line = list(shape = "hvh", width = 1),
+          line = list(shape = "hvh", width = 1.3),
           x = results$date[!is.na(results$expected)],
           y = results$expected[!is.na(results$expected)],
           color = I(col.expected),
-          hovertemplate = paste("Expected: %{y:.1f}",
-                                "<extra></extra>"),
+          hoverinfo = "name + y",
           legendgroup = "exp"
         ) %>%
-        plotly::add_trace(
+        plotly::add_trace( # Expected Training period
           name = "Expected",
           type = "scatter",
           mode = "lines",
@@ -243,30 +240,28 @@ plot_time_series <- function(results, interactive = FALSE,
           x = results$date[!is.na(results$expected_pad)],
           y = results$expected_pad[!is.na(results$expected_pad)],
           color = I(col.expected),
-          hovertemplate = paste("Expected: %{y:.1f}",
-                                "<extra></extra>"),
+          hoverinfo = "name + y",
           legendgroup = "exp",
           showlegend = F
         )
     } else if (any(!is.na(results$expected))) {
       plt <- plt %>%
-        plotly::add_trace(
+        plotly::add_trace( # Expected Test period
           name = "Expected",
           type = "scatter",
           mode = "lines",
-          line = list(shape = "hvh", width = 1),
+          line = list(shape = "hvh", width = 1.3),
           x = results$date[!is.na(results$expected)],
           y = results$expected[!is.na(results$expected)],
           color = I(col.expected),
-          hovertemplate = paste("Expected: %{y:.1f}",
-                                "<extra></extra>")
+          hoverinfo = "name + y"
         )
     }
 
     if (!is.null(intervention_date)) {
       plt <- plt %>%
         plotly::layout(
-          shapes = list(
+          shapes = list( # Intev ention date line
             list(type = "line", y0 = 0, y1 = 1, yref = "paper",
                  x0 = intervention_date, x1 = intervention_date,
                  line = list(color = I(col.intervention), dash = "dot"))
@@ -275,16 +270,15 @@ plot_time_series <- function(results, interactive = FALSE,
     }
 
     plt <- plt %>%
-      plotly::add_trace(
+      plotly::add_trace( # Signals
         name = "Signal",
         type = "scatter",
         mode = "markers",
         x = results$date[!is.na(results$alarms) & results$alarms == T],
         y = results$cases[!is.na(results$alarms) & results$alarms == T],
-        marker = list(symbol = "star", size = 10),
+        marker = list(symbol = "star", size = 13),
         color = I(col.alarm),
-        hovertemplate = paste("Signal",
-                              "<extra></extra>")
+        hovertemplate = "Signal<extra></extra>"
       )
 
     plt <- plt %>%
@@ -370,6 +364,14 @@ plot_time_series <- function(results, interactive = FALSE,
       }
       # Update the plot with dynamic y-axis adjustment and x-axis bugfix
       plt <- update_axes(plt)
+
+      # change toJSON function to save max 1 significant digit
+      # attr(plt$x, "TOJSON_FUNC") <- function (x, ...)
+      # {
+      #   jsonlite::toJSON(x, digits = 1, auto_unbox = TRUE, force = TRUE,
+      #                    null = "null", na = "null", time_format = "%Y-%m-%d",
+      #                    ...)
+      # }
 
   } else {
     plt <-
