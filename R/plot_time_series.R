@@ -29,13 +29,19 @@ plot_time_series <- function(results, interactive = FALSE,
   # round up and change data types
   results <- results %>%
     dplyr::mutate(
-      dplyr::across(c("year", "week", "cases", "number_of_weeks"),
-                    ~as.integer(.x)),
-      dplyr::across(dplyr::contains("upperbound"),
-                    ~round(.x, 1)),
-      dplyr::across(dplyr::contains("expected"),
-                    ~round(.x, 1))
+      dplyr::across(
+        c("year", "week", "cases", "number_of_weeks"),
+        ~ as.integer(.x)
+      ),
+      dplyr::across(
+        dplyr::contains("upperbound"),
+        ~ round(.x, 1)
+      ),
+      dplyr::across(
+        dplyr::contains("expected"),
+        ~ round(.x, 1)
       )
+    )
 
   results <- results %>%
     dplyr::mutate(
@@ -161,7 +167,7 @@ plot_time_series <- function(results, interactive = FALSE,
 
   half_week <- lubridate::days(3)
 
-  if(interactive){
+  if (interactive) {
     plt <- plotly::plot_ly() %>%
       plotly::add_trace( # Training Data Bars
         name = "Observed",
@@ -196,16 +202,18 @@ plot_time_series <- function(results, interactive = FALSE,
       ) %>%
       plotly::layout(
         shapes = list( # Shaded area Test period
-          list(type = "rect", fillcolor = col.test, opacity = 0.2, line = list(width = 0),
-               x0 = period_dates_df$start[period_dates_df$set_status == "Test data"] - 3,
-               x1 = period_dates_df$end[period_dates_df$set_status == "Test data"], xref = "x",
-               y0 = 0, y1 = 1, yref = "paper")
+          list(
+            type = "rect", fillcolor = col.test, opacity = 0.2, line = list(width = 0),
+            x0 = period_dates_df$start[period_dates_df$set_status == "Test data"] - 3,
+            x1 = period_dates_df$end[period_dates_df$set_status == "Test data"], xref = "x",
+            y0 = 0, y1 = 1, yref = "paper"
+          )
         ),
         hovermode = "x unified",
         xaxis = list(hoverformat = "Week: %Y-W%W")
       )
 
-    if (padding_upperbound && any(!is.na(results$upperbound_pad))){
+    if (padding_upperbound && any(!is.na(results$upperbound_pad))) {
       plt <- plt %>%
         plotly::add_trace( # Threshold Training period
           name = "Threshold",
@@ -221,7 +229,7 @@ plot_time_series <- function(results, interactive = FALSE,
         )
     }
 
-    if (padding_expected && any(!is.na(results$expected_pad))){
+    if (padding_expected && any(!is.na(results$expected_pad))) {
       plt <- plt %>%
         plotly::add_trace( # Expected Test period
           name = "Expected",
@@ -264,9 +272,11 @@ plot_time_series <- function(results, interactive = FALSE,
       plt <- plt %>%
         plotly::layout(
           shapes = list( # Intev ention date line
-            list(type = "line", y0 = 0, y1 = 1, yref = "paper",
-                 x0 = intervention_date, x1 = intervention_date,
-                 line = list(color = I(col.intervention), dash = "dot"))
+            list(
+              type = "line", y0 = 0, y1 = 1, yref = "paper",
+              x0 = intervention_date, x1 = intervention_date,
+              line = list(color = I(col.intervention), dash = "dot")
+            )
           )
         )
     }
@@ -331,8 +341,8 @@ plot_time_series <- function(results, interactive = FALSE,
     ##   https://github.com/United4Surveillance/signal-detection-tool/issues/231
     range_dates_all <- range(results$date)
 
-      update_axes <- function(plot) {
-        htmlwidgets::onRender(plot, "
+    update_axes <- function(plot) {
+      htmlwidgets::onRender(plot, "
             function(el, x, jsondata) {
               el.on('plotly_relayout', function(eventdata) {
                 var x_autorange = eventdata['xaxis.autorange'];
@@ -360,21 +370,21 @@ plot_time_series <- function(results, interactive = FALSE,
               });
             }
         ", data = list(
-          results = dplyr::select(results, c("date", "ymax")),
-          date_range = range_dates_all
-        ))
-      }
-      # Update the plot with dynamic y-axis adjustment and x-axis bugfix
-      plt <- update_axes(plt)
+        results = dplyr::select(results, c("date", "ymax")),
+        date_range = range_dates_all
+      ))
+    }
+    # Update the plot with dynamic y-axis adjustment and x-axis bugfix
+    plt <- update_axes(plt)
 
-      # change toJSON function to save max 1 significant digit
-      attr(plt$x, "TOJSON_FUNC") <- function (x, ...)
-      {
-        jsonlite::toJSON(x, digits = 1, auto_unbox = TRUE, force = TRUE,
-                         null = "null", na = "null", time_format = "%Y-%m-%d",
-                         ...)
-      }
-
+    # change toJSON function to save max 1 significant digit
+    attr(plt$x, "TOJSON_FUNC") <- function(x, ...) {
+      jsonlite::toJSON(x,
+        digits = 1, auto_unbox = TRUE, force = TRUE,
+        null = "null", na = "null", time_format = "%Y-%m-%d",
+        ...
+      )
+    }
   } else {
     plt <-
       results %>%
@@ -396,7 +406,7 @@ plot_time_series <- function(results, interactive = FALSE,
         )
       ) +
       ggplot2::geom_step(ggplot2::aes(y = upperbound, color = "Threshold"),
-                         linewidth = 1.3, direction = "hv"
+        linewidth = 1.3, direction = "hv"
       )
 
     if (padding_upperbound && any(!is.na(results$upperbound_pad))) {
@@ -410,15 +420,15 @@ plot_time_series <- function(results, interactive = FALSE,
     if (padding_expected && any(!is.na(results$expected_pad))) {
       plt <- plt +
         ggplot2::geom_step(ggplot2::aes(y = expected, color = "Expected"),
-                           linewidth = 1.3, direction = "hv"
+          linewidth = 1.3, direction = "hv"
         ) +
         ggplot2::geom_step(ggplot2::aes(y = expected_pad, color = "Expected", linetype = "Training data"),
-                           linewidth = 0.3, direction = "hv"
+          linewidth = 0.3, direction = "hv"
         )
     } else if (any(!is.na(results$expected))) {
       plt <- plt +
         ggplot2::geom_step(ggplot2::aes(y = expected, color = "Expected"),
-                           linewidth = 1.3, direction = "hv"
+          linewidth = 1.3, direction = "hv"
         )
     }
 
