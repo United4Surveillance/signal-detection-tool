@@ -31,7 +31,9 @@ plot_time_series <- function(results, interactive = FALSE,
     dplyr::mutate(
       dplyr::across(c("year", "week", "cases", "number_of_weeks"),
                     ~as.integer(.x)),
-      dplyr::across(c("upperbound", "expected", "upperbound_pad", "expected_pad"),
+      dplyr::across(dplyr::contains("upperbound"),
+                    ~round(.x, 1)),
+      dplyr::across(dplyr::contains("expected"),
                     ~round(.x, 1))
       )
 
