@@ -27,13 +27,13 @@ plot_time_series <- function(results, interactive = FALSE,
   padding <- any(padding_expected, padding_upperbound)
 
   # round up and change data types
-  # results <- results %>%
-  #   dplyr::mutate(
-  #     dplyr::across(c("year", "week", "cases", "number_of_weeks"),
-  #                   ~as.integer(.x)),
-  #     dplyr::across(c("upperbound", "expected", "upperbound_pad", "expected_pad"),
-  #                   ~round(.x, 1))
-  #     )
+  results <- results %>%
+    dplyr::mutate(
+      dplyr::across(c("year", "week", "cases", "number_of_weeks"),
+                    ~as.integer(.x)),
+      dplyr::across(c("upperbound", "expected", "upperbound_pad", "expected_pad"),
+                    ~round(.x, 1))
+      )
 
   results <- results %>%
     dplyr::mutate(
@@ -366,12 +366,12 @@ plot_time_series <- function(results, interactive = FALSE,
       plt <- update_axes(plt)
 
       # change toJSON function to save max 1 significant digit
-      # attr(plt$x, "TOJSON_FUNC") <- function (x, ...)
-      # {
-      #   jsonlite::toJSON(x, digits = 1, auto_unbox = TRUE, force = TRUE,
-      #                    null = "null", na = "null", time_format = "%Y-%m-%d",
-      #                    ...)
-      # }
+      attr(plt$x, "TOJSON_FUNC") <- function (x, ...)
+      {
+        jsonlite::toJSON(x, digits = 1, auto_unbox = TRUE, force = TRUE,
+                         null = "null", na = "null", time_format = "%Y-%m-%d",
+                         ...)
+      }
 
   } else {
     plt <-
