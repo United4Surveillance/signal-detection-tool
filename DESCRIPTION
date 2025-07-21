@@ -51,7 +51,8 @@ Imports:
     tidyr (>= 1.2.1),
     forcats (>= 1.0.0),
     plyr (>= 1.8.8),
-    base64enc
+    base64enc,
+    jsonlite
 Suggests: 
     knitr (>= 1.42),
     ggforce (>= 0.4.2),
