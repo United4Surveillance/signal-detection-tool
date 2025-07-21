@@ -39,14 +39,10 @@ for(st in unique(df$stratum)){
     df %>% dplyr::filter(.data[["stratum"]] == st),
     number_of_weeks = 52,
     intervention_date = params$intervention_date,
-    interactive = FALSE
-  ) +
-  ggplot2::scale_x_date(
-    date_breaks = "2 months", date_labels = "%Y-%m-%d",
-    expand = c(0, 0)
-  )
-  
-  print(plot_stratum)
+    interactive = TRUE)
+
+  print(htmltools::tagList(plot_stratum))
+
   
   cat("\n\n\n")
 }
