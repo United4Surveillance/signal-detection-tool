@@ -110,6 +110,15 @@ plot_barchart <- function(signals_agg,
         "zoom2d",
         "toggleSpikelines"
       ))
+
+    attr(p$x, "TOJSON_FUNC") <- function (x, ...)
+    {
+      jsonlite::toJSON(x, digits = 1, auto_unbox = TRUE, force = TRUE,
+                       null = "null", na = "null", time_format = "%Y-%m-%d",
+                       ...)
+    }
+
+    p <- plotly::partial_bundle(p)
   }
   return(p)
 }

@@ -154,6 +154,8 @@ plot_regional <- function(shape_with_signals,
       plot$x$data[[n_list + 1]]$fillcolor <- "transparent"
       plot$x$data[[idx]]$showlegend <- FALSE
     }
+
+    plot <- plotly::partial_bundle(plot)
   }
 
   plot

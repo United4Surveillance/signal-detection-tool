@@ -375,6 +375,8 @@ plot_time_series <- function(results, interactive = FALSE,
                          ...)
       }
 
+      plt <- plotly::partial_bundle(plt)
+
   } else {
     plt <-
       results %>%
