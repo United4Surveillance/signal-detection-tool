@@ -2,12 +2,12 @@
 % Please edit documentation in R/plot_signals_week.R
 \name{plot_signals_per_week}
 \alias{plot_signals_per_week}
-\title{Title}
+\title{Plot in how many strata an signal was detected under the detection period}
 \usage{
-plot_signals_per_week(dat_padded, interactive = FALSE, branding = NULL)
+plot_signals_per_week(results, interactive = FALSE, branding = NULL)
 }
 \arguments{
-\item{dat_padded}{dataframe of a single-pathogen signal detection results for a strata category}
+\item{results}{dataframe of a single-pathogen signal detection results for a strata category}
 
 \item{interactive}{logical, if TRUE, interactive plot is returned; default, static plot.}
 
@@ -17,7 +17,8 @@ plot_signals_per_week(dat_padded, interactive = FALSE, branding = NULL)
 either a ggplot or plotly object
 }
 \description{
-Title
+Using the results of signal detection, plot a week-to-week representation of
+strata had higher than expected case numbers
 }
 \examples{
 \dontrun{
