@@ -17,13 +17,12 @@
 #'
 #' plot_signals_per_week(signals)
 #' }
-plot_signals_per_week <- function(results, interactive = FALSE, branding = NULL){
-
-  if(is.null(branding)){
-    branding <- stats::setNames(c("lightgray", "#be1622"), c("primary","danger"))
+plot_signals_per_week <- function(results, interactive = FALSE, branding = NULL) {
+  if (is.null(branding)) {
+    branding <- stats::setNames(c("lightgray", "#be1622"), c("primary", "danger"))
   } else {
-    #check that given branding have named colors
-    checkmate::assert_names(names(branding), must.include = c("primary","danger"))
+    # check that given branding have named colors
+    checkmate::assert_names(names(branding), must.include = c("primary", "danger"))
 
     branding["primary"] <- "lightgray"
   }
@@ -36,7 +35,7 @@ plot_signals_per_week <- function(results, interactive = FALSE, branding = NULL)
     dplyr::mutate(
       isoweek = sprintf("%d-W%02d", .data$year, .data$week),
       date = ISOweek::ISOweek2date(paste0(.data$isoweek, "-1"))
-      )
+    )
 
   # count strata with signals for each week
   signals_week <- results %>%
@@ -44,30 +43,32 @@ plot_signals_per_week <- function(results, interactive = FALSE, branding = NULL)
     dplyr::summarise(
       n.signals = sum(.data$alarms),
       n.rest = dplyr::n() - .data$n.signals,
-      p.signals = sum(.data$alarms)/dplyr::n() * 100 %>% round(1),
+      p.signals = sum(.data$alarms) / dplyr::n() * 100 %>% round(1),
       p.rest = 100 - .data$p.signals
     ) %>%
     dplyr::ungroup()
 
-  if(!interactive){
+  if (!interactive) {
     signals_week <- signals_week %>%
       tidyr::pivot_longer(
         cols = c("p.signals", "p.rest"),
         names_to = "type",
         values_to = "p.strata"
-        ) %>%
+      ) %>%
       dplyr::mutate(
         type = factor(.data$type,
           levels = c("p.rest", "p.signals"),
-          labels = c("without signals", "with signals"))
+          labels = c("without signals", "with signals")
+        )
       )
 
     p <- signals_week %>%
       ggplot2::ggplot() +
       ggplot2::geom_col(
         ggplot2::aes(
-          x = .data$isoweek, y = .data$p.strata, fill = .data$type)
-        ) +
+          x = .data$isoweek, y = .data$p.strata, fill = .data$type
+        )
+      ) +
       ggplot2::labs(x = "Week", y = "Strata with signals (%)") +
       ggplot2::scale_fill_manual(
         values = stats::setNames(c(branding["primary"], branding["danger"]), NULL)
@@ -115,7 +116,8 @@ plot_signals_per_week <- function(results, interactive = FALSE, branding = NULL)
       plotly::layout(
         xaxis = list(title = "Week"),
         yaxis = list(
-          title = "Strata with signals (%)"),
+          title = "Strata with signals (%)"
+        ),
         barmode = "stack",
         hovermode = "x unified",
         legend = list(
@@ -123,16 +125,17 @@ plot_signals_per_week <- function(results, interactive = FALSE, branding = NULL)
           x = 0.5, y = 1,
           xref = "paper", yref = "container",
           xanchor = "center", yanchor = "bottom"
-        ))
+        )
+      )
 
     p <- plotly::partial_bundle(p)
 
     # change toJSON function to save max 1 significant digit
     attr(p$x, "TOJSON_FUNC") <- function(x, ...) {
       jsonlite::toJSON(x,
-                       digits = 1, auto_unbox = TRUE, force = TRUE,
-                       null = "null", na = "null", time_format = "%Y-%m-%d",
-                       ...
+        digits = 1, auto_unbox = TRUE, force = TRUE,
+        null = "null", na = "null", time_format = "%Y-%m-%d",
+        ...
       )
     }
   }
