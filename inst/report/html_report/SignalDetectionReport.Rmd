@@ -161,9 +161,13 @@ dt <- DT::datatable(
       values_from = signals
     ) %>% 
     dplyr::mutate(
-      pathogen = paste0("<a href='#", tolower(pathogen),"'>", pathogen,"</a>"),
+      pathogen_f = tolower(pathogen),
+      pathogen_f = gsub("[~(),./?&!#<>\\]", "", pathogen_f),
+      pathogen_f = gsub("\\s", "-", pathogen_f), 
+      pathogen = paste0("<a href='#", pathogen_f,"'>", pathogen,"</a>"),
       total = rowSums(dplyr::across(is.integer))
-    ),
+    ) %>% 
+    dplyr::select(-pathogen_f),
   rownames = FALSE,
   escape = FALSE,
   caption = paste0("Number of signals encountered in each stratification level in the last ",

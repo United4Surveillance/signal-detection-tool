@@ -4,6 +4,11 @@
 <!-- Pathogen without stratification page -->
 
 ```{r}
+# formatting pathogen name for links 
+pate <- tolower("{{pathogen}}")  
+pate <- gsub("[~(),./?&!#<>\\]", "", pate) #remove special characters
+pate <- gsub("\\s", "-", pate) # replace space with score
+
 signals_agg <- params$signals_agg %>% 
   dplyr::filter(pathogen == "{{pathogen}}")
 
@@ -54,9 +59,9 @@ Row  {data-height=200}
 ```{r, results='asis'}
 if(!is.null(params$strata)){
   for(st in params$strata){
-    
+  
     cat(paste0(
-      "### Signals in [", st, "](#", tolower("{{pathogen}}"),"-",st,")\n"))
+      "### Signals in [", st, "](#",pate,"-",st,")\n"))
     
     p <- signals_padded %>% 
       dplyr::filter(category == st) %>% 
@@ -74,7 +79,7 @@ Row {data-height=400}
 
 ```{r, results='asis'}
 for(cate in params$strata){
-  pate <- tolower("{{pathogen}}")
+
   cate_link <- paste0("[", cate, "](#",pate ,"-", cate, ")")
   cat("### Distribution by", cate_link, "\n\n")
   
