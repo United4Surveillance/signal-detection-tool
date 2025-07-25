@@ -1,6 +1,9 @@
-#' Title
+#' Plot in how many strata an signal was detected under the detection period
 #'
-#' @param dat_padded dataframe of a single-pathogen signal detection results for a strata category
+#' Using the results of signal detection, plot a week-to-week representation of
+#' strata had higher than expected case numbers
+#'
+#' @param results dataframe of a single-pathogen signal detection results for a strata category
 #' @param interactive logical, if TRUE, interactive plot is returned; default, static plot.
 #' @param branding named vector with branding colours
 #'
@@ -14,11 +17,10 @@
 #'
 #' plot_signals_per_week(signals)
 #' }
-plot_signals_per_week <- function(dat_padded, interactive = FALSE, branding = NULL){
+plot_signals_per_week <- function(results, interactive = FALSE, branding = NULL){
 
-  # if(dplyr::n_distinct())
   if(is.null(branding)){
-    branding <- setNames(c("lightgray", "#be1622"), c("primary","danger"))
+    branding <- stats::setNames(c("lightgray", "#be1622"), c("primary","danger"))
   } else {
     #check that given branding have named colors
     checkmate::assert_names(names(branding), must.include = c("primary","danger"))
@@ -27,45 +29,48 @@ plot_signals_per_week <- function(dat_padded, interactive = FALSE, branding = NU
   }
 
   # filter out dates outside signal detection period
-  dat_padded <- dat_padded %>% dplyr::filter(!is.na(alarms))
+  results <- results %>% dplyr::filter(!is.na(.data$alarms))
 
   # add date
-  dat_padded <- dat_padded %>%
+  results <- results %>%
     dplyr::mutate(
       isoweek = sprintf("%d-W%02d", .data$year, .data$week),
       date = ISOweek::ISOweek2date(paste0(.data$isoweek, "-1"))
       )
 
   # count strata with signals for each week
-  signals_week <- dat_padded %>%
-    dplyr::group_by(isoweek) %>%
+  signals_week <- results %>%
+    dplyr::group_by(.data$isoweek) %>%
     dplyr::summarise(
-      n.signals = sum(alarms),
-      n.rest = dplyr::n() - n.signals,
-      p.signals = sum(alarms)/dplyr::n() * 100 %>% round(1),
-      p.rest = 100 - p.signals
+      n.signals = sum(.data$alarms),
+      n.rest = dplyr::n() - .data$n.signals,
+      p.signals = sum(.data$alarms)/dplyr::n() * 100 %>% round(1),
+      p.rest = 100 - .data$p.signals
     ) %>%
     dplyr::ungroup()
 
   if(!interactive){
     signals_week <- signals_week %>%
       tidyr::pivot_longer(
-        cols = c(p.signals, p.rest),
+        cols = c("p.signals", "p.rest"),
         names_to = "type",
         values_to = "p.strata"
         ) %>%
       dplyr::mutate(
-        type = factor(type,
+        type = factor(.data$type,
           levels = c("p.rest", "p.signals"),
           labels = c("without signals", "with signals"))
       )
 
     p <- signals_week %>%
       ggplot2::ggplot() +
-      ggplot2::geom_col(ggplot2::aes(x = isoweek, y = p.strata, fill = type)) +
+      ggplot2::geom_col(
+        ggplot2::aes(
+          x = .data$isoweek, y = .data$p.strata, fill = .data$type)
+        ) +
       ggplot2::labs(x = "Week", y = "Strata with signals (%)") +
       ggplot2::scale_fill_manual(
-        values = setNames(c(branding["primary"], branding["danger"]), NULL)
+        values = stats::setNames(c(branding["primary"], branding["danger"]), NULL)
       ) +
       ggplot2::theme(
         legend.position = "top",
