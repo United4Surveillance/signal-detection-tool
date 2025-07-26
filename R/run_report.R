@@ -14,7 +14,7 @@
 #' @param pathogens A character vector specifying which pathogens should be included in report. If `NULL` (default) all pathogens provided in `data` or in `signals_padded`, `signals_agg` are used.
 #' @param strata A character vector specifying the columns to stratify. If `NULL` no strata are used.
 #'   the analysis. Default is NULL.
-#' @param tables Logical. True if tables should be included in report.
+#' @param tables Logical, default TRUE. True if Signal Detection Tables should be included in report. Only used for DOCX reports, the parameter is ignored for HTML reports.
 #' @param output_file A character string specifying the name of the output file (without directory path). If `NULL` (default), the file name is automatically generated to be SignalDetectionReport. See \link[rmarkdown]{render} for more details.
 #' @param output_dir A character string specifying the output directory for the rendered output file (default is ".", which means the rendered file will be saved in the current working directory. See \link[rmarkdown]{render} for more details. `NULL` is used when running the report from shiny app which will take the Downloads folder as default option for saving.
 #' @param signals_padded A tibble of precomputed and padded signals containing a `pathogen` column.
@@ -44,7 +44,6 @@
 #'   data = SignalDetectionTool::input_example,
 #'   method = "FarringtonFlexible",
 #'   strata = c("county", "sex"),
-#'   tables = TRUE,
 #'   number_of_weeks = 6
 #' )
 #' # Example 2: An example output directory specified
@@ -198,11 +197,14 @@ run_report <- function(
     number_of_weeks = number_of_weeks,
     method = method,
     strata = strata,
-    tables = tables,
     signals_padded = signals_padded,
     signals_agg = signals_agg,
     intervention_date = intervention_date
   )
+
+  if (report_format == "DOCX") {
+    report_params$tables <- tables
+  }
 
   if (report_format == "HTML") {
     rmd_path <- system.file("report/html_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")

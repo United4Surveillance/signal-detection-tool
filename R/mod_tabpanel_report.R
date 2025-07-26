@@ -65,9 +65,13 @@ mod_tabpanel_report_server <- function(id,
               shiny::selectInput(NS(id, "format"), "Choose a format:",
                 choices = c("HTML", "DOCX")
               ),
-              shiny::checkboxInput(NS(id, "tables"),
-                "Include tables (stratifications)",
-                value = TRUE
+              # Show tables checkbox only if DOCX is selected
+              shiny::conditionalPanel(
+                condition = sprintf("input['%s'] == 'DOCX'", NS(id, "format")),
+                shiny::checkboxInput(NS(id, "tables"),
+                                     "Include signals tables for strata",
+                                     value = TRUE
+                )
               ),
               shiny::downloadButton(NS(id, "downloadReport"), "Create Report")
             ),
@@ -76,6 +80,14 @@ mod_tabpanel_report_server <- function(id,
             )
           )
         )
+      }
+    })
+
+    tables <- reactive({
+      if (is.null(input$tables)) {
+        FALSE  # default fallback when tables checkbox is hidden (HTML)
+      } else {
+        input$tables
       }
     })
 
@@ -117,7 +129,7 @@ mod_tabpanel_report_server <- function(id,
           number_of_weeks = number_of_weeks(),
           pathogens = pathogen_vars(),
           strata = strat_vars(),
-          tables = input$tables,
+          tables = tables(),
           output_file = con,
           output_dir = NULL,
           signals_padded = signals_padded() %>% dplyr::mutate(pathogen = pathogen_vars()),

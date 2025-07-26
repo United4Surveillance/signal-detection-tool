@@ -36,7 +36,7 @@ You can retrieve the full list using [names(available_algorithms())].}
 \item{strata}{A character vector specifying the columns to stratify. If `NULL` no strata are used.
 the analysis. Default is NULL.}
 
-\item{tables}{Logical. True if tables should be included in report.}
+\item{tables}{Logical, default TRUE. True if Signal Detection Tables should be included in report. Only used for DOCX reports, the parameter is ignored for HTML reports.}
 
 \item{output_file}{A character string specifying the name of the output file (without directory path). If `NULL` (default), the file name is automatically generated to be SignalDetectionReport. See \link[rmarkdown]{render} for more details.}
 
@@ -78,7 +78,6 @@ run_report(
   data = SignalDetectionTool::input_example,
   method = "FarringtonFlexible",
   strata = c("county", "sex"),
-  tables = TRUE,
   number_of_weeks = 6
 )
 # Example 2: An example output directory specified
