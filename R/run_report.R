@@ -154,6 +154,26 @@ run_report <- function(
     combine = "or"
   )
   checkmate::assert(
+    checkmate::check_null(signals_agg),
+    checkmate::check_data_frame(signals_agg, col.names = "named"),
+    combine = "or"
+  )
+  # additional checks specific to the data frame
+  # pathogen needs to be a column of signals_agg
+  if(!is.null(signals_agg)){
+    checkmate::assert_true("pathogen" %in% names(signals_agg))
+  }
+  checkmate::assert(
+    checkmate::check_null(signals_padded),
+    checkmate::check_data_frame(signals_padded, col.names = "named"),
+    combine = "or"
+  )
+  # additional checks specific to the data frame
+  # pathogen needs to be added to signals_padded
+  if(!is.null(signals_padded)){
+    checkmate::assert_true("pathogen" %in% names(signals_padded))
+  }
+  checkmate::assert(
     checkmate::check_null(custom_logo),
     checkmate::check_character(custom_logo, len = 1, pattern = "\\.svg$|\\.png$", ignore.case = TRUE),
     combine = "or"
