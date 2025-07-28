@@ -23,6 +23,7 @@ results_analysis <- signals_padded %>%
 
 Row
 -------------------------------------------------------------------------------
+
 ### Number of cases
 ```{r}
 valueBox(value = sum(results_analysis$cases[is.na(results_analysis$category)]), 
@@ -53,31 +54,35 @@ valueBox(value = n_signals_week,
          )
 ```
 
-Row  {data-height=200}
--------------------------------------------------------------------------------
+```{r, results='asis', eval=!is.null(params$strata)}
+cat("\n\n")
+cat("Row  {data-height=200}\n")
+cat("-------------------------------------------------------------------------------\n\n")
+```
 
-```{r, results='asis'}
-if(!is.null(params$strata)){
-  for(st in params$strata){
+```{r, results='asis', eval=!is.null(params$strata)}
+for(st in params$strata){
+
+  cat(paste0(
+    "### Signals in [", st, "](#",pate,"-",st,")\n"))
   
-    cat(paste0(
-      "### Signals in [", st, "](#",pate,"-",st,")\n"))
-    
-    p <- signals_padded %>% 
-      dplyr::filter(category == st) %>% 
-      plot_signals_per_week(interactive = TRUE, branding = brand_colors)
-    
-    print(htmltools::tagList(p))
+  p <- signals_padded %>% 
+    dplyr::filter(category == st) %>% 
+    plot_signals_per_week(interactive = TRUE, branding = brand_colors)
   
-    cat("\n\n")
-  }
+  print(htmltools::tagList(p))
+
+  cat("\n\n")
 }
 ```
 
-Row {data-height=400}
--------------------------------------------------------------------------------
+```{r, results='asis', eval=!is.null(params$strata)}
+cat("\n\n")
+cat("Row  {data-height=400}\n")
+cat("-------------------------------------------------------------------------------\n\n")
+```
 
-```{r, results='asis'}
+```{r, results='asis', eval=!is.null(params$strata)}
 for(cate in params$strata){
 
   cate_link <- paste0("[", cate, "](#",pate ,"-", cate, ")")
@@ -91,6 +96,8 @@ for(cate in params$strata){
     ) 
   
   print(htmltools::tagList(dist_plot))
+  
+  cat("\n\n")
 }
 ```
 
