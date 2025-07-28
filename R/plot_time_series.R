@@ -169,12 +169,18 @@ plot_time_series <- function(results, interactive = FALSE,
 
   if (interactive) {
     # threshold and expected lines extended
-    dt <- c(head(results$date[!is.na(results$alarms)], 1) - 3,
-            tail(results$date[!is.na(results$alarms)], 1) + 3)
-    th <- c(head(results$upperbound[!is.na(results$alarms)], 1),
-            tail(results$upperbound[!is.na(results$alarms)], 1))
-    ex <- c(head(results$expected[!is.na(results$alarms)], 1),
-            tail(results$expected[!is.na(results$alarms)], 1))
+    dt <- c(
+      head(results$date[!is.na(results$alarms)], 1) - 3,
+      tail(results$date[!is.na(results$alarms)], 1) + 3
+    )
+    th <- c(
+      head(results$upperbound[!is.na(results$alarms)], 1),
+      tail(results$upperbound[!is.na(results$alarms)], 1)
+    )
+    ex <- c(
+      head(results$expected[!is.na(results$alarms)], 1),
+      tail(results$expected[!is.na(results$alarms)], 1)
+    )
 
     plt <- plotly::plot_ly() %>%
       plotly::add_trace( # Training Data Bars
