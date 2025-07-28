@@ -1,3 +1,6 @@
+* Adds ability to generate one report for multiple pathogens.
+* Allows custom theming of report using colours or custom logo.
+* Exports 3 more functions to use outside of Shiny app.
 * Rewriting the vignette
   - contains information about internal data
   - instructions for get_signals()

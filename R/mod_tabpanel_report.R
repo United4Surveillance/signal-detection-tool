@@ -69,8 +69,8 @@ mod_tabpanel_report_server <- function(id,
               shiny::conditionalPanel(
                 condition = sprintf("input['%s'] == 'DOCX'", NS(id, "format")),
                 shiny::checkboxInput(NS(id, "tables"),
-                                     "Include signals tables for strata",
-                                     value = TRUE
+                  "Include signals tables for strata",
+                  value = TRUE
                 )
               ),
               shiny::downloadButton(NS(id, "downloadReport"), "Create Report")
@@ -85,7 +85,7 @@ mod_tabpanel_report_server <- function(id,
 
     tables <- reactive({
       if (is.null(input$tables)) {
-        FALSE  # default fallback when tables checkbox is hidden (HTML)
+        FALSE # default fallback when tables checkbox is hidden (HTML)
       } else {
         input$tables
       }

@@ -29,7 +29,7 @@ test_that("Age group column is added correctly", {
   input_data_noage <- remove_empty_columns(input_data_noage)
 
   output_data <- read.csv(test_path("testdata", "agegroup_output.csv"),
-                          header = TRUE, sep = ","
+    header = TRUE, sep = ","
   ) %>%
     # strip trailing or leading whitespaces
     dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ stringr::str_trim(.x)))
