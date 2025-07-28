@@ -31,10 +31,11 @@ You can retrieve the full list using [names(available_algorithms())].}
 
 \item{number_of_weeks}{integer, number of weeks for which signals are generated}
 
-\item{pathogens}{A character vector specifying which pathogens should be included in report. If `NULL` (default) all pathogens provided in `data` or in `signals_padded`, `signals_agg` are used.}
+\item{pathogens}{A character vector specifying which pathogens to include in the report.
+If `NULL` (default), all pathogens present in `data`, `signals_padded`, or `signals_agg` are used.
+Multi-pathogen reports are supported only for HTML output.}
 
-\item{strata}{A character vector specifying the columns to stratify. If `NULL` no strata are used.
-the analysis. Default is NULL.}
+\item{strata}{A character vector specifying the columns to stratify. If `NULL` no strata are used. Defaults to `NULL`}
 
 \item{tables}{Logical, default TRUE. True if Signal Detection Tables should be included in report. Only used for DOCX reports, the parameter is ignored for HTML reports.}
 
@@ -58,14 +59,18 @@ If not `NULL`, the provided `signals_agg` is used directly and signals are not r
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.}
 
-\item{custom_logo}{A character string with a path to a png or svg logo, to replace the default United 4 Surveillance logo.}
+\item{custom_logo}{A character string with a path to a png or svg logo, to replace the default United4Surveillance logo.}
 
-\item{custom_theme}{A bslib::bs_theme() to replace the default United 4 Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact.}
+\item{custom_theme}{A bslib::bs_theme() to replace the default United4Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact.}
 }
 \value{
 the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 }
 \description{
+The function supports the generation of a single-pathogen and multi-pathogen report when `report_format = "HTML"`.
+For Word (DOCX) output, only single-pathogen reports are currently supported.
+}
+\details{
 If executed as a standalone function, all filtering must
 be performed beforehand.
 This function is also invoked within the app.
@@ -98,6 +103,22 @@ run_report(
   method = "EARS",
   strata = NULL
 )
+
+# Example 5: HTML report for multiple pathogens
+run_report(
+  report_format = "HTML",
+  data = SignalDetectionTool::input_example_multipathogen,
+  method = "Harmonic"
+)
+
+Example 6: HTML report for a subset of pathogens in a multi-pathogen dataset
+run_report(
+  report_format = "HTML",
+  data = SignalDetectionTool::input_example_multipathogen,
+  pathogens = c("Enterobacter","Salmonella"),
+  method = "Harmonic"
+)
+
 }
 }
 \seealso{

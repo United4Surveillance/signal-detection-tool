@@ -1,5 +1,8 @@
 #' Renders signal detection report
 #'
+#' The function supports the generation of a single-pathogen and multi-pathogen report when `report_format = "HTML"`.
+#' For Word (DOCX) output, only single-pathogen reports are currently supported.
+#'
 #' If executed as a standalone function, all filtering must
 #' be performed beforehand.
 #' This function is also invoked within the app.
@@ -11,9 +14,10 @@
 #'
 #' @seealso [names(available_algorithms())]
 #' @param number_of_weeks integer, number of weeks for which signals are generated
-#' @param pathogens A character vector specifying which pathogens should be included in report. If `NULL` (default) all pathogens provided in `data` or in `signals_padded`, `signals_agg` are used.
-#' @param strata A character vector specifying the columns to stratify. If `NULL` no strata are used.
-#'   the analysis. Default is NULL.
+#' @param pathogens A character vector specifying which pathogens to include in the report.
+#'   If `NULL` (default), all pathogens present in `data`, `signals_padded`, or `signals_agg` are used.
+#'   Multi-pathogen reports are supported only for HTML output.
+#' @param strata A character vector specifying the columns to stratify. If `NULL` no strata are used. Defaults to `NULL`
 #' @param tables Logical, default TRUE. True if Signal Detection Tables should be included in report. Only used for DOCX reports, the parameter is ignored for HTML reports.
 #' @param output_file A character string specifying the name of the output file (without directory path). If `NULL` (default), the file name is automatically generated to be SignalDetectionReport. See \link[rmarkdown]{render} for more details.
 #' @param output_dir A character string specifying the output directory for the rendered output file (default is ".", which means the rendered file will be saved in the current working directory. See \link[rmarkdown]{render} for more details. `NULL` is used when running the report from shiny app which will take the Downloads folder as default option for saving.
@@ -30,8 +34,8 @@
 #'   within the `run_report()` function.
 #'   If not `NULL`, the provided `signals_agg` is used directly and signals are not recomputed.
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.
-#' @param custom_logo A character string with a path to a png or svg logo, to replace the default United 4 Surveillance logo.
-#' @param custom_theme A bslib::bs_theme() to replace the default United 4 Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact.
+#' @param custom_logo A character string with a path to a png or svg logo, to replace the default United4Surveillance logo.
+#' @param custom_theme A bslib::bs_theme() to replace the default United4Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact.
 #'
 #' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 #' @export
@@ -64,6 +68,22 @@
 #'   method = "EARS",
 #'   strata = NULL
 #' )
+#'
+#' # Example 5: HTML report for multiple pathogens
+#' run_report(
+#'   report_format = "HTML",
+#'   data = SignalDetectionTool::input_example_multipathogen,
+#'   method = "Harmonic"
+#' )
+#'
+#' Example 6: HTML report for a subset of pathogens in a multi-pathogen dataset
+#' run_report(
+#'   report_format = "HTML",
+#'   data = SignalDetectionTool::input_example_multipathogen,
+#'   pathogens = c("Enterobacter","Salmonella"),
+#'   method = "Harmonic"
+#' )
+#'
 #' }
 run_report <- function(
     data,
@@ -89,7 +109,10 @@ run_report <- function(
   if (report_format == "HTML" & !rlang::is_installed("flexdashboard")) {
     stop("The 'flexdashboard' package is required to generate the HTML report. Please install it using install.packages('flexdashboard')")
   }
-
+  # Currently multi pathogen report is only supported for HTML
+  if (report_format == "DOCX" & length(unique(data$pathogen)) > 1) {
+    stop("Currently the Multi-Pathogen Report functionality is only supported for HTML Reports. In case you want to get a Word report, please generate reports seperately for each pathogen by using a dataset containing only one pathogen.")
+  }
 
   # Check inputs ---------------------------------------------------------------
   checkmate::assert_choice(report_format,
@@ -97,6 +120,9 @@ run_report <- function(
     null.ok = FALSE
   )
   checkmate::assert_data_frame(data)
+  checkmate::assert(
+    checkmate::check_integerish(number_of_weeks, lower = 1)
+  )
   # Validate strata
   checkmate::assert_character(strata, null.ok = TRUE, min.len = 1)
   # check that all columns are present in the data
