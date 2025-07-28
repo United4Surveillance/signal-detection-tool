@@ -503,44 +503,5 @@ plot_time_series <- function(results, interactive = FALSE,
       )
   }
 
-
-
-  #
-  #   # modifying the interactive plot legend
-  #   # This is horrible, we need to find a solution at some point to do this differently
-  #   plt$x$data[[1]]$showlegend <-
-  #     plt$x$data[[2]]$showlegend <- FALSE
-  #   plt$x$data[[1]]$hoverinfo <-
-  #     plt$x$data[[2]]$hoverinfo <- "skip"
-  #   plt$x$data[[3]]$showlegend <- FALSE
-  #   plt$x$data[[4]]$name <- plt$x$data[[4]]$legendgroup <- "Signal detection period"
-  #   plt$x$data[[5]]$name <- plt$x$data[[5]]$legendgroup <- "Threshold"
-  #   plt$x$data[[6]]$showlegend <- FALSE
-  #
-  #   if (padding && any(!is.na(results$expected_pad))) {
-  #     plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Expected"
-  #     if (!is.null(intervention_date)) {
-  #       plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Intervention (pandemic)"
-  #       plt$x$data[[8]]$showlegend <- TRUE
-  #     }
-  #
-  #     if (length(plt$x$data) == 9 && any(results$alarms == TRUE, na.rm = TRUE)) {
-  #       if (is.null(intervention_date)) {
-  #         plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Signal"
-  #       } else {
-  #         plt$x$data[[9]]$name <- plt$x$data[[9]]$legendgroup <- "Signal"
-  #         plt$x$data[[9]]$showlegend <- TRUE
-  #       }
-  #     } else {
-  #       if (any(results$alarms == TRUE, na.rm = TRUE)) {
-  #         plt$x$data[[8]]$name <- plt$x$data[[8]]$legendgroup <- "Signal"
-  #       }
-  #     }
-  #   } else {
-  #     if (any(results$alarms == TRUE, na.rm = TRUE)) {
-  #       plt$x$data[[7]]$name <- plt$x$data[[7]]$legendgroup <- "Signal"
-  #     }
-  #   }
-  # }
   return(plt)
 }
