@@ -88,7 +88,7 @@ test_that("run_report() works with pre-computed signals_agg and signals_pad", {
     output_file = basename(output_path),
     output_dir = dirname(output_path),
     signals_agg = signals_agg_pad$signals_agg %>% dplyr::mutate(pathogen = disease),
-    signals_pad = signals_agg_pad$signals_pad %>%  dplyr::mutate(pathogen = disease)
+    signals_pad = signals_agg_pad$signals_pad %>% dplyr::mutate(pathogen = disease)
   )
 
   expect_true(file.exists(paste0(output_path, ".html")))

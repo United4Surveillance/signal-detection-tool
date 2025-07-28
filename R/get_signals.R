@@ -572,13 +572,13 @@ pad_signals <- function(data,
 #'
 #' @return A character vector of stratification values (e.g., `"age_group"`, `"county"`),
 #'   or `NULL` if no stratification was applied.
-get_strata_from_signals_agg <- function(signals_agg){
+get_strata_from_signals_agg <- function(signals_agg) {
   # no stratification
-  if(all(is.na(signals_agg$category))){
+  if (all(is.na(signals_agg$category))) {
     strata <- NULL
-  # stratification
-  }else{
-    strata <- setdiff(unique(signals_agg$category),NA)
+    # stratification
+  } else {
+    strata <- setdiff(unique(signals_agg$category), NA)
   }
   strata
 }
