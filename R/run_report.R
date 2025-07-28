@@ -1,5 +1,8 @@
 #' Renders signal detection report
 #'
+#' The function supports the generation of a single-pathogen and multi-pathogen report when `report_format = "HTML"`.
+#' For Word (DOCX) output, only single-pathogen reports are currently supported.
+#'
 #' If executed as a standalone function, all filtering must
 #' be performed beforehand.
 #' This function is also invoked within the app.
@@ -11,9 +14,10 @@
 #'
 #' @seealso [names(available_algorithms())]
 #' @param number_of_weeks integer, number of weeks for which signals are generated
-#' @param pathogens A character vector specifying which pathogens should be included in report. If `NULL` (default) all pathogens provided in `data` or in `signals_padded`, `signals_agg` are used.
-#' @param strata A character vector specifying the columns to stratify. If `NULL` no strata are used.
-#'   the analysis. Default is NULL.
+#' @param pathogens A character vector specifying which pathogens to include in the report.
+#'   If `NULL` (default), all pathogens present in `data`, `signals_padded`, or `signals_agg` are used.
+#'   Multi-pathogen reports are supported only for HTML output.
+#' @param strata A character vector specifying the columns to stratify. If `NULL` no strata are used. If precomputed signals are provided  this argument is ignored and strata are inferred from the provided signals. Defaults to c("county", "age_group") when no precomputed signals were provided.
 #' @param tables Logical, default TRUE. True if Signal Detection Tables should be included in report. Only used for DOCX reports, the parameter is ignored for HTML reports.
 #' @param output_file A character string specifying the name of the output file (without directory path). If `NULL` (default), the file name is automatically generated to be SignalDetectionReport. See \link[rmarkdown]{render} for more details.
 #' @param output_dir A character string specifying the output directory for the rendered output file (default is ".", which means the rendered file will be saved in the current working directory. See \link[rmarkdown]{render} for more details. `NULL` is used when running the report from shiny app which will take the Downloads folder as default option for saving.
@@ -30,8 +34,8 @@
 #'   within the `run_report()` function.
 #'   If not `NULL`, the provided `signals_agg` is used directly and signals are not recomputed.
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.
-#' @param custom_logo A character string with a path to a png or svg logo, to replace the default United 4 Surveillance logo.
-#' @param custom_theme A bslib::bs_theme() to replace the default United 4 Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact.
+#' @param custom_logo A character string with a path to a png or svg logo, to replace the default United4Surveillance logo.
+#' @param custom_theme A bslib::bs_theme() to replace the default United4Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact.
 #'
 #' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 #' @export
@@ -64,6 +68,22 @@
 #'   method = "EARS",
 #'   strata = NULL
 #' )
+#'
+#' # Example 5: HTML report for multiple pathogens
+#' run_report(
+#'   report_format = "HTML",
+#'   data = SignalDetectionTool::input_example_multipathogen,
+#'   method = "Harmonic"
+#' )
+#'
+#' Example 6: HTML report for a subset of pathogens in a multi-pathogen dataset
+#' run_report(
+#'   report_format = "HTML",
+#'   data = SignalDetectionTool::input_example_multipathogen,
+#'   pathogens = c("Enterobacter","Salmonella"),
+#'   method = "Harmonic"
+#' )
+#'
 #' }
 run_report <- function(
     data,
@@ -89,14 +109,30 @@ run_report <- function(
   if (report_format == "HTML" & !rlang::is_installed("flexdashboard")) {
     stop("The 'flexdashboard' package is required to generate the HTML report. Please install it using install.packages('flexdashboard')")
   }
-
+  # Currently multi pathogen report is only supported for HTML
+  if (report_format == "DOCX" & length(unique(data$pathogen)) > 1) {
+    stop("Currently the Multi-Pathogen Report functionality is only supported for HTML Reports. In case you want to get a Word report, please generate reports seperately for each pathogen by using a dataset containing only one pathogen.")
+  }
 
   # Check inputs ---------------------------------------------------------------
+  checkmate::assert_data_frame(data)
   checkmate::assert_choice(report_format,
     choices = c("HTML", "DOCX"),
     null.ok = FALSE
   )
-  checkmate::assert_data_frame(data)
+  checkmate::assert(
+    checkmate::check_choice(method, choices = names(available_algorithms()))
+  )
+  checkmate::assert(
+    checkmate::check_integerish(number_of_weeks, lower = 1)
+  )
+  # assert pathogens is NULL (default includes all pathogens) or exist in dataframe or padded signals
+  checkmate::assert(
+    checkmate::check_null(pathogens),
+    checkmate::check_subset(pathogens, choices = unique(data$pathogen)),
+    checkmate::check_subset(pathogens, choices = unique(signals_padded$pathogen)),
+    combine = "or"
+  )
   # Validate strata
   checkmate::assert_character(strata, null.ok = TRUE, min.len = 1)
   # check that all columns are present in the data
@@ -108,34 +144,55 @@ run_report <- function(
       checkmate::check_choice(col, choices = names(data))
     )
   }
-  checkmate::assert(
-    checkmate::check_choice(method, choices = names(available_algorithms()))
-  )
   checkmate::assert_logical(tables)
-  # Validate `output_dir`
-  checkmate::assert_string(output_dir, null.ok = TRUE)
-  # Validate `output_file`
   checkmate::assert_character(output_file, null.ok = TRUE, len = 1)
+  checkmate::assert_string(output_dir, null.ok = TRUE)
+
   checkmate::assert(
     checkmate::check_null(intervention_date),
     checkmate::check_date(lubridate::date(intervention_date)),
     combine = "or"
   )
-
-  # assert pathogens is NULL (default includes all pathogens) or exist in dataframe or padded signals
   checkmate::assert(
-    checkmate::check_null(pathogens),
-    checkmate::check_subset(pathogens, choices = unique(data$pathogen)),
-    checkmate::check_subset(pathogens, choices = unique(signals_padded$pathogen)),
+    checkmate::check_null(signals_agg),
+    checkmate::check_data_frame(signals_agg, col.names = "named"),
+    combine = "or"
+  )
+  # additional checks specific to the data frame
+  # pathogen needs to be a column of signals_agg
+  if(!is.null(signals_agg)){
+    checkmate::assert_true("pathogen" %in% names(signals_agg))
+  }
+  checkmate::assert(
+    checkmate::check_null(signals_padded),
+    checkmate::check_data_frame(signals_padded, col.names = "named"),
+    combine = "or"
+  )
+  # additional checks specific to the data frame
+  # pathogen needs to be added to signals_padded
+  if(!is.null(signals_padded)){
+    checkmate::assert_true("pathogen" %in% names(signals_padded))
+  }
+  checkmate::assert(
+    checkmate::check_null(custom_logo),
+    checkmate::check_character(custom_logo, len = 1, pattern = "\\.svg$|\\.png$", ignore.case = TRUE),
+    combine = "or"
+  )
+  checkmate::assert(
+    checkmate::check_null(custom_theme),
+    checkmate::check_class(custom_theme, "bs_theme"),
     combine = "or"
   )
 
+  # Preparation for reporting ---------------------------------------------------------------
+  # transform the method name used in the app to the method names in the background
+  method <- available_algorithms()[method]
+  # transform intervention date
   if (is.character(intervention_date)) {
     intervention_date <- as.Date(intervention_date)
   }
-  # transform the method name used in the app to the method names in the background
-  method <- available_algorithms()[method]
 
+  # setting of param pathogens if NULL based on data provided
   if (is.null(pathogens)) {
     # usage of linelist
     if (is.null(signals_agg) | is.null(signals_padded)) {
@@ -144,6 +201,13 @@ run_report <- function(
     } else {
       pathogens <- unique(signals_padded$pathogen)
     }
+  }
+
+  # when signals_agg provided then use strata inside this dataset
+  # only need to check signals_agg as when signals_padded is NULL signals are anyways recomputed
+  # prevents errors when user did not specify strata and used signals_agg, signals_padded
+  if(!is.null(signals_agg)){
+    strata <- get_strata_from_signals_agg(signals_agg)
   }
 
   # compute signals if not provided to run_report by the user

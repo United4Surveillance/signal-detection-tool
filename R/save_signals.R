@@ -21,47 +21,7 @@ save_signals <- function(signals, original_input_data, filepath = "") {
   # renaming and reorganization of output is kept here for future use, once we change signal output
   to_save <- signals %>%
     dplyr::mutate(date = lubridate::ceiling_date(lubridate::ymd(paste0(signals$year, "-01-01")) + lubridate::weeks(signals$week), "week") - 1) %>%
-    dplyr::filter(!is.na(alarms)) # %>%
-  #   dplyr::rename(
-  #     outbreak_status = "alarms",
-  #     count_cases = "cases"
-  #   ) %>%
-  #   dplyr::mutate(expected = ifelse(is.na(expected), 0, expected)) %>%
-  #   dplyr::mutate(count_outbreak_cases = outbreak_status * (count_cases - floor(upperbound))) # %>%
-  #
-  # # list of columns to reconstruct
-  # reconstruct_columns <- SignalDetectionTool::input_metadata[SignalDetectionTool::input_metadata$Mandatory == "YES", "Variable"]
-  # # remove columns that are not applicable for aggregated data
-  # reconstruct_columns <- reconstruct_columns[-which(reconstruct_columns %in% c("case_id", "date_report"))]
-  #
-  # # if stratification was applied, get the stratification column and append
-  # if ("stratum" %in% colnames(to_save)) {
-  #   strat_columns <- unique(signals$category)
-  #   reconstruct_columns <- union(reconstruct_columns, strat_columns)
-  # }
-  # # TODO might want to add column `<column>_id` if available
-  #
-  #
-  # # retrieve original value if all identical, set to "all" otherwise
-  # for (col in reconstruct_columns) {
-  #   to_save[col] <- original_input_data[1, col] # set initial value
-  #   if (length(unique(original_input_data[col])[[1]]) > 1) {
-  #     to_save <- to_save %>% dplyr::mutate({{ col }} := "all")
-  #   }
-  # }
-  #
-  # # iterate over categories, write values into appropriate column
-  # for (cat in unique(to_save[["category"]])) {
-  #   rows_stratified <- !is.na(to_save[["category"]]) & to_save["category"] == cat
-  #   to_save[rows_stratified, cat] <- as.character(to_save[rows_stratified, "stratum"])
-  # }
-  # # drop some output columns
-  # to_save <- to_save %>% dplyr::select(-upperbound, -expected)
-  #
-  # # check if analysis was stratified, if so drop respective columns
-  # if ("stratum" %in% colnames(to_save)) {
-  #   to_save <- to_save %>% dplyr::select(-category, -stratum)
-  # }
+    dplyr::filter(!is.na(alarms))
 
   if (filepath == "") {
     filepath <- conjure_filename(to_save)
