@@ -560,3 +560,25 @@ pad_signals <- function(data,
 
   return(results)
 }
+
+#' Extract strata from precomputed signals_agg
+#'
+#' This helper function returns the list of stratification variables used
+#' to generate a `signals_agg` object. If no stratification was applied
+#' (i.e., all values in the `category` column are `NA`), it returns `NULL`.
+#'
+#' @param signals_agg A data frame containing precomputed signal aggregations, produced by [aggregate_signals()].
+#'   Must include a `category` column that encodes the stratification variable(s).
+#'
+#' @return A character vector of stratification values (e.g., `"age_group"`, `"county"`),
+#'   or `NULL` if no stratification was applied.
+get_strata_from_signals_agg <- function(signals_agg){
+  # no stratification
+  if(all(is.na(signals_agg$category))){
+    strata <- NULL
+  # stratification
+  }else{
+    strata <- setdiff(unique(check$category),NA)
+  }
+  strata
+}

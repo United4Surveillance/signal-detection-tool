@@ -35,7 +35,7 @@ You can retrieve the full list using [names(available_algorithms())].}
 If `NULL` (default), all pathogens present in `data`, `signals_padded`, or `signals_agg` are used.
 Multi-pathogen reports are supported only for HTML output.}
 
-\item{strata}{A character vector specifying the columns to stratify. If `NULL` no strata are used. Defaults to `NULL`}
+\item{strata}{A character vector specifying the columns to stratify. If `NULL` no strata are used. If precomputed signals are provided  this argument is ignored and strata are inferred from the provided signals. Defaults to c("county", "age_group") when no precomputed signals were provided.}
 
 \item{tables}{Logical, default TRUE. True if Signal Detection Tables should be included in report. Only used for DOCX reports, the parameter is ignored for HTML reports.}
 
