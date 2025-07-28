@@ -159,6 +159,20 @@ run_report <- function(
   if (is.character(intervention_date)) {
     intervention_date <- as.Date(intervention_date)
   }
+
+  checkmate::assert(
+    checkmate::check_null(custom_logo),
+    checkmate::check_character(custom_logo, len = 1, pattern = "\\.svg$|\\.png$", ignore.case = TRUE),
+    combine = "or"
+  )
+
+  checkmate::assert(
+    checkmate::check_null(custom_theme),
+    checkmate::check_class(custom_theme, "bs_theme"),
+    combine = "or"
+  )
+
+  # Preparation for reporting ---------------------------------------------------------------
   # transform the method name used in the app to the method names in the background
   method <- available_algorithms()[method]
 
