@@ -104,7 +104,7 @@ plot_time_series <- function(results, interactive = FALSE,
     dplyr::group_by(.data$set_status) %>%
     dplyr::summarise(
       start = min(.data$date),
-      end = max(.data$date) + lubridate::days(3)
+      end = max(.data$date) + lubridate::days(7)
     )
   # number of days in _signal _detection _period
   ndays_sdp <- dplyr::filter(
@@ -117,14 +117,14 @@ plot_time_series <- function(results, interactive = FALSE,
     as.numeric()
   # Add dummy week to `results` to end the threshold line by a
   #   horizontal segment (geom_step) in the final week
-  # results <- results %>%
-  #   dplyr::filter(date == max(.data$date)) %>% # final week-date
-  #   dplyr::mutate(
-  #     cases = NA, alarms = NA,
-  #     date = .data$date + lubridate::days(7),
-  #     hover_text = "" # don't show misleading hover at dummy data
-  #   ) %>%
-  #   dplyr::bind_rows(results, .)
+  results <- results %>%
+    dplyr::filter(date == max(.data$date)) %>% # final week-date
+    dplyr::mutate(
+      cases = NA, alarms = NA,
+      date = .data$date + lubridate::days(7),
+      hover_text = "" # don't show misleading hover at dummy data
+    ) %>%
+    dplyr::bind_rows(results, .)
 
   # function to find a nice-looking ymax value for y-axis range
   #   (plotly does not work with ymax=Inf)
@@ -168,6 +168,14 @@ plot_time_series <- function(results, interactive = FALSE,
   half_week <- lubridate::days(3)
 
   if (interactive) {
+    # threshold and expected lines extended
+    dt <- c(head(results$date[!is.na(results$alarms)], 1) - 3,
+            tail(results$date[!is.na(results$alarms)], 1) + 3)
+    th <- c(head(results$upperbound[!is.na(results$alarms)], 1),
+            tail(results$upperbound[!is.na(results$alarms)], 1))
+    ex <- c(head(results$expected[!is.na(results$alarms)], 1),
+            tail(results$expected[!is.na(results$alarms)], 1))
+
     plt <- plotly::plot_ly() %>%
       plotly::add_trace( # Training Data Bars
         name = "Observed",
@@ -193,9 +201,9 @@ plot_time_series <- function(results, interactive = FALSE,
         name = "Threshold",
         type = "scatter",
         mode = "lines",
-        line = list(shape = "hvh", width = 1.3),
-        x = results$date[!is.na(results$alarms)],
-        y = results$upperbound[!is.na(results$alarms)],
+        line = list(shape = "hvh", width = 2),
+        x = c(dt[1], results$date[!is.na(results$alarms)], dt[2]),
+        y = c(th[1], results$upperbound[!is.na(results$alarms)], th[2]),
         color = I(col.threshold),
         hoverinfo = "name + y",
         legendgroup = "upp.threshold"
@@ -205,7 +213,7 @@ plot_time_series <- function(results, interactive = FALSE,
           list(
             type = "rect", fillcolor = col.test, opacity = 0.2, line = list(width = 0),
             x0 = period_dates_df$start[period_dates_df$set_status == "Test data"] - 3,
-            x1 = period_dates_df$end[period_dates_df$set_status == "Test data"], xref = "x",
+            x1 = period_dates_df$end[period_dates_df$set_status == "Test data"] - 3, xref = "x",
             y0 = 0, y1 = 1, yref = "paper"
           )
         ),
@@ -235,9 +243,9 @@ plot_time_series <- function(results, interactive = FALSE,
           name = "Expected",
           type = "scatter",
           mode = "lines",
-          line = list(shape = "hvh", width = 1.3),
-          x = results$date[!is.na(results$expected)],
-          y = results$expected[!is.na(results$expected)],
+          line = list(shape = "hvh", width = 2),
+          x = c(dt[1], results$date[!is.na(results$alarms)], dt[2]),
+          y = c(ex[1], results$expected[!is.na(results$alarms)], ex[2]),
           color = I(col.expected),
           hoverinfo = "name + y",
           legendgroup = "exp"
@@ -260,9 +268,9 @@ plot_time_series <- function(results, interactive = FALSE,
           name = "Expected",
           type = "scatter",
           mode = "lines",
-          line = list(shape = "hvh", width = 1.3),
-          x = results$date[!is.na(results$expected)],
-          y = results$expected[!is.na(results$expected)],
+          line = list(shape = "hvh", width = 2),
+          x = c(dt[1], results$date[!is.na(results$alarms)], dt[2]),
+          y = c(ex[1], results$expected[!is.na(results$alarms)], ex[2]),
           color = I(col.expected),
           hoverinfo = "name + y"
         )
@@ -288,7 +296,7 @@ plot_time_series <- function(results, interactive = FALSE,
         mode = "markers",
         x = results$date[!is.na(results$alarms) & results$alarms == T],
         y = results$cases[!is.na(results$alarms) & results$alarms == T],
-        marker = list(symbol = "star", size = 13),
+        marker = list(symbol = "star", size = 15),
         color = I(col.alarm),
         hovertemplate = "Signal<extra></extra>"
       )
