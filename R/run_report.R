@@ -115,13 +115,23 @@ run_report <- function(
   }
 
   # Check inputs ---------------------------------------------------------------
+  checkmate::assert_data_frame(data)
   checkmate::assert_choice(report_format,
     choices = c("HTML", "DOCX"),
     null.ok = FALSE
   )
-  checkmate::assert_data_frame(data)
+  checkmate::assert(
+    checkmate::check_choice(method, choices = names(available_algorithms()))
+  )
   checkmate::assert(
     checkmate::check_integerish(number_of_weeks, lower = 1)
+  )
+  # assert pathogens is NULL (default includes all pathogens) or exist in dataframe or padded signals
+  checkmate::assert(
+    checkmate::check_null(pathogens),
+    checkmate::check_subset(pathogens, choices = unique(data$pathogen)),
+    checkmate::check_subset(pathogens, choices = unique(signals_padded$pathogen)),
+    combine = "or"
   )
   # Validate strata
   checkmate::assert_character(strata, null.ok = TRUE, min.len = 1)
@@ -134,38 +144,20 @@ run_report <- function(
       checkmate::check_choice(col, choices = names(data))
     )
   }
-  checkmate::assert(
-    checkmate::check_choice(method, choices = names(available_algorithms()))
-  )
   checkmate::assert_logical(tables)
-  # Validate `output_dir`
-  checkmate::assert_string(output_dir, null.ok = TRUE)
-  # Validate `output_file`
   checkmate::assert_character(output_file, null.ok = TRUE, len = 1)
+  checkmate::assert_string(output_dir, null.ok = TRUE)
+
   checkmate::assert(
     checkmate::check_null(intervention_date),
     checkmate::check_date(lubridate::date(intervention_date)),
     combine = "or"
   )
-
-  # assert pathogens is NULL (default includes all pathogens) or exist in dataframe or padded signals
-  checkmate::assert(
-    checkmate::check_null(pathogens),
-    checkmate::check_subset(pathogens, choices = unique(data$pathogen)),
-    checkmate::check_subset(pathogens, choices = unique(signals_padded$pathogen)),
-    combine = "or"
-  )
-
-  if (is.character(intervention_date)) {
-    intervention_date <- as.Date(intervention_date)
-  }
-
   checkmate::assert(
     checkmate::check_null(custom_logo),
     checkmate::check_character(custom_logo, len = 1, pattern = "\\.svg$|\\.png$", ignore.case = TRUE),
     combine = "or"
   )
-
   checkmate::assert(
     checkmate::check_null(custom_theme),
     checkmate::check_class(custom_theme, "bs_theme"),
@@ -175,6 +167,10 @@ run_report <- function(
   # Preparation for reporting ---------------------------------------------------------------
   # transform the method name used in the app to the method names in the background
   method <- available_algorithms()[method]
+  # transform intervention date
+  if (is.character(intervention_date)) {
+    intervention_date <- as.Date(intervention_date)
+  }
 
   if (is.null(pathogens)) {
     # usage of linelist
