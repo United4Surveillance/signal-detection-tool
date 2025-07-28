@@ -578,7 +578,7 @@ get_strata_from_signals_agg <- function(signals_agg){
     strata <- NULL
   # stratification
   }else{
-    strata <- setdiff(unique(check$category),NA)
+    strata <- setdiff(unique(signals_agg$category),NA)
   }
   strata
 }
