@@ -54,33 +54,27 @@ valueBox(value = n_signals_week,
          )
 ```
 
-```{r, results='asis', eval=!is.null(params$strata)}
-cat("\n\n")
-cat("Row  {data-height=200}\n")
-cat("-------------------------------------------------------------------------------\n\n")
-```
+`r if(!is.null(params$strata)) "Row {data-height=200}"`
+`r if(!is.null(params$strata)) "-------------------------------------------------------------------------------"`
 
 ```{r, results='asis', eval=!is.null(params$strata)}
-for(st in params$strata){
+for(cate in params$strata){
 
-  cat(paste0(
-    "### Signals in [", st, "](#",pate,"-",st,")\n"))
+  cate_link <- paste0("[", cate, "](#",pate ,"-", cate, ")")
+  cat("### Signals in", cate_link, "\n\n")
   
   p <- signals_padded %>% 
-    dplyr::filter(category == st) %>% 
+    dplyr::filter(category == cate) %>% 
     plot_signals_per_week(interactive = TRUE, branding = brand_colors)
   
   print(htmltools::tagList(p))
-
+  
   cat("\n\n")
 }
 ```
 
-```{r, results='asis', eval=!is.null(params$strata)}
-cat("\n\n")
-cat("Row  {data-height=400}\n")
-cat("-------------------------------------------------------------------------------\n\n")
-```
+`r if(!is.null(params$strata)) "Row {data-height=400}"`
+`r if(!is.null(params$strata)) "-------------------------------------------------------------------------------"`
 
 ```{r, results='asis', eval=!is.null(params$strata)}
 for(cate in params$strata){
