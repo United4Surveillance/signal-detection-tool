@@ -21,7 +21,6 @@ License: MIT + file LICENSE
 Depends: 
     R (>= 4.0.2)
 Imports: 
-    aeddo (>= 0.1.1),
     bslib (>= 0.7.0),
     checkmate (>= 2.1.0),
     config (>= 0.3.2),
@@ -55,6 +54,7 @@ Imports:
     base64enc (>= 0.1-3),
     jsonlite (>= 1.8.8)
 Suggests: 
+    aeddo (>= 0.1.1),
     knitr (>= 1.42),
     ggforce (>= 0.4.2),
     spelling (>= 2.3.0),
