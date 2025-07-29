@@ -279,7 +279,6 @@ run_report <- function(
       logo_name <- basename(logo_abs)
     } else {
       logo_abs <- normalizePath(custom_logo, mustWork = TRUE)
-      file.copy(logo_abs, rmd_dir, overwrite = TRUE)
       logo_name <- basename(logo_abs)
     }
 
