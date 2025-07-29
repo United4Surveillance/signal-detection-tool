@@ -143,8 +143,8 @@ data("input_example_multipathogen")
 To run an HTML report with the EARS algorithm and stratification by age_group and county for all pathogens in the line list you can run: 
 ```{r, eval=FALSE}
 run_report(input_example_multipathogen,
-           strata = c("age_group", "county"),
-           method = "EARS"
+  strata = c("age_group", "county"),
+  method = "EARS"
 )
 ```
 
@@ -152,9 +152,9 @@ If you want to generate a report for a subset of pathogens in your linelist you 
 
 ```{r, eval=FALSE}
 run_report(input_example_multipathogen,
-           pathogens = c("Enterobacter","Salmonella"),
-           strata = c("age_group", "county"),
-           method = "EARS"
+  pathogens = c("Enterobacter", "Salmonella"),
+  strata = c("age_group", "county"),
+  method = "EARS"
 )
 ```
 
@@ -162,9 +162,9 @@ In addition you can customise the HTML report by replacing the default United4Su
 
 ```{r, eval=FALSE}
 run_report(input_example_multipathogen,
-           pathogens = c("Enterobacter","Salmonella"),
-           strata = c("age_group", "county"),
-           method = "EARS",
-           custom_logo = "path/to/my/custom_logo.png"
+  pathogens = c("Enterobacter", "Salmonella"),
+  strata = c("age_group", "county"),
+  method = "EARS",
+  custom_logo = "path/to/my/custom_logo.png"
 )
 ```
