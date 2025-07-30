@@ -83,7 +83,8 @@ create_map_or_table <- function(signals_agg,
           "Possible signals are not shown for these regions, as they didn't match the shapefile: %s",
           paste(missing, collapse = ", ")
         ),
-        call. = FALSE)
+        call. = FALSE
+      )
     }
 
     if (nrow(signals_with_matching_NUTS)) {
