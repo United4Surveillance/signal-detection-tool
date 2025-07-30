@@ -22,7 +22,7 @@
 #' }
 #'
 #' @seealso
-#' \code{\link{aeddo}} for details on the aeddo algorithm.
+#' \code{\link[aeddo]{aeddo}} for details on the aeddo algorithm.
 #'
 #' @references
 #' For information on the aeddo algorithm, refer to the package documentation.
@@ -40,6 +40,11 @@ get_signals_aeddo <- function(data_aggregated,
   checkmate::assert(
     checkmate::check_integerish(number_of_weeks)
   )
+
+  # Check if 'aeddo' is installed, as it's only listed under Suggests
+  if (!requireNamespace("aeddo", quietly = TRUE)) {
+    stop("The 'aeddo' package must be installed to use this function. Please install it via install.packages('aeddo').")
+  }
 
   # Define the formula for the fixed effects
   fixed_effects_formula <- stats::as.formula(

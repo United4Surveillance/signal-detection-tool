@@ -76,12 +76,20 @@ create_map_or_table <- function(signals_agg,
       dplyr::semi_join(shape, by = c("stratum" = "NUTS_ID"))
 
     # check whether all NUTS_ids are found in the shapefile
-    # when there is a mismatch only because of cases with NA region then this is still a match and
-    # in the map we show with a caption/annotation the number of cases and signals for them
-    n_NUTS_signals <- dplyr::n_distinct(setdiff(signals_agg_map$stratum, NA))
-    n_NUTS_matching <- dplyr::n_distinct(signals_with_matching_NUTS$stratum)
+    # when there is a mismatch we generate a warning
+    missing <- setdiff(setdiff(signals_agg_map$stratum, NA), signals_with_matching_NUTS$stratum)
 
-    if (n_NUTS_matching == n_NUTS_signals) {
+    if (length(missing) > 0) {
+      warning(
+        sprintf(
+          "Possible signals are not shown for these regions, as they didn't match the shapefile: %s",
+          paste(missing, collapse = ", ")
+        ),
+        call. = FALSE
+      )
+    }
+
+    if (nrow(signals_with_matching_NUTS)) {
       plot_map <- TRUE
     }
   }
