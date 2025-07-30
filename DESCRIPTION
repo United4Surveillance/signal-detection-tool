@@ -21,7 +21,6 @@ License: MIT + file LICENSE
 Depends: 
     R (>= 4.0.2)
 Imports: 
-    aeddo (>= 0.1.1),
     bslib (>= 0.7.0),
     checkmate (>= 2.1.0),
     config (>= 0.3.2),
@@ -52,16 +51,17 @@ Imports:
     tidyr (>= 1.2.1),
     forcats (>= 1.0.0),
     plyr (>= 1.8.8),
-    base64enc,
-    jsonlite
+    base64enc (>= 0.1-3),
+    jsonlite (>= 1.8.8)
 Suggests: 
+    aeddo (>= 0.1.1),
     knitr (>= 1.42),
     ggforce (>= 0.4.2),
     spelling (>= 2.3.0),
     testthat (>= 3.1.5),
     DBI (>= 1.2.3),
     RSQLite (>= 2.3.9),
-    flexdashboard
+    flexdashboard (>= 0.6.2)
 VignetteBuilder: 
     knitr
 Config/testthat/edition: 3
