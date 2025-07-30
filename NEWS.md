@@ -5,6 +5,7 @@
 * Allows custom theming of HTML report using colours or custom logo.
 * Exports 3 more functions to use outside of Shiny app.
 * Fixed legend bug in the time series plot and switched to `plotly`.
+* Relaxed requirements for map visualisation: the map is now shown even if some regions do not match the shapefile. Non-matching regions are dropped with a warning in the console.
 * Rewriting the vignette
   - contains information about internal data
   - instructions for get_signals()
