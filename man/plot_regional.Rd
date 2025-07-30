@@ -8,7 +8,8 @@ plot_regional(
   shape_with_signals,
   signals_agg_unknown_region = NULL,
   interactive = FALSE,
-  toggle_alarms = FALSE
+  toggle_alarms = FALSE,
+  partial = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ plot_regional(
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
 
 \item{toggle_alarms}{boolean identifying whether the plot should showing number of signals explicitly or only when hovering}
+
+\item{partial}{logical, add partial bundle to plotly}
 }
 \value{
 either a ggplot object if static plot is chosen or a plotly object for the interactive plot

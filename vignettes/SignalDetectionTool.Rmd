@@ -107,6 +107,7 @@ In this example we obtain:
 Coming soon...
 
 ### Run the report
+#### Single-pathogen reporting
 
 
 You can directly generate an HTML or Word report containing signal results and visualizations using `run_report()`. Simply pass your surveillance linelist—structured according to the format defined in `input_metadata`—to `run_report()`. The data will be preprocessed automatically within the function. The following code chunk generates a Word report using EARS without any stratification (default) for the past six weeks (default):
@@ -125,5 +126,45 @@ run_report(input_example,
 )
 ```
 
+#### Multi-pathogen reporting (HTML)
 
+The following functionalities are currently only available for HTML reports. They are not supported in Word (DOCX) format.
+The package also supports generating a single HTML report for multiple pathogens.  
+To use this functionality, you must provide a line list that includes cases from different pathogens.
 
+An example line list is available in the package as an internal dataset: `input_example_multipathogen`.
+
+You can access it with:
+
+```{r, eval=FALSE}
+data("input_example_multipathogen")
+```
+
+To run an HTML report with the EARS algorithm and stratification by age_group and county for all pathogens in the line list you can run: 
+```{r, eval=FALSE}
+run_report(input_example_multipathogen,
+  strata = c("age_group", "county"),
+  method = "EARS"
+)
+```
+
+If you want to generate a report for a subset of pathogens in your linelist you can specify these using the pathogens parameter:
+
+```{r, eval=FALSE}
+run_report(input_example_multipathogen,
+  pathogens = c("Enterobacter", "Salmonella"),
+  strata = c("age_group", "county"),
+  method = "EARS"
+)
+```
+
+In addition you can customise the HTML report by replacing the default United4Surveillance logo in the top right corner with your own logo. To do this, provide the path to a .png or .svg file using the custom_logo parameter.
+
+```{r, eval=FALSE}
+run_report(input_example_multipathogen,
+  pathogens = c("Enterobacter", "Salmonella"),
+  strata = c("age_group", "county"),
+  method = "EARS",
+  custom_logo = "path/to/my/custom_logo.png"
+)
+```

@@ -1,3 +1,11 @@
+* Adds ability to generate one HTML report for multiple pathogens.
+* Added `input_example_multipathogen`, a new example dataset containing a line list with multiple pathogens.
+* Internal refactor: DOCX and HTML report generation now handled in separate R Markdown files.
+* Change to flexdashboard for HTML report.
+* Allows custom theming of HTML report using colours or custom logo.
+* Exports 3 more functions to use outside of Shiny app.
+* Fixed legend bug in the time series plot and switched to `plotly`.
+* Relaxed requirements for map visualisation: the map is now shown even if some regions do not match the shapefile. Non-matching regions are dropped with a warning in the console.
 * Rewriting the vignette
   - contains information about internal data
   - instructions for get_signals()

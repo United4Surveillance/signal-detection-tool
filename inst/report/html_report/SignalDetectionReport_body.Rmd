@@ -1,0 +1,152 @@
+{{pathogen}} {data-navmenu="Pathogen"}
+=====================================
+
+<!-- Pathogen without stratification page -->
+
+```{r}
+# formatting pathogen name for links 
+pate <- tolower("{{pathogen}}")  
+pate <- gsub("[~(),./?&!#<>\\]", "", pate) #remove special characters
+pate <- gsub("\\s", "-", pate) # replace space with score
+
+signals_agg <- params$signals_agg %>% 
+  dplyr::filter(pathogen == "{{pathogen}}")
+
+signals_padded <- params$signals_padded %>% 
+  dplyr::filter(pathogen == "{{pathogen}}")
+```
+
+```{r}
+results_analysis <- signals_padded %>%
+  dplyr::filter(!is.na(alarms))
+```
+
+Row
+-------------------------------------------------------------------------------
+
+### Number of cases
+```{r}
+valueBox(value = sum(results_analysis$cases[is.na(results_analysis$category)]), 
+         caption = "cases of {{pathogen}}",
+         color = brand_colors["info"])
+```
+
+### Number of signals
+```{r}
+# signals across all strata
+n_signals_week <- sum(results_analysis$alarms)
+
+# max possible signals in assessment period
+possible_signals <- sum(dplyr::count(signals_agg, category) %>%
+                          dplyr::pull(n)) * params$number_of_weeks
+
+n_signals_week_col <- ifelse(
+  n_signals_week < 0.10 * possible_signals, brand_colors["success"],
+  ifelse(n_signals_week < 0.50 * possible_signals, 
+         brand_colors["warning"], brand_colors["danger"])
+  )
+
+valueBox(value = n_signals_week,
+         caption = paste("Number of signals in the last",
+                         params$number_of_weeks, 
+                         "weeks"),
+         color = n_signals_week_col
+         )
+```
+
+`r if(!is.null(params$strata)) "Row {data-height=200}"`
+`r if(!is.null(params$strata)) "-------------------------------------------------------------------------------"`
+
+```{r, results='asis', eval=!is.null(params$strata)}
+for(cate in params$strata){
+
+  cate_link <- paste0("[", cate, "](#",pate ,"-", cate, ")")
+  cat("### Signals in", cate_link, "\n\n")
+  
+  p <- signals_padded %>% 
+    dplyr::filter(category == cate) %>% 
+    plot_signals_per_week(interactive = TRUE, branding = brand_colors, partial = TRUE)
+  
+  print(htmltools::tagList(p))
+  
+  cat("\n\n")
+}
+```
+
+`r if(!is.null(params$strata)) "Row {data-height=400}"`
+`r if(!is.null(params$strata)) "-------------------------------------------------------------------------------"`
+
+```{r, results='asis', eval=!is.null(params$strata)}
+for(cate in params$strata){
+
+  cate_link <- paste0("[", cate, "](#",pate ,"-", cate, ")")
+  cat("### Distribution by", cate_link, "\n\n")
+  
+  dist_plot <- SignalDetectionTool:::decider_barplot_map_table(
+     signals_agg,
+     data,
+     cate,
+     interactive = TRUE,
+     partial = TRUE
+    ) 
+  
+  print(htmltools::tagList(dist_plot))
+  
+  cat("\n\n")
+}
+```
+
+Row
+-----------------------------------------------
+### Unstratified timeseries 
+
+```{r}
+SignalDetectionTool::plot_time_series(
+  signals_padded %>%
+    dplyr::filter(is.na(category)),
+  intervention_date = params$intervention_date,
+  interactive = TRUE,
+  partial = TRUE
+)
+```
+
+> `r paste0("Number of {{pathogen}} cases by week and signals, ", params$country)`
+
+Row 
+-------------------------------------
+### Signal Detection Table
+
+```{r}
+txt <- NULL
+
+if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
+  SignalDetectionTool::build_signals_table(
+    signals_padded,
+    format = "DataTable"
+  )
+} else {
+  txt <- "No signals were detected."
+}
+```
+
+```{r, results='asis'}
+#|eval = is.character(txt)
+
+cat(txt)
+```
+
+<!-- Strata timeseries pages -->
+
+```{r, results='asis'}
+if(!is.null(params$strata)){
+  path_sdt_report_strata <- system.file("report","html_report", "SignalDetectionReport_strata.rmd", package = "SignalDetectionTool")
+  src <- lapply(params$strata, function(j) {
+    knitr::knit_expand(path_sdt_report_strata, 
+                       strat = j, pathogen = "{{pathogen}}")
+  })
+  
+  res <- knitr::knit_child(text = unlist(src), quiet = TRUE)
+  cat(res, sep = "\n")
+}
+```
+
