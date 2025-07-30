@@ -22,7 +22,7 @@
 #' }
 #'
 #' @seealso
-#' \code{\link{aeddo}} for details on the aeddo algorithm.
+#' \code{\link[aeddo]{aeddo}} for details on the aeddo algorithm.
 #'
 #' @references
 #' For information on the aeddo algorithm, refer to the package documentation.
