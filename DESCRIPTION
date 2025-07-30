@@ -51,8 +51,7 @@ Imports:
     tidyr (>= 1.2.1),
     forcats (>= 1.0.0),
     plyr (>= 1.8.8),
-    base64enc (>= 0.1-3),
-    jsonlite (>= 1.8.8)
+    base64enc (>= 0.1-3)
 Suggests: 
     aeddo (>= 0.1.1),
     knitr (>= 1.42),

@@ -9,7 +9,6 @@
 #' @param partial logical, add partial bundle to plotly
 #'
 #' @return either a ggplot or plotly object
-#' @export
 #'
 #' @examples
 #' \dontrun{

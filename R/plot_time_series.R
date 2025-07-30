@@ -333,13 +333,13 @@ plot_time_series <- function(results, interactive = FALSE,
             )
           )
         ),
-        # yaxis = list(range = c(
-        #   0,
-        #   results %>%
-        #     # pick the default x-range view
-        #     dplyr::filter(date >= range_dates_year[1]) %>%
-        #     dplyr::select("ymax") %>% max()
-        # )),
+        yaxis = list(range = c(
+          0,
+          results %>%
+            # pick the default x-range view
+            dplyr::filter(date >= range_dates_year[1]) %>%
+            dplyr::select("ymax") %>% max()
+        )),
         legend = list(
           orientation = "h",
           x = 0.5, y = -0.5,
