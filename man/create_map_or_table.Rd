@@ -45,6 +45,6 @@ signals <- input_example \%>\%
   preprocess_data() \%>\%
   get_signals(stratification = c("sex", "county"))
 signals_agg <- signals \%>\% aggregate_signals(number_of_weeks = 6)
-create_map_or_table(signals_agg, input_example, "county_id", nuts_shp)
+create_map_or_table(signals_agg, input_example, "county", nuts_shp)
 }
 }
