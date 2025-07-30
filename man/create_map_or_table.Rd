@@ -10,7 +10,8 @@ create_map_or_table(
   region,
   shape = get_shp_config_or_internal(),
   interactive = TRUE,
-  toggle_alarms = FALSE
+  toggle_alarms = FALSE,
+  partial = FALSE
 )
 }
 \arguments{
@@ -29,6 +30,8 @@ create_map_or_table(
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
 
 \item{toggle_alarms}{boolean identifying whether the plot should showing number of signals explicitly or only when hovering}
+
+\item{partial}{logical, add partial bundle to plotly}
 }
 \value{
 a table or a plot depending on whether the matching of the NUTS IDs was fully possible, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
