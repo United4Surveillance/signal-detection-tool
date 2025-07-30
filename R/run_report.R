@@ -100,15 +100,7 @@ run_report <- function(
     intervention_date = NULL,
     custom_logo = NULL,
     custom_theme = NULL) {
-  # Check that package ggforce is installed as it is required for running the report
-  if (!requireNamespace("ggforce", quietly = TRUE)) {
-    stop("The 'ggforce' package is required to generate the report. Please install it using install.packages('ggforce')")
-  }
-  # This needs to be checked as flexdashboard is only in Suggests
-  # ToDo: return this message to the user in the shiny app in the report tab
-  if (report_format == "HTML" & !rlang::is_installed("flexdashboard")) {
-    stop("The 'flexdashboard' package is required to generate the HTML report. Please install it using install.packages('flexdashboard')")
-  }
+
   # Currently multi pathogen report is only supported for HTML
   if (report_format == "DOCX" & length(unique(data$pathogen)) > 1) {
     stop("Currently the Multi-Pathogen Report functionality is only supported for HTML Reports. In case you want to get a Word report, please generate reports seperately for each pathogen by using a dataset containing only one pathogen.")
