@@ -39,7 +39,9 @@ for(st in unique(df$stratum)){
     df %>% dplyr::filter(.data[["stratum"]] == st),
     number_of_weeks = 52,
     intervention_date = params$intervention_date,
-    interactive = TRUE)
+    interactive = TRUE,
+    partial = TRUE
+    )
 
   print(htmltools::tagList(plot_stratum))
 
