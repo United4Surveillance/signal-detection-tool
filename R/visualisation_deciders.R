@@ -89,7 +89,7 @@ create_map_or_table <- function(signals_agg,
       )
     }
 
-    if (nrow(signals_with_matching_NUTS)) {
+    if (nrow(signals_with_matching_NUTS) > 0) {
       plot_map <- TRUE
     }
   }
