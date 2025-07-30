@@ -138,7 +138,7 @@ When one of the strata about regions (state, county or community) is selected in
 
 ## Report tab
 The `Report` tab is the final destination in the SignalDetectionTool Shiny app. Here, it is possible to produce and download a report, using the different parameter selections, filtering choices and stratifications chosen in the `Input` tab. Thus, you can customise exactly how you want your report. 
-The report can be produced to three different formats: HTML, DOCX or PDF. All come with the U4S logo and expressions, as also found throughout the Shiny app. 
+The report can be produced in two different formats: HTML or DOCX. 
 
 # Bug reporting
 If you encounter any technical issues or bugs when using the SignalDetectionTool, please report them on [Github](https://github.com/United4Surveillance/signal-detection-evaluation-tool/issues/new/choose) by making an issue. 
