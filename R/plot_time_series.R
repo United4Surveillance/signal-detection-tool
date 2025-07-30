@@ -8,6 +8,7 @@
 #' @param interactive logical, if TRUE, interactive plot is returned; default, static plot.
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done.The  intervention is marked with a dashed line.
 #' @param number_of_weeks number of weeks to be covered in the plot
+#' @param partial logical, add partial bundle to plotly
 #'
 #' @return either a gg or plotly object
 #' @export
@@ -20,7 +21,8 @@
 #' }
 plot_time_series <- function(results, interactive = FALSE,
                              intervention_date = NULL,
-                             number_of_weeks = 52) {
+                             number_of_weeks = 52,
+                             partial = FALSE) {
   # check whether timeseries contains padding or not
   padding_upperbound <- "upperbound_pad" %in% colnames(results)
   padding_expected <- "expected_pad" %in% colnames(results)
@@ -284,14 +286,14 @@ plot_time_series <- function(results, interactive = FALSE,
 
     if (!is.null(intervention_date)) {
       plt <- plt %>%
-        plotly::layout(
-          shapes = list( # Intev ention date line
-            list(
-              type = "line", y0 = 0, y1 = 1, yref = "paper",
-              x0 = intervention_date, x1 = intervention_date,
-              line = list(color = I(col.intervention), dash = "dot")
-            )
-          )
+        plotly::add_trace( # Expected Test period
+          name = "Intervention date",
+          type = "scatter",
+          mode = "lines",
+          line = list(color = col.intervention, dash = "dot", width = 2),
+          x = c(intervention_date, intervention_date),
+          y = c(0,  ymax_data),
+          hoverinfo = "name"
         )
     }
 
@@ -391,15 +393,8 @@ plot_time_series <- function(results, interactive = FALSE,
     # Update the plot with dynamic y-axis adjustment and x-axis bugfix
     plt <- update_axes(plt)
 
-    plt <- plotly::partial_bundle(plt)
-
-    # change toJSON function to save max 1 significant digit
-    attr(plt$x, "TOJSON_FUNC") <- function(x, ...) {
-      jsonlite::toJSON(x,
-        digits = 1, auto_unbox = TRUE, force = TRUE,
-        null = "null", na = "null", time_format = "%Y-%m-%d",
-        ...
-      )
+    if(partial){
+      plt <- plotly::partial_bundle(plt)
     }
   } else {
     plt <-
