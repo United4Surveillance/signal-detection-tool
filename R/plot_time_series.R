@@ -292,7 +292,7 @@ plot_time_series <- function(results, interactive = FALSE,
           mode = "lines",
           line = list(color = col.intervention, dash = "dot", width = 2),
           x = c(intervention_date, intervention_date),
-          y = c(0,  ymax_data),
+          y = c(0, ymax_data),
           hoverinfo = "name"
         )
     }
@@ -393,7 +393,7 @@ plot_time_series <- function(results, interactive = FALSE,
     # Update the plot with dynamic y-axis adjustment and x-axis bugfix
     plt <- update_axes(plt)
 
-    if(partial){
+    if (partial) {
       plt <- plotly::partial_bundle(plt)
     }
   } else {

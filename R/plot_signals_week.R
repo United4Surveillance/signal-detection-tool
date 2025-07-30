@@ -129,7 +129,7 @@ plot_signals_per_week <- function(results, interactive = FALSE, branding = NULL,
         )
       )
 
-    if(partial){
+    if (partial) {
       p <- plotly::partial_bundle(p)
     }
   }

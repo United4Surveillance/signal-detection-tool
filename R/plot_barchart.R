@@ -113,10 +113,9 @@ plot_barchart <- function(signals_agg,
         "toggleSpikelines"
       ))
 
-    if(partial){
+    if (partial) {
       p <- plotly::partial_bundle(p)
     }
-
   }
   return(p)
 }

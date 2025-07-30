@@ -157,10 +157,9 @@ plot_regional <- function(shape_with_signals,
       plot$x$data[[idx]]$showlegend <- FALSE
     }
 
-    if(partial){
+    if (partial) {
       plot <- plotly::partial_bundle(plot)
     }
-
   }
 
   plot

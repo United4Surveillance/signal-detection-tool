@@ -154,7 +154,8 @@ create_barplot_or_table <- function(signals_agg,
   if (n_levels_data < n_levels) {
     plot_barchart(signals_agg,
       interactive = interactive, toggle_alarms = toggle_alarms,
-      partial = partial)
+      partial = partial
+    )
   } else {
     format <- ifelse(interactive, "DataTable", "Flextable")
     build_signals_agg_table(
