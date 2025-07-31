@@ -12,6 +12,7 @@
 #'   - By default, this parameter is set to `get_shp_config_or_internal()`, which handles this logic dynamically.
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
+#' @param partial logical, add partial bundle to plotly
 #' @returns a table or a plot depending on whether the matching of the NUTS IDs was fully possible, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 #' @examples
 #' \dontrun{
@@ -19,14 +20,15 @@
 #'   preprocess_data() %>%
 #'   get_signals(stratification = c("sex", "county"))
 #' signals_agg <- signals %>% aggregate_signals(number_of_weeks = 6)
-#' create_map_or_table(signals_agg, input_example, "county_id", nuts_shp)
+#' create_map_or_table(signals_agg, input_example, "county", nuts_shp)
 #' }
 create_map_or_table <- function(signals_agg,
                                 data_surveillance,
                                 region,
                                 shape = get_shp_config_or_internal(),
                                 interactive = TRUE,
-                                toggle_alarms = FALSE) {
+                                toggle_alarms = FALSE,
+                                partial = FALSE) {
   checkmate::assertChoice(region, region_variable_names())
 
   checkmate::assert(
@@ -74,12 +76,20 @@ create_map_or_table <- function(signals_agg,
       dplyr::semi_join(shape, by = c("stratum" = "NUTS_ID"))
 
     # check whether all NUTS_ids are found in the shapefile
-    # when there is a mismatch only because of cases with NA region then this is still a match and
-    # in the map we show with a caption/annotation the number of cases and signals for them
-    n_NUTS_signals <- dplyr::n_distinct(setdiff(signals_agg_map$stratum, NA))
-    n_NUTS_matching <- dplyr::n_distinct(signals_with_matching_NUTS$stratum)
+    # when there is a mismatch we generate a warning
+    missing <- setdiff(setdiff(signals_agg_map$stratum, NA), signals_with_matching_NUTS$stratum)
 
-    if (n_NUTS_matching == n_NUTS_signals) {
+    if (length(missing) > 0) {
+      warning(
+        sprintf(
+          "Possible signals are not shown for these regions, as they didn't match the shapefile: %s",
+          paste(missing, collapse = ", ")
+        ),
+        call. = FALSE
+      )
+    }
+
+    if (nrow(signals_with_matching_NUTS) > 0) {
       plot_map <- TRUE
     }
   }
@@ -98,7 +108,8 @@ create_map_or_table <- function(signals_agg,
     output <- plot_regional(shape_with_signals,
       signals_agg_unknown_region,
       interactive = interactive,
-      toggle_alarms = toggle_alarms
+      toggle_alarms = toggle_alarms,
+      partial = partial
     )
   } else {
     format <- ifelse(interactive, "DataTable", "Flextable")
@@ -119,6 +130,7 @@ create_map_or_table <- function(signals_agg,
 #' @param n_levels the threshold for the number of levels from which we decide when a table is generated instead of a barchart visualisation
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
+#' @param partial logical, add partial bundle to plotly
 #' @returns a table or a plot depending on whether number of unique levels for the category to visualise, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 #' @examples
 #' \dontrun{
@@ -132,14 +144,18 @@ create_barplot_or_table <- function(signals_agg,
                                     category_selected,
                                     n_levels = 25,
                                     interactive = TRUE,
-                                    toggle_alarms = FALSE) {
+                                    toggle_alarms = FALSE,
+                                    partial = FALSE) {
   signals_agg <- signals_agg %>%
     dplyr::filter(category == category_selected)
 
   n_levels_data <- length(unique(signals_agg$stratum))
 
   if (n_levels_data < n_levels) {
-    plot_barchart(signals_agg, interactive = interactive, toggle_alarms = toggle_alarms)
+    plot_barchart(signals_agg,
+      interactive = interactive, toggle_alarms = toggle_alarms,
+      partial = partial
+    )
   } else {
     format <- ifelse(interactive, "DataTable", "Flextable")
     build_signals_agg_table(
@@ -158,26 +174,30 @@ create_barplot_or_table <- function(signals_agg,
 #' @param signal_category character, naming the category which should be visualised, i.e. "state","age_group","sex"
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
+#' @param partial logical, add partial bundle to plotly
 #' @return a table or a plot depending on signal_category, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 decider_barplot_map_table <- function(signals_agg,
                                       data_surveillance,
                                       signal_category,
                                       interactive = TRUE,
-                                      toggle_alarms = FALSE) {
+                                      toggle_alarms = FALSE,
+                                      partial = FALSE) {
   if (signal_category %in% region_variable_names()) {
     plot_or_table <- create_map_or_table(
       signals_agg,
       data_surveillance,
       signal_category,
       interactive = interactive,
-      toggle_alarms = toggle_alarms
+      toggle_alarms = toggle_alarms,
+      partial = partial
     )
   } else {
     plot_or_table <- create_barplot_or_table(
       signals_agg,
       signal_category,
       interactive = interactive,
-      toggle_alarms = toggle_alarms
+      toggle_alarms = toggle_alarms,
+      partial = partial
     )
   }
   return(plot_or_table)

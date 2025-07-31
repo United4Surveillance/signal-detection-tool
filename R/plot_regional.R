@@ -3,11 +3,13 @@
 #' @param signals_agg_unknown_region tibble default NULL, if not NULL tibble containing only the row for signals_agg for the missing regions (is.na(stratum)) with the columns cases and n_alarms which are used for creating the annotation text below the map
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
+#' @param partial logical, add partial bundle to plotly
 #' @returns either a ggplot object if static plot is chosen or a plotly object for the interactive plot
 plot_regional <- function(shape_with_signals,
                           signals_agg_unknown_region = NULL,
                           interactive = FALSE,
-                          toggle_alarms = FALSE) {
+                          toggle_alarms = FALSE,
+                          partial = FALSE) {
   checkmate::assertClass(shape_with_signals, "sf")
 
   checkmate::assert(
@@ -154,79 +156,11 @@ plot_regional <- function(shape_with_signals,
       plot$x$data[[n_list + 1]]$fillcolor <- "transparent"
       plot$x$data[[idx]]$showlegend <- FALSE
     }
+
+    if (partial) {
+      plot <- plotly::partial_bundle(plot)
+    }
   }
 
   plot
 }
-
-
-
-# plot_regional <- function(shape_with_signals,
-#                           interactive = FALSE) {
-#   checkmate::assertClass(shape_with_signals, "sf")
-#
-#   checkmate::assert(
-#     checkmate::check_true(interactive),
-#     checkmate::check_false(interactive),
-#     combine = "or"
-#   )
-#
-#   plot <- shape_with_signals %>%
-#     dplyr::mutate(n_alarms_label = dplyr::if_else(n_alarms > 0, n_alarms, NA)) %>%
-#     ggplot2::ggplot(ggplot2::aes(fill = cases,
-#                                  text = paste0(NUTS_NAME,
-#                                                "<br>Number of cases: ", cases,
-#                                                "<br>Number of alarms: ", n_alarms))) +
-#     ggplot2::geom_sf(mapping = ggplot2::aes(colour = "No alarms"), lwd = 1.2) +
-#     ggplot2::theme_void() +
-#     ggplot2::scale_fill_gradientn(colours = grDevices::colorRampPalette(c("#eaecf4","#304794","#1c2a58"))(8),
-#                                   name = "Cases") +
-#     ggplot2::scale_color_manual(values = c("No alarms"        = "black",
-#                                            "At least 1 alarm" = "red"),
-#                                 limits = c("No alarms", "At least 1 alarm"),
-#                                 labels = c("No alarms", "At least 1 alarm"),
-#                                 name = "") +
-#     ggplot2::scale_size_identity() +
-#     ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(fill = NA))) +
-#     ggplot2::theme(
-#       legend.title = ggplot2::element_text(size = 20, family = "bold"),
-#       legend.text  = ggplot2::element_text(size = 15),
-#       legend.text.align = 0
-#     )
-#
-#   if (any(shape_with_signals$any_alarms == TRUE)) {
-#     plot <- plot +
-#       ggplot2::geom_sf(data = shape_with_signals %>% dplyr::filter(any_alarms == TRUE),
-#                        mapping = ggplot2::aes(colour = "At least 1 alarm"), lwd = 1.2)
-#   }
-#
-#
-#   if (interactive) {
-#     plot <- plotly::ggplotly(plot, tooltip = "text") %>%
-#       plotly::style(hoveron = "fill",
-#                     hoverlabel = list(bgcolor = "white")) %>%
-#       plotly::config(modeBarButtonsToRemove = c(
-#         "autoScale2d",
-#         "resetScale2d",
-#         "select2d",
-#         "lasso2d",
-#         "zoomIn2d",
-#         "zoomOut2d",
-#         "pan2d",
-#         "zoom2d",
-#         "toggleSpikelines"
-#       ))
-#
-#
-#   } else {
-#     plot <- plot + ggplot2::geom_sf_text(ggplot2::aes(label = n_alarms_label),
-#                                          color  = "black",
-#                                          family = "bold",
-#                                          size   = 8,
-#                                          na.rm  = TRUE
-#                                          )
-#   }
-#
-#
-#   plot
-# }

@@ -11,10 +11,11 @@ run_app(
      cat("Warnings are turned off\\n")
      options(warn = -1)
  
-       onStop(function() {
+       get_shp_config_or_internal()
+     onStop(function() {
          options(warn = 0)
-        
-    cat("Warnings turned on\\n")
+ 
+           cat("Warnings turned on\\n")
      })
  },
   options = list(),

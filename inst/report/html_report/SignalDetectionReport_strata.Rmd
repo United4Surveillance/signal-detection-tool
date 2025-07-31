@@ -1,0 +1,52 @@
+{{pathogen}}-{{strat}} {.hidden}
+===========================================================================
+
+<!-- Filtering strata -->
+```{r}
+strat_text <- dplyr::case_when(
+  "{{strat}}" == "age_group" ~ "agegroup",
+  TRUE ~ "{{strat}}"
+)
+```
+
+```{r}
+df <- signals_padded %>%
+  dplyr::filter(category %in% "{{strat}}") %>%
+  SignalDetectionTool:::create_factor_with_unknown()
+
+number_stratum <- dplyr::n_distinct(df$stratum)
+
+if (number_stratum <= 10) {
+  p_height <- ceiling(dplyr::n_distinct(df$stratum) / 2) * 2
+} else {
+  p_height <- 12
+}
+
+pages <- ceiling(number_stratum / 12)
+
+txt <- NULL
+```
+
+Row {.tabset}
+-------------------------------------------------------------------------------
+<!-- Print plot for each stratum -->
+
+```{r, results='asis'}
+for(st in unique(df$stratum)){
+  cat("### timeseries -", st, "\n")
+  
+  plot_stratum <- plot_time_series(
+    df %>% dplyr::filter(.data[["stratum"]] == st),
+    number_of_weeks = 52,
+    intervention_date = params$intervention_date,
+    interactive = TRUE,
+    partial = TRUE
+    )
+
+  print(htmltools::tagList(plot_stratum))
+
+  
+  cat("\n\n\n")
+}
+```
+

@@ -5,6 +5,7 @@
 #' @param signals_agg tibble, aggregated signals which can be obtained from using the function \code{\link{aggregate_signals}}. It contains the number of cases, any_alarms and n_alarms for one category, i.e. age group summed over the number of weeks used in \code{\link{aggregate_signals}}.
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
+#' @param partial logical, add partial bundle to plotly
 #' @returns either a gg or plotly object
 #' @examples
 #' \dontrun{
@@ -16,7 +17,8 @@
 #' }
 plot_barchart <- function(signals_agg,
                           interactive = TRUE,
-                          toggle_alarms = FALSE) {
+                          toggle_alarms = FALSE,
+                          partial = FALSE) {
   checkmate::assert(
     checkmate::check_true(interactive),
     checkmate::check_false(interactive),
@@ -110,6 +112,10 @@ plot_barchart <- function(signals_agg,
         "zoom2d",
         "toggleSpikelines"
       ))
+
+    if (partial) {
+      p <- plotly::partial_bundle(p)
+    }
   }
   return(p)
 }

@@ -14,6 +14,7 @@ run_app <- function(path_to_yaml = NULL,
                     onStart = function() {
                       cat("Warnings are turned off\n")
                       options(warn = -1)
+                      get_shp_config_or_internal()
 
                       onStop(function() {
                         options(warn = 0)

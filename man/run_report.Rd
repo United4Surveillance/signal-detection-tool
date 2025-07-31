@@ -5,50 +5,72 @@
 \title{Renders signal detection report}
 \usage{
 run_report(
-  data = SignalDetectionTool::input_example,
+  data,
   report_format = "HTML",
   method = "FarringtonFlexible",
   number_of_weeks = 6,
+  pathogens = NULL,
   strata = c("county", "age_group"),
-  interactive = TRUE,
   tables = TRUE,
   output_file = NULL,
   output_dir = ".",
   signals_padded = NULL,
   signals_agg = NULL,
-  intervention_date = NULL
+  intervention_date = NULL,
+  custom_logo = NULL,
+  custom_theme = NULL
 )
 }
 \arguments{
-\item{data}{data.frame containing surveillance data in linelist format}
+\item{data}{data.frame containing surveillance data in linelist format following the format specified in `input_metadata`}
 
 \item{report_format}{character, format of the report: "HTML" or "DOCX"}
 
-\item{method}{character, algorithm to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend".}
+\item{method}{a character string, signal detection method to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend".
+You can retrieve the full list using [names(available_algorithms())].}
 
 \item{number_of_weeks}{integer, number of weeks for which signals are generated}
 
-\item{strata}{A character vector specifying the columns to stratify. If `NULL` no strata are used.
-the analysis. Default is NULL.}
+\item{pathogens}{A character vector specifying which pathogens to include in the report.
+If `NULL` (default), all pathogens present in `data`, `signals_padded`, or `signals_agg` are used.
+Multi-pathogen reports are supported only for HTML output.}
 
-\item{interactive}{Logical, indicating whether interactive elements should be included in the report. Only applicable when `report_format = "HTML"`. Defaults to `TRUE`.}
+\item{strata}{A character vector specifying the columns to stratify. If `NULL` no strata are used. If precomputed signals are provided  this argument is ignored and strata are inferred from the provided signals. Defaults to c("county", "age_group") when no precomputed signals were provided.}
 
-\item{tables}{Logical. True if tables should be included in report.}
+\item{tables}{Logical, default TRUE. True if Signal Detection Tables should be included in report. Only used for DOCX reports, the parameter is ignored for HTML reports.}
 
 \item{output_file}{A character string specifying the name of the output file (without directory path). If `NULL` (default), the file name is automatically generated to be SignalDetectionReport. See \link[rmarkdown]{render} for more details.}
 
 \item{output_dir}{A character string specifying the output directory for the rendered output file (default is ".", which means the rendered file will be saved in the current working directory. See \link[rmarkdown]{render} for more details. `NULL` is used when running the report from shiny app which will take the Downloads folder as default option for saving.}
 
-\item{signals_padded}{calculated and padded signals (for use within the app, default is NULL)}
+\item{signals_padded}{A tibble of precomputed and padded signals containing a `pathogen` column.
+If multiple pathogens are present, the tibble should represent all of them stacked together
+(e.g., using `dplyr::bind_rows()`).
+Defaults to `NULL`, in which case the signal data will be computed from the linelist
+within the `run_report()` function.
+If not `NULL`, the provided `signals_padded` is used as-is, and signals are not recomputed.}
 
-\item{signals_agg}{aggregated signals  (for use within the app, default is NULL)}
+\item{signals_agg}{A tibble of aggregated signals containing a `pathogen` column.
+If multiple pathogens are included, the tibble should represent all of them stacked together
+(e.g., using `dplyr::bind_rows()`).
+Defaults to `NULL`, in which case the aggregated signals are computed from the linelist
+within the `run_report()` function.
+If not `NULL`, the provided `signals_agg` is used directly and signals are not recomputed.}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.}
+
+\item{custom_logo}{A character string with a path to a png or svg logo, to replace the default United4Surveillance logo. Only used when `report_format` is `"HTML"`.}
+
+\item{custom_theme}{A bslib::bs_theme() to replace the default United4Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact. Only used when `report_format` is `"HTML"`.}
 }
 \value{
 the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 }
 \description{
+The function supports the generation of a single-pathogen and multi-pathogen report when `report_format = "HTML"`.
+For Word (DOCX) output, only single-pathogen reports are currently supported.
+}
+\details{
 If executed as a standalone function, all filtering must
 be performed beforehand.
 This function is also invoked within the app.
@@ -61,8 +83,6 @@ run_report(
   data = SignalDetectionTool::input_example,
   method = "FarringtonFlexible",
   strata = c("county", "sex"),
-  interactive = TRUE,
-  tables = TRUE,
   number_of_weeks = 6
 )
 # Example 2: An example output directory specified
@@ -70,7 +90,7 @@ run_report(
   method = "EARS",
   output_dir = "C:/Users/SmithJ/Documents"
 )
-# Example 3: An example output file name is speficied
+# Example 3: An example output file name is specified
 run_report(
   method = "EARS",
   output_file = "My Signal Report"
@@ -83,5 +103,24 @@ run_report(
   method = "EARS",
   strata = NULL
 )
+
+# Example 5: HTML report for multiple pathogens
+run_report(
+  report_format = "HTML",
+  data = SignalDetectionTool::input_example_multipathogen,
+  method = "Harmonic"
+)
+
+Example 6: HTML report for a subset of pathogens in a multi-pathogen dataset
+run_report(
+  report_format = "HTML",
+  data = SignalDetectionTool::input_example_multipathogen,
+  pathogens = c("Enterobacter","Salmonella"),
+  method = "Harmonic"
+)
+
 }
+}
+\seealso{
+[names(available_algorithms())]
 }
