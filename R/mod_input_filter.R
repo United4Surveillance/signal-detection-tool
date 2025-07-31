@@ -164,14 +164,11 @@ mod_input_filter_server <- function(id, data, filter_opts, all_filters, n_filter
     })
 
 
-    #' Get Selected Filter Variables
-    #'
-    #' This function retrieves the currently selected filter variables from `all_filters`.
-    #' It converts the `reactiveValues` object into a list, extracts the `filter_var`
-    #' values from each filter, and returns them as a character vector.
-    #'
-    #' @return A character vector of selected filter variables.
-    #' @import shiny
+    # Get Selected Filter Variables
+    #
+    # This function retrieves the currently selected filter variables from `all_filters`.
+    # It converts the `reactiveValues` object into a list, extracts the `filter_var`
+    # values from each filter, and returns them as a character vector.
     get_taken_filter_vars <- function() {
       lapply(shiny::reactiveValuesToList(all_filters), function(x) x[["filter_var"]]()) %>% unlist()
     }
