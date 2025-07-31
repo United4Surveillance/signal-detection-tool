@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>SignalDetectionTool: R Package for signal detection for surveillance data • SignalDetectionTool</title>
+<title>SignalDetectionTool: R Package for signal detection on infectious disease surveillance data • SignalDetectionTool</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="SignalDetectionTool: R Package for signal detection for surveillance data">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="SignalDetectionTool: R Package for signal detection on infectious disease surveillance data">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">SignalDetectionTool</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,19 +46,11 @@
 
 
 
-<link href="SignalDetectionTool_files/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
-<script src="SignalDetectionTool_files/htmlwidgets-1.6.4/htmlwidgets.js"></script><link href="SignalDetectionTool_files/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
-<script src="SignalDetectionTool_files/datatables-binding-0.33/datatables.js"></script><link href="SignalDetectionTool_files/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
-<link href="SignalDetectionTool_files/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
-<script src="SignalDetectionTool_files/dt-core-1.13.6/js/jquery.dataTables.min.js"></script><script src="SignalDetectionTool_files/jszip-1.13.6/jszip.min.js"></script><script src="SignalDetectionTool_files/pdfmake-1.13.6/pdfmake.js"></script><script src="SignalDetectionTool_files/pdfmake-1.13.6/vfs_fonts.js"></script><link href="SignalDetectionTool_files/dt-ext-buttons-1.13.6/css/buttons.dataTables.min.css" rel="stylesheet">
-<script src="SignalDetectionTool_files/dt-ext-buttons-1.13.6/js/dataTables.buttons.min.js"></script><script src="SignalDetectionTool_files/dt-ext-buttons-1.13.6/js/buttons.html5.min.js"></script><script src="SignalDetectionTool_files/dt-ext-buttons-1.13.6/js/buttons.colVis.min.js"></script><script src="SignalDetectionTool_files/dt-ext-buttons-1.13.6/js/buttons.print.min.js"></script><link href="SignalDetectionTool_files/dt-ext-rowgroup-1.13.6/css/rowGroup.dataTables.min.css" rel="stylesheet">
-<script src="SignalDetectionTool_files/dt-ext-rowgroup-1.13.6/js/dataTables.rowGroup.min.js"></script><link href="SignalDetectionTool_files/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet">
-<script src="SignalDetectionTool_files/nouislider-7.0.10/jquery.nouislider.min.js"></script><link href="SignalDetectionTool_files/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet">
-<script src="SignalDetectionTool_files/selectize-0.12.0/selectize.min.js"></script><link href="SignalDetectionTool_files/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
-<script src="SignalDetectionTool_files/crosstalk-1.2.1/js/crosstalk.min.js"></script><div class="row">
+
+<div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>SignalDetectionTool: R Package for signal detection for surveillance data</h1>
+      <h1>SignalDetectionTool: R Package for signal detection on infectious disease surveillance data</h1>
             
       
 
@@ -67,550 +59,211 @@
 
     
     
+<p>The <strong>SignalDetectionTool</strong> (SDT) is an R package which
+contains an R shiny app to perform signal detection on infectious
+disease surveillance data and visualise results. Furthermore the
+functions of this R package can also be used standalone without running
+the shiny application. This vignette gives guidance on how to use the
+functions within the R package.</p>
 <div class="section level2">
 <h2 id="running-the-app">Running the App<a class="anchor" aria-label="anchor" href="#running-the-app"></a>
 </h2>
-<p>Source the package</p>
+<p>This section is extensively described in the README of the package
+thus we give minimal instructions here. First install and load the SDT
+package.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://united4surveillance.github.io/signal-detection-tool/">SignalDetectionTool</a></span><span class="op">)</span></span></code></pre></div>
-<p>and run the app</p>
+<p>Run the app entering the following command in the console.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_app.html">run_app</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="section level3">
-<h3 id="upload-data">Upload Data<a class="anchor" aria-label="anchor" href="#upload-data"></a>
-</h3>
-<p>The surveillance data to analyze must have the following format.</p>
-<table class="table">
-<thead><tr>
-<th style="text-align:left;">
-Variable
-</th>
-<th style="text-align:left;">
-Mandatory
-</th>
-<th style="text-align:left;">
-Type
-</th>
-<th style="text-align:left;">
-Description
-</th>
-</tr></thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-case_id
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-character or numeric
-</td>
-<td style="text-align:left;">
-Unique identifier for a specific case, but nothing that can be used to
-identify the case or patient within the national surveillance system
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-date_report
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-character or date
-</td>
-<td style="text-align:left;">
-Date when the case was reported in ISO 8601 format YYYY-MM-DD
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-date_onset
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character or date
-</td>
-<td style="text-align:left;">
-Date when symptoms started in ISO 8601 format YYYY-MM-DD
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-date_hospitalization
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character or date
-</td>
-<td style="text-align:left;">
-Date when the case was admitted to the hospital in ISO 8601 format
-YYYY-MM-DD
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-date_death
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character or date
-</td>
-<td style="text-align:left;">
-Date when the case died in ISO 8601 format YYYY-MM-DD
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-date_vaccination
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character or date
-</td>
-<td style="text-align:left;">
-Date when the case was vaccinated in ISO 8601 format YYYY-MM-DD
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-country
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Name of the country in which the case was reported
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-country_id
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-character or numeric
-</td>
-<td style="text-align:left;">
-Id of the country in which the case was reported, Id should be NUTS-0 or
-ISO-alpha3 code
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-state
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Name of the state/major region in which the case was reported
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-state_id
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character or numeric
-</td>
-<td style="text-align:left;">
-Id of the state as NUTS-1 code
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-county
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Name of the county/basic region in which the case was reported
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-county_id
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character or numeric
-</td>
-<td style="text-align:left;">
-Id of the county as NUTS-2 code
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-community
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Name of the community/small region in which the case was reported
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-community_id
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character or numeric
-</td>
-<td style="text-align:left;">
-Id of the community as NUTS-3 code
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-region_level1
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Name of the major region in which the case was reported, alternative to
-the state column
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-region_level1_id
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character or numeric
-</td>
-<td style="text-align:left;">
-Id of the region as specified in the shapefile
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-region_level2
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Name of the basic region in which the case was reported, alternative to
-the county column
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-region_level2_id
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character or numeric
-</td>
-<td style="text-align:left;">
-Id of the region as specified in the shapefile
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-region_level3
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Name of the small region in which the case was reported, alternative to
-the community column
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-region_level3_id
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character or numeric
-</td>
-<td style="text-align:left;">
-Id of the region as specified in the shapefile
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-age
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-integer
-</td>
-<td style="text-align:left;">
-Age (in years) of the reported case at the time of reporting as integer
-between 0-125. Either age or age_group should be provided
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-age_group
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Age group (in years) of the reported case at the time of reporting as
-interval. Either age or age_group should be provided. Allowed separators
-are -, —, _. For the first age group, it is allowed to use &amp;lt;
-(e.g. &amp;lt;10) but also use the separators (e.g. 00-10). For the last
-age group digit separator digit (i.e. 90-100 or 90_100 depending on your
-separator), digit+ (e.g. 100+) or &amp;gt;digit (e.g. &amp;gt;100) is
-allowed. For all age groups between the first and the last only one
-separator should be used.
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-sex
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Sex of the reported case, one of male, female, diverse, unknown
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-occupation
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Occupation of the reported case, possible options (not limited to):
-care, kindergarten, food production
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-place_of_infection
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Name of the region in which the case was likely infected if that place
-is different from the reporting region
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-place_of_infection_id
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character or numeric
-</td>
-<td style="text-align:left;">
-Id of the region in which the case was likely infected as NUTS-code
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-pathogen
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Name of the pathogen/diagnosis that was identified
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-pathogen_id
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character or numeric
-</td>
-<td style="text-align:left;">
-Id of the pathogen/diagnosis
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-subtype
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Name of the subtype/serovar/variant that was identified
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-subtype_id
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character or numeric
-</td>
-<td style="text-align:left;">
-Id of the subtype/serovar/variant
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-hospitalization
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Indication whether the case was hospitalized, yes, no or unknown
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-death
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Indication whether the case has died, yes, no or unknown
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-vaccination
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Indication whether the case was vaccinated before infection, yes, no or
-unknown
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-outbreak_status
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-Indication whether the case is known to be part of an outbreak, yes, no,
-unknown
-</td>
-</tr>
-</tbody>
-</table>
-</div>
+<p>It is possible to run the app with customised settings using a yaml
+file. Please have a look at the README.</p>
 </div>
 <div class="section level2">
-<h2 id="advanced-use">Advanced Use<a class="anchor" aria-label="anchor" href="#advanced-use"></a>
+<h2 id="using-functions-from-the-sdt">Using functions from the SDT<a class="anchor" aria-label="anchor" href="#using-functions-from-the-sdt"></a>
 </h2>
 <div class="section level3">
-<h3 id="preprocessing-the-data">Preprocessing the data<a class="anchor" aria-label="anchor" href="#preprocessing-the-data"></a>
+<h3 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
 </h3>
+<p>The input to the SDT is a linelist of infectious disease cases
+structured according to the format defined in
+<code>input_metadata</code>. A sample linelist
+(<code>input_example</code>) and its corresponding metadata
+specification (<code>input_metadata</code>) is available in the package
+as internal datasets and can be accessed using:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/preprocess_data.html">preprocess_data</a></span><span class="op">(</span><span class="va">input_example</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"input_example"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"input_metadata"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="creating-tables">Creating tables<a class="anchor" aria-label="anchor" href="#creating-tables"></a>
+<h3 id="applying-signal-detection">Applying signal detection<a class="anchor" aria-label="anchor" href="#applying-signal-detection"></a>
 </h3>
+<p>To apply signal detection to your data for the most recent 6 weeks
+you first need to preprocess your linelist and then apply
+<code><a href="../reference/get_signals.html">get_signals()</a></code>. Inside <code><a href="../reference/get_signals.html">get_signals()</a></code> the
+linelist is aggregated to a timeseries containing weekly counts of
+cases.<br>
+To apply different signal detection methods use the parameter method. To
+generate stratified signals use the parameter stratification. Please
+have a look at the function documentation for more details. This is an
+example for signals generated using the default paramters with
+FarringtonFlexible and no stratification:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_signals.html">get_signals</a></span><span class="op">(</span><span class="va">data</span>, stratification <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"county"</span>, <span class="st">"sex"</span>, <span class="st">"age_group"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/build_signals_table.html">build_signals_table</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span></span></code></pre></div>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"filter":"bottom","vertical":false,"filterHTML":"<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;age_group&quot;,&quot;county&quot;,&quot;sex&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;00-04&quot;,&quot;05-09&quot;,&quot;35-39&quot;,&quot;40-44&quot;,&quot;45-49&quot;,&quot;50-54&quot;,&quot;55-59&quot;,&quot;60-64&quot;,&quot;65-69&quot;,&quot;70-74&quot;,&quot;75-79&quot;,&quot;Burgenland&quot;,&quot;diverse&quot;,&quot;female&quot;,&quot;Kärnten&quot;,&quot;male&quot;,&quot;Niederösterreich&quot;,&quot;Oberösterreich&quot;,&quot;Salzburg&quot;,&quot;Steiermark&quot;,&quot;Tirol&quot;,&quot;unknown&quot;,&quot;Vorarlberg&quot;,&quot;Wien&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"2022\" data-max=\"2023\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1\" data-max=\"51\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"2\" data-max=\"21\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"6\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1.22\" data-max=\"21\" data-scale=\"2\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0.23\" data-max=\"15.63\" data-scale=\"2\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","extensions":["Buttons","RowGroup"],"data":[["county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","county","sex","sex","sex","sex","sex","sex","sex","sex","sex","sex","sex","sex","sex","sex","sex","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group"],["Burgenland","Burgenland","Burgenland","Kärnten","Kärnten","Kärnten","Kärnten","Niederösterreich","Niederösterreich","Oberösterreich","Oberösterreich","Oberösterreich","Oberösterreich","Oberösterreich","Oberösterreich","Salzburg","Salzburg","Salzburg","Salzburg","Salzburg","Salzburg","Salzburg","Steiermark","Steiermark","Steiermark","Steiermark","Tirol","Tirol","Tirol","Tirol","Vorarlberg","Vorarlberg","Wien","male","male","male","male","male","female","female","female","female","female","female","diverse","diverse","unknown","unknown","00-04","00-04","05-09","35-39","35-39","35-39","35-39","35-39","35-39","40-44","40-44","40-44","45-49","45-49","45-49","50-54","50-54","50-54","50-54","50-54","55-59","55-59","55-59","55-59","55-59","55-59","55-59","55-59","60-64","60-64","60-64","60-64","65-69","70-74","70-74","70-74","75-79"],[2022,2023,2023,2022,2022,2023,2023,2022,2023,2022,2023,2023,2023,2023,2023,2022,2022,2022,2023,2023,2023,2023,2022,2022,2022,2022,2022,2022,2023,2023,2022,2023,2023,2022,2022,2022,2023,2023,2022,2022,2022,2022,2022,2023,2023,2023,2022,2023,2023,2023,2022,2022,2022,2022,2023,2023,2023,2022,2023,2023,2023,2023,2023,2022,2022,2022,2022,2023,2022,2022,2022,2022,2022,2023,2023,2023,2022,2022,2022,2023,2022,2023,2023,2023,2022],[45,2,20,31,38,12,21,28,5,50,6,7,9,12,25,32,48,50,7,8,15,19,28,36,37,40,28,45,2,8,34,4,10,40,45,51,8,10,28,33,38,44,50,18,3,6,46,25,4,21,35,28,30,31,2,6,26,45,10,22,1,7,21,31,41,44,45,10,33,38,46,48,50,2,7,8,34,35,36,12,42,5,8,17,36],[5,5,5,4,4,6,6,8,9,7,8,6,6,7,8,4,4,5,5,5,5,5,6,7,10,7,8,7,8,9,4,3,3,12,14,15,17,16,16,16,14,17,19,21,2,2,4,5,19,19,2,3,3,2,2,3,2,4,5,5,3,4,3,3,5,5,4,4,4,3,4,3,3,4,5,5,2,2,2,5,2,4,4,2,2],[2,2,2,1,1,1,2,2,1,4,3,1,3,0,3,1,0,1,1,1,0,0,0,2,3,4,2,2,1,1,1,1,2,4,4,3,3,5,4,2,2,5,5,5,0,0,0,1,6,4,0,1,0,0,0,1,1,1,1,1,1,0,0,0,1,3,1,1,1,0,0,0,1,0,0,1,0,1,0,2,1,0,0,0,0],[4.34,4.82,4.35,3,3.63,5.19,5.27,6.69,8.82,5.58,5.4,4.8,5.31,5.5,4.74,3.06,2.77,3.32,4.27,4.34,4.61,4.63,5,6.43,6.23,6.59,5.7,5.33,6.41,7.98,2.65,2.94,1.66,10.99,13.13,14.54,16,15.26,12.85,13.82,13.77,14.63,16.29,21,1.84,1.45,3.57,3.09,18.48,17.57,1.47,1.66,1.73,1.68,1.86,2.47,1.96,3.57,3.76,3.08,2.85,3.44,2.9,2.14,2.53,2.85,3.22,3.32,2.23,2.38,2.25,2.74,2.48,3.43,3.15,3.72,1.8,1.84,1.87,2.86,1.58,2.91,3.06,1.35,1.22],[2.08,2.45,2.13,1.25,1.64,2.59,2.74,3.85,5.44,3.05,2.91,2.49,2.85,2.99,2.45,1.3,1.13,1.47,2.1,2.15,2.33,2.34,2.63,3.66,3.52,3.78,3.12,2.83,3.62,4.77,0.96,1.16,0.44,7.25,8.99,10.16,11.38,10.76,8.76,9.57,9.460000000000001,10.24,11.63,15.63,0.51,0.34,1.6,1.33,13.48,12.57,0.37,0.47,0.51,0.48,0.58,0.89,0.62,1.58,1.71,1.29,1.14,1.49,1.17,0.74,0.97,1.15,1.39,1.44,0.78,0.87,0.8,1.08,0.93,1.49,1.32,1.67,0.55,0.57,0.59,1.14,0.4,1.05,1.15,0.31,0.23]],"container":"<table class=\"cell-border stripe hover\">\n  <thead>\n    <tr>\n      <th>Category<\/th>\n      <th>Stratum<\/th>\n      <th>Year<\/th>\n      <th>Week<\/th>\n      <th>Cases<\/th>\n      <th>Cases In Outbreak<\/th>\n      <th>Threshold<\/th>\n      <th>Expected<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"rowGroup":{"dataSrc":0},"columnDefs":[{"targets":6,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"},{"targets":7,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"},{"visible":false,"targets":0},{"className":"dt-right","targets":[2,3,4,5,6,7]},{"name":"Category","targets":0},{"name":"Stratum","targets":1},{"name":"Year","targets":2},{"name":"Week","targets":3},{"name":"Cases","targets":4},{"name":"Cases In Outbreak","targets":5},{"name":"Threshold","targets":6},{"name":"Expected","targets":7}],"dom":"tfrBip","scrollY":false,"buttons":["copy","csv","excel","pdf"],"initComplete":"function(settings, json) {\n$(this.api().table().header()).css({'background-color': '#304794', 'color': '#fff'});\n}","order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"single","selected":null,"target":"row","selectable":null}},"evals":["options.columnDefs.0.render","options.columnDefs.1.render","options.initComplete"],"jsHooks":[]}</script>
+<code class="sourceCode R"><span><span class="va">data_prepro</span> <span class="op">&lt;-</span> <span class="va">input_example</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/preprocess_data.html">preprocess_data</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">signals</span> <span class="op">&lt;-</span> <span class="va">data_prepro</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/get_signals.html">get_signals</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>The generated <code>signals</code> output is a data.frame containing
+the aggregated number of cases per week with additional columns
+<code>cases_in_outbreak</code>, <code>alarms</code>,
+<code>upperbound</code>, <code>expected</code>, <code>category</code>,
+<code>stratum</code>, <code>method</code> and
+<code>number_of_weeks</code>.</p>
+<ul>
+<li>
+<code>cases_in_outbreak</code> is only generated if the column
+<code>outbreak_status</code> was available in your provided linelist. It
+counts how many cases in this week were already part of a known
+outbreak.<br>
+</li>
+<li>
+<code>alarms</code> is a column with booleans indicating for which
+weeks a signal has been generated. Of course the majority of weeks in
+the aggregated timeseries contain <code>NA</code> in this column as only
+the most recent selected <code>number_of_weeks</code> are filled with
+<code>TRUE</code> of <code>FALSE</code>.<br>
+</li>
+<li>
+<code>upperbound</code> contains a numeric threshold calculated with
+the signal detection methods. As for <code>alarms</code> the majority of
+weeks in the aggregated timeseries contain <code>NA</code> as this is
+only calculated for the <code>number_of_weeks</code> for which signals
+are generated. Furthermore some algorithms such as EARS do not calculate
+a threshold.<br>
+</li>
+<li>
+<code>expected</code> is a numeric value giving the expected number
+of cases by the signal detection algorithm. Only filled for the weeks
+for which signals are generated.<br>
+</li>
+<li>
+<code>category</code> Character string specifying to which stratum
+timeseries belongs to when having added stratification parameters (more
+details in the next example). For unstratified timeseries it is
+<code>NA</code>.<br>
+</li>
+<li>
+<code>stratum</code> Character string specifying to which category
+of the stratum the timeseries belongs to when having added
+stratification parameters (more details in the next example). For
+unstratified timeseries it is <code>NA</code>.<br>
+</li>
+<li>
+<code>method</code> Character string specifying the signal detection
+method which was used.</li>
+<li>
+<code>number_of_weeks</code> Integer specifying the number of weeks
+for which signals were generated.</li>
+</ul>
+<p>Generating stratified signals using EARS:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">data_prepro</span> <span class="op">&lt;-</span> <span class="va">input_example</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/preprocess_data.html">preprocess_data</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">signals_ears_stratified</span> <span class="op">&lt;-</span> <span class="va">data_prepro</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/get_signals.html">get_signals</a></span><span class="op">(</span></span>
+<span>  method <span class="op">=</span> <span class="st">"ears"</span>,</span>
+<span>  stratification <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_group"</span>, <span class="st">"county"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The <code>signals_ears_stratified</code> output is a data frame in
+long format, containing multiple time series of weekly aggregated case
+counts. Each time series corresponds to a unique combination of the
+specified stratification variables, with all strata stacked
+vertically.</p>
+<p>The columns <code>category</code> and <code>stratum</code> identify
+the individual timeseries. In this example we obtain the following
+values:<br>
+* <code>category</code> is filled with the column names provided in the
+<code>stratification</code> parameter.<br>
+* <code>stratum</code> with the values of these variables.</p>
+<p>In this example we obtain:<br>
+* <code>category</code> is filled with “age_group” and “county”<br>
+* <code>stratum</code> contains “00–04”, “05–09”, “10–14”, “15–19”,
+“20–24”, “25–29”, “30–34”, “35–39”, “40–44”, “45–49”, “50–54”, “55–59”,
+“60–64”, “65–69”, “70–74”, “75–79”, “80–84”, “85–89”, “90–94”, “95–99”,
+“100–104”, “105–109” for rows with <code>category == "age_group"</code>.
+For rows with <code>category == "county"</code> the values of
+<code>stratum</code> are “Burgenland”, “Kärnten”, “Niederösterreich”,
+“Oberösterreich”, “Salzburg”, “Steiermark”, “Tirol”, “Vorarlberg”,
+“Wien”.</p>
+</div>
+<div class="section level3">
+<h3 id="create-visualisations-and-tables">Create visualisations and tables<a class="anchor" aria-label="anchor" href="#create-visualisations-and-tables"></a>
+</h3>
+<p>Coming soon…</p>
+</div>
+<div class="section level3">
+<h3 id="run-the-report">Run the report<a class="anchor" aria-label="anchor" href="#run-the-report"></a>
+</h3>
+<div class="section level4">
+<h4 id="single-pathogen-reporting">Single-pathogen reporting<a class="anchor" aria-label="anchor" href="#single-pathogen-reporting"></a>
+</h4>
+<p>You can directly generate an HTML or Word report containing signal
+results and visualizations using <code><a href="../reference/run_report.html">run_report()</a></code>. Simply pass
+your surveillance linelist—structured according to the format defined in
+<code>input_metadata</code>—to <code><a href="../reference/run_report.html">run_report()</a></code>. The data will
+be preprocessed automatically within the function. The following code
+chunk generates a Word report using EARS without any stratification
+(default) for the past six weeks (default):</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/run_report.html">run_report</a></span><span class="op">(</span><span class="va">input_example</span>,</span>
+<span>  report_format <span class="op">=</span> <span class="st">"DOCX"</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"EARS"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>This generates an HTML report (default) with stratification by age
+group, county and sex for the last 2 weeks using FarringtonFlexible
+(default):</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/run_report.html">run_report</a></span><span class="op">(</span><span class="va">input_example</span>,</span>
+<span>  strata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_group"</span>, <span class="st">"county"</span>, <span class="st">"sex"</span><span class="op">)</span>,</span>
+<span>  number_of_weeks <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="multi-pathogen-reporting-html">Multi-pathogen reporting (HTML)<a class="anchor" aria-label="anchor" href="#multi-pathogen-reporting-html"></a>
+</h4>
+<p>The following functionalities are currently only available for HTML
+reports. They are not supported in Word (DOCX) format. The package also
+supports generating a single HTML report for multiple pathogens.<br>
+To use this functionality, you must provide a line list that includes
+cases from different pathogens.</p>
+<p>An example line list is available in the package as an internal
+dataset: <code>input_example_multipathogen</code>.</p>
+<p>You can access it with:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"input_example_multipathogen"</span><span class="op">)</span></span></code></pre></div>
+<p>To run an HTML report with the EARS algorithm and stratification by
+age_group and county for all pathogens in the line list you can run:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/run_report.html">run_report</a></span><span class="op">(</span><span class="va">input_example_multipathogen</span>,</span>
+<span>  strata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_group"</span>, <span class="st">"county"</span><span class="op">)</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"EARS"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>If you want to generate a report for a subset of pathogens in your
+linelist you can specify these using the pathogens parameter:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/run_report.html">run_report</a></span><span class="op">(</span><span class="va">input_example_multipathogen</span>,</span>
+<span>  pathogens <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Enterobacter"</span>, <span class="st">"Salmonella"</span><span class="op">)</span>,</span>
+<span>  strata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_group"</span>, <span class="st">"county"</span><span class="op">)</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"EARS"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>In addition you can customise the HTML report by replacing the
+default United4Surveillance logo in the top right corner with your own
+logo. To do this, provide the path to a .png or .svg file using the
+custom_logo parameter.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/run_report.html">run_report</a></span><span class="op">(</span><span class="va">input_example_multipathogen</span>,</span>
+<span>  pathogens <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Enterobacter"</span>, <span class="st">"Salmonella"</span><span class="op">)</span>,</span>
+<span>  strata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_group"</span>, <span class="st">"county"</span><span class="op">)</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"EARS"</span>,</span>
+<span>  custom_logo <span class="op">=</span> <span class="st">"path/to/my/custom_logo.png"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

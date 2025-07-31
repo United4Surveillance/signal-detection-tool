@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">SignalDetectionTool</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,6 +68,12 @@
         <dd>Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek and adds missing isoweeks to the aggregated dataset. Additionally number of cases part of a known outbreak is added if the variable outbreak_status exists in the data.</dd>
       </dl><dl><dt>
 
+          <code><a href="aggregate_pad_signals.html">aggregate_pad_signals()</a></code>
+
+        </dt>
+        <dd>Aggregate and Pad Signals for Reporting</dd>
+      </dl><dl><dt>
+
           <code><a href="aggregate_signals.html">aggregate_signals()</a></code>
 
         </dt>
@@ -78,6 +84,12 @@
 
         </dt>
         <dd>Implementation of the CUSUM algorithm retrieved from the surveillance package and adapted so that after a signal was triggered the cusum is set to 0 Parameters are inherited from surveillance algo.cusum</dd>
+      </dl><dl><dt>
+
+          <code><a href="available_algorithms.html">available_algorithms()</a></code>
+
+        </dt>
+        <dd>List Available Signal Detection Algorithms</dd>
       </dl><dl><dt>
 
           <code><a href="build_empty_datatable.html">build_empty_datatable()</a></code>
@@ -392,6 +404,12 @@
         <dd>Automated and Early Detection of Disease Outbreaks</dd>
       </dl><dl><dt>
 
+          <code><a href="get_signals_all.html">get_signals_all()</a></code>
+
+        </dt>
+        <dd>Get Signals for All Strata Including Unstratified</dd>
+      </dl><dl><dt>
+
           <code><a href="get_signals_cusum.html">get_signals_cusum()</a></code>
 
         </dt>
@@ -422,6 +440,12 @@
         <dd>Get Signals Stratified</dd>
       </dl><dl><dt>
 
+          <code><a href="get_strata_from_signals_agg.html">get_strata_from_signals_agg()</a></code>
+
+        </dt>
+        <dd>Extract strata from precomputed signals_agg</dd>
+      </dl><dl><dt>
+
           <code><a href="get_unused_variables.html">get_unused_variables()</a></code>
 
         </dt>
@@ -438,6 +462,12 @@
 
         </dt>
         <dd>Example input data</dd>
+      </dl><dl><dt>
+
+          <code><a href="input_example_multipathogen.html">input_example_multipathogen</a></code>
+
+        </dt>
+        <dd>Multipathogen input data</dd>
       </dl><dl><dt>
 
           <code><a href="input_metadata.html">input_metadata</a></code>
@@ -510,6 +540,12 @@
 
         </dt>
         <dd>Plot number of cases with number of signals by region</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_signals_per_week.html">plot_signals_per_week()</a></code>
+
+        </dt>
+        <dd>Plot in how many strata an signal was detected under the detection period</dd>
       </dl><dl><dt>
 
           <code><a href="plot_time_series.html">plot_time_series()</a></code>

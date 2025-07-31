@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">SignalDetectionTool</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,22 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.8.0" id="signaldetectiontool-080">SignalDetectionTool 0.8.0<a class="anchor" aria-label="anchor" href="#signaldetectiontool-080"></a></h2>
+<ul><li>Adds ability to generate one HTML report for multiple pathogens.</li>
+<li>Added <code>input_example_multipathogen</code>, a new example dataset containing a line list with multiple pathogens.</li>
+<li>Internal refactor: DOCX and HTML report generation now handled in separate R Markdown files.</li>
+<li>Change to flexdashboard for HTML report.</li>
+<li>Allows custom theming of HTML report using colours or custom logo.</li>
+<li>Exports 3 more functions to use outside of Shiny app.</li>
+<li>Fixed legend bug in the time series plot and switched to <code>plotly</code>.</li>
+<li>Relaxed requirements for map visualisation: the map is now shown even if some regions do not match the shapefile. Non-matching regions are dropped with a warning in the console.</li>
+<li>Rewriting the vignette
+<ul><li>contains information about internal data</li>
+<li>instructions for get_signals()</li>
+<li>instructions for run_report()</li>
+</ul></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.0" id="signaldetectiontool-070">SignalDetectionTool 0.7.0<a class="anchor" aria-label="anchor" href="#signaldetectiontool-070"></a></h2>
 <ul><li>Relaxing restrictions on data types for input data

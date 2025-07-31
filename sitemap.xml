@@ -13,8 +13,10 @@
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/age_format_check.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/age_groups.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/aggregate_data.html</loc></url>
+<url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/aggregate_pad_signals.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/aggregate_signals.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/algo.cusum_with_reset.html</loc></url>
+<url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/available_algorithms.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/build_empty_datatable.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/build_signals_agg_table.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/build_signals_table.html</loc></url>
@@ -67,15 +69,18 @@
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_shp_config_or_internal.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_signals.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_signals_aeddo.html</loc></url>
+<url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_signals_all.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_signals_cusum.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_signals_ears.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_signals_farringtonflexible.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_signals_glm.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_signals_stratified.html</loc></url>
+<url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_strata_from_signals_agg.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_unused_variables.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_valid_dates_intervention_start.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/index.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/input_example.html</loc></url>
+<url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/input_example_multipathogen.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/input_metadata.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/is_ISO8601.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/is_ISO8601_detailed.html</loc></url>
@@ -88,6 +93,7 @@
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/plot_agegroup_by.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/plot_barchart.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/plot_regional.html</loc></url>
+<url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/plot_signals_per_week.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/plot_time_series.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/prepare_signals_agg_table.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/prepare_signals_table.html</loc></url>
