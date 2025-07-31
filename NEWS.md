@@ -1,3 +1,5 @@
+# SignalDetectionTool 0.8.0
+
 * Adds ability to generate one HTML report for multiple pathogens.
 * Added `input_example_multipathogen`, a new example dataset containing a line list with multiple pathogens.
 * Internal refactor: DOCX and HTML report generation now handled in separate R Markdown files.
