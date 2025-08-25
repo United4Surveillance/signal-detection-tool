@@ -90,13 +90,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
             shiny::br(),
             shiny::fluidRow(
               shiny::column(
-                width = 6,
+                width = 12,
                 shiny::h2("Signal detection algorithm"),
                 shiny::span("Depending on the number of weeks you want to generate signals for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
                 shiny::uiOutput(ns("algorithm_choice"))
               ),
               shiny::column(
-                width = 6,
+                width = 12,
                 shiny::conditionalPanel(
                   condition = sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
                   checkboxInput(ns("pandemic_correction"), "Covid19 Pandemic Correction",
@@ -107,6 +107,19 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                   )
                 ),
                 shiny::uiOutput(ns("conditional_date_input"))
+              )
+            ),
+            shiny::fluidRow(
+              shiny::column(
+                width = 12,
+                shiny::h2("Post-processing filter"),
+                shiny::span(style="display:block;",
+                            "Apply filters after the execution of the signal detection."),
+                shiny::span(style="font-weight: bold; display:block; margin-top:12px; margin-bottom:4px;",
+                            "Minimum number of cases per signal"),
+                shiny::div(style="margin-top:0px, padding-top:0px",
+                  shiny::uiOutput(ns("filter_min_cases_signals"))
+                )
               )
             )
           )
@@ -125,6 +138,18 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         step = 1,
         width = "40%"
       ) # TODO: make this dynamic
+    })
+
+    output$filter_min_cases_signals <- shiny::renderUI({
+      shiny::req(!errors_detected())
+      shiny::numericInput(
+        inputId = ns("min_cases_signals"),
+        label = NULL,
+        value = get_data_config_value("post-processing:min_cases_signals", 1),
+        min = 1,
+        step = 1,
+        width = "40%"
+      )
     })
 
     # using shinyvalidate to ensure value between min and max
@@ -518,7 +543,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       pathogen_vars = shiny::reactive(input$pathogen_vars),
       method = shiny::reactive(input$algorithm_choice),
       no_algorithm_possible = shiny::reactive(no_algorithm_possible()),
-      intervention_date = shiny::reactive(intervention_date())
+      intervention_date = shiny::reactive(intervention_date()),
+      min_cases_signals = shiny::reactive(input$min_cases_signals)
     ))
   })
 }

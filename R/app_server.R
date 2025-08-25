@@ -31,7 +31,8 @@ app_server <- function(input, output, session) {
     errors_detected = data_load_check_result$errors_detected,
     method = datinput$method,
     no_algorithm_possible = datinput$no_algorithm_possible,
-    intervention_date = datinput$intervention_date
+    intervention_date = datinput$intervention_date,
+    min_cases_signals = datinput$min_cases_signals
   )
 
   mod_tabpanel_report_server("report",
