@@ -20,6 +20,10 @@ params:
 ```{r}
 categ <- params$category
 
+patho_f <- tolower(params$disease)  
+patho_f <- gsub("[~(),./?&!#<>\\]", "", patho_f) #remove special characters
+patho_f <- gsub("\\s", "-", patho_f) # replace space with score
+
 strat_text <- dplyr::case_when(
   categ == "age_group" ~ "agegroup",
   TRUE ~ categ
@@ -66,4 +70,8 @@ for(st in unique(df$stratum)){
   cat("\n\n\n")
 }
 ```
+
+Row
+-------------------------------------------------------------------------------
+[Go back](`r paste0("../SignalDetectionReport.html#", patho_f)`)
 
