@@ -1,17 +1,34 @@
-{{pathogen}}-{{strat}} {.hidden}
+---
+title: "Signal Detection Report - `r params$country`"
+date: "Report generated on `r Sys.Date()`"
+lang: "en"
+
+
+params: 
+  disease: "Pertussis"
+  country: "Austria"
+  number_of_weeks: 6
+  category: "age_group" 
+  signals_padded: NULL
+  intervention_date: NULL
+---
+
+`r paste(params$disease, params$category, sep  = "-")`
 ===========================================================================
 
 <!-- Filtering strata -->
 ```{r}
+categ <- params$category
+
 strat_text <- dplyr::case_when(
-  "{{strat}}" == "age_group" ~ "agegroup",
-  TRUE ~ "{{strat}}"
+  categ == "age_group" ~ "agegroup",
+  TRUE ~ categ
 )
 ```
 
 ```{r}
-df <- signals_padded %>%
-  dplyr::filter(category %in% "{{strat}}") %>%
+df <- params$signals_padded %>%
+  dplyr::filter(.data$category %in% categ) %>%
   SignalDetectionTool:::create_factor_with_unknown()
 
 number_stratum <- dplyr::n_distinct(df$stratum)
@@ -39,11 +56,11 @@ for(st in unique(df$stratum)){
     df %>% dplyr::filter(.data[["stratum"]] == st),
     number_of_weeks = 52,
     intervention_date = params$intervention_date,
-    interactive = TRUE,
-    partial = TRUE
+    interactive = FALSE,
+    partial = FALSE
     )
 
-  print(htmltools::tagList(plot_stratum))
+  print(plot_stratum)
 
   
   cat("\n\n\n")

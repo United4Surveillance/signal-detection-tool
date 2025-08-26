@@ -137,7 +137,7 @@ cat(txt)
 
 <!-- Strata timeseries pages -->
 
-```{r, results='asis'}
+```{r, results='asis', eval=FALSE}
 if(!is.null(params$strata)){
   path_sdt_report_strata <- system.file("report","html_report", "SignalDetectionReport_strata.rmd", package = "SignalDetectionTool")
   src <- lapply(params$strata, function(j) {

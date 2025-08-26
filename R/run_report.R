@@ -334,15 +334,72 @@ run_report <- function(
       includes = rmarkdown::includes(after_body = basename(logo_html)),
       theme = custom_theme
     )
+
+
+    # Render Pathogen-strata pages
+    rmd_strata_path <- system.file("report/html_report/SignalDetectionReport_strata.Rmd",
+       package = "SignalDetectionTool")
+
+    for(patho in pathogens){
+      for(ctg in strata){
+
+        # formatted pathogen name (used for links)
+        patho_f <- tolower(patho)
+        patho_f <- gsub("[~(),./?&!#<>\\]", "", patho_f) #remove special characters
+        patho_f <- gsub("\\s", "-", patho_f) # replace space with score
+
+        signals_pad <- signals_padded %>%
+          dplyr::filter(.data$pathogen == patho, .data$category == ctg)
+
+        strata_report_params <- list(
+          disease = patho,
+          country = unique(data$country),
+          number_of_weeks = number_of_weeks,
+          category = ctg,
+          signals_padded = signals_pad,
+          intervention_date = intervention_date
+        )
+
+        rmarkdown::render(rmd_strata_path,
+          output_format = output_format,
+          params = strata_report_params,
+          output_file = paste(patho_f, ctg, sep  = "-"),
+          output_dir = file.path(output_dir, "strata_pages"),
+          clean = FALSE, # necessary for render to work correctly, intermediate files will be deleted later
+          run_pandoc = TRUE
+        )
+      }
+    }
+
+    # Render Pathogen page
+    rmarkdown::render(rmd_path,
+                      output_format = output_format,
+                      params = report_params,
+                      output_file = output_file,
+                      output_dir = output_dir
+    )
+
+    # delete intermediate files
+    for(patho in pathogens){
+      for(ctg in strata){
+        patho_f <- tolower(patho)
+        patho_f <- gsub("[~(),./?&!#<>\\]", "", patho_f) #remove special characters
+        patho_f <- gsub("\\s", "-", patho_f) # replace space with score
+
+
+        unlink(file.path(output_dir, "strata_pages", paste0(patho_f, "-", ctg, "_files")), recursive = TRUE)
+      }
+    }
+
   } else {
     rmd_path <- system.file("report/word_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
     output_format <- "word_document"
-  }
 
-  rmarkdown::render(rmd_path,
-    output_format = output_format,
-    params = report_params,
-    output_file = output_file,
-    output_dir = output_dir
-  )
+    rmarkdown::render(rmd_path,
+                      output_format = output_format,
+                      params = report_params,
+                      output_file = output_file,
+                      output_dir = output_dir
+    )
+  }
 }
