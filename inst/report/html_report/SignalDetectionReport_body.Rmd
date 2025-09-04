@@ -60,7 +60,7 @@ valueBox(value = n_signals_week,
 ```{r, results='asis', eval=!is.null(params$strata)}
 for(cate in params$strata){
 
-  cate_link <- paste0("[", cate, "](strata_pages/",pate ,"-", cate, ".html)")
+  cate_link <- paste0("[", cate, "](",pate ,"-", cate, ".html)")
   cat("### Signals in", cate_link, "\n\n")
   
   p <- signals_padded %>% 
@@ -79,7 +79,7 @@ for(cate in params$strata){
 ```{r, results='asis', eval=!is.null(params$strata)}
 for(cate in params$strata){
 
-  cate_link <- paste0("[", cate, "](strata_pages/",pate ,"-", cate, ".html)")
+  cate_link <- paste0("[", cate, "](",pate ,"-", cate, ".html)")
   cat("### Distribution by", cate_link, "\n\n")
   
   dist_plot <- SignalDetectionTool:::decider_barplot_map_table(

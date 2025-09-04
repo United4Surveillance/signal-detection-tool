@@ -332,7 +332,10 @@ run_report <- function(
       orientation = "rows",
       vertical_layout = "scroll",
       includes = rmarkdown::includes(after_body = basename(logo_html)),
-      theme = custom_theme
+      theme = custom_theme,
+      self_contained = FALSE,
+      lib_dir = file.path("../../..", output_dir, "lib") # find a way to better define this path
+
     )
 
 
@@ -364,9 +367,7 @@ run_report <- function(
           output_format = output_format,
           params = strata_report_params,
           output_file = paste(patho_f, ctg, sep  = "-"),
-          output_dir = file.path(output_dir, "strata_pages"),
-          clean = FALSE, # necessary for render to work correctly, intermediate files will be deleted later
-          run_pandoc = TRUE
+          output_dir = output_dir
         )
       }
     }
@@ -379,17 +380,7 @@ run_report <- function(
                       output_dir = output_dir
     )
 
-    # delete intermediate files
-    for(patho in pathogens){
-      for(ctg in strata){
-        patho_f <- tolower(patho)
-        patho_f <- gsub("[~(),./?&!#<>\\]", "", patho_f) #remove special characters
-        patho_f <- gsub("\\s", "-", patho_f) # replace space with score
 
-
-        unlink(file.path(output_dir, "strata_pages", paste0(patho_f, "-", ctg, "_files")), recursive = TRUE)
-      }
-    }
 
   } else {
     rmd_path <- system.file("report/word_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
