@@ -73,5 +73,5 @@ for(st in unique(df$stratum)){
 
 Row
 -------------------------------------------------------------------------------
-[Go back](`r paste0("SignalDetectionReport.html#", patho_f)`)
+[Go back](`r paste0(patho_f, ".html")`)
 

@@ -116,7 +116,12 @@ For the last `r params$number_of_weeks` weeks there were:
   
 ```{r, results='asis'}
 for(pat in params$disease){
-  pat_link <- paste0("[", pat, "]")
+  # formatting pathogen name for links 
+  pat_f <- tolower(pat)  
+  pat_f <- gsub("[~(),./?&!#<>\\]", "", pat_f) #remove special characters
+  pat_f <- gsub("\\s", "-", pat_f) # replace space with score
+  
+  pat_link <- paste0("[", pat, "](report_pages/", pat_f, ".html)")
   tmp <- results_cases %>% dplyr::filter(pathogen == pat, is.na(category))
   cat("-", tmp$cases, "cases of", pat_link, "\n")
 }
@@ -163,7 +168,7 @@ dt <- DT::datatable(
       pathogen_f = tolower(pathogen),
       pathogen_f = gsub("[~(),./?&!#<>\\]", "", pathogen_f),
       pathogen_f = gsub("\\s", "-", pathogen_f), 
-      pathogen = paste0("<a href='#", pathogen_f,"'>", pathogen,"</a>"),
+      pathogen = paste0("<a href='report_pages/", pathogen_f,".html'>", pathogen,"</a>"),
       total = rowSums(dplyr::across(is.integer))
     ) %>% 
     dplyr::select(-pathogen_f),
@@ -241,7 +246,7 @@ split(tmp_df, tmp_df$pathogen) %>%
 
 <!-- Pathogen pages -->
 
-```{r, results='asis'}
+```{r, results='asis', eval=FALSE}
 path_sdt_report_body <- system.file("report","html_report", "SignalDetectionReport_body.rmd", package = "SignalDetectionTool")
 src <- lapply(params$disease, function(i) {
   knitr::knit_expand(path_sdt_report_body, 

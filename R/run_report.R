@@ -328,30 +328,64 @@ run_report <- function(
         )
     }
 
-    output_format <- flexdashboard::flex_dashboard(
+    output_format_s <- flexdashboard::flex_dashboard(
       orientation = "rows",
       vertical_layout = "scroll",
       includes = rmarkdown::includes(after_body = basename(logo_html)),
       theme = custom_theme,
       self_contained = FALSE,
-      lib_dir = file.path("../../..", output_dir, "lib") # find a way to better define this path
-
+      lib_dir = file.path("../../..", output_dir, "report_pages/lib") # find a way to better define this path
     )
 
+    output_format <- flexdashboard::flex_dashboard(
+      orientation = "rows",
+      vertical_layout = "scroll",
+      includes = rmarkdown::includes(after_body = basename(logo_html)),
+      theme = custom_theme,
+    )
 
-    # Render Pathogen-strata pages
+    # rmd paths for pathogen and strata pages
+    rmd_pathogen_path <- system.file("report/html_report/SignalDetectionReport_body.Rmd",
+       package = "SignalDetectionTool")
     rmd_strata_path <- system.file("report/html_report/SignalDetectionReport_strata.Rmd",
        package = "SignalDetectionTool")
 
     for(patho in pathogens){
+      # formatted pathogen name (used for links)
+      patho_f <- tolower(patho)
+      patho_f <- gsub("[~(),./?&!#<>\\]", "", patho_f) #remove special characters
+      patho_f <- gsub("\\s", "-", patho_f) # replace space with score
+
+      # pathogen pages parameters
+      signals_pad_p <- signals_padded %>%
+        dplyr::filter(.data$pathogen == patho)
+
+      signals_agg_p <-  signals_agg %>%
+        dplyr::filter(.data$pathogen == patho)
+
+      pathogen_report_params <- list(
+        data = data,
+        disease = patho,
+        country = unique(data$country),
+        number_of_weeks = number_of_weeks,
+        strata = strata,
+        signals_padded = signals_pad_p,
+        signals_agg = signals_agg_p,
+        intervention_date = intervention_date
+      )
+
+      # Render Pathogen pages
+      rmarkdown::render(rmd_pathogen_path,
+        output_format = output_format_s,
+        params = pathogen_report_params,
+        output_file = patho_f,
+        output_dir = file.path(output_dir, "report_pages")
+      )
+
       for(ctg in strata){
 
-        # formatted pathogen name (used for links)
-        patho_f <- tolower(patho)
-        patho_f <- gsub("[~(),./?&!#<>\\]", "", patho_f) #remove special characters
-        patho_f <- gsub("\\s", "-", patho_f) # replace space with score
-
-        signals_pad <- signals_padded %>%
+        # strata pages parameters
+        signals_pad_c <-  signals_padded %>%
           dplyr::filter(.data$pathogen == patho, .data$category == ctg)
 
         strata_report_params <- list(
@@ -359,38 +393,37 @@ run_report <- function(
           country = unique(data$country),
           number_of_weeks = number_of_weeks,
           category = ctg,
-          signals_padded = signals_pad,
+          signals_padded = signals_pad_c,
           intervention_date = intervention_date
         )
 
+        # Render strata pages
         rmarkdown::render(rmd_strata_path,
-          output_format = output_format,
+          output_format = output_format_s,
           params = strata_report_params,
           output_file = paste(patho_f, ctg, sep  = "-"),
-          output_dir = output_dir
+          output_dir = file.path(output_dir, "report_pages")
         )
       }
     }
 
     # Render Pathogen page
     rmarkdown::render(rmd_path,
-                      output_format = output_format,
-                      params = report_params,
-                      output_file = output_file,
-                      output_dir = output_dir
+      output_format = output_format,
+      params = report_params,
+      output_file = output_file,
+      output_dir = output_dir
     )
-
-
 
   } else {
     rmd_path <- system.file("report/word_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
     output_format <- "word_document"
 
     rmarkdown::render(rmd_path,
-                      output_format = output_format,
-                      params = report_params,
-                      output_file = output_file,
-                      output_dir = output_dir
+      output_format = output_format,
+      params = report_params,
+      output_file = output_file,
+      output_dir = output_dir
     )
   }
 }
