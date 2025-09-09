@@ -140,6 +140,14 @@ run_report <- function(
   checkmate::assert_character(output_file, null.ok = TRUE, len = 1)
   checkmate::assert_string(output_dir, null.ok = TRUE)
 
+  # give default name if none is supplied
+  if(is.null(output_file)){
+    output_file <- paste0(
+      "SignalDetectionReport.",
+      switch(report_format, HTML = "html", DOCX = "docx")
+    )
+  }
+
   checkmate::assert(
     checkmate::check_null(intervention_date),
     checkmate::check_date(lubridate::date(intervention_date)),
@@ -263,6 +271,10 @@ run_report <- function(
   }
 
   if (report_format == "HTML") {
+    # location to save results
+    temp_dir <- tempdir()
+    dir.create(file.path(temp_dir, "report_pages"))
+
     rmd_path <- system.file("report/html_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
     rmd_dir <- dirname(normalizePath(rmd_path))
 
@@ -334,7 +346,7 @@ run_report <- function(
       includes = rmarkdown::includes(after_body = basename(logo_html)),
       theme = custom_theme,
       self_contained = FALSE,
-      lib_dir = file.path("../../..", output_dir, "report_pages/lib") # find a way to better define this path
+      lib_dir = file.path(normalizePath(temp_dir), "report_pages", "lib")
     )
 
     output_format <- flexdashboard::flex_dashboard(
@@ -349,6 +361,8 @@ run_report <- function(
        package = "SignalDetectionTool")
     rmd_strata_path <- system.file("report/html_report/SignalDetectionReport_strata.Rmd",
        package = "SignalDetectionTool")
+
+
 
     for(patho in pathogens){
       # formatted pathogen name (used for links)
@@ -379,7 +393,7 @@ run_report <- function(
         output_format = output_format_s,
         params = pathogen_report_params,
         output_file = patho_f,
-        output_dir = file.path(output_dir, "report_pages")
+        output_dir = file.path(temp_dir, "report_pages")
       )
 
       for(ctg in strata){
@@ -402,7 +416,7 @@ run_report <- function(
           output_format = output_format_s,
           params = strata_report_params,
           output_file = paste(patho_f, ctg, sep  = "-"),
-          output_dir = file.path(output_dir, "report_pages")
+          output_dir = file.path(temp_dir, "report_pages")
         )
       }
     }
@@ -411,9 +425,23 @@ run_report <- function(
     rmarkdown::render(rmd_path,
       output_format = output_format,
       params = report_params,
-      output_file = output_file,
-      output_dir = output_dir
+      output_file = "SignalDetectionReport.html",
+      output_dir = temp_dir
     )
+
+    # name for zip file
+    if(output_file == normalizePath(file.path(dirname(output_file), basename(output_file)))){
+      z_file <- gsub(".html", ".zip", output_file) # case when complete path is given in output_file
+    } else {
+      z_file <- file.path(output_dir, gsub(".html", ".zip", output_file)) # case when output_dir and output_file are given separatedly
+    }
+
+    zip::zipr(
+      zipfile = z_file,
+      files = c(file.path(temp_dir, "SignalDetectionReport.html"),
+                file.path(temp_dir, "report_pages/"))
+    )
+
 
   } else {
     rmd_path <- system.file("report/word_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
