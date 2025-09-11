@@ -433,7 +433,7 @@ run_report <- function(
     if(output_file == normalizePath(file.path(dirname(output_file), basename(output_file)))){
       z_file <- gsub(".html", ".zip", output_file) # case when complete path is given in output_file
     } else {
-      z_file <- file.path(output_dir, gsub(".html", ".zip", output_file)) # case when output_dir and output_file are given separatedly
+      z_file <- file.path(output_dir, gsub(".html", ".zip", output_file)) # case when output_dir and output_file are given separately
     }
 
     zip::zipr(

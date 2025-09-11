@@ -48,6 +48,11 @@ pages <- ceiling(number_stratum / 12)
 txt <- NULL
 ```
 
+```{r, include=FALSE}
+# Init Step to make sure that the dependencies are loaded
+htmltools::tagList(plotly::ggplotly(ggplot2::ggplot()))
+```
+
 Row {.tabset}
 -------------------------------------------------------------------------------
 <!-- Print plot for each stratum -->
@@ -60,11 +65,11 @@ for(st in unique(df$stratum)){
     df %>% dplyr::filter(.data[["stratum"]] == st),
     number_of_weeks = 52,
     intervention_date = params$intervention_date,
-    interactive = FALSE,
-    partial = FALSE
+    interactive = TRUE,
+    partial = TRUE
     )
 
-  print(plot_stratum)
+  print(htmltools::tagList(plot_stratum))
 
   
   cat("\n\n\n")
