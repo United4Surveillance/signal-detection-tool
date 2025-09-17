@@ -123,7 +123,7 @@ get_shp_config_or_internal <- function() {
       # usage of app_cache_env to not read in the dataset multiple times in one app session as this function
       # is called each time a map is plotted
       # thus save time
-      app_cache_env$shp <- sf::st_read(shp_path)
+      app_cache_env$shp <- sf::st_read(shp_path, quiet = TRUE)
       # transform NUTS_ID to character (we assume this in the matching)
       app_cache_env$shp$NUTS_ID <- as.character(app_cache_env$shp$NUTS_ID)
     }
