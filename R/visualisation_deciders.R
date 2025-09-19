@@ -96,11 +96,11 @@ create_map_or_table <- function(signals_agg,
 
   if (plot_map) {
     # filter shapefile according to level selected
-    level_code <- switch (region,
-                          "country" = 0,
-                          "state" = 1,
-                          "county" = 2,
-                          "community" = 3
+    level_code <- switch(region,
+      "country" = 0,
+      "state" = 1,
+      "county" = 2,
+      "community" = 3
     )
 
     shape_with_signals <- shape %>%
@@ -111,8 +111,8 @@ create_map_or_table <- function(signals_agg,
       dplyr::left_join(signals_agg_map, by = c("NUTS_ID" = "stratum")) %>%
       dplyr::mutate(
         cases = dplyr::case_when(is.na(.data$cases) ~ 0, .default = .data$cases),
-        any_alarms =  dplyr::case_when(is.na(.data$any_alarms) ~ FALSE, .default = .data$any_alarms),
-        n_alarms =  dplyr::case_when(is.na(.data$n_alarms) ~ 0, .default = .data$n_alarms),
+        any_alarms = dplyr::case_when(is.na(.data$any_alarms) ~ FALSE, .default = .data$any_alarms),
+        n_alarms = dplyr::case_when(is.na(.data$n_alarms) ~ 0, .default = .data$n_alarms),
       )
 
     # computation of tibble for the information about the cases with NA region
