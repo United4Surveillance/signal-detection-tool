@@ -478,3 +478,12 @@ get_case_id_duplicates <- function(data) {
   data %>%
     dplyr::filter(duplicated(case_id))
 }
+
+#' check that shapefile contains NUTS_ID, LEVL_CODE, and CNTR_CODE
+#' @param shape shapefile object loaded using sf::st_read()
+#' @returns if check passess, returns TRUE invisibly. If not, throws an error message
+check_columns_shapefile <- function(shape){
+  col_names <- colnames(shape)
+  # NUTS_ID, LEVL_CODE, and CNTR_CODE are subset of colnames(shape)
+  checkmate::assert_subset(c("NUTS_ID", "LEVL_CODE", "CNTR_CODE"), col_names)
+}

@@ -120,10 +120,14 @@ get_shp_config_or_internal <- function() {
 
   if (!is.null(shp_path)) {
     if (!exists("shp", envir = app_cache_env)) {
+      # read shapefile and check column names
+      shape <- sf::st_read(shp_path)
+      check_columns_shapefile(shape)
+
       # usage of app_cache_env to not read in the dataset multiple times in one app session as this function
       # is called each time a map is plotted
       # thus save time
-      app_cache_env$shp <- sf::st_read(shp_path)
+      app_cache_env$shp <- shape
       # transform NUTS_ID to character (we assume this in the matching)
       app_cache_env$shp$NUTS_ID <- as.character(app_cache_env$shp$NUTS_ID)
     }
