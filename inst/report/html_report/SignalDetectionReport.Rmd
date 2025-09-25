@@ -166,13 +166,15 @@ dt <- DT::datatable(
       pathogen = paste0("<a href='#", pathogen_f,"'>", pathogen,"</a>"),
       total = rowSums(dplyr::across(is.integer))
     ) %>% 
-    dplyr::select(-pathogen_f),
+    dplyr::select(-pathogen_f) %>% 
+    dplyr::arrange(desc(total)),
   rownames = FALSE,
   escape = FALSE,
   caption = paste0("Number of signals encountered in each stratification level in the last ",
                    params$number_of_weeks, " weeks"),
   fillContainer = FALSE,
-  class = list(stripe = FALSE)
+  class = list(stripe = FALSE),
+  options = list(pageLength = 25)
   )
 
 for(cate in c("Unstratified", strata)){
@@ -196,47 +198,6 @@ for(cate in c("Unstratified", strata)){
 }
 
 dt %>% DT::formatStyle("total", fontWeight = "bold")
-```
-
-```{r, eval=FALSE}
-# Links with plotly apparently don't work inside flexdashboard
-
-tmp_df <- params$signals_padded %>%
-  dplyr::filter(!is.na(alarms)) %>%
-  dplyr::mutate(
-    date = paste0("Y",year, ".W", week),
-    category = dplyr::case_when(
-      is.na(category)~"Unstratified", 
-      .default = category
-    )
-  ) %>% 
-  dplyr::group_by(pathogen, category, date) %>%
-  dplyr::summarise(signals = sum(alarms)) 
-
-split(tmp_df, tmp_df$pathogen) %>% 
-  lapply(function(x){
-    
-    pat <- unique(x$pathogen)
-    
-    m <- matrix(x$signals, 
-                nrow = length(params$strata)+1,
-                ncol = params$number_of_weeks,
-                byrow = T)
-    
-    rownames(m) <- unique(tmp_df$category)
-    colnames(m) <- unique(tmp_df$date)
-    
-    plotly::plot_ly(x = colnames(m), y=rownames(m), z=m, type = "heatmap") %>%
-       plotly::add_annotations(
-         text = paste0("<a href='#", tolower(pat),"'>", pat,"</a>"), 
-         x = -0.5,
-         y = length(params$strata)+1,
-         showarrow = FALSE, xref = "x", yref = "y", 
-         font = list(size = 14)
-       )
-  }
-  ) %>% 
-  plotly::subplot(nrows = min(length(params$disease),3), shareX = TRUE)
 ```
 
 <!-- Pathogen pages -->
