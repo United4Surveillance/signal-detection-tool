@@ -60,7 +60,7 @@ data("input_metadata")
 
 To apply signal detection to your data for the most recent 6 weeks you first need to preprocess your linelist and then apply `get_signals()`. Inside `get_signals()` the linelist is aggregated to a timeseries containing weekly counts of cases.  
 To apply different signal detection methods use the parameter method. To generate stratified signals use the parameter stratification. Please have a look at the function documentation for more details. 
-This is an example for signals generated using the default parameters with FarringtonFlexible and no stratification: 
+This is an example for signals generated using the default paramters with FarringtonFlexible and no stratification: 
 ```{r}
 data_prepro <- input_example %>% preprocess_data()
 signals <- data_prepro %>% get_signals()

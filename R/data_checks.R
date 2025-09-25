@@ -32,7 +32,7 @@ check_raw_surveillance_data <- function(data) {
 
   errors <- c(errors, errors_mandatory, errors_optional, errors_consistency_region)
 
-  # return potential error messages
+  # return TRUE or print error messages
   if (length(errors) != 0) {
     # remove empty slots
     errors <- errors[sapply(errors, function(element) !is.null(element))]

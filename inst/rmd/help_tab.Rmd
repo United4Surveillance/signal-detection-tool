@@ -54,7 +54,7 @@ The input tab is where you can interact, manipulate and shape the input data set
 Using this tool, it is only possible to perform signal detection upon one kind of pathogen at a time. Thus, if data about multiple pathogens exist in data, one will be preselected and can be changed using the drop-down list.
 
 ### Filters
-You can choose to investigate a subset of your data according to the filters you select. When filtering upon one or more variables, whether it be choosing a specific time period through date_report and / or selecting only the age_groups 00-29, that subset of data is then used to train the outbreak detection algorithms and is shown on the timeseries visualisation.
+You can choose to investigate a subset of your data according to the filters you select. When filtering upon one or more variables, whether it be choosing a specific time period through date_report and / or selecting only the age_groups 00-29, thatsubset of data is then used to train the outbreak detection algorithms and is shown on the timeseries visualisation.
 
 ### Strata
 You can choose to stratify by up to three variables. Choosing a variable for stratification means that signals will be examined for each level of chosen strata(s). For example, if the variable age_group is one of chosen strata, then each age_group level, e.g. "00-04", "05-09" etc., will be examined for signals. This strata examination will be shown both in the result table found at the bottom of the `Signals` tab, and additionally, a strata-specific visualisation or table is shown on the top of the `Signals` tab. Choosing a strata will not affect the time series visualisation in the `Signals` tab.
@@ -81,33 +81,30 @@ For more details about the individual algorithms we recommend to read the texts 
 
 #### CUSUM  
 
-CUSUM (cumulative sum) is an algorithm that detects shifts in the mean of a time series. It accumulates deviations of the observed case counts from the mean case count and once this accumulation has reached a value above a defined tolerance a signal is triggered. After a signal is triggered, the cumulative sum is set to zero, and the algorithm restarts. As CUSUM accumulates the deviations over time, it is more sensitive to small and moderate shifts in the case count. The mean case count is computed on all case counts of the training period. CUSUM does not account for seasonality as it just computes a mean over all case counts. The SignalDetectionTool calls the function cusum_with_reset(), an adaptation of the function algo.cusum() from the R package surveillance (Salmon et al, 2016) while using its default parameters.
-CUSUM was originally developed by Page (1954) and typically used in industry for monitoring change detection. Rossi et al. (1999) serves as reference in the public health context.
+CUSUM (cumulative sum) is an algorithm that detects shifts in the mean of a time series. It accumulates deviations of the observed case counts from the mean case count and once this accumulation has reached a value above a defined tolerance a signal is triggered. After a signal is triggered, the cumulative sum is set to zero, and the algorithm restarts. As CUSUM accumulates the deviations over time, it is more sensitive to small and moderate shifts in the case count. The mean case count is computed on all case counts of the training period. CUSUM does not account for seasonality as it just computes a mean over all case counts.
+CUSUM was originally developed by E. S. Page and typically used in industry for monitoring change detection. Rossi et al. (1999) serves as reference in the public health context.
 
 #### FarringtonFlexible
 
 The FarringtonFlexible uses a generalised linear model (GLM) to model the observed case count. In addition to a time trend terms for seasonality are also included in this model. For the computation of the baseline past very high case counts (potential outbreaks) are downweighted so that they don’t shift the baseline upwards. Furthermore, the past 26 time points before the current time point are excluded from the baseline to avoid reducing sensitivity when an outbreak has recently started before the current time point. The algorithm needs at least 78 time points (1.5 years when time points are weeks) of data in the past to calibrate the baseline.
-FarringtonFlexible (Noufaily et al. 2013) is an improved version of the classic Farrington algorithm (Farrington et al. 1996). In this tool the implementation farringtonFlexible() from the R package surveillance (Salmon et al, 2016) with its default parameters is used. 
+FarringtonFlexible (Noufaily et al. 2012) is an improved version of the classic Farrington algorithm (Farrington et al. 1996). In this tool the implementation from the R package surveillance is used which is illustrated in Salmon et al. (2016).
 
 #### EARS 
 
 The EARS (Early Aberration Reporting System) algorithm uses a window-based approach for outbreak detection. For the EARS C1 algorithm implemented in this tool, mean and standard deviation are computed from the cases observed in the last 7 time points before the current time point. These parameters are used to compute a threshold based on the quantiles of the normal distribution. When the observed case count is above the computed threshold a signal is raised. Because of the short time interval considered, EARS does not take into account seasonality and time trends. The baseline is computed using only the last 7 time points.
-EARS was developed by CDC and published in Hutwagner et al. (2003). In this tool the implementation earsC() from the R package surveillance (Salmon et al, 2016) with its default parameters is used.  
+EARS was developed by CDC and published in Hutwagner et al. (2003).
 
 #### Mean 
 
-The algorithms labelled “Mean”, “Timetrend”, “Harmonic”, “Harmonic with timetrend”, “Step harmonic”, and “Step harmonic with
-timetrend” share the same generalised linear model (GLM) backbone implemented in the function get_signals_glm(). Aggregated case counts are iteratively refitted with a quasi-Poisson GLM where down-weighted Anscombe residuals from reduce the influence of past outbreaks. Depending on the method, the GLM contains an intercept only, time trends, harmonic sine/cosine waves, or terms for 10 seasonal windows. A threshold is then determined using a prediction interval derived from the mean, applying either a Poisson or negative binomial distribution. The choice of distribution is based on the fitted dispersion of the data. 
-
-The Mean option fits only an intercept, i.e., calculates the mean of all previous case counts while downweighting past outbreaks. This mean serves as the expected value for the current number of cases.
+This method calculates the mean of all previous case counts while downweighting past outbreaks, ensuring that the mean remains unbiased by previous high case counts. This mean serves as the expected value for the current number of cases. A threshold is then determined using a prediction interval derived from the mean, applying either a Poisson or negative binomial distribution. The choice of distribution is based on the fitted dispersion of the data.
 
 #### Timetrend
 
-This method extends the intercept-only model (as used by “Mean”) by adding a linear timetrend.
+This method models the expected number of cases by a regression with an intercept and a timetrend. It uses all the full previous data to fit the regression. It downweighting past outbreaks, ensuring that the fitted expected number of cases remains unbiased by previous high case counts. A threshold is then determined using a prediction interval derived from the mean, applying either a Poisson or negative binomial distribution. The choice of distribution is based on the fitted dispersion of the data.
 
 #### Harmonic
 
-This method augments the intercept-only model (as used by “Mean”) with sine and cosine regressors to model seasonality in the data. 
+This method models the expected number of cases using a harmonic sin-cos regression that includes an intercept but no timetrend. The harmonic sin-cos wave elements are used to model seasonality which occurs in the data. The model is fitted using all available historical data while downweighting past outbreaks to ensure that the estimated expected number of cases is not biased by previous high case counts. A threshold is then determined using a prediction interval derived from the model's mean, applying either a Poisson or negative binomial distribution. The choice of distribution is based on the fitted dispersion of the data.
 
 #### Harmonic with timetrend
 
@@ -116,7 +113,7 @@ The same as the Harmonic method but with fitting a timetrend to account for the 
 
 #### Step harmonic
 
-This method models the expected number of cases using the season groups defined in the Farrington outbreak detection algorithm. The year is divided into 10 seasonal windows, each with a constant expected case count within its respective season group. This approach offers flexibility in capturing seasonal patterns, such as a faster decline following a rise, but it requires more data for accurate fitting. 
+This method models the expected number of cases using the season groups defined in the Farrington outbreak detection algorithm. The year is divided into 10 seasonal windows, each with a constant expected case count within its respective season group. This approach offers flexibility in capturing seasonal patterns, such as a faster decline following a rise, but it requires more data for accurate fitting. The regression model also includes an intercept. The model is fitted using all available historical data, with past outbreaks downweighted to ensure that the estimated expected number of cases remains unbiased by previous high case counts. A threshold is then determined using a prediction interval derived from the model's mean, applying either a Poisson or negative binomial distribution, depending on the fitted dispersion of the data.
 
 #### Step harmonic with timetrend
 
@@ -127,16 +124,6 @@ The same as the Step harmonic method but with fitting a timetrend to account for
 The "Covid19 Pandemic Correction" feature, accessible via an additional button, applies an interrupted time series analysis to the outbreak detection methods. It is possible to apply the correction to the following algorithms: Mean, Timetrend, Harmonic, Harmonic with timetrend, Step harmonic, Step harmonic with timetrend.  
 In the Mean model, separate means are fitted for the periods before and after the selected intervention date. For models that include a time trend, both the intercept and time trend can differ following the intervention. However, the seasonality components are fitted across the entire time period and are not adjusted based on the intervention date.
 This approach allows you to model changes in case counts, such as a decline due to the pandemic, and to capture a different time trend that may emerge afterward. A critical assumption behind these models is that the current case counts are represented by the model applied after the intervention, meaning it models the case counts which occured during and following the pandemic.
-
-### References
-
-- Farrington, C. P., Andrews, N. J., Beale, A. D., & Catchpole, M. A. (1996). A statistical algorithm for the early detection of outbreaks of infectious disease. *Journal of the Royal Statistical Society: Series A (Statistics in Society)*, 159(3), 547–563.
-- Hutwagner, L., Thompson, W., Seeman, G. M., & Treadwell, T. (2003). The bioterrorism preparedness and response Early Aberration Reporting System (EARS). *Journal of Urban Health*, 80(2), i89–i96.
-- Noufaily, A., Enki, D. G., Farrington, C. P., Garthwaite, P. H., Andrews, N., & Charlett, A. (2013). An improved algorithm for outbreak detection in multiple surveillance systems. *Statistics in Medicine*, 32(7), 1206–1222.
-- Page, E. S. (1954). Continuous inspection schemes. *Biometrika*, 41(1/2), 100–115.
-- Rossi, G., Lampugnani, L., & Marchi, M. (1999). An evaluation of statistical models for the early detection of infectious disease outbreaks. *Statistics in Medicine*, 18(23), 3323–3333.
-- Salmon, M., Schumacher, D., & Höhle, M. (2016). Monitoring count time series in R: Aberration detection in public health surveillance. *Journal of Statistical Software*, 70(10), 1–35.
-
 
 ## Signals tab
 
@@ -156,4 +143,5 @@ The report can be produced in two different formats: HTML or DOCX.
 # Bug reporting
 If you encounter any technical issues or bugs when using the SignalDetectionTool, please report them on [Github](https://github.com/United4Surveillance/signal-detection-evaluation-tool/issues/new/choose) by making an issue. 
 Thank you in advance!
+
 
