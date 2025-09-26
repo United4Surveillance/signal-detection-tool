@@ -184,7 +184,7 @@ for(cate in c("Unstratified", strata)){
   
   # colours for interpolate, uses brand color
   colours <- c(brand_colors["bg"], brand_colors["warning"], brand_colors["danger"])
-  values <- colorRamp(colours)(cuts/max_s)
+  values <- colorRamp(colours, bias = log(0.2)/log(0.5))(cuts/max_s)   # bias transforms warning value to 20% 
   values <- rgb(values[,1],
                 values[,2],
                 values[,3], 
