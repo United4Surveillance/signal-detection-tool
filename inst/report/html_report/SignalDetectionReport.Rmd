@@ -76,8 +76,7 @@ text_diseases <- ifelse(
   params$disease, 
   ifelse(length(params$disease) == 2, 
          paste0(params$disease, collapse = " and "),
-         paste0(paste0(params$disease[1:(length(params$disease)-1)], collapse = ", "),
-                ", and ", tail(params$disease, 1))
+         paste0(length(params$disease), " pathogens (see list to the right)")
          )
 
 )
@@ -107,19 +106,8 @@ For each disease, you can find an unstratified overview of the observed signals`
 ```{r}
 results_cases <- params$signals_padded %>% 
   dplyr::filter(!is.na(alarms)) %>% 
-  dplyr::group_by(pathogen, category, stratum) %>% 
-  dplyr::summarise(cases = sum(cases),
-                   signals = sum(alarms))
-```
-
-For the last `r params$number_of_weeks` weeks there were:
-  
-```{r, results='asis'}
-for(pat in params$disease){
-  pat_link <- paste0("[", pat, "]")
-  tmp <- results_cases %>% dplyr::filter(pathogen == pat, is.na(category))
-  cat("-", tmp$cases, "cases of", pat_link, "\n")
-}
+  dplyr::group_by(pathogen) %>% 
+  dplyr::summarise(cases = sum(cases))
 ```
 
 Row
@@ -159,6 +147,8 @@ dt <- DT::datatable(
       names_from = category,
       values_from = signals
     ) %>% 
+    dplyr::right_join(results_cases, by = "pathogen") %>% 
+    dplyr::relocate(cases, .after = "pathogen") %>% 
     dplyr::mutate(
       pathogen_f = tolower(pathogen),
       pathogen_f = gsub("[~(),./?&!#<>\\]", "", pathogen_f),
