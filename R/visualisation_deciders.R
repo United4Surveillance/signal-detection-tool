@@ -99,7 +99,8 @@ create_map_or_table <- function(signals_agg,
     level_code <- shape %>%
       dplyr::left_join(signals_agg_map, by = c("NUTS_ID" = "stratum")) %>%
       dplyr::filter(!is.na(cases)) %>%
-      dplyr::distinct(LEVL_CODE) %>% dplyr::pull()
+      dplyr::distinct(LEVL_CODE) %>%
+      dplyr::pull()
 
     shape_with_signals <- shape %>%
       dplyr::filter(
