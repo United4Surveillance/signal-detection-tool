@@ -113,11 +113,16 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
               shiny::column(
                 width = 12,
                 shiny::h2("Post-processing filter"),
-                shiny::span(style="display:block;",
-                            "Apply filters after the execution of the signal detection."),
-                shiny::span(style="font-weight: bold; display:block; margin-top:12px; margin-bottom:4px;",
-                            "Minimum number of cases per signal"),
-                shiny::div(style="margin-top:0px, padding-top:0px",
+                shiny::span(
+                  style = "display:block;",
+                  "Apply filters after the execution of the signal detection."
+                ),
+                shiny::span(
+                  style = "font-weight: bold; display:block; margin-top:12px; margin-bottom:4px;",
+                  "Minimum number of cases per signal"
+                ),
+                shiny::div(
+                  style = "margin-top:0px, padding-top:0px",
                   shiny::uiOutput(ns("filter_min_cases_signals"))
                 )
               )
