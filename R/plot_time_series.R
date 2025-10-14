@@ -154,7 +154,6 @@ plot_time_series <- function(results, interactive = FALSE,
   ymax_data <- max(results$ymax)
 
 
-
   col.threshold <- "#2297E6"
   col.expected <- "#000000"
   col.alarm <- "#FF0000"

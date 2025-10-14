@@ -116,7 +116,7 @@ mod_tabpanel_report_server <- function(id,
         paste0(
           "SignalDetectionReport.",
           switch(input$format,
-            HTML = "html",
+            HTML = "zip",
             DOCX = "docx"
           )
         )
