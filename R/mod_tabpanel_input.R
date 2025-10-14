@@ -204,7 +204,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     # variable options for filter ui and strata selection
     available_var_opts <- shiny::reactive({
-      shiny::req(data_sub)
+      shiny::req(data_sub())
       shiny::req(!errors_detected())
       available_vars <- data_sub() %>%
         dplyr::select(where(is.character) | where(is.factor)) %>%

@@ -252,7 +252,6 @@ test_that("Aggregation of data is performed correctly using outbreak status", {
     ))
 
 
-
   linelist1_agg <- aggregate_data(linelist1)
   linelist2_agg <- aggregate_data(linelist2)
   linelist4_agg <- aggregate_data(linelist4)

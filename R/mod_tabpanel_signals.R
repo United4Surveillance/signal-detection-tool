@@ -46,6 +46,7 @@ mod_tabpanel_signals_server <- function(
     no_algorithm_possible,
     intervention_date,
     min_cases_signals) {
+
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
