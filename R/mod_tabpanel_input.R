@@ -83,7 +83,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
             shiny::span("Select up to 3 variables you want to stratify by. Signals and visualisations will be generated for each stratum."),
             shiny::uiOutput(ns("strat_choices")),
             shiny::br(),
-            shiny::h2("Signal Detection Period"),
+            shiny::h2("Signal detection deriod"),
             shiny::span("Set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks."),
             shiny::uiOutput(ns("weeks_selection")),
             shiny::textOutput(ns("text_weeks_selection")),
