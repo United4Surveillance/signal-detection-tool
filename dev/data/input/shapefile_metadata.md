@@ -1,0 +1,5 @@
+| Variable  | Mandatory | Type                    | Description                                                                                                                                                                    |
+|-----------|-----------|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| NUTS_ID   | YES       | character or numeric    | The type must be the same as the type used for the \_id variables in the cases linelist as the shapefile is joined to the aggregated cases on the \_id variables and NUTS_ID.  |
+| NUTS_NAME | YES       | character               | This is used for displaying region names in the map.                                                                                                                           |
+| geometry  | YES       | sfc_MULTIPOLYGON or sfc | This is the geometry of the regions.                                                                                                                                           |

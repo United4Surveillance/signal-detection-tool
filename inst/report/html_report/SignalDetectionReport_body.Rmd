@@ -1,23 +1,56 @@
-{{pathogen}} {data-navmenu="Pathogen"}
+---
+title: "Signal Detection Report - `r params$country`"
+date: "Report generated on `r Sys.Date()`"
+lang: "en"
+
+
+params:
+  data: NULL
+  disease: "Pertussis"
+  country: "Austria"
+  number_of_weeks: 6
+  strata: !r c("county_id", "community_id", "sex", "age_group") 
+  signals_padded: NULL
+  signals_agg: NULL
+  intervention_date: NULL
+---
+
+```{r}
+# Make the branded bslib colors directly available
+brand_colors <- bslib::bs_get_variables(
+  bslib::bs_global_get() ,
+  c(
+    "bg",
+    "primary",
+    "success",
+    "info",
+    "warning",
+    "danger"
+  )
+)
+```
+
+
+`r params$disease`
 =====================================
 
 <!-- Pathogen without stratification page -->
 
 ```{r}
 # formatting pathogen name for links 
-pate <- tolower("{{pathogen}}")  
+pate <- tolower(params$disease)  
 pate <- gsub("[~(),./?&!#<>\\]", "", pate) #remove special characters
 pate <- gsub("\\s", "-", pate) # replace space with score
 
-signals_agg <- params$signals_agg %>% 
-  dplyr::filter(pathogen == "{{pathogen}}")
+s_agg <- params$signals_agg %>% 
+  dplyr::filter(pathogen == params$disease)
 
-signals_padded <- params$signals_padded %>% 
-  dplyr::filter(pathogen == "{{pathogen}}")
+s_pad <- params$signals_padded %>% 
+  dplyr::filter(pathogen == params$disease)
 ```
 
 ```{r}
-results_analysis <- signals_padded %>%
+results_analysis <- s_pad %>%
   dplyr::filter(!is.na(alarms))
 ```
 
@@ -26,8 +59,8 @@ Row
 
 ### Number of cases
 ```{r}
-valueBox(value = sum(results_analysis$cases[is.na(results_analysis$category)]), 
-         caption = "cases of {{pathogen}}",
+flexdashboard::valueBox(value = sum(results_analysis$cases[is.na(results_analysis$category)]), 
+         caption = paste("cases of", params$disease),
          color = brand_colors["info"])
 ```
 
@@ -37,8 +70,7 @@ valueBox(value = sum(results_analysis$cases[is.na(results_analysis$category)]),
 n_signals_week <- sum(results_analysis$alarms)
 
 # max possible signals in assessment period
-possible_signals <- sum(dplyr::count(signals_agg, category) %>%
-                          dplyr::pull(n)) * params$number_of_weeks
+possible_signals <- sum(dplyr::count(s_agg, category) %>% dplyr::pull(n)) * params$number_of_weeks
 
 n_signals_week_col <- ifelse(
   n_signals_week < 0.10 * possible_signals, brand_colors["success"],
@@ -46,12 +78,12 @@ n_signals_week_col <- ifelse(
          brand_colors["warning"], brand_colors["danger"])
   )
 
-valueBox(value = n_signals_week,
-         caption = paste("Number of signals in the last",
-                         params$number_of_weeks, 
-                         "weeks"),
-         color = n_signals_week_col
-         )
+flexdashboard::valueBox(value = n_signals_week,
+  caption = paste("Number of signals in the last",
+    params$number_of_weeks, 
+    "weeks"),
+  color = n_signals_week_col
+)
 ```
 
 `r if(!is.null(params$strata)) "Row {data-height=200}"`
@@ -60,10 +92,10 @@ valueBox(value = n_signals_week,
 ```{r, results='asis', eval=!is.null(params$strata)}
 for(cate in params$strata){
 
-  cate_link <- paste0("[", cate, "](#",pate ,"-", cate, ")")
+  cate_link <- paste0("[", cate, "](",pate ,"-", cate, ".html)")
   cat("### Signals in", cate_link, "\n\n")
   
-  p <- signals_padded %>% 
+  p <- s_pad %>% 
     dplyr::filter(category == cate) %>% 
     plot_signals_per_week(interactive = TRUE, branding = brand_colors, partial = TRUE)
   
@@ -79,12 +111,12 @@ for(cate in params$strata){
 ```{r, results='asis', eval=!is.null(params$strata)}
 for(cate in params$strata){
 
-  cate_link <- paste0("[", cate, "](#",pate ,"-", cate, ")")
+  cate_link <- paste0("[", cate, "](",pate ,"-", cate, ".html)")
   cat("### Distribution by", cate_link, "\n\n")
   
   dist_plot <- SignalDetectionTool:::decider_barplot_map_table(
-     signals_agg,
-     data,
+     s_agg,
+     params$data,
      cate,
      interactive = TRUE,
      partial = TRUE
@@ -102,7 +134,7 @@ Row
 
 ```{r}
 SignalDetectionTool::plot_time_series(
-  signals_padded %>%
+  s_pad %>%
     dplyr::filter(is.na(category)),
   intervention_date = params$intervention_date,
   interactive = TRUE,
@@ -110,7 +142,7 @@ SignalDetectionTool::plot_time_series(
 )
 ```
 
-> `r paste0("Number of {{pathogen}} cases by week and signals, ", params$country)`
+> `r paste("Number of", params$disease, "cases by week and signals,", params$country)`
 
 Row 
 -------------------------------------
@@ -121,7 +153,7 @@ txt <- NULL
 
 if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
   SignalDetectionTool::build_signals_table(
-    signals_padded,
+    s_pad,
     format = "DataTable"
   )
 } else {
@@ -137,7 +169,7 @@ cat(txt)
 
 <!-- Strata timeseries pages -->
 
-```{r, results='asis'}
+```{r, results='asis', eval=FALSE}
 if(!is.null(params$strata)){
   path_sdt_report_strata <- system.file("report","html_report", "SignalDetectionReport_strata.rmd", package = "SignalDetectionTool")
   src <- lapply(params$strata, function(j) {
@@ -150,3 +182,6 @@ if(!is.null(params$strata)){
 }
 ```
 
+Row
+-------------------------------------------------------------------------------
+[Go back](../SignalDetectionReport.html)

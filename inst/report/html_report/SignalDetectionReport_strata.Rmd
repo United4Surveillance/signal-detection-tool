@@ -1,17 +1,38 @@
-{{pathogen}}-{{strat}} {.hidden}
+---
+title: "Signal Detection Report - `r params$country`"
+date: "Report generated on `r Sys.Date()`"
+lang: "en"
+
+
+params: 
+  disease: "Pertussis"
+  country: "Austria"
+  number_of_weeks: 6
+  category: "age_group" 
+  signals_padded: NULL
+  intervention_date: NULL
+---
+
+`r paste(params$disease, params$category, sep  = "-")`
 ===========================================================================
 
 <!-- Filtering strata -->
 ```{r}
+categ <- params$category
+
+patho_f <- tolower(params$disease)  
+patho_f <- gsub("[~(),./?&!#<>\\]", "", patho_f) #remove special characters
+patho_f <- gsub("\\s", "-", patho_f) # replace space with score
+
 strat_text <- dplyr::case_when(
-  "{{strat}}" == "age_group" ~ "agegroup",
-  TRUE ~ "{{strat}}"
+  categ == "age_group" ~ "agegroup",
+  TRUE ~ categ
 )
 ```
 
 ```{r}
-df <- signals_padded %>%
-  dplyr::filter(category %in% "{{strat}}") %>%
+df <- params$signals_padded %>%
+  dplyr::filter(.data$category %in% categ) %>%
   SignalDetectionTool:::create_factor_with_unknown()
 
 number_stratum <- dplyr::n_distinct(df$stratum)
@@ -25,6 +46,11 @@ if (number_stratum <= 10) {
 pages <- ceiling(number_stratum / 12)
 
 txt <- NULL
+```
+
+```{r, include=FALSE}
+# Init Step to make sure that the dependencies are loaded
+htmltools::tagList(plotly::ggplotly(ggplot2::ggplot()))
 ```
 
 Row {.tabset}
@@ -49,4 +75,8 @@ for(st in unique(df$stratum)){
   cat("\n\n\n")
 }
 ```
+
+Row
+-------------------------------------------------------------------------------
+[Go back](`r paste0(patho_f, ".html")`)
 

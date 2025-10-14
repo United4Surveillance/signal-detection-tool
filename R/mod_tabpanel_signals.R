@@ -36,15 +36,16 @@ mod_tabpanel_signals_ui <- function(id) {
 #'
 #' @noRd
 mod_tabpanel_signals_server <- function(
-    id,
-    filtered_data,
-    errors_detected,
-    number_of_weeks,
-    number_of_weeks_input_valid,
-    strat_vars,
-    method,
-    no_algorithm_possible,
-    intervention_date) {
+  id,
+  filtered_data,
+  errors_detected,
+  number_of_weeks,
+  number_of_weeks_input_valid,
+  strat_vars,
+  method,
+  no_algorithm_possible,
+  intervention_date
+) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 

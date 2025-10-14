@@ -69,7 +69,6 @@ get_signals_all <- function(preprocessed_data,
 }
 
 
-
 #' Get Signals Stratified
 #'
 #' This function stratifies and aggregates surveillance data by specified columns and analyzes
@@ -185,7 +184,6 @@ get_signals_stratified <- function(data,
         filter_by_date(date_var = date_var, date_start = date_start, date_end = date_end) %>%
         # aggregate data
         aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end)
-
 
 
       # run selected algorithm

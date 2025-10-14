@@ -32,7 +32,7 @@ check_raw_surveillance_data <- function(data) {
 
   errors <- c(errors, errors_mandatory, errors_optional, errors_consistency_region)
 
-  # return TRUE or print error messages
+  # return potential error messages
   if (length(errors) != 0) {
     # remove empty slots
     errors <- errors[sapply(errors, function(element) !is.null(element))]
@@ -283,7 +283,6 @@ check_type_and_value_age_group <- function(data) {
   }
   errors
 }
-
 
 
 #' Helper function to check for presence of age variable or instead age_group

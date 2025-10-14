@@ -76,8 +76,7 @@ text_diseases <- ifelse(
   params$disease, 
   ifelse(length(params$disease) == 2, 
          paste0(params$disease, collapse = " and "),
-         paste0(paste0(params$disease[1:(length(params$disease)-1)], collapse = ", "),
-                ", and ", tail(params$disease, 1))
+         paste0(length(params$disease), " pathogens (see list to the right)")
          )
 
 )
@@ -116,10 +115,16 @@ For the last `r params$number_of_weeks` weeks there were:
   
 ```{r, results='asis'}
 for(pat in params$disease){
-  pat_link <- paste0("[", pat, "]")
+  # formatting pathogen name for links 
+  pat_f <- tolower(pat)  
+  pat_f <- gsub("[~(),./?&!#<>\\]", "", pat_f) #remove special characters
+  pat_f <- gsub("\\s", "-", pat_f) # replace space with score
+  
+  pat_link <- paste0("[", pat, "](report_pages/", pat_f, ".html)")
   tmp <- results_cases %>% dplyr::filter(pathogen == pat, is.na(category))
   cat("-", tmp$cases, "cases of", pat_link, "\n")
 }
+
 ```
 
 Row
@@ -159,20 +164,24 @@ dt <- DT::datatable(
       names_from = category,
       values_from = signals
     ) %>% 
+    dplyr::right_join(results_cases, by = "pathogen") %>% 
+    dplyr::relocate(cases, .after = "pathogen") %>% 
     dplyr::mutate(
       pathogen_f = tolower(pathogen),
       pathogen_f = gsub("[~(),./?&!#<>\\]", "", pathogen_f),
       pathogen_f = gsub("\\s", "-", pathogen_f), 
-      pathogen = paste0("<a href='#", pathogen_f,"'>", pathogen,"</a>"),
+      pathogen = paste0("<a href='report_pages/", pathogen_f,".html'>", pathogen,"</a>"),
       total = rowSums(dplyr::across(is.integer))
     ) %>% 
-    dplyr::select(-pathogen_f),
+    dplyr::select(-pathogen_f) %>% 
+    dplyr::arrange(desc(total)),
   rownames = FALSE,
   escape = FALSE,
   caption = paste0("Number of signals encountered in each stratification level in the last ",
                    params$number_of_weeks, " weeks"),
   fillContainer = FALSE,
-  class = list(stripe = FALSE)
+  class = list(stripe = FALSE),
+  options = list(pageLength = 25)
   )
 
 for(cate in c("Unstratified", strata)){
@@ -182,7 +191,7 @@ for(cate in c("Unstratified", strata)){
   
   # colours for interpolate, uses brand color
   colours <- c(brand_colors["bg"], brand_colors["warning"], brand_colors["danger"])
-  values <- colorRamp(colours)(cuts/max_s)
+  values <- colorRamp(colours, bias = log(0.2)/log(0.5))(cuts/max_s)   # bias transforms warning value to 20% 
   values <- rgb(values[,1],
                 values[,2],
                 values[,3], 
@@ -198,50 +207,9 @@ for(cate in c("Unstratified", strata)){
 dt %>% DT::formatStyle("total", fontWeight = "bold")
 ```
 
-```{r, eval=FALSE}
-# Links with plotly apparently don't work inside flexdashboard
-
-tmp_df <- params$signals_padded %>%
-  dplyr::filter(!is.na(alarms)) %>%
-  dplyr::mutate(
-    date = paste0("Y",year, ".W", week),
-    category = dplyr::case_when(
-      is.na(category)~"Unstratified", 
-      .default = category
-    )
-  ) %>% 
-  dplyr::group_by(pathogen, category, date) %>%
-  dplyr::summarise(signals = sum(alarms)) 
-
-split(tmp_df, tmp_df$pathogen) %>% 
-  lapply(function(x){
-    
-    pat <- unique(x$pathogen)
-    
-    m <- matrix(x$signals, 
-                nrow = length(params$strata)+1,
-                ncol = params$number_of_weeks,
-                byrow = T)
-    
-    rownames(m) <- unique(tmp_df$category)
-    colnames(m) <- unique(tmp_df$date)
-    
-    plotly::plot_ly(x = colnames(m), y=rownames(m), z=m, type = "heatmap") %>%
-       plotly::add_annotations(
-         text = paste0("<a href='#", tolower(pat),"'>", pat,"</a>"), 
-         x = -0.5,
-         y = length(params$strata)+1,
-         showarrow = FALSE, xref = "x", yref = "y", 
-         font = list(size = 14)
-       )
-  }
-  ) %>% 
-  plotly::subplot(nrows = min(length(params$disease),3), shareX = TRUE)
-```
-
 <!-- Pathogen pages -->
 
-```{r, results='asis'}
+```{r, results='asis', eval=FALSE}
 path_sdt_report_body <- system.file("report","html_report", "SignalDetectionReport_body.rmd", package = "SignalDetectionTool")
 src <- lapply(params$disease, function(i) {
   knitr::knit_expand(path_sdt_report_body, 
