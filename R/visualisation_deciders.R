@@ -95,9 +95,24 @@ create_map_or_table <- function(signals_agg,
   }
 
   if (plot_map) {
-    shape_with_signals <- shape %>%
+    # filter shapefile according to level selected
+    level_code <- shape %>%
       dplyr::left_join(signals_agg_map, by = c("NUTS_ID" = "stratum")) %>%
-      dplyr::filter(!is.na(cases))
+      dplyr::filter(!is.na(cases)) %>%
+      dplyr::distinct(LEVL_CODE) %>%
+      dplyr::pull()
+
+    shape_with_signals <- shape %>%
+      dplyr::filter(
+        .data$CNTR_CODE %in% unique(data_surveillance$country_id),
+        .data$LEVL_CODE == level_code
+      ) %>%
+      dplyr::left_join(signals_agg_map, by = c("NUTS_ID" = "stratum")) %>%
+      dplyr::mutate(
+        cases = dplyr::case_when(is.na(.data$cases) ~ 0, .default = .data$cases),
+        any_alarms = dplyr::case_when(is.na(.data$any_alarms) ~ FALSE, .default = .data$any_alarms),
+        n_alarms = dplyr::case_when(is.na(.data$n_alarms) ~ 0, .default = .data$n_alarms),
+      )
 
     # computation of tibble for the information about the cases with NA region
     # only show the unknown information when there were more than 0 cases

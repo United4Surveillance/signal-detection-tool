@@ -25,13 +25,6 @@ plot_regional <- function(shape_with_signals,
   )
 
   shape_with_signals <- shape_with_signals %>%
-    # make case numbers unique to keep plotly from combining the traces!
-    # as long as the perturbation is small enough the fill color doesn't change
-    # (at least noticeably) and as long as there aren't enough regional units
-    # with equal cases the displayed number of cases isn't changed by rounding
-    dplyr::group_by(cases) %>%
-    dplyr::mutate(cases = cases + dplyr::row_number() * 1e-5) %>%
-    dplyr::ungroup() %>%
     dplyr::mutate(
       n_alarms_label = dplyr::if_else(n_alarms > 0, n_alarms, NA),
       any_alarms = dplyr::if_else(any_alarms, "At least 1 signal", "No signals"),
@@ -115,7 +108,33 @@ plot_regional <- function(shape_with_signals,
   }
 
   if (interactive) {
-    plot <- plotly::ggplotly(plot, tooltip = "text")
+    plot <- plotly::plotly_empty() %>%
+      plotly::add_sf( # add geometries and colours by cases
+        type = "scatter",
+        data = shape_with_signals,
+        split = ~NUTS_ID,
+        color = ~cases,
+        colors = grDevices::colorRampPalette(c("#eaecf4", "#304794", "#1c2a58"))(8),
+        stroke = I("black"),
+        alpha = 1,
+        text = ~ paste(NUTS_NAME, "\nNumber of cases:", cases, "\nNumber of signals:", n_alarms),
+        hoverinfo = "text",
+        hoveron = "fills",
+        hoverlabel = list(bgcolor = "white"),
+        showlegend = FALSE, inherit = FALSE
+      ) %>%
+      plotly::add_sf( # add star on geometries that had at least one signal
+        type = "scatter",
+        split = ~NUTS_ID,
+        data = shape_with_signals %>%
+          dplyr::filter(any_alarms == "At least 1 signal") %>%
+          sf::st_centroid(),
+        color = I("red"),
+        marker = list(symbol = "star", size = 10),
+        text = ~ paste(NUTS_NAME, "\nNumber of cases:", cases, "\nNumber of signals:", n_alarms),
+        hoverinfo = "text",
+        showlegend = FALSE, inherit = FALSE
+      )
 
     if (!is.null(text_region_missing)) {
       plot <- plot %>%
@@ -128,10 +147,6 @@ plot_regional <- function(shape_with_signals,
         ))
     }
     plot <- plot %>%
-      plotly::style(
-        hoveron = "fill",
-        hoverlabel = list(bgcolor = "white")
-      ) %>%
       plotly::layout(xaxis = list(autorange = TRUE), yaxis = list(autorange = TRUE)) %>%
       plotly::config(modeBarButtonsToRemove = c(
         "autoScale2d",
@@ -144,18 +159,6 @@ plot_regional <- function(shape_with_signals,
         "zoom2d",
         "toggleSpikelines"
       ))
-    # modifying the interactive plot legend
-    # Finding nr of trace with a showlegend = T
-    legends_2_copy <- which(sapply(plot$x$data, function(l) {
-      l$showlegend == TRUE
-    }))
-    # Copy trace and show only bordercolor
-    for (idx in legends_2_copy) {
-      n_list <- length(plot$x$data)
-      plot$x$data[[n_list + 1]] <- plot$x$data[[idx]]
-      plot$x$data[[n_list + 1]]$fillcolor <- "transparent"
-      plot$x$data[[idx]]$showlegend <- FALSE
-    }
 
     if (partial) {
       plot <- plotly::partial_bundle(plot)
