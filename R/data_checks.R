@@ -285,7 +285,6 @@ check_type_and_value_age_group <- function(data) {
 }
 
 
-
 #' Helper function to check for presence of age variable or instead age_group
 #' @param data_columns vector, column names of raw surveillance linelist
 #' @returns boolean, TRUE when the required variables are present, FALSE if not present
