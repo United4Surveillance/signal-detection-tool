@@ -166,6 +166,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     iv_weeks$add_rule("n_weeks", shinyvalidate::sv_between(1, 52))
     iv_weeks$enable()
 
+    iv_min_cases <- shinyvalidate::InputValidator$new()
+    iv_min_cases$add_rule("min_cases_signals", shinyvalidate::sv_integer())
+    iv_min_cases$add_rule("min_cases_signals", shinyvalidate::sv_gte(1))
+    iv_min_cases$enable()
+
     output$text_weeks_selection <- shiny::renderText({
       shiny::req(!errors_detected())
       shiny::req(input$n_weeks)
