@@ -18,7 +18,8 @@ run_report(
   signals_agg = NULL,
   intervention_date = NULL,
   custom_logo = NULL,
-  custom_theme = NULL
+  custom_theme = NULL,
+  min_cases_signals = 1
 )
 }
 \arguments{
