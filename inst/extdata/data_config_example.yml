@@ -14,6 +14,8 @@ default:
     signal_detection_period: 6
     signal_detection_algorithm: ears
   shapefile_path: ~
+  post-processing:
+        min_cases_signals: 4
 
 pertussis:
   params:

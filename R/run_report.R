@@ -36,6 +36,7 @@
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.
 #' @param custom_logo A character string with a path to a png or svg logo, to replace the default United4Surveillance logo. Only used when `report_format` is `"HTML"`.
 #' @param custom_theme A bslib::bs_theme() to replace the default United4Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact. Only used when `report_format` is `"HTML"`.
+#' @param min_cases_signals integer, minimum number of cases a signal must have. All signals with case counts smaller than this will be filtered in a post-processing step
 #'
 #' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 #' @export
@@ -99,7 +100,8 @@ run_report <- function(
     signals_agg = NULL,
     intervention_date = NULL,
     custom_logo = NULL,
-    custom_theme = NULL) {
+    custom_theme = NULL,
+    min_cases_signals = 1) {
 
   # Currently multi pathogen report is only supported for HTML
   if (report_format == "DOCX" & length(unique(data$pathogen)) > 1) {
@@ -183,6 +185,9 @@ run_report <- function(
     checkmate::check_class(custom_theme, "bs_theme"),
     combine = "or"
   )
+  checkmate::assert(
+    checkmate::check_integerish(min_cases_signals, lower=1)
+  )
 
   # Preparation for reporting ---------------------------------------------------------------
   # transform the method name used in the app to the method names in the background
@@ -230,7 +235,10 @@ run_report <- function(
         date_var = "date_report",
         number_of_weeks = number_of_weeks
       ) %>%
-        dplyr::mutate(pathogen = pat)
+        dplyr::mutate(pathogen = pat,
+                      alarms = dplyr::if_else(alarms & cases < min_cases_signals,
+                                       FALSE, alarms, missing=alarms)
+                      )
 
       signals_agg_pad <- aggregate_pad_signals(
         signals,

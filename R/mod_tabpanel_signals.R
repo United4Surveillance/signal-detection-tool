@@ -44,7 +44,8 @@ mod_tabpanel_signals_server <- function(
   strat_vars,
   method,
   no_algorithm_possible,
-  intervention_date
+  intervention_date,
+  min_cases_signals
 ) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -207,8 +208,11 @@ mod_tabpanel_signals_server <- function(
         date_var = "date_report",
         number_of_weeks = number_of_weeks()
       )
-
-      results
+      results %>% dplyr::mutate(
+        alarms = dplyr::if_else(alarms & cases < min_cases_signals(),
+          FALSE, alarms, missing = alarms
+        )
+      )
     })
 
     signals_agg <- shiny::reactive({
