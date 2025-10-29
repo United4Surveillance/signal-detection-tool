@@ -62,9 +62,13 @@ mod_tabpanel_report_server <- function(id,
             col_widths = c(6, 6),
             bslib::card(
               bslib::card_title("Download Report", container = shiny::h1),
-              shiny::textInput(NS(id, "report_title"), "Report Title",
-                               get_data_config_value("report:title",
-                                                     "Signal Detection Report")),
+              shiny::textInput(
+                NS(id, "report_title"), "Report Title",
+                get_data_config_value(
+                  "report:title",
+                  "Signal Detection Report"
+                )
+              ),
               shiny::selectInput(NS(id, "format"), "Choose a format:",
                 choices = c("HTML", "DOCX")
               ),
