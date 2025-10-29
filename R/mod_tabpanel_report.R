@@ -62,6 +62,9 @@ mod_tabpanel_report_server <- function(id,
             col_widths = c(6, 6),
             bslib::card(
               bslib::card_title("Download Report", container = shiny::h1),
+              shiny::textInput(NS(id, "report_title"), "Report Title",
+                               get_data_config_value("report:title",
+                                                     "Signal Detection Report")),
               shiny::selectInput(NS(id, "format"), "Choose a format:",
                 choices = c("HTML", "DOCX")
               ),
@@ -110,7 +113,6 @@ mod_tabpanel_report_server <- function(id,
       )
     })
 
-
     output$downloadReport <- shiny::downloadHandler(
       filename = function() {
         paste0(
@@ -134,7 +136,8 @@ mod_tabpanel_report_server <- function(id,
           output_dir = NULL,
           signals_padded = signals_padded() %>% dplyr::mutate(pathogen = pathogen_vars()),
           signals_agg = signals_agg() %>% dplyr::mutate(pathogen = pathogen_vars()),
-          intervention_date = intervention_date()
+          intervention_date = intervention_date(),
+          title = input$report_title
         )
       }
     )
