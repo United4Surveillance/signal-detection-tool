@@ -122,19 +122,38 @@ plot_regional <- function(shape_with_signals,
         hoveron = "fills",
         hoverlabel = list(bgcolor = "white"),
         showlegend = FALSE, inherit = FALSE
-      ) %>%
-      plotly::add_sf( # add star on geometries that had at least one signal
-        type = "scatter",
-        split = ~NUTS_ID,
-        data = shape_with_signals %>%
-          dplyr::filter(any_alarms == "At least 1 signal") %>%
-          sf::st_centroid(),
-        color = I("red"),
-        marker = list(symbol = "star", size = 10),
-        text = ~ paste(NUTS_NAME, "\nNumber of cases:", cases, "\nNumber of signals:", n_alarms),
-        hoverinfo = "text",
-        showlegend = FALSE, inherit = FALSE
       )
+
+    stars_sf <- shape_with_signals |>
+      dplyr::filter(any_alarms == "At least 1 signal")
+
+    if (nrow(stars_sf) > 0) {
+      #  temporarily disable s2: can help avoid spherical edge cases at coasts
+      old_s2 <- sf::sf_use_s2()
+      sf::sf_use_s2(FALSE)
+
+      # calculate centre robustly
+      stars_sf <- stars_sf |>
+        sf::st_make_valid() |>
+        sf::st_centroid(of_largest_polygon = TRUE) |>
+        sf::st_collection_extract("POINT") |>    # only keep points
+        dplyr::filter(!sf::st_is_empty(geometry))  # remove empty ones
+
+      sf::sf_use_s2(old_s2)
+
+      # explicitly add points
+      coords <- sf::st_coordinates(stars_sf)
+      plot <- plot %>%
+        plotly::add_markers(
+          x = coords[,1], y = coords[,2],
+          marker = list(symbol = "star", size = 10, color = "red"),
+          text = paste(stars_sf$NUTS_NAME, "\nNumber of cases:", stars_sf$cases,
+                       "\nNumber of signals:", stars_sf$n_alarms),
+          hoverinfo = "text",
+          showlegend = FALSE,
+          inherit = FALSE
+        )
+    }
 
     if (!is.null(text_region_missing)) {
       plot <- plot %>%
