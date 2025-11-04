@@ -27,7 +27,8 @@ plot_regional <- function(shape_with_signals,
   shape_with_signals <- shape_with_signals %>%
     dplyr::mutate(
       n_alarms_label = dplyr::if_else(n_alarms > 0, n_alarms, NA),
-      any_alarms = dplyr::if_else(any_alarms, "At least 1 signal", "No signals"),
+      any_alarms = dplyr::if_else(any_alarms, "At least 1 signal", "No signals",
+                                  , .default = "No signals"),
       any_alarms = factor(any_alarms, levels = c("No signals", "At least 1 signal")) # level ordering determines render ordering: black < red
     )
 
@@ -101,31 +102,39 @@ plot_regional <- function(shape_with_signals,
     plot <- plot + ggplot2::geom_sf_text(
       ggplot2::aes(label = n_alarms_label),
       color = col_alarm_text,
-      family = "bold",
+      fontface = "bold",
       size = 8,
       na.rm = TRUE
     )
   }
 
   if (interactive) {
+    shape_areas_sf <- shape_with_signals %>%
+      dplyr::filter(!sf::st_is_empty(geometry)) %>%
+      sf::st_make_valid()
+
     plot <- plotly::plotly_empty() %>%
       plotly::add_sf( # add geometries and colours by cases
         type = "scatter",
-        data = shape_with_signals,
+        data = shape_areas_sf,
         split = ~NUTS_ID,
         color = ~cases,
         colors = grDevices::colorRampPalette(c("#eaecf4", "#304794", "#1c2a58"))(8),
         stroke = I("black"),
         alpha = 1,
-        text = ~ paste(NUTS_NAME, "\nNumber of cases:", cases, "\nNumber of signals:", n_alarms),
+        text = ~ paste(NUTS_NAME,
+                       "\nNumber of cases:", cases,
+                       "\nNumber of signals:", n_alarms),
         hoverinfo = "text",
         hoveron = "fills",
         hoverlabel = list(bgcolor = "white"),
-        showlegend = FALSE, inherit = FALSE
+        showlegend = FALSE,
+        inherit = FALSE
       )
 
     stars_sf <- shape_with_signals |>
       dplyr::filter(any_alarms == "At least 1 signal")
+    nrow_stars_before <- nrow(stars_sf)
 
     if (nrow(stars_sf) > 0) {
       #  temporarily disable s2: can help avoid spherical edge cases at coasts
@@ -140,6 +149,11 @@ plot_regional <- function(shape_with_signals,
         dplyr::filter(!sf::st_is_empty(geometry))  # remove empty ones
 
       sf::sf_use_s2(old_s2)
+
+      if(nrow(stars_sf) < nrow_stars_before){
+        stop("Empty geometry would silently remove signal marker(s).
+             Please fix your supplied shapefile.")
+      }
 
       # explicitly add points
       coords <- sf::st_coordinates(stars_sf)
