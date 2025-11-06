@@ -37,6 +37,7 @@
 #' @param custom_logo A character string with a path to a png or svg logo, to replace the default United4Surveillance logo. Only used when `report_format` is `"HTML"`.
 #' @param custom_theme A bslib::bs_theme() to replace the default United4Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact. Only used when `report_format` is `"HTML"`.
 #' @param min_cases_signals integer, minimum number of cases a signal must have. All signals with case counts smaller than this will be filtered in a post-processing step
+#' @param title NULL or a character string. Specifies the title of the report that is to be created
 #'
 #' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 #' @export
@@ -101,7 +102,8 @@ run_report <- function(
     intervention_date = NULL,
     custom_logo = NULL,
     custom_theme = NULL,
-    min_cases_signals = 1) {
+    min_cases_signals = 1,
+    title = NULL) {
 
   # Currently multi pathogen report is only supported for HTML
   if (report_format == "DOCX" & length(unique(data$pathogen)) > 1) {
@@ -188,6 +190,9 @@ run_report <- function(
   checkmate::assert(
     checkmate::check_integerish(min_cases_signals, lower=1)
   )
+  checkmate::assert(
+    checkmate::check_string(title, null.ok = TRUE)
+  )
 
   # Preparation for reporting ---------------------------------------------------------------
   # transform the method name used in the app to the method names in the background
@@ -262,6 +267,8 @@ run_report <- function(
     gc()
   }
 
+  title <- if(is.null(title) || trimws(title) == "") paste0("Signal Detection Report - ", unique(data$country)) else title
+
   report_params <- list(
     data = data,
     country = unique(data$country),
@@ -271,7 +278,8 @@ run_report <- function(
     strata = strata,
     signals_padded = signals_padded,
     signals_agg = signals_agg,
-    intervention_date = intervention_date
+    intervention_date = intervention_date,
+    title = title
   )
 
   if (report_format == "DOCX") {
@@ -393,7 +401,8 @@ run_report <- function(
         strata = strata,
         signals_padded = signals_pad_p,
         signals_agg = signals_agg_p,
-        intervention_date = intervention_date
+        intervention_date = intervention_date,
+        title = title
       )
 
       # Render Pathogen pages
@@ -416,7 +425,8 @@ run_report <- function(
           number_of_weeks = number_of_weeks,
           category = ctg,
           signals_padded = signals_pad_c,
-          intervention_date = intervention_date
+          intervention_date = intervention_date,
+          title = title
         )
 
         # Render strata pages

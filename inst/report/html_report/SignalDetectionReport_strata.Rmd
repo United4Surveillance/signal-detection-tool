@@ -1,5 +1,5 @@
 ---
-title: "Signal Detection Report - `r params$country`"
+title: "`r params$title`"
 date: "Report generated on `r Sys.Date()`"
 lang: "en"
 
@@ -11,6 +11,7 @@ params:
   category: "age_group" 
   signals_padded: NULL
   intervention_date: NULL
+  title: "Signal Detection Report"
 ---
 
 `r paste(params$disease, params$category, sep  = "-")`

@@ -1,5 +1,5 @@
 ---
-title: "Signal Detection Report - `r params$country`"
+title: "`r params$title`"
 date: "Report generated on `r Sys.Date()`"
 lang: "en"
 
@@ -14,6 +14,7 @@ params:
   signals_padded: NULL
   signals_agg: NULL
   intervention_date: NULL
+  title: "Signal Detection Report"
 
 ---
 ```{css, echo = FALSE}
