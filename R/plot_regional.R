@@ -28,7 +28,8 @@ plot_regional <- function(shape_with_signals,
     dplyr::mutate(
       n_alarms_label = dplyr::if_else(n_alarms > 0, n_alarms, NA),
       any_alarms = dplyr::if_else(any_alarms, "At least 1 signal", "No signals",
-                                  missing = "No signals"),
+        missing = "No signals"
+      ),
       any_alarms = factor(any_alarms, levels = c("No signals", "At least 1 signal")) # level ordering determines render ordering: black < red
     )
 
