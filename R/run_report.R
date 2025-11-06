@@ -267,7 +267,7 @@ run_report <- function(
     gc()
   }
 
-  title <- if(is.null(title)) paste0("Signal Detection Report - ", unique(data$country)) else title
+  title <- if(is.null(title) || trimws(title) == "") paste0("Signal Detection Report - ", unique(data$country)) else title
 
   report_params <- list(
     data = data,
