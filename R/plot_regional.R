@@ -27,9 +27,8 @@ plot_regional <- function(shape_with_signals,
   shape_with_signals <- shape_with_signals %>%
     dplyr::mutate(
       n_alarms_label = dplyr::if_else(n_alarms > 0, n_alarms, NA),
-      any_alarms = dplyr::if_else(any_alarms, "At least 1 signal", "No signals", ,
-        .default = "No signals"
-      ),
+      any_alarms = dplyr::if_else(any_alarms, "At least 1 signal", "No signals",
+                                  missing = "No signals"),
       any_alarms = factor(any_alarms, levels = c("No signals", "At least 1 signal")) # level ordering determines render ordering: black < red
     )
 
@@ -112,7 +111,11 @@ plot_regional <- function(shape_with_signals,
   if (interactive) {
     shape_areas_sf <- shape_with_signals %>%
       dplyr::filter(!sf::st_is_empty(geometry)) %>%
-      sf::st_make_valid()
+      sf::st_make_valid() %>%
+      sf::st_collection_extract("POLYGON", warn = FALSE) %>%
+      sf::st_cast("MULTIPOLYGON", warn = FALSE) %>%
+      # remove any possible Z/M-dimensions
+      sf::st_zm(drop = TRUE, what = "ZM")
 
     plot <- plotly::plotly_empty() %>%
       plotly::add_sf( # add geometries and colours by cases
