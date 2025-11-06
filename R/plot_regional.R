@@ -27,8 +27,9 @@ plot_regional <- function(shape_with_signals,
   shape_with_signals <- shape_with_signals %>%
     dplyr::mutate(
       n_alarms_label = dplyr::if_else(n_alarms > 0, n_alarms, NA),
-      any_alarms = dplyr::if_else(any_alarms, "At least 1 signal", "No signals",
-                                  , .default = "No signals"),
+      any_alarms = dplyr::if_else(any_alarms, "At least 1 signal", "No signals", ,
+        .default = "No signals"
+      ),
       any_alarms = factor(any_alarms, levels = c("No signals", "At least 1 signal")) # level ordering determines render ordering: black < red
     )
 
@@ -122,9 +123,11 @@ plot_regional <- function(shape_with_signals,
         colors = grDevices::colorRampPalette(c("#eaecf4", "#304794", "#1c2a58"))(8),
         stroke = I("black"),
         alpha = 1,
-        text = ~ paste(NUTS_NAME,
-                       "\nNumber of cases:", cases,
-                       "\nNumber of signals:", n_alarms),
+        text = ~ paste(
+          NUTS_NAME,
+          "\nNumber of cases:", cases,
+          "\nNumber of signals:", n_alarms
+        ),
         hoverinfo = "text",
         hoveron = "fills",
         hoverlabel = list(bgcolor = "white"),
@@ -145,12 +148,12 @@ plot_regional <- function(shape_with_signals,
       stars_sf <- stars_sf |>
         sf::st_make_valid() |>
         sf::st_centroid(of_largest_polygon = TRUE) |>
-        sf::st_collection_extract("POINT") |>    # only keep points
-        dplyr::filter(!sf::st_is_empty(geometry))  # remove empty ones
+        sf::st_collection_extract("POINT") |> # only keep points
+        dplyr::filter(!sf::st_is_empty(geometry)) # remove empty ones
 
       sf::sf_use_s2(old_s2)
 
-      if(nrow(stars_sf) < nrow_stars_before){
+      if (nrow(stars_sf) < nrow_stars_before) {
         stop("Empty geometry would silently remove signal marker(s).
              Please fix your supplied shapefile.")
       }
@@ -159,10 +162,12 @@ plot_regional <- function(shape_with_signals,
       coords <- sf::st_coordinates(stars_sf)
       plot <- plot %>%
         plotly::add_markers(
-          x = coords[,1], y = coords[,2],
+          x = coords[, 1], y = coords[, 2],
           marker = list(symbol = "star", size = 10, color = "red"),
-          text = paste(stars_sf$NUTS_NAME, "\nNumber of cases:", stars_sf$cases,
-                       "\nNumber of signals:", stars_sf$n_alarms),
+          text = paste(
+            stars_sf$NUTS_NAME, "\nNumber of cases:", stars_sf$cases,
+            "\nNumber of signals:", stars_sf$n_alarms
+          ),
           hoverinfo = "text",
           showlegend = FALSE,
           inherit = FALSE
