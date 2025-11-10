@@ -107,25 +107,8 @@ For each disease, you can find an unstratified overview of the observed signals`
 ```{r}
 results_cases <- params$signals_padded %>% 
   dplyr::filter(!is.na(alarms)) %>% 
-  dplyr::group_by(pathogen, category, stratum) %>% 
-  dplyr::summarise(cases = sum(cases),
-                   signals = sum(alarms))
-```
-
-For the last `r params$number_of_weeks` weeks there were:
-  
-```{r, results='asis'}
-for(pat in params$disease){
-  # formatting pathogen name for links 
-  pat_f <- tolower(pat)  
-  pat_f <- gsub("[~(),./?&!#<>\\]", "", pat_f) #remove special characters
-  pat_f <- gsub("\\s", "-", pat_f) # replace space with score
-  
-  pat_link <- paste0("[", pat, "](report_pages/", pat_f, ".html)")
-  tmp <- results_cases %>% dplyr::filter(pathogen == pat, is.na(category))
-  cat("-", tmp$cases, "cases of", pat_link, "\n")
-}
-
+  dplyr::group_by(pathogen) %>% 
+  dplyr::summarise(cases = sum(cases))
 ```
 
 Row
