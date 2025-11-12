@@ -119,10 +119,10 @@ aggregate_data <- function(data,
 
   # add the missing isoweeks to the dataset
   # inform the user when date_start > min_date that the data is nevertheless extended
-  if(!is.null(date_start) && date_start > min(data[[date_var]])){
+  if (!is.null(date_start) && date_start > min(data[[date_var]])) {
     message("Notice: Your input date_start is greater than the smallest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the smallest date in the dataset")
   }
-  if(!is.null(date_end) && date_end < max(data[[date_var]])){
+  if (!is.null(date_end) && date_end < max(data[[date_var]])) {
     message("Notice: Your input date_end is smaller than the greatest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the greatest date in the dataset")
   }
 
