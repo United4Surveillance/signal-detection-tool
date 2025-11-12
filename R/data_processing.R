@@ -118,6 +118,14 @@ aggregate_data <- function(data,
     dplyr::arrange(year, week)
 
   # add the missing isoweeks to the dataset
+  # inform the user when date_start > min_date that the data is nevertheless extended
+  if(!is.null(date_start) && date_start > min(data[[date_var]])){
+    message("Notice: Your input date_start is greater than the smallest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the smallest date in the dataset")
+  }
+  if(!is.null(date_end) && date_end < max(data[[date_var]])){
+    message("Notice: Your input date_end is smaller than the greatest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the greatest date in the dataset")
+  }
+
   data_agg <- data_agg %>% add_missing_isoweeks(
     date_start = date_start,
     date_end = date_end
@@ -277,20 +285,14 @@ add_missing_isoweeks <- function(data_agg, date_start = NULL, date_end = NULL) {
   data_agg <- data_agg %>%
     dplyr::mutate(date = isoweek_to_date(week, year))
 
-  # extend the dataset nevertheless to min date if date_start greater
+  # extend to minimum date
   min_date <- min(data_agg$date)
   if (is.null(date_start)) {
     date_start <- min_date
-  } else if (date_start > min_date) {
-    message("Notice: Your input date_start is greater than the smallest date in the dataset. Missing weeks are nevertheless filled until the smallest date in the dataset")
-    date_start <- min_date
   }
-  # extend the dataset nevertheless to max date if date_end is smaller
+  # extend to maximum date
   max_date <- max(data_agg$date)
   if (is.null(date_end)) {
-    date_end <- max_date
-  } else if (date_end < max_date) {
-    message("Notice: Your input date_end is smaller than the greatest date in the dataset. Missing weeks are nevertheless filled until the greatest date in the dataset")
     date_end <- max_date
   }
 
