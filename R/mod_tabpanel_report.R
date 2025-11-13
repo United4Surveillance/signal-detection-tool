@@ -80,7 +80,18 @@ mod_tabpanel_report_server <- function(id,
                   value = TRUE
                 )
               ),
+
+              shiny::conditionalPanel(
+                condition = sprintf("input['%s'] == 'HTML'", NS(id, "format")),
+                shiny::div(
+                  style = "margin-top: 10px; color: #304794",
+                  shiny::icon("info-circle"),
+                  "The HTML report is downloaded as a ZIP File. Please extract (unzip) this file before opening the report. If you open the HTML file directly inside the ZIP archive, the report will not display correctly."
+                )
+              ),
+
               shiny::downloadButton(NS(id, "downloadReport"), "Create Report")
+
             ),
             bslib::card(
               shiny::textOutput(NS(id, "report_text"))
