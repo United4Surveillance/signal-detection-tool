@@ -1,7 +1,8 @@
 * Added signal post processing by an option to filter signals with a specified minimum number of cases
-* Change highlighting for signals in map from red border to stars 
+* Change highlighting for signals in map from red border to stars
+* Map shows all regions according to NUTS level, independently of the number of cases
 * Changed the internal structure of the HTML report such that individual rmds are rendered for each strata
-* The HTML Report is returned as a zip File to reduce the size of the report
+* The HTML Report is divided into several pages to reduce its size and improve its loading time. The report pages are returned as a zip File
 * Improvements on the content of the HTML report such as 
   * adapted color scheme on landing page to highlight signals
   * changed order and length of landing page pathogens
