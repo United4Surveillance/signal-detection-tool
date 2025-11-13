@@ -1,3 +1,14 @@
+* Added signal post processing by an option to filter signals with a specified minimum number of cases
+* Change highlighting for signals in map from red border to stars 
+* Changed the internal structure of the HTML report such that individual rmds are rendered for each strata
+* The HTML Report is returned as a zip File to reduce the size of the report
+* Improvements on the content of the HTML report such as 
+  * adapted color scheme on landing page to highlight signals
+  * changed order and length of landing page pathogens
+  * user can provide own report title via app or yaml
+* Added a check for the column names in the provided shapefile
+* Added shapefile_metadata.md with description of the required shapefile format
+
 # SignalDetectionTool 0.8.0
 
 * Adds ability to generate one HTML report for multiple pathogens.
