@@ -30,6 +30,8 @@ run_app <- function(path_to_yaml = NULL,
     app_cache_env$DATA_CONFIG <- config::get(file = path_to_yaml, config = config_set)
   }
 
+  reactlog::reactlog_enable()
+
   with_golem_options(
     app = shinyApp(
       ui = app_ui,
