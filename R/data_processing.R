@@ -39,7 +39,7 @@ preprocess_data <- function(data) {
   data <- data %>%
     mutate(
       # 1) Whitespaces nur einmal entfernen
-      across(all_of(char_cols), ~ str_trim(.x)),
+      across(all_of(char_cols), ~ stringr::str_trim(.x)),
 
       # 2) Nur die gewünschten Spalten kleinschreiben
       across(all_of(to_lower_vars), ~ tolower(.x)),
@@ -65,8 +65,8 @@ preprocess_data <- function(data) {
       across(
         starts_with("date") & !where(is.numeric),
         .fns = list(
-          year = ~ isoyear(.x),
-          week = ~ isoweek(.x)
+          year = ~ lubridate::isoyear(.x),
+          week = ~ lubridate::isoweek(.x)
         ),
         .names = "{.col}_{.fn}"
       )
