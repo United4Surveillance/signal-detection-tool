@@ -185,9 +185,10 @@ get_signals_stratified <- function(data,
         # aggregate data
         aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end)
 
-
       # run selected algorithm
-      if (nrow(sub_data) == 0) {
+      if (nrow(sub_data) == 0 || nrow(sub_data %>% filter_by_date(date_var = date_var,
+                                                                  date_start = date_end - lubridate::weeks(number_of_weeks),
+                                                                  date_end = date_end)) == 0) {
         # don't run algorithm on those strata with 0 cases created by factors
         results <- sub_data_agg %>%
           # set alarms to FALSE for the timeperiod signals are generated for in the other present levels
