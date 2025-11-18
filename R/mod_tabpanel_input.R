@@ -396,19 +396,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       if (nrow(filtered_data()) < 1) {
         return(NULL)
       }
-      signals_cusum_ears_farr <- dplyr::bind_rows(purrr::map(c("farrington", "ears", "cusum"), function(algorithm) {
-        signals <- get_signals(filtered_data(),
-          method = algorithm,
-          number_of_weeks = input$n_weeks
-        )
-        if (!is.null(signals)) {
-          signals <- signals %>% dplyr::mutate(method = algorithm)
-        }
-      }))
-      # for the glm based algorithms we can compute based on the data when which algorithms are possible
-      glm_methods_possible <- get_possible_glm_methods(filtered_data(), number_of_weeks = input$n_weeks)
+      # compute based on the data when which algorithms are possible
+      algorithms_working <- get_possible_methods(filtered_data(), number_of_weeks = input$n_weeks)
 
-      algorithms_working <- c(glm_methods_possible, unique(signals_cusum_ears_farr$method))
       algorithms_working_named <- available_algorithms()[unlist(available_algorithms()) %in% algorithms_working]
 
 
