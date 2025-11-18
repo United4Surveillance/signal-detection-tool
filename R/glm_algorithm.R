@@ -10,27 +10,16 @@
 #' # Generate seasonal group data for a time series of length 100 with weekly frequency
 #' create_fn_data(100)
 #' }
-create_fn_data <- function(ts_length, freq = 52) {
-  # *2 just making the computation of seasgroups overall more stable
-  time_point_to_consider <- ts_length * 2
-  survts <- surveillance::sts(rep(0, time_point_to_consider),
-    start = c(2000, 1),
-    frequency = freq
-  )
+create_fn_data <- function(ts_length, freq = 52.25) {
 
-  # Create data for Farrington GLM
-  modelData <- surveillance:::algo.farrington.data.glm(
-    dayToConsider = time_point_to_consider, b = floor((time_point_to_consider - 3) / freq),
-    freq = freq, epochAsDate = FALSE,
-    epochStr = "none", vectorOfDates = 1:time_point_to_consider,
-    w = 3, noPeriods = 10, observed = survts@observed[, 1],
-    population = rep(0, 1000), verbose = FALSE,
-    pastWeeksNotIncluded = 0, k = time_point_to_consider
-  )[, 1:4]
+  noPeriods <- 10
 
-  subset_seasgroups <- (nrow(modelData) - ts_length + 1):nrow(modelData)
-  modelData[subset_seasgroups, ] %>%
-    dplyr::select(seasgroups)
+  breaks <- seq(0, freq, length.out = noPeriods + 1)
+  breaks[1] <- -1
+  seasgroups <- cut(((1:ts_length - 1) %% freq), breaks = breaks, labels = FALSE)
+
+  data.frame(seasgroups = seasgroups) |>
+    dplyr::mutate(seasgroups = factor(seasgroups, levels = 1:noPeriods))
 }
 
 #' Create a data.frame with sine and cosine components for harmonic modeling.
