@@ -99,33 +99,31 @@ get_signals_all <- function(preprocessed_data,
 #' )
 #' print(results)
 #' }
-get_signals_stratified <- function(data,
-                                   fun,
-                                   model = "",
-                                   intervention_date = NULL,
-                                   time_trend = FALSE,
-                                   stratification_columns,
-                                   date_start = NULL,
-                                   date_end = NULL,
-                                   date_var = "date_report",
-                                   number_of_weeks = 6) {
+get_signals_stratified <- function(
+    data,
+    fun,
+    model = "",
+    intervention_date = NULL,
+    time_trend = FALSE,
+    stratification_columns,
+    date_start = NULL,
+    date_end = NULL,
+    date_var = "date_report",
+    number_of_weeks = 6
+) {
   # check that all columns are present in the data
   for (col in stratification_columns) {
     checkmate::assert(
       checkmate::check_choice(col, choices = names(data))
     )
   }
-
   checkmate::check_choice(model, choices = c("", "mean", "sincos", "FN"))
-
   checkmate::assert(
     checkmate::check_null(intervention_date),
     checkmate::check_date(lubridate::date(intervention_date)),
     combine = "or"
   )
-
   checkmate::check_flag(time_trend)
-
   checkmate::assert(
     checkmate::check_null(date_start),
     checkmate::check_date(lubridate::date(date_start)),
@@ -136,14 +134,85 @@ get_signals_stratified <- function(data,
     checkmate::check_date(lubridate::date(date_end)),
     combine = "or"
   )
-
   checkmate::assert(
     checkmate::check_character(date_var, len = 1, pattern = "date")
   )
-
   checkmate::assert(
     checkmate::check_integerish(number_of_weeks)
   )
+
+  get_signal_strata <- function(stratum, category) {
+    # when stratum is NA filter needs to be done differently otherwise the NA stratum is lost
+    if (is.na(stratum)) {
+      sub_data <- data %>% dplyr::filter(is.na(.data[[category]]))
+    } else {
+      sub_data <- data %>% dplyr::filter(.data[[category]] == stratum)
+    }
+
+    sub_data_agg <- sub_data %>%
+      filter_by_date(
+        date_var = date_var,
+        date_start = date_start,
+        date_end = date_end
+      ) %>%
+      aggregate_data(
+        date_var = date_var,
+        date_start = date_start,
+        date_end = date_end
+      )
+
+    # run selected algorithm
+    if (nrow(sub_data) == 0 || nrow(sub_data %>% filter_by_date(date_var = date_var,
+                                                                date_start = date_end - lubridate::weeks(number_of_weeks),
+                                                                date_end = date_end)) == 0) {
+      # don't run algorithm on those strata with 0 cases created by factors
+      results <- sub_data_agg %>%
+        # set alarms to FALSE for the timeperiod signals are generated for in the other present levels
+        # logically the alarms column should also contain NA but later on computations are based on when the first alarm appears and when giving 0 timeseries to the algorithms they also put FALSE to the alarms column thus it is consistent
+        # upperbound and expected to NA
+        dplyr::mutate(
+          alarms = dplyr::if_else(
+            dplyr::row_number() > (nrow(.) - number_of_weeks + 1),
+            FALSE,
+            NA
+          )
+        ) %>%
+        dplyr::mutate(
+          upperbound = NA,
+          expected = NA
+        )
+    } else {
+      if (model != "") {
+        results <- fun(
+          sub_data_agg,
+          number_of_weeks,
+          model = model,
+          time_trend = time_trend,
+          intervention_date = intervention_date
+        )
+      } else {
+        results <- fun(sub_data_agg, number_of_weeks)
+      }
+    }
+
+    if (is.null(results)) {
+      warning(paste0(
+        "The stratum ",
+        category,
+        ":",
+        stratum,
+        " will be neglected due to lack of data."
+      ))
+    } else {
+      # add information on stratification to results
+      results <- results %>%
+        dplyr::mutate(
+          category = category,
+          stratum = stratum
+        )
+    }
+    results
+  }
 
   # Initialize an empty list to store results per category
   category_results <- list()
@@ -158,72 +227,95 @@ get_signals_stratified <- function(data,
     date_end <- max(data[[date_var]], na.rm = TRUE)
   }
 
-  i <- 0
-  # Loop through each category
-  for (category in stratification_columns) {
-    if (is.factor(data[, category])) {
-      # adding the NAs to also calculate signals for them
-      strata <- levels(droplevels(addNA(data[, category], ifany = TRUE)))
-    } else {
-      strata <- unique(data[, category]) # character is supported as well
+  # browser()
+  n_cores <- parallel::detectCores() - 1
+  strata_lengths <- sapply(
+    stratification_columns,
+    function(category) {
+      length(unique(data[, category]))
     }
+  )
+  min_strata_length <- min(strata_lengths)
 
-    # iterate over all strata and run algorithm
-    for (stratum in strata) {
-      i <- i + 1
-      # when stratum is NA filter needs to be done differently otherwise the NA stratum is lost
-      if (is.na(stratum)) {
-        sub_data <- data %>% dplyr::filter(is.na(.data[[category]]))
+  if (sum(strata_lengths) > 50) {
+    # do parallel processing only if many strata to process
+    n_cores <- max(1, min(4, min_strata_length, n_cores))
+    cl <- parallel::makeCluster(n_cores)
+    parallel::clusterEvalQ(
+      cl = cl,
+      expr = {
+        library(dplyr)
+        library(lubridate)
+      }
+    )
+    parallel::clusterExport(
+      cl = cl,
+      varlist = c(
+        "data",
+        "date_var",
+        "date_start",
+        "date_end",
+        "number_of_weeks",
+        "fun",
+        "model",
+        "time_trend",
+        "intervention_date",
+        "aggregate_data",
+        'filter_by_date'
+      ),
+      envir = environment()
+    )
+    # Loop through each category
+    for (category in stratification_columns) {
+      # print(paste0(
+      #   "Using ",
+      #   n_cores,
+      #   " cores for parallel processing of category ",
+      #   category
+      # ))
+      if (is.factor(data[, category])) {
+        # adding the NAs to also calculate signals for them
+        strata <- levels(droplevels(addNA(data[, category], ifany = TRUE)))
       } else {
-        sub_data <- data %>% dplyr::filter(.data[[category]] == stratum)
+        strata <- unique(data[, category]) # character is supported as well
       }
 
-      sub_data_agg <- sub_data %>%
-        # filter the data
-
-        filter_by_date(date_var = date_var, date_start = date_start, date_end = date_end) %>%
-        # aggregate data
-        aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end)
-
-      # run selected algorithm
-      if (nrow(sub_data) == 0 || nrow(sub_data %>% filter_by_date(date_var = date_var,
-                                                                  date_start = date_end - lubridate::weeks(number_of_weeks),
-                                                                  date_end = date_end)) == 0) {
-        # don't run algorithm on those strata with 0 cases created by factors
-        results <- sub_data_agg %>%
-          # set alarms to FALSE for the timeperiod signals are generated for in the other present levels
-          # logically the alarms column should also contain NA but later on computations are based on when the first alarm appears and when giving 0 timeseries to the algorithms they also put FALSE to the alarms column thus it is consistent
-          # upperbound and expected to NA
-          dplyr::mutate(alarms = dplyr::if_else(dplyr::row_number() > (nrow(.) - number_of_weeks + 1), FALSE, NA)) %>%
-          dplyr::mutate(
-            upperbound = NA,
-            expected = NA
-          )
-      } else {
-        if (model != "") {
-          results <- fun(sub_data_agg, number_of_weeks, model = model, time_trend = time_trend, intervention_date = intervention_date)
-        } else {
-          results <- fun(sub_data_agg, number_of_weeks)
+      # iterate over all strata and run algorithm
+      category_result <- parallel::parLapply(
+        cl = cl,
+        X = strata,
+        cat = category,
+        fun = function(stratum, cat) {
+          get_signal_strata(stratum, cat)
         }
+      ) %>%
+        dplyr::bind_rows()
+      category_results[[category]] <- category_result
+    }
+    parallel::stopCluster(cl)
+  } else {
+    # Non-parallel version
+    for (category in stratification_columns) {
+      if (is.factor(data[, category])) {
+        # adding the NAs to also calculate signals for them
+        strata <- levels(droplevels(addNA(data[, category], ifany = TRUE)))
+      } else {
+        strata <- unique(data[, category]) # character is supported as well
       }
 
-      if (is.null(results)) {
-        warning(paste0(
-          "The stratum ", category, ":", stratum,
-          " will be neglected due to lack of data."
-        ))
-      } else {
-        # add information on stratification to results
-        results <- results %>% dplyr::mutate(
-          category = category, stratum = stratum
-        )
-      }
-      # Store the results in the list
-      category_results[[i]] <- results
+      # iterate over all strata and run algorithm
+      # Non-parallel version using lapply
+      category_result <- lapply(
+        X = strata,
+        FUN = function(stratum) {
+          get_signal_strata(stratum, category)
+        }
+      ) %>%
+        dplyr::bind_rows()
+      category_results[[category]] <- category_result
     }
   }
-
-  return(dplyr::bind_rows(category_results))
+  return(category_results %>% dplyr::bind_rows())
 }
 
 #' Get Signals
