@@ -32,6 +32,7 @@ app_server <- function(input, output, session) {
     method = datinput$method,
     no_algorithm_possible = datinput$no_algorithm_possible,
     intervention_date = datinput$intervention_date,
+    pad_signals_choice = datinput$pad_signals_choice,
     min_cases_signals = datinput$min_cases_signals
   )
 

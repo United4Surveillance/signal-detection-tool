@@ -107,7 +107,14 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                   )
                 ),
                 shiny::uiOutput(ns("conditional_date_input"))
-              )
+              ),
+              shiny::column(
+                width = 12,
+                shiny::conditionalPanel(
+                  condition = sprintf("output['%s'] == 'FALSE'", ns("algorithm_glm")),
+                  checkboxInput(ns("pad_signals_choice"), "Show expectation and threshold for historic data (computation intensive)")
+                  )
+                )
             ),
             shiny::fluidRow(
               shiny::column(
@@ -544,6 +551,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       method = shiny::reactive(input$algorithm_choice),
       no_algorithm_possible = shiny::reactive(no_algorithm_possible()),
       intervention_date = shiny::reactive(intervention_date()),
+      pad_signals_choice = shiny::reactive(input$pad_signals_choice),
       min_cases_signals = shiny::reactive(input$min_cases_signals)
     ))
   })
