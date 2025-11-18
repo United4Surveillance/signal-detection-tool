@@ -20,7 +20,7 @@ check_raw_surveillance_data <- function(data) {
   }
 
   # removing completely empty columns from before checking
-  data <- remove_empty_columns_fast(data)
+  data <- remove_empty_columns(data)
 
   # check mandatory and optional variabless
   errors_mandatory <- check_mandatory_variables(data)
