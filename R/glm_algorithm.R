@@ -64,7 +64,7 @@ create_sincos_data <- function(ts_len, freq = 52, S = 1) {
 #' @param past_weeks_not_included An integer specifying the number of past weeks to exclude from
 #' the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 #' Default is `4`.
-#' @return data.frame containing all columns needed for the glm model. These are columns for the seasonality, time_trend and intercepts. This model data is used to fit the parameters for these coviariates.
+#' @return data.frame containing all columns needed for the glm model. These are columns for the seasonality, time_trend and intercepts. This model data is used to fit the parameters for these coviariates. If model = "mean", time_trend = FALSE and intervention_start = NULL create_model_data() returns and empty tibble.
 #' @examples \dontrun{
 #' create_model_data(100)
 #' create_model_data(100, intervention_start = 50)
@@ -254,101 +254,96 @@ get_signals_glm <- function(data_aggregated,
     intervention_start <- NULL
   }
 
-  rev_number_weeks <- rev(seq(0, number_of_weeks - 1, 1))
+  # rev_number_weeks <- rev(seq(0, number_of_weeks - 1, 1))
+  first_signal_detection_week <- ts_len - number_of_weeks + 1
   bound_results <- data.frame(
     cases = integer(),
     expectation = numeric(),
     upper = numeric()
   )
 
-  for (k in rev_number_weeks) {
-    # we start with "first" week for signal detection, i.e. the one the most far away from the recent week
-    # this week is taken as well to show the full model into the past
-    ts_len_curr <- ts_len - k
-    model_data <- create_model_data(ts_len_curr,
-      model = model,
-      time_trend = time_trend,
-      intervention_start = intervention_start,
-      min_timepoints_baseline = min_timepoints_baseline,
-      min_timepoints_trend = min_timepoints_trend
-    )
+  model_data <- create_model_data(ts_len,
+    model = model,
+    time_trend = time_trend,
+    intervention_start = intervention_start,
+    min_timepoints_baseline = min_timepoints_baseline,
+    min_timepoints_trend = min_timepoints_trend
+  )
 
-    formula <- as.formula(create_formula(model_data))
+  formula <- as.formula(create_formula(model_data))
 
-    # make sure the data is in the correct order to apply tail
-    data_aggregated <- data_aggregated %>%
-      dplyr::arrange(year, week)
-    # take those cases based on the time points which should be considered
-    cases <- data_aggregated %>%
-      head(ts_len_curr) %>%
-      dplyr::select(cases)
+  # make sure the data is in the correct order to apply tail
+  data_aggregated <- data_aggregated %>%
+    dplyr::arrange(year, week)
+  # take cases from the first signal detection week
+  cases <- data_aggregated %>%
+    dplyr::select(cases)
 
 
-    if (nrow(model_data) == 0) {
-      model_data <- cases
-    } else {
-      model_data <- dplyr::bind_cols(cases, model_data)
-    }
-
-    # seperate the data into fitting and prediction by taking the last timepoint as prediction
-    # the remaining timepoints - past_weeks_not_included are used for fitting
-    # pred data is last
-    fit_data <- model_data %>% head(ts_len_curr - (past_weeks_not_included + 1))
-    pred_data <- model_data %>% tail(1)
-
-    # fit a glm based on formula and data provided
-    fit_glm <- glm(formula,
-      data = fit_data,
-      family = quasipoisson()
-    )
-
-    phi <- max(summary(fit_glm)$dispersion, 1)
-
-    s <- surveillance::anscombe.residuals(fit_glm, phi)
-    omega <- surveillance::algo.farrington.assign.weights(s)
-    # fit a weighted glm using weighted anscombe residulas
-    fit_glm <- glm(formula,
-      data = fit_data,
-      family = quasipoisson(), weights = omega
-    )
-    phi <- max(summary(fit_glm)$dispersion, 1)
-    # predict with the fitted glm
-    pred <- predict.glm(fit_glm,
-      newdata = pred_data,
-      se.fit = TRUE
-    )
-
-    eta0 <- pred$fit
-    mean <- exp(eta0)
-
-    bounds <- NA
-    # mu_bounds is the expected value
-    if (phi > 1) {
-      bounds <- data.frame(
-        cases = pred_data$cases,
-        expectation = mean,
-        upper = qnbinom(1 - alpha_upper, mean / (phi - 1), 1 / phi)
-      )
-    } else {
-      bounds <- data.frame(
-        cases = pred_data$cases,
-        expectation = mean,
-        upper = qpois(1 - alpha_upper, mean)
-      )
-    }
-
-    bound_results <- rbind(bound_results, bounds)
-    if (k == max(rev_number_weeks) && return_full_model) {
-      # drop = FALSE ensures that we still get a dataframe back even when using the mean method and thus data consisting only of one column
-      data_past_weeks_not_included <- model_data[(ts_len_curr - past_weeks_not_included):(ts_len_curr - 1), , drop = FALSE]
-      pred_past_weeks_not_included <- predict.glm(fit_glm,
-        newdata = data_past_weeks_not_included,
-        se.fit = TRUE
-      )
-      mean_past_weeks_not_included <- exp(pred_past_weeks_not_included$fit)
-      full_model_expectation <- c(fit_glm$fitted.values, mean_past_weeks_not_included)
-    }
+  if (nrow(model_data) == 0) {
+    model_data <- cases
+  } else {
+    model_data <- dplyr::bind_cols(cases, model_data)
   }
+
+  # seperate the data into fitting and prediction
+  # we fit based on the data without the signal detection period and also removing the first past_weeks_not_included to not have the influence of outbreaks shortly before
+  # we use the fitted model to predict the values for the whole signal detection period
+  # we do not iterate over the signal detection period to refit models including more past data points to save computation time
+  fit_data <- model_data %>% head(first_signal_detection_week - (past_weeks_not_included + 1))
+  pred_data <- model_data %>% tail(number_of_weeks)
+
+  # fit a glm based on formula and data provided
+  fit_glm <- glm(formula,
+    data = fit_data,
+    family = quasipoisson()
+  )
+
+  phi <- max(summary(fit_glm)$dispersion, 1)
+
+  s <- surveillance::anscombe.residuals(fit_glm, phi)
+  omega <- surveillance::algo.farrington.assign.weights(s)
+  # fit a weighted glm using weighted anscombe residulas
+  fit_glm <- glm(formula,
+    data = fit_data,
+    family = quasipoisson(), weights = omega
+  )
+  phi <- max(summary(fit_glm)$dispersion, 1)
+  # predict with the fitted glm
+  pred <- predict.glm(fit_glm,
+    newdata = pred_data,
+    se.fit = TRUE
+  )
+
+  eta0 <- pred$fit
+  mean <- exp(eta0)
+
+  bounds <- NA
+  # mu_bounds is the expected value
+  if (phi > 1) {
+    bounds <- data.frame(
+      cases = pred_data$cases,
+      expectation = mean,
+      upper = qnbinom(1 - alpha_upper, mean / (phi - 1), 1 / phi)
+    )
+  } else {
+    bounds <- data.frame(
+      cases = pred_data$cases,
+      expectation = mean,
+      upper = qpois(1 - alpha_upper, mean)
+    )
+  }
+
+  bound_results <- rbind(bound_results, bounds)
+  # drop = FALSE ensures that we still get a dataframe back even when using the mean method and thus data consisting only of one column
+  # add the expectation for the past_weeks_not_included which are not part of the fitted model
+  data_past_weeks_not_included <- model_data[(first_signal_detection_week - past_weeks_not_included):(first_signal_detection_week - 1), , drop = FALSE]
+  pred_past_weeks_not_included <- predict.glm(fit_glm,
+    newdata = data_past_weeks_not_included,
+    se.fit = TRUE
+  )
+  mean_past_weeks_not_included <- exp(pred_past_weeks_not_included$fit)
+  full_model_expectation <- c(fit_glm$fitted.values, mean_past_weeks_not_included)
 
   # generate alarms
   # here in the end give the whole dataframe back as we also do with the other algorithms
