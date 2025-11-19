@@ -227,8 +227,6 @@ get_signals_stratified <- function(
     date_end <- max(data[[date_var]], na.rm = TRUE)
   }
 
-  # browser()
-  n_cores <- parallel::detectCores() - 1
   strata_lengths <- sapply(
     stratification_columns,
     function(category) {
@@ -236,10 +234,11 @@ get_signals_stratified <- function(
     }
   )
   min_strata_length <- min(strata_lengths)
+  n_cores <- parallel::detectCores() - 1
 
-  if (sum(strata_lengths) > 50) {
+  if (sum(strata_lengths) > 70) {
     # do parallel processing only if many strata to process
-    n_cores <- max(1, min(4, min_strata_length, n_cores))
+    n_cores <- max(1, min(4, min_strata_length, n_cores)) # limit to max 4 cores to avoid overloading the system
     cl <- parallel::makeCluster(n_cores)
     parallel::clusterEvalQ(
       cl = cl,
@@ -281,7 +280,7 @@ get_signals_stratified <- function(
       }
 
       # iterate over all strata and run algorithm
-      category_result <- parallel::parLapply(
+      category_result <- parallel::parLapplyLB(
         cl = cl,
         X = strata,
         cat = category,
