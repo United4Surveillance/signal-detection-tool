@@ -37,32 +37,32 @@ preprocess_data <- function(data) {
   date_cols <- grep("^date", names(data), value = TRUE)
 
   data <- data %>%
-    mutate(
+    dplyr::mutate(
       # 1) Whitespaces nur einmal entfernen
-      across(all_of(char_cols), ~ stringr::str_trim(.x)),
+      dplyr::across(all_of(char_cols), ~ stringr::str_trim(.x)),
 
       # 2) Nur die gewünschten Spalten kleinschreiben
-      across(all_of(to_lower_vars), ~ tolower(.x)),
+      dplyr::across(all_of(to_lower_vars), ~ tolower(.x)),
 
       # 3) Einheitlich fehlende Werte setzen (ein Pass statt drei na_if)
-      across(all_of(char_cols), ~ { .x[.x %in% na_tokens] <- NA_character_; .x }),
+      dplyr::across(all_of(char_cols), ~ { .x[.x %in% na_tokens] <- NA_character_; .x }),
 
       # 4) Datumsspalten gezielt und schnell parsen
-      across(all_of(date_cols),
+      dplyr::across(all_of(date_cols),
              ~ readr::parse_date(.x, format = "%Y-%m-%d", na = na_tokens)),
 
       # 5) Typanpassungen / Faktorisierung
-      across(all_of(regional_id_vars), as.character),
-      across(all_of(yes_no_unknown_vars), ~ factor(.x, levels = lvl_ynu)),
-      across(all_of(factorization_vars), as.factor)
+      dplyr::across(all_of(regional_id_vars), as.character),
+      dplyr::across(all_of(yes_no_unknown_vars), ~ factor(.x, levels = lvl_ynu)),
+      dplyr::across(all_of(factorization_vars), as.factor)
     )
 
 
 
   # add columns for isoyear and isoweek for each date
   data <- data %>%
-    mutate(
-      across(
+    dplyr::mutate(
+      dplyr::across(
         starts_with("date") & !where(is.numeric),
         .fns = list(
           year = ~ lubridate::isoyear(.x),

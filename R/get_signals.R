@@ -193,7 +193,7 @@ get_signals_stratified <- function(data,
       i <- i + 1
       sub_data_agg <- split_list[[stratum]]
       # are there cases in the test period?
-      n_cases <- sum(sub_data_agg %>% slice_tail(n = number_of_weeks) %>% select(cases))
+      n_cases <- sum(sub_data_agg %>% dplyr::slice_tail(n = number_of_weeks) %>% dplyr::select(cases))
       # run selected algorithm if there are cases
       if (n_cases == 0) {
         # don't run algorithm on those strata with 0 cases created by factors
