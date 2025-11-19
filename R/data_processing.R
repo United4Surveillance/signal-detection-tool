@@ -30,7 +30,7 @@ preprocess_data <- function(data) {
   data <- data %>%
     dplyr::filter_at(check_for_missing_values(), dplyr::all_vars(!is.na(.)))
 
-  na_tokens <- c("", "unknown", "NA", "na")  # beide Fälle abdecken
+  na_tokens <- c("", "unknown", "NA", "na")  # cover both cases
   lvl_ynu   <- unlist(yes_no_unknown_levels())
 
   char_cols <- names(Filter(is.character, data))
@@ -38,26 +38,24 @@ preprocess_data <- function(data) {
 
   data <- data %>%
     dplyr::mutate(
-      # 1) Whitespaces nur einmal entfernen
+      # 1) Trim whitespaces only once
       dplyr::across(all_of(char_cols), ~ stringr::str_trim(.x)),
 
-      # 2) Nur die gewünschten Spalten kleinschreiben
+      # 2) Convert only the desired columns to lowercase
       dplyr::across(all_of(to_lower_vars), ~ tolower(.x)),
 
-      # 3) Einheitlich fehlende Werte setzen (ein Pass statt drei na_if)
+      # 3) Set missing values consistently (one pass instead of three na_if)
       dplyr::across(all_of(char_cols), ~ { .x[.x %in% na_tokens] <- NA_character_; .x }),
 
-      # 4) Datumsspalten gezielt und schnell parsen
+      # 4) Parse date columns specifically and efficiently
       dplyr::across(all_of(date_cols),
-             ~ readr::parse_date(.x, format = "%Y-%m-%d", na = na_tokens)),
+                    ~ readr::parse_date(.x, format = "%Y-%m-%d", na = na_tokens)),
 
-      # 5) Typanpassungen / Faktorisierung
+      # 5) Type adjustments / factorization
       dplyr::across(all_of(regional_id_vars), as.character),
       dplyr::across(all_of(yes_no_unknown_vars), ~ factor(.x, levels = lvl_ynu)),
       dplyr::across(all_of(factorization_vars), as.factor)
     )
-
-
 
   # add columns for isoyear and isoweek for each date
   data <- data %>%
