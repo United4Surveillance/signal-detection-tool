@@ -10,27 +10,16 @@
 #' # Generate seasonal group data for a time series of length 100 with weekly frequency
 #' create_fn_data(100)
 #' }
-create_fn_data <- function(ts_length, freq = 52) {
-  # *2 just making the computation of seasgroups overall more stable
-  time_point_to_consider <- ts_length * 2
-  survts <- surveillance::sts(rep(0, time_point_to_consider),
-    start = c(2000, 1),
-    frequency = freq
-  )
+create_fn_data <- function(ts_length, freq = 52.25) {
 
-  # Create data for Farrington GLM
-  modelData <- surveillance:::algo.farrington.data.glm(
-    dayToConsider = time_point_to_consider, b = floor((time_point_to_consider - 3) / freq),
-    freq = freq, epochAsDate = FALSE,
-    epochStr = "none", vectorOfDates = 1:time_point_to_consider,
-    w = 3, noPeriods = 10, observed = survts@observed[, 1],
-    population = rep(0, 1000), verbose = FALSE,
-    pastWeeksNotIncluded = 0, k = time_point_to_consider
-  )[, 1:4]
+  noPeriods <- 10
 
-  subset_seasgroups <- (nrow(modelData) - ts_length + 1):nrow(modelData)
-  modelData[subset_seasgroups, ] %>%
-    dplyr::select(seasgroups)
+  breaks <- seq(0, freq, length.out = noPeriods + 1)
+  breaks[1] <- -1
+  seasgroups <- cut(((1:ts_length - 1) %% freq), breaks = breaks, labels = FALSE)
+
+  data.frame(seasgroups = seasgroups) |>
+    dplyr::mutate(seasgroups = factor(seasgroups, levels = 1:noPeriods))
 }
 
 #' Create a data.frame with sine and cosine components for harmonic modeling.
@@ -64,7 +53,7 @@ create_sincos_data <- function(ts_len, freq = 52, S = 1) {
 #' @param past_weeks_not_included An integer specifying the number of past weeks to exclude from
 #' the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 #' Default is `4`.
-#' @return data.frame containing all columns needed for the glm model. These are columns for the seasonality, time_trend and intercepts. This model data is used to fit the parameters for these coviariates.
+#' @return data.frame containing all columns needed for the glm model. These are columns for the seasonality, time_trend and intercepts. This model data is used to fit the parameters for these coviariates. If model = "mean", time_trend = FALSE and intervention_start = NULL create_model_data() returns and empty tibble.
 #' @examples \dontrun{
 #' create_model_data(100)
 #' create_model_data(100, intervention_start = 50)
@@ -254,101 +243,96 @@ get_signals_glm <- function(data_aggregated,
     intervention_start <- NULL
   }
 
-  rev_number_weeks <- rev(seq(0, number_of_weeks - 1, 1))
+  # rev_number_weeks <- rev(seq(0, number_of_weeks - 1, 1))
+  first_signal_detection_week <- ts_len - number_of_weeks + 1
   bound_results <- data.frame(
     cases = integer(),
     expectation = numeric(),
     upper = numeric()
   )
 
-  for (k in rev_number_weeks) {
-    # we start with "first" week for signal detection, i.e. the one the most far away from the recent week
-    # this week is taken as well to show the full model into the past
-    ts_len_curr <- ts_len - k
-    model_data <- create_model_data(ts_len_curr,
-      model = model,
-      time_trend = time_trend,
-      intervention_start = intervention_start,
-      min_timepoints_baseline = min_timepoints_baseline,
-      min_timepoints_trend = min_timepoints_trend
-    )
+  model_data <- create_model_data(ts_len,
+    model = model,
+    time_trend = time_trend,
+    intervention_start = intervention_start,
+    min_timepoints_baseline = min_timepoints_baseline,
+    min_timepoints_trend = min_timepoints_trend
+  )
 
-    formula <- as.formula(create_formula(model_data))
+  formula <- as.formula(create_formula(model_data))
 
-    # make sure the data is in the correct order to apply tail
-    data_aggregated <- data_aggregated %>%
-      dplyr::arrange(year, week)
-    # take those cases based on the time points which should be considered
-    cases <- data_aggregated %>%
-      head(ts_len_curr) %>%
-      dplyr::select(cases)
+  # make sure the data is in the correct order to apply tail
+  data_aggregated <- data_aggregated %>%
+    dplyr::arrange(year, week)
+  # take cases from the first signal detection week
+  cases <- data_aggregated %>%
+    dplyr::select(cases)
 
 
-    if (nrow(model_data) == 0) {
-      model_data <- cases
-    } else {
-      model_data <- dplyr::bind_cols(cases, model_data)
-    }
-
-    # seperate the data into fitting and prediction by taking the last timepoint as prediction
-    # the remaining timepoints - past_weeks_not_included are used for fitting
-    # pred data is last
-    fit_data <- model_data %>% head(ts_len_curr - (past_weeks_not_included + 1))
-    pred_data <- model_data %>% tail(1)
-
-    # fit a glm based on formula and data provided
-    fit_glm <- glm(formula,
-      data = fit_data,
-      family = quasipoisson()
-    )
-
-    phi <- max(summary(fit_glm)$dispersion, 1)
-
-    s <- surveillance::anscombe.residuals(fit_glm, phi)
-    omega <- surveillance::algo.farrington.assign.weights(s)
-    # fit a weighted glm using weighted anscombe residulas
-    fit_glm <- glm(formula,
-      data = fit_data,
-      family = quasipoisson(), weights = omega
-    )
-    phi <- max(summary(fit_glm)$dispersion, 1)
-    # predict with the fitted glm
-    pred <- predict.glm(fit_glm,
-      newdata = pred_data,
-      se.fit = TRUE
-    )
-
-    eta0 <- pred$fit
-    mean <- exp(eta0)
-
-    bounds <- NA
-    # mu_bounds is the expected value
-    if (phi > 1) {
-      bounds <- data.frame(
-        cases = pred_data$cases,
-        expectation = mean,
-        upper = qnbinom(1 - alpha_upper, mean / (phi - 1), 1 / phi)
-      )
-    } else {
-      bounds <- data.frame(
-        cases = pred_data$cases,
-        expectation = mean,
-        upper = qpois(1 - alpha_upper, mean)
-      )
-    }
-
-    bound_results <- rbind(bound_results, bounds)
-    if (k == max(rev_number_weeks) && return_full_model) {
-      # drop = FALSE ensures that we still get a dataframe back even when using the mean method and thus data consisting only of one column
-      data_past_weeks_not_included <- model_data[(ts_len_curr - past_weeks_not_included):(ts_len_curr - 1), , drop = FALSE]
-      pred_past_weeks_not_included <- predict.glm(fit_glm,
-        newdata = data_past_weeks_not_included,
-        se.fit = TRUE
-      )
-      mean_past_weeks_not_included <- exp(pred_past_weeks_not_included$fit)
-      full_model_expectation <- c(fit_glm$fitted.values, mean_past_weeks_not_included)
-    }
+  if (nrow(model_data) == 0) {
+    model_data <- cases
+  } else {
+    model_data <- dplyr::bind_cols(cases, model_data)
   }
+
+  # seperate the data into fitting and prediction
+  # we fit based on the data without the signal detection period and also removing the first past_weeks_not_included to not have the influence of outbreaks shortly before
+  # we use the fitted model to predict the values for the whole signal detection period
+  # we do not iterate over the signal detection period to refit models including more past data points to save computation time
+  fit_data <- model_data %>% head(first_signal_detection_week - (past_weeks_not_included + 1))
+  pred_data <- model_data %>% tail(number_of_weeks)
+
+  # fit a glm based on formula and data provided
+  fit_glm <- glm(formula,
+    data = fit_data,
+    family = quasipoisson()
+  )
+
+  phi <- max(summary(fit_glm)$dispersion, 1)
+
+  s <- surveillance::anscombe.residuals(fit_glm, phi)
+  omega <- surveillance::algo.farrington.assign.weights(s)
+  # fit a weighted glm using weighted anscombe residulas
+  fit_glm <- glm(formula,
+    data = fit_data,
+    family = quasipoisson(), weights = omega
+  )
+  phi <- max(summary(fit_glm)$dispersion, 1)
+  # predict with the fitted glm
+  pred <- predict.glm(fit_glm,
+    newdata = pred_data,
+    se.fit = TRUE
+  )
+
+  eta0 <- pred$fit
+  mean <- exp(eta0)
+
+  bounds <- NA
+  # mu_bounds is the expected value
+  if (phi > 1) {
+    bounds <- data.frame(
+      cases = pred_data$cases,
+      expectation = mean,
+      upper = qnbinom(1 - alpha_upper, mean / (phi - 1), 1 / phi)
+    )
+  } else {
+    bounds <- data.frame(
+      cases = pred_data$cases,
+      expectation = mean,
+      upper = qpois(1 - alpha_upper, mean)
+    )
+  }
+
+  bound_results <- rbind(bound_results, bounds)
+  # drop = FALSE ensures that we still get a dataframe back even when using the mean method and thus data consisting only of one column
+  # add the expectation for the past_weeks_not_included which are not part of the fitted model
+  data_past_weeks_not_included <- model_data[(first_signal_detection_week - past_weeks_not_included):(first_signal_detection_week - 1), , drop = FALSE]
+  pred_past_weeks_not_included <- predict.glm(fit_glm,
+    newdata = data_past_weeks_not_included,
+    se.fit = TRUE
+  )
+  mean_past_weeks_not_included <- exp(pred_past_weeks_not_included$fit)
+  full_model_expectation <- c(fit_glm$fitted.values, mean_past_weeks_not_included)
 
   # generate alarms
   # here in the end give the whole dataframe back as we also do with the other algorithms
@@ -432,67 +416,4 @@ get_valid_dates_intervention_start <- function(data,
   return(list(valid_start_date = min_date_plus_delay, valid_end_date = max_date_minus_delay, default_intervention = default_intervention))
 }
 
-#' Get Possible GLM Methods Based on Available Data
-#'
-#' This function determines which Generalized Linear Model (GLM) algorithms can be applied
-#' to a dataset based on the number of weeks of data available for fitting. The function
-#' calculates the date range within the dataset and assesses whether sufficient historical
-#' data is available to apply various GLM methods.
-#'
-#' @param data A data frame containing the data to be analyzed. This data frame should include
-#' a date variable specified by the `date_var` parameter.
-#' @param date_var A character string representing the name of the date variable in the data frame.
-#' Default is `"date_report"`.
-#' @param number_of_weeks An integer specifying the number of weeks signal detection is done. These weeks are excluded from fitting as we do a prediction for these weeks.
-#' Default is `6`.
-#' @param past_weeks_not_included An integer specifying the number of past weeks to exclude from
-#' the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
-#' Default is `4`.
-#'
-#' @return A character vector of possible GLM methods that can be applied given the available data,
-#' or `NULL` if no methods are suitable given the data constraints.
-#'
-#' The method selection criteria are:
-#' - If 4 years (208 weeks) or more of data are available: All GLM methods are possible.
-#' - If 3 to 4 years (156 to 208 weeks) of data are available: All methods except "glm farrington" and "glm farrington with timetrend" are possible.
-#' - If 2 to 3 years (104 to 156 weeks) of data are available: Only "glm mean", "glm timetrend", and "glm harmonic" are possible.
-#' - If 1 to 2 years (52 to 104 weeks) of data are available: Only the "glm mean" method is possible.
-#' - If less than 1 year (52 weeks) of data is available: No methods are possible (`NULL` is returned).
-#'
-#' @examples
-#' \dontrun{
-#' # Example usage:
-#' data <- data.frame(date_report = seq(as.Date("2018-01-01"), by = "week", length.out = 300))
-#' available_methods <- get_possible_glm_methods(data)
-#' print(available_methods)
-#' }
-#'
-get_possible_glm_methods <- function(data,
-                                     date_var = "date_report",
-                                     number_of_weeks = 6,
-                                     past_weeks_not_included = 4) {
-  min_date <- min(data[[date_var]], na.rm = TRUE)
-  max_date <- max(data[[date_var]], na.rm = TRUE)
-  max_date_fit <- max_date - lubridate::weeks(number_of_weeks + past_weeks_not_included)
-  number_of_weeks_available_fitting <- as.numeric(difftime(max_date_fit, min_date, units = "weeks"))
 
-  glm_algos <- available_algorithms()[grepl("glm", available_algorithms())]
-
-  if (number_of_weeks_available_fitting >= 4 * 52) {
-    # all glm methods
-    methods_possible <- glm_algos
-  } else if (number_of_weeks_available_fitting >= 3 * 52) {
-    # All possible except FN
-    methods_possible <- glm_algos[!grepl("farrington", glm_algos)]
-  } else if (number_of_weeks_available_fitting >= 2 * 52) {
-    # All possible except FN and Harmonic with timetrend
-    methods_possible <- glm_algos[c("Mean", "Timetrend", "Harmonic")]
-  } else if (number_of_weeks_available_fitting >= 52) {
-    # Only mean
-    methods_possible <- glm_algos[c("Mean")]
-  } else {
-    methods_possible <- NULL
-  }
-
-  methods_possible
-}

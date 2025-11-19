@@ -82,6 +82,7 @@ preprocess_data <- function(data) {
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @param date_start A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the minimum date of the dataset. This parameter can be used when the dataset should be extended further than the minimum date of the dataset.
 #' @param date_end A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.
+#' @param group A character specifying another grouping variable. Usually used for stratification.
 #' @examples
 #' \dontrun{
 #' data <- preprocess_data(input_example) %>% aggregate_data()
@@ -90,8 +91,9 @@ preprocess_data <- function(data) {
 aggregate_data <- function(data,
                            date_var = "date_report",
                            date_start = NULL,
-                           date_end = NULL) {
-  checkmate::check_subset(date_var, names(data))
+                           date_end = NULL,
+                           group = NULL) {
+  checkmate::check_subset(c(group, date_var), names(data), empty.ok = TRUE)
 
   checkmate::assert(
     checkmate::check_null(date_start),
@@ -104,44 +106,41 @@ aggregate_data <- function(data,
     combine = "or"
   )
 
-  week_var <- paste0(date_var, "_week")
-  year_var <- paste0(date_var, "_year")
+  if (is.null(group)) {
+    data_agg <- data %>%
+      dplyr::group_by(cw_iso, .drop = FALSE)
+  } else {
+    data_agg <- data %>%
+      dplyr::group_by(cw_iso, !!rlang::sym(group), .drop = FALSE)
+  }
 
-  data_agg <- data %>%
-    dplyr::group_by(!!rlang::sym(week_var), !!rlang::sym(year_var)) %>%
-    dplyr::summarize(cases = dplyr::n(), .groups = "drop") %>%
-    dplyr::select(
-      week = !!rlang::sym(week_var),
-      year = !!rlang::sym(year_var),
-      cases
-    ) %>%
-    dplyr::arrange(year, week)
-
-  # add the missing isoweeks to the dataset
-  data_agg <- data_agg %>% add_missing_isoweeks(
-    date_start = date_start,
-    date_end = date_end
-  )
+  data_agg <- data_agg %>%
+    dplyr::summarize(cases = dplyr::n(), .groups = "drop")
 
   if ("outbreak_status" %in% names(data)) {
-    data_outbreak_agg <- data %>%
-      dplyr::group_by(!!rlang::sym(week_var), !!rlang::sym(year_var)) %>%
+    if (is.null(group)) {
+      data_outbreak_agg <- data %>%
+        dplyr::group_by(cw_iso, .drop = FALSE)
+    } else {
+      data_outbreak_agg <- data %>%
+        dplyr::group_by(cw_iso, !!rlang::sym(group), .drop = FALSE)
+    }
+    data_outbreak_agg <- data_outbreak_agg %>%
       dplyr::summarize(
-        cases_in_outbreak = sum(outbreak_status == "yes", na.rm = T),
+        cases_in_outbreak = sum(outbreak_status == "yes", na.rm = TRUE),
         .groups = "drop"
-      ) %>%
-      dplyr::select(
-        week = !!rlang::sym(week_var),
-        year = !!rlang::sym(year_var),
-        cases_in_outbreak
-      ) %>%
-      dplyr::arrange(year, week)
+      )
 
     data_agg <- data_agg %>%
-      dplyr::left_join(data_outbreak_agg, by = c("year", "week")) %>%
+      dplyr::left_join(data_outbreak_agg, by = c("cw_iso", group)) %>%
       dplyr::mutate(cases_in_outbreak = dplyr::if_else(is.na(cases_in_outbreak), 0, cases_in_outbreak))
   }
-  data_agg
+  data_agg |>
+    tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "week")) |>
+    dplyr::mutate(year = as.numeric(year),
+                  week = as.numeric(week)) |>
+    dplyr::arrange(year, week) |>
+    as.data.frame()
 }
 
 #' Filter Data Frame by Date Range
@@ -227,95 +226,6 @@ convert_to_sts <- function(case_counts) {
     ),
     frequency = 52
   ))
-}
-
-#' Add missing isoweeks to an aggregated dataframe of case counts by year and week
-#'
-#' This function takes a data frame containing year-week and case count and ensures
-#' that it includes all possible year-week combinations within the specified
-#' range. It fills in missing rows with 0 values for cases and returns the
-#' updated data frame.
-#'
-#' @param data_agg An aggregated data frame containing at least the columns 'year','week','cases' representing the isoyear, isoweek and case counts.
-#' @param date_start A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the minimum date of the dataset. This parameter can be used when the dataset should be extended until the date_start provided.
-#' @param date_end A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended until the date_end provided.
-#' @return A data frame containing all year-week combinations within the input
-#'   range, with previously missing year-weeks filled in with 0 values for cases.
-#'
-#' @examples
-#' \dontrun{
-#' data_agg <- data.frame(
-#'   year = c(2021, 2022, 2022),
-#'   week = c(1, 2, 4),
-#'   cases = c(10, 15, 5)
-#' )
-#' updated_data <- add_missing_isoweeks(data_agg, "2022-01-21", "2023-05-01")
-#' updated_data <- add_missing_isoweeks(data_agg)
-#' updated_data
-#' }
-#' @export
-add_missing_isoweeks <- function(data_agg, date_start = NULL, date_end = NULL) {
-  checkmate::assert(
-    checkmate::check_subset("year", names(data_agg)),
-    checkmate::check_subset("week", names(data_agg)),
-    checkmate::check_subset("cases", names(data_agg)),
-    combine = "and"
-  )
-
-  checkmate::assert(
-    checkmate::check_null(date_start),
-    checkmate::check_date(lubridate::date(date_start)),
-    combine = "or"
-  )
-  checkmate::assert(
-    checkmate::check_null(date_end),
-    checkmate::check_date(lubridate::date(date_end)),
-    combine = "or"
-  )
-
-  # add a date based on isoweek and isoyear
-  data_agg <- data_agg %>%
-    dplyr::mutate(date = isoweek_to_date(week, year))
-
-  # extend the dataset nevertheless to min date if date_start greater
-  min_date <- min(data_agg$date)
-  if (is.null(date_start)) {
-    date_start <- min_date
-  } else if (date_start > min_date) {
-    message("Notice: Your input date_start is greater than the smallest date in the dataset. Missing weeks are nevertheless filled until the smallest date in the dataset")
-    date_start <- min_date
-  }
-  # extend the dataset nevertheless to max date if date_end is smaller
-  max_date <- max(data_agg$date)
-  if (is.null(date_end)) {
-    date_end <- max_date
-  } else if (date_end < max_date) {
-    message("Notice: Your input date_end is smaller than the greatest date in the dataset. Missing weeks are nevertheless filled until the greatest date in the dataset")
-    date_end <- max_date
-  }
-
-  # Generate a sequence of dates from start to end date
-  # we add the date_end because the seq ends before date_end when there is a partial week remaining and we also want to have the isoweek of the date_end
-  date_seq <- c(seq.Date(from = as.Date(date_start), to = as.Date(date_end), by = "week"), date_end)
-  # Create a data frame with ISO weeks and ISO years
-  df_all_years_weeks <- data.frame(
-    year = lubridate::isoyear(date_seq),
-    week = lubridate::isoweek(date_seq)
-  ) %>%
-    # in case date_end is there twice due to adding before
-    dplyr::distinct(year, week)
-
-
-  # Merge the template with the original data to fill in missing rows
-  data_agg_complete <- merge(data_agg, df_all_years_weeks, by = c("year", "week"), all = TRUE) %>%
-    dplyr::select(-date)
-  # Replace missing cases with 0
-  data_agg_complete$cases[is.na(data_agg_complete$cases)] <- 0
-
-  data_agg_complete <- data_agg_complete %>%
-    dplyr::arrange(year, week)
-
-  return(data_agg_complete)
 }
 
 #' Filter the data so that only the data of the last n weeks are returned

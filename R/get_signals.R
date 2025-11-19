@@ -162,32 +162,41 @@ get_signals_stratified <- function(data,
   # Loop through each category
   for (category in stratification_columns) {
     if (is.factor(data[, category])) {
-      # adding the NAs to also calculate signals for them
-      strata <- levels(droplevels(addNA(data[, category], ifany = TRUE)))
+      strata <- levels(droplevels(data[, category]))
     } else {
       strata <- unique(data[, category]) # character is supported as well
     }
 
+    sub_data <- data %>%
+      dplyr::mutate(
+        !!rlang::sym(category) := factor(!!rlang::sym(category), levels = strata))
+
+    # adding the NAs to also calculate signals for them
+    if (any(is.na(data[, category]))) {
+      sub_data <- sub_data |>
+        dplyr::mutate(
+          !!rlang::sym(category) := forcats::fct_na_value_to_level(!!rlang::sym(category), level = "NA"))
+    }
+    sub_data <- sub_data |>
+      # filter the data
+      filter_by_date(date_var = date_var, date_start = date_start, date_end = date_end) %>%
+      # aggregate data
+      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, group = category)
+
+    split_list <- sub_data %>%
+      dplyr::group_split(!!rlang::sym(category), .keep = FALSE)
+    strata <- levels(sub_data[, category])
+    names(split_list) <- strata
+
+
     # iterate over all strata and run algorithm
     for (stratum in strata) {
       i <- i + 1
-      # when stratum is NA filter needs to be done differently otherwise the NA stratum is lost
-      if (is.na(stratum)) {
-        sub_data <- data %>% dplyr::filter(is.na(.data[[category]]))
-      } else {
-        sub_data <- data %>% dplyr::filter(.data[[category]] == stratum)
-      }
+      sub_data_agg <- split_list[[stratum]]
 
-      sub_data_agg <- sub_data %>%
-        # filter the data
-
-        filter_by_date(date_var = date_var, date_start = date_start, date_end = date_end) %>%
-        # aggregate data
-        aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end)
-
-
+      n_cases <- sum(sub_data_agg$cases)
       # run selected algorithm
-      if (nrow(sub_data) == 0) {
+      if (n_cases == 0) {
         # don't run algorithm on those strata with 0 cases created by factors
         results <- sub_data_agg %>%
           # set alarms to FALSE for the timeperiod signals are generated for in the other present levels
@@ -213,6 +222,8 @@ get_signals_stratified <- function(data,
         ))
       } else {
         # add information on stratification to results
+        if (stratum == "NA")
+          stratum <- NA
         results <- results %>% dplyr::mutate(
           category = category, stratum = stratum
         )
@@ -334,6 +345,29 @@ get_signals <- function(data,
       time_trend <- TRUE
     }
   }
+
+  # get min and max date of the whole dataset before stratification
+  # stratified aggregated data can be filled up with 0s until min and max date
+  # of the full dataset
+  if (is.null(date_start)) {
+    date_start <- min(data[[date_var]], na.rm = TRUE)
+  }
+  if (is.null(date_end)) {
+    date_end <- max(data[[date_var]], na.rm = TRUE)
+  }
+
+  # function to get all iso weeks between date_start and date_end
+  get_all_cw_iso <- function(date_start, date_end) {
+    all_weeks_as_dates <- c(seq.Date(from = date_start, to = date_end, by = "week"), date_end)
+    unique(paste0(lubridate::isoyear(all_weeks_as_dates), "-", lubridate::isoweek(all_weeks_as_dates)))
+  }
+
+  # add cw_iso (isoweeks) as factor levels
+  all_cw_iso <- get_all_cw_iso(date_start = date_start, date_end = date_end)
+  data <- data |>
+    dplyr::mutate(cw_iso = paste0(lubridate::isoyear(!!rlang::sym(date_var)), "-",
+                                  lubridate::isoweek(!!rlang::sym(date_var))),
+                  cw_iso = factor(cw_iso, levels = all_cw_iso))
 
   if (is.null(stratification)) {
     data_agg <- data %>%
