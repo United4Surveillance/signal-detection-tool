@@ -526,17 +526,27 @@ pad_signals <- function(data,
     unique(signals$category)[!is.na(unique(signals$category))]
   }
 
+  # data_signals <- signals |>
+  #   dplyr::filter(!is.na(alarms)) |>
+  #   dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
+
+
   number_of_weeks <- unique(signals$number_of_weeks)
   method <- unique(signals$method)
 
   stopifnot(length(number_of_weeks) == 1)
   stopifnot(length(method) == 1)
 
+  cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(number_of_weeks)
+
+  data_no_signals <- data |>
+    dplyr::filter(date_report <= cutoff_date)
+
   available_thresholds <- c(26, 20, 14, 8, 2)
   for (timeopt in available_thresholds) {
     max_time_opt <- timeopt
     signals_timeopt <- get_signals(
-      data,
+      data_no_signals,
       method = method,
       number_of_weeks = timeopt + number_of_weeks
     )
@@ -546,8 +556,7 @@ pad_signals <- function(data,
   }
 
   result_padding_unstratified <- signals_timeopt %>%
-    dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected) %>%
-    head(n = -(number_of_weeks - 1))
+    dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
 
   # preparing dataset with padding
   if (is.null(stratification)) {
@@ -568,13 +577,14 @@ pad_signals <- function(data,
     result_padding <- dplyr::bind_rows(
       result_padding_stratified,
       result_padding_unstratified
-    )
+      )
   }
 
   # preparing dataset within actual signal detection period
   results <- signals %>%
     dplyr::arrange(category, stratum, year, week) %>%
     dplyr::left_join(x = ., y = result_padding, by = c("category", "stratum", "year", "week"))
+
 
   # adjusting padding that the first upperbound which is calculated in the signals is set to the last upperbound padding such that no jump in the visualisation occurs
   results <- results %>%
