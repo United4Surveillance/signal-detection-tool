@@ -346,28 +346,9 @@ get_signals <- function(data,
     }
   }
 
-  # get min and max date of the whole dataset before stratification
-  # stratified aggregated data can be filled up with 0s until min and max date
-  # of the full dataset
-  if (is.null(date_start)) {
-    date_start <- min(data[[date_var]], na.rm = TRUE)
-  }
-  if (is.null(date_end)) {
-    date_end <- max(data[[date_var]], na.rm = TRUE)
-  }
-
-  # function to get all iso weeks between date_start and date_end
-  get_all_cw_iso <- function(date_start, date_end) {
-    all_weeks_as_dates <- c(seq.Date(from = date_start, to = date_end, by = "week"), date_end)
-    unique(paste0(lubridate::isoyear(all_weeks_as_dates), "-", lubridate::isoweek(all_weeks_as_dates)))
-  }
-
-  # add cw_iso (isoweeks) as factor levels
-  all_cw_iso <- get_all_cw_iso(date_start = date_start, date_end = date_end)
   data <- data |>
-    dplyr::mutate(cw_iso = paste0(lubridate::isoyear(!!rlang::sym(date_var)), "-",
-                                  lubridate::isoweek(!!rlang::sym(date_var))),
-                  cw_iso = factor(cw_iso, levels = all_cw_iso))
+    add_cw_iso(date_start = date_start, date_end = date_end, date_var = date_var)
+
 
   if (is.null(stratification)) {
     data_agg <- data %>%
