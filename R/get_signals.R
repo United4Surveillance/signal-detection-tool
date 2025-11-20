@@ -194,41 +194,6 @@ get_signals_stratified <- function(
     date_end <- max(data[[date_var]], na.rm = TRUE)
   }
 
-  # do parallel processing only if many strata to process
-  strata_lengths <- sapply(stratification_columns, function(category) {
-    length(unique(data[, category]))
-  })
-  if (sum(strata_lengths) > 90) {
-    # determine number of cores to use for parallel processing
-    n_cores <- parallel::detectCores() - 1
-    n_cores <- max(1, min(4, min(strata_lengths), n_cores)) # limit to max 4 cores to avoid overloading the system
-    cl <- parallel::makeCluster(n_cores)
-    parallel::clusterEvalQ(
-      cl = cl,
-      expr = {
-        library(dplyr)
-        library(lubridate)
-      }
-    )
-    parallel::clusterExport(
-      cl = cl,
-      varlist = c(
-        "data",
-        "date_var",
-        "date_start",
-        "date_end",
-        "number_of_weeks",
-        "fun",
-        "model",
-        "time_trend",
-        "intervention_date",
-        "aggregate_data",
-        'filter_by_date'
-      ),
-      envir = environment()
-    )
-  }
-
   # Loop through each category
   for (category in stratification_columns) {
     if (is.factor(data[, category])) {
@@ -268,8 +233,28 @@ get_signals_stratified <- function(
       dplyr::group_split(!!rlang::sym(category), .keep = FALSE)
     strata <- levels(sub_data[, category])
     names(split_list) <- strata
-    if (sum(strata_lengths) > 90) {
+
+    if (length(strata) > 90) {
       # Parallel version
+      n_cores <- parallel::detectCores() - 1
+      n_cores <- max(1, min(4, length(strata), n_cores)) # limit to max 4 cores to avoid overloading the system
+      cl <- parallel::makeCluster(n_cores)
+      parallel::clusterEvalQ(
+        cl = cl,
+        expr = {library(dplyr)}
+      )
+      parallel::clusterExport(
+        cl = cl,
+        varlist = c(
+          "split_list",
+          "number_of_weeks",
+          "fun",
+          "model",
+          "time_trend",
+          "intervention_date"
+        ),
+        envir = environment()
+      )
       category_result <- parallel::parLapplyLB(
         cl = cl,
         X = strata,
