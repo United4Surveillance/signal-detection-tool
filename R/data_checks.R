@@ -344,17 +344,17 @@ check_empty_rows <- function(data) {
   n <- nrow(data)
   if (n == 0L) return(FALSE)
 
-  # POSIXct -> character (wie im Original)
+  # POSIXct -> character (as in the original)
   is_posix <- vapply(data, lubridate::is.POSIXct, logical(1L))
   if (any(is_posix)) {
     data[is_posix] <- lapply(data[is_posix], as.character)
   }
 
-  # Für jede Spalte ein logischer Vektor: TRUE, wenn Feld "leer" ist (NA oder "")
+  # For each column a logical vector: TRUE if the field is "empty" (NA or "")
   is_empty_col <- function(x) {
-    # Faktoren und POSIXct (jetzt char) als character behandeln
+    # Treat factors and POSIXct (now char) as character
     if (is.factor(x)) x <- as.character(x)
-    # Bei Nicht-Character gibt es i. d. R. keine "", nur NA
+    # For non-character types there are usually no "", only NA
     if (is.character(x)) {
       is.na(x) | x == ""
     } else {
@@ -362,13 +362,12 @@ check_empty_rows <- function(data) {
     }
   }
 
-  # Ergebnis: Matrix nrow(data) x ncol(data)
+  # Result: matrix nrow(data) x ncol(data)
   empty_mat <- vapply(data, is_empty_col, logical(n))
 
-  # Mindestens eine Zeile, in der alle Spalten "leer" sind?
+  # At least one row in which all columns are "empty"?
   any(rowSums(empty_mat) == ncol(data))
 }
-
 
 #' Check whether the region and corresponding region_id columns only have one region name per ID
 #' @param data data.frame, raw linelist of surveillance cases

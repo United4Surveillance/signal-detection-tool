@@ -7,7 +7,7 @@
 app_server <- function(input, output, session) {
   # Your application server logic
   options(shiny.sanitize.errors = TRUE)
-  callModule(profvis::profvis_server, "profiler")
+
   # clear app_cache_env environment created in app_config.R where also DATA_CONFIG is saved and other paramseters after each closing of the app
   onStop(function() {
     rm(list = ls(envir = app_cache_env), envir = app_cache_env)
@@ -32,6 +32,7 @@ app_server <- function(input, output, session) {
     method = datinput$method,
     no_algorithm_possible = datinput$no_algorithm_possible,
     intervention_date = datinput$intervention_date,
+    pad_signals_choice = datinput$pad_signals_choice,
     min_cases_signals = datinput$min_cases_signals
   )
 

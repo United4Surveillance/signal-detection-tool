@@ -8,10 +8,6 @@ app_ui <- function(request) {
   # Leave this function for adding external resources
   shiny::tagList(
     golem_add_external_resources(),
-    tags$script(
-      src = "https://cdn.jsdelivr.net/gh/Appsilon/shiny.tictoc@v0.2.0/shiny-tic-toc.min.js"
-    ),
-    profvis::profvis_ui('profiler'),
     bslib::page_fluid(
       theme = bslib::bs_theme(
         "bslib_spacer" = "0.5rem",
