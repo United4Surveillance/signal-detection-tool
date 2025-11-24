@@ -234,7 +234,7 @@ get_signals_stratified <- function(
     strata <- levels(sub_data[, category])
     names(split_list) <- strata
 
-    if (length(strata) > 90) {
+    if (length(strata) > 100) {
       # Parallel version
       n_cores <- parallel::detectCores() - 1
       n_cores <- max(1, min(4, length(strata), n_cores)) # limit to max 4 cores to avoid overloading the system
@@ -255,7 +255,7 @@ get_signals_stratified <- function(
         ),
         envir = environment()
       )
-      category_result <- parallel::parLapplyLB(
+      category_result <- parallel::parLapply(
         cl = cl,
         X = strata,
         cat = category,
