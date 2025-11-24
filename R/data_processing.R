@@ -49,13 +49,19 @@ preprocess_data <- function(data) {
 
       # 4) Parse date columns specifically and efficiently
       dplyr::across(all_of(date_cols),
-                    ~ readr::parse_date(.x, format = "%Y-%m-%d", na = na_tokens)),
+                    ~ if (inherits(.x, "Date")) {
+                      .x
+                    } else {
+                      readr::parse_date(.x, format = "%Y-%m-%d", na = na_tokens)
+                    }
+                    ),
 
       # 5) Type adjustments / factorization
       dplyr::across(all_of(regional_id_vars), as.character),
       dplyr::across(all_of(yes_no_unknown_vars), ~ factor(.x, levels = lvl_ynu)),
       dplyr::across(all_of(factorization_vars), as.factor)
     )
+
 
   # add columns for isoyear and isoweek for each date
   data <- data %>%
