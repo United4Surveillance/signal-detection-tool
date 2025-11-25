@@ -113,8 +113,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 shiny::conditionalPanel(
                   condition = sprintf("output['%s'] == 'FALSE'", ns("algorithm_glm")),
                   checkboxInput(ns("pad_signals_choice"), "Show expectation and threshold for historic data (computation intensive)")
-                  )
                 )
+              )
             ),
             shiny::fluidRow(
               shiny::column(

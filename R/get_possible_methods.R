@@ -42,7 +42,6 @@ get_possible_methods <- function(data,
                                  date_var = "date_report",
                                  number_of_weeks = 6,
                                  past_weeks_not_included = 4) {
-
   min_date <- min(data[[date_var]], na.rm = TRUE)
   max_date <- max(data[[date_var]], na.rm = TRUE)
   max_date_fit <- max_date - lubridate::weeks(number_of_weeks + past_weeks_not_included)
@@ -59,8 +58,10 @@ get_possible_methods <- function(data,
     methods_possible <- algos[!algos %in% not_possible]
   } else if (number_of_weeks_available_fitting >= 2 * 52) {
     # All possible except FN and Harmonic with timetrend
-    not_possible <- c("glm farrington with timetrend", "glm farrington",
-                      "glm harmonic with timetrend")
+    not_possible <- c(
+      "glm farrington with timetrend", "glm farrington",
+      "glm harmonic with timetrend"
+    )
     methods_possible <- algos[!algos %in% not_possible]
   } else if (number_of_weeks_available_fitting >= (52 + 26)) {
     methods_possible <- algos[c("Mean", "CUSUM", "EARS", "FarringtonFlexible")]
@@ -75,5 +76,4 @@ get_possible_methods <- function(data,
   }
 
   methods_possible
-
 }

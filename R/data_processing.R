@@ -30,8 +30,8 @@ preprocess_data <- function(data) {
   data <- data %>%
     dplyr::filter_at(check_for_missing_values(), dplyr::all_vars(!is.na(.)))
 
-  na_tokens <- c("", "unknown", "NA", "na")  # cover both cases
-  lvl_ynu   <- unlist(yes_no_unknown_levels())
+  na_tokens <- c("", "unknown", "NA", "na") # cover both cases
+  lvl_ynu <- unlist(yes_no_unknown_levels())
 
   char_cols <- names(Filter(is.character, data))
   date_cols <- grep("^date", names(data), value = TRUE)
@@ -45,16 +45,20 @@ preprocess_data <- function(data) {
       dplyr::across(all_of(to_lower_vars), ~ tolower(.x)),
 
       # 3) Set missing values consistently (one pass instead of three na_if)
-      dplyr::across(all_of(char_cols), ~ { .x[.x %in% na_tokens] <- NA_character_; .x }),
+      dplyr::across(all_of(char_cols), ~ {
+        .x[.x %in% na_tokens] <- NA_character_
+        .x
+      }),
 
       # 4) Parse date columns specifically and efficiently
-      dplyr::across(all_of(date_cols),
-                    ~ if (inherits(.x, "Date")) {
-                      .x
-                    } else {
-                      readr::parse_date(.x, format = "%Y-%m-%d", na = na_tokens)
-                    }
-                    ),
+      dplyr::across(
+        all_of(date_cols),
+        ~ if (inherits(.x, "Date")) {
+          .x
+        } else {
+          readr::parse_date(.x, format = "%Y-%m-%d", na = na_tokens)
+        }
+      ),
 
       # 5) Type adjustments / factorization
       dplyr::across(all_of(regional_id_vars), as.character),
@@ -156,8 +160,10 @@ aggregate_data <- function(data,
   }
   data_agg |>
     tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "week")) |>
-    dplyr::mutate(year = as.numeric(year),
-                  week = as.numeric(week)) |>
+    dplyr::mutate(
+      year = as.numeric(year),
+      week = as.numeric(week)
+    ) |>
     dplyr::arrange(year, week) |>
     as.data.frame()
 }
@@ -293,8 +299,12 @@ add_cw_iso <- function(data,
   # add cw_iso (isoweeks) as factor levels
   all_cw_iso <- get_all_cw_iso(date_start = date_start, date_end = date_end)
   data <- data |>
-    dplyr::mutate(cw_iso = paste0(lubridate::isoyear(!!rlang::sym(date_var)), "-",
-                                  lubridate::isoweek(!!rlang::sym(date_var))),
-                  cw_iso = factor(cw_iso, levels = all_cw_iso))
+    dplyr::mutate(
+      cw_iso = paste0(
+        lubridate::isoyear(!!rlang::sym(date_var)), "-",
+        lubridate::isoweek(!!rlang::sym(date_var))
+      ),
+      cw_iso = factor(cw_iso, levels = all_cw_iso)
+    )
   data
 }
