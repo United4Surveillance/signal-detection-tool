@@ -329,8 +329,9 @@ complete_agegrp_arr <- function(df, format_check_results) {
 #' Ages are grouped into intervals of the form `"LL-UU"` or `"LL+"`, with
 #' lower and upper bounds zero-padded to two digits.
 #'
-#' @param df A data frame that must contain a column `age`. If `age_group`
-#'   already exists it will not be recomputed.
+#' @param df A data frame containing at least one of the columns `age` or
+#'   `age_group`. If `age_group` already exists, it is not recomputed but only
+#'   reformatted and its levels are completed.
 #' @param break_at An integer vector specifying additional lower bounds of
 #'   age groups (excluding 0, which is always used as the first lower bound).
 #'   If `NULL` (the default), 5-year age groups 00-04, 05-09, ..., 125+ are used.
