@@ -320,9 +320,23 @@ complete_agegrp_arr <- function(df, format_check_results) {
   return(all_agegrps)
 }
 
-#' Creates age grouping variable for a given data set
-#' @param df data frame on which the age grouping is created
-#' @param break_at integer that controls the length of the age groups
+#' Create age grouping variable for a given data set
+#'
+#' If `df$age_group` already exists, it is only reformatted and recoded as a
+#' factor with complete, ordered levels. Otherwise a new `age_group` variable
+#' is created based on `df$age`.
+#'
+#' Ages are grouped into intervals of the form `"LL-UU"` or `"LL+"`, with
+#' lower and upper bounds zero-padded to two digits.
+#'
+#' @param df A data frame that must contain a column `age`. If `age_group`
+#'   already exists it will not be recomputed.
+#' @param break_at An integer vector specifying additional lower bounds of
+#'   age groups (excluding 0, which is always used as the first lower bound).
+#'   If `NULL` (the default), 5-year age groups 00-04, 05-09, ..., 125+ are used.
+#'
+#' @return The input data frame `df` with a factor column `age_group` added
+#'   (or reformatted) and levels stored in `app_cache_env$age_group_levels`.
 #'
 #' @examples
 #' \dontrun{
@@ -330,10 +344,10 @@ complete_agegrp_arr <- function(df, format_check_results) {
 #' data <- read.csv(input_path, header = TRUE, sep = ",")
 #' data$age <- sample(1:125, 10, replace = TRUE)
 #' age_groups(data) # default age groups
-#' age_groups(data, c(15L, 35L, 65L, 100L)) # custom age groups
+#' age_groups(data, c(15L, 35L, 65L, 100L)) # custom age groups (lower bounds)
 #' }
 age_groups <- function(df, break_at = NULL) {
-  # Falls age_group schon existiert, nichts neu berechnen
+  # If age_group already exists, do not recompute it
   if (!("age_group" %in% names(df))) {
     # --- Checks -------------------------------------------------------------
     if (!checkmate::test_integerish(df$age)) {
@@ -352,38 +366,39 @@ age_groups <- function(df, break_at = NULL) {
       inner_breaks <- seq(5L, 125L, 5L)
     }
 
-    # set = alle Untergrenzen inkl. 0, wie vorher
+    # set = all lower bounds including 0, as before
     set <- c(0L, inner_breaks)
     n_int <- length(set)
 
-    # --- Labels vorbereiten (wie in Option 1, aber ohne cut()) -------------
+    # --- Prepare labels (as in option 1, but without cut()) -----------------
     lower <- set
-    upper <- c(set[-1L] - 1L, Inf) # letzte Gruppe offen
+    upper <- c(set[-1L] - 1L, Inf)      # last group is open-ended
+
 
     is_last <- is.infinite(upper)
     lower_chr <- sprintf("%02d", as.integer(lower))
 
     upper_chr <- character(n_int)
     upper_chr[!is_last] <- sprintf("%02d", as.integer(upper[!is_last]))
-    upper_chr[is_last] <- "+" # Platzhalter
+    upper_chr[is_last]  <- "+"          # placeholder
 
     labels <- character(n_int)
     labels[!is_last] <- paste(lower_chr[!is_last], upper_chr[!is_last], sep = "-")
     labels[is_last] <- paste0(lower_chr[is_last], "+")
 
-    # --- Gruppenzuordnung mit findInterval (vektorisiert) -------------------
+    # --- Assign groups with findInterval (vectorised) -----------------------
     age <- df$age
 
-    # Index des Intervalls: 0, 1, ..., n_int
+    # Index of the interval: 0, 1, ..., n_int
     idx <- findInterval(age, set, rightmost.closed = FALSE, all.inside = FALSE)
-    # NA in age -> NA in idx, das ist okay
+    # NA in age -> NA in idx, that's fine
 
-    # EXAKTES Nachbauen der Originalfunktion:
-    # Alle nicht-NA, die idx == 0 haben (also age < set[1]),
-    # werden der LETZTEN Gruppe zugeordnet.
+    # Exact reproduction of the original function:
+    # All non-NA values with idx == 0 (i.e. age < set[1])
+    # are assigned to the LAST group.
     idx[!is.na(idx) & idx == 0] <- n_int
 
-    # Jetzt Labels zuordnen
+    # Now assign labels
     age_group <- rep(NA_character_, length(age))
     not_na <- !is.na(idx)
     age_group[not_na] <- labels[idx[not_na]]
@@ -392,7 +407,7 @@ age_groups <- function(df, break_at = NULL) {
     df <- df %>% dplyr::relocate(age_group, .after = age)
   }
 
-  # --- Format-Checks wie gehabt --------------------------------------------
+  # --- Format checks as before ---------------------------------------------
   format_check_results <- age_format_check(df)
 
   if (length(format_check_results$format_agegrp_xx) > 0) {
@@ -415,8 +430,8 @@ age_groups <- function(df, break_at = NULL) {
   app_cache_env$age_group_levels <- stringr::str_sort(all_agegroups, numeric = TRUE)
 
   df$age_group <- factor(df$age_group,
-    levels = app_cache_env$age_group_levels
-  )
+                         levels = app_cache_env$age_group_levels
+                         )
 
   df
 }
