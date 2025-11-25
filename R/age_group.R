@@ -372,7 +372,7 @@ age_groups <- function(df, break_at = NULL) {
 
     # --- Prepare labels (as in option 1, but without cut()) -----------------
     lower <- set
-    upper <- c(set[-1L] - 1L, Inf)      # last group is open-ended
+    upper <- c(set[-1L] - 1L, Inf) # last group is open-ended
 
 
     is_last <- is.infinite(upper)
@@ -380,7 +380,7 @@ age_groups <- function(df, break_at = NULL) {
 
     upper_chr <- character(n_int)
     upper_chr[!is_last] <- sprintf("%02d", as.integer(upper[!is_last]))
-    upper_chr[is_last]  <- "+"          # placeholder
+    upper_chr[is_last] <- "+" # placeholder
 
     labels <- character(n_int)
     labels[!is_last] <- paste(lower_chr[!is_last], upper_chr[!is_last], sep = "-")
@@ -430,8 +430,8 @@ age_groups <- function(df, break_at = NULL) {
   app_cache_env$age_group_levels <- stringr::str_sort(all_agegroups, numeric = TRUE)
 
   df$age_group <- factor(df$age_group,
-                         levels = app_cache_env$age_group_levels
-                         )
+    levels = app_cache_env$age_group_levels
+  )
 
   df
 }
