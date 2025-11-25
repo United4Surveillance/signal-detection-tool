@@ -169,13 +169,15 @@ get_signals_stratified <- function(data,
 
     sub_data <- data %>%
       dplyr::mutate(
-        !!rlang::sym(category) := factor(!!rlang::sym(category), levels = strata))
+        !!rlang::sym(category) := factor(!!rlang::sym(category), levels = strata)
+      )
 
     # adding the NAs to also calculate signals for them
     if (any(is.na(data[, category]))) {
       sub_data <- sub_data |>
         dplyr::mutate(
-          !!rlang::sym(category) := forcats::fct_na_value_to_level(!!rlang::sym(category), level = "NA"))
+          !!rlang::sym(category) := forcats::fct_na_value_to_level(!!rlang::sym(category), level = "NA")
+        )
     }
     sub_data <- sub_data |>
       # filter the data
@@ -221,8 +223,9 @@ get_signals_stratified <- function(data,
         ))
       } else {
         # add information on stratification to results
-        if (stratum == "NA")
+        if (stratum == "NA") {
           stratum <- NA
+        }
         results <- results %>% dplyr::mutate(
           category = category, stratum = stratum
         )
@@ -558,7 +561,7 @@ pad_signals <- function(data,
     result_padding <- dplyr::bind_rows(
       result_padding_stratified,
       result_padding_unstratified
-      )
+    )
   }
 
   # preparing dataset within actual signal detection period

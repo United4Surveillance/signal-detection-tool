@@ -335,7 +335,6 @@ complete_agegrp_arr <- function(df, format_check_results) {
 age_groups <- function(df, break_at = NULL) {
   # Falls age_group schon existiert, nichts neu berechnen
   if (!("age_group" %in% names(df))) {
-
     # --- Checks -------------------------------------------------------------
     if (!checkmate::test_integerish(df$age)) {
       stop("Type of age is not integer")
@@ -359,18 +358,18 @@ age_groups <- function(df, break_at = NULL) {
 
     # --- Labels vorbereiten (wie in Option 1, aber ohne cut()) -------------
     lower <- set
-    upper <- c(set[-1L] - 1L, Inf)      # letzte Gruppe offen
+    upper <- c(set[-1L] - 1L, Inf) # letzte Gruppe offen
 
-    is_last  <- is.infinite(upper)
+    is_last <- is.infinite(upper)
     lower_chr <- sprintf("%02d", as.integer(lower))
 
     upper_chr <- character(n_int)
     upper_chr[!is_last] <- sprintf("%02d", as.integer(upper[!is_last]))
-    upper_chr[is_last]  <- "+"          # Platzhalter
+    upper_chr[is_last] <- "+" # Platzhalter
 
     labels <- character(n_int)
     labels[!is_last] <- paste(lower_chr[!is_last], upper_chr[!is_last], sep = "-")
-    labels[is_last]  <- paste0(lower_chr[is_last], "+")
+    labels[is_last] <- paste0(lower_chr[is_last], "+")
 
     # --- Gruppenzuordnung mit findInterval (vektorisiert) -------------------
     age <- df$age
@@ -416,7 +415,8 @@ age_groups <- function(df, break_at = NULL) {
   app_cache_env$age_group_levels <- stringr::str_sort(all_agegroups, numeric = TRUE)
 
   df$age_group <- factor(df$age_group,
-                         levels = app_cache_env$age_group_levels)
+    levels = app_cache_env$age_group_levels
+  )
 
   df
 }

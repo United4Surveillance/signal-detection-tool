@@ -46,8 +46,8 @@ mod_tabpanel_signals_server <- function(
   no_algorithm_possible,
   intervention_date,
   pad_signals_choice,
-  min_cases_signals) {
-
+  min_cases_signals
+) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -310,7 +310,7 @@ mod_tabpanel_signals_server <- function(
       if (grepl("glm", method())) {
         # for those the results are already padded
         signal_results()
-      } else if (isTRUE(pad_signals_choice())){
+      } else if (isTRUE(pad_signals_choice())) {
         pad_signals(filtered_data(), signal_results())
       } else {
         signal_results() %>% dplyr::mutate(upperbound_pad = NA_real_, expected_pad = NA_real_)

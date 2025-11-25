@@ -11,7 +11,6 @@
 #' create_fn_data(100)
 #' }
 create_fn_data <- function(ts_length, freq = 52.25) {
-
   noPeriods <- 10
 
   breaks <- seq(0, freq, length.out = noPeriods + 1)
@@ -415,5 +414,3 @@ get_valid_dates_intervention_start <- function(data,
 
   return(list(valid_start_date = min_date_plus_delay, valid_end_date = max_date_minus_delay, default_intervention = default_intervention))
 }
-
-

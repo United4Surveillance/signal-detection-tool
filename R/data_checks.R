@@ -342,7 +342,9 @@ get_missing_data <- function(data) {
 #' @returns boolean, TRUE when there was an empty row inside the data, FALSE when no empty rows
 check_empty_rows <- function(data) {
   n <- nrow(data)
-  if (n == 0L) return(FALSE)
+  if (n == 0L) {
+    return(FALSE)
+  }
 
   # POSIXct -> character (as in the original)
   is_posix <- vapply(data, lubridate::is.POSIXct, logical(1L))
@@ -490,7 +492,6 @@ remove_empty_columns <- function(data) {
   keep <- !vapply(data, is_empty_column, logical(1L))
   data[keep]
 }
-
 
 
 #' Helper to check that values of a character variable are in given levels
