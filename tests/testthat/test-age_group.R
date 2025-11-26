@@ -184,4 +184,3 @@ test_that("break_at must be sorted integer vector", {
     age_groups(df, break_at = c(5L, 10L, 20L))
   )
 })
-
