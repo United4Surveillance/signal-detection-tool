@@ -36,8 +36,6 @@
 get_possible_methods <- function(min_date,
                                  max_date,
                                  number_of_weeks = 6) {
-
-
   checkmate::check_date(min_date)
   checkmate::check_date(max_date)
 

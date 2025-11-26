@@ -131,8 +131,7 @@ get_intervention_timepoint <- function(date, data_aggregated) {
 #' @param date_var A character string specifying the name of the date variable in \code{data}.
 #'        Default is \code{"date_report"}.
 #' @return list with Dates, the minimum and maximum dates of the linelist
-get_min_max_date <- function(data, date_var = "date_report"){
-
+get_min_max_date <- function(data, date_var = "date_report") {
   min_date <- min(data[[date_var]], na.rm = TRUE)
   max_date <- max(data[[date_var]], na.rm = TRUE)
 
@@ -145,6 +144,8 @@ get_min_max_date <- function(data, date_var = "date_report"){
     max_date <- as.Date(max_date)
   }
 
-  return(list(min_date = min_date,
-              max_date = max_date))
+  return(list(
+    min_date = min_date,
+    max_date = max_date
+  ))
 }
