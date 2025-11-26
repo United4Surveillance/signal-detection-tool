@@ -404,7 +404,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         return(NULL)
       }
       # compute based on the data when which algorithms are possible
-      algorithms_working <- get_possible_methods(filtered_data(), number_of_weeks = input$n_weeks)
+      min_max_date <- get_min_max_date(filtered_data())
+      algorithms_working <- get_possible_methods(min_max_date[["min_date"]],min_max_date[["max_date"]], number_of_weeks = input$n_weeks)
 
       algorithms_working_named <- available_algorithms()[unlist(available_algorithms()) %in% algorithms_working]
 

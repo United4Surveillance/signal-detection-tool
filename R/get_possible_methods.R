@@ -3,25 +3,20 @@
 #' This function identifies which algorithms can be applied for outbreak detection
 #' depending on the number of weeks available for model fitting. The selection is
 #' based on the minimum and maximum dates in the dataset and the specified parameters
-#' for fitting and excluded past weeks.
+#' for fitting.
 #'
 #' The method selection criteria are:
 #' - If 4 years (208 weeks) or more of data are available: All  methods are possible.
-#' - If 3 to 4 years (156 to 208 weeks) of data are available: All methods except "glm farrington" and "glm farrington with timetrend" are possible.
-#' - If 2 to 3 years (104 to 156 weeks) of data are available: Same methods as above except for "glm harmonic with timetrend".
-#' - If 1.5 to 2 years (78 to 104 weeks) of data are available: Mean, CUSUM, Ears and FlexibleFarrington are possible.
-#' - If 26 weeks to 1.5 years (26 to 78 weeks) of data are available: Mean, CUSUM and Ears are possible.
-#' - If 7 weeks to 26 weeks of data is available: Mean and CUSUM are available.
-#' - If 1 week to 7 weeks are available: CUSUM is available.
+#' - If at least 3 of historic data are available: All methods except "glm farrington" and "glm farrington with timetrend" are possible.
+#' - If at least 2 years of historic data are available: Same methods as above except for "glm harmonic with timetrend".
+#' - If at least 26 weeks of historic data are available: Mean, CUSUM and Ears are possible.
+#' - If at least 7 weeks of historic data is available: Mean and CUSUM are available.
+#' - If at least 1 week of historic data is available: CUSUM is possible.
 #' - If no training data is availble `NULL` is returned
-#'
-#' @param data A \code{data.frame} containing the case linelist.
-#' @param date_var A character string specifying the name of the date variable in \code{data}.
-#'        Default is \code{"date_report"}.
+#' @param min_date Date, minimum date in the time series used for fitting a model
+#' @param max_date Date, maximum date in the time series used for fitting a model
 #' @param number_of_weeks Integer, number of weeks to include for model fitting.
 #'        Default is \code{6}.
-#' @param past_weeks_not_included Integer, number of recent weeks to exclude from fitting.
-#'        Default is \code{4}.
 #'
 #' @details The function calculates the number of weeks available for fitting and
 #' selects appropriate algorithms based on that. The more historical data available,
@@ -37,15 +32,19 @@
 #' }
 #'
 #' @seealso \code{\link{available_algorithms}}
+#' @export
+get_possible_methods <- function(min_date,
+                                 max_date,
+                                 number_of_weeks = 6) {
 
-get_possible_methods <- function(data,
-                                 date_var = "date_report",
-                                 number_of_weeks = 6,
-                                 past_weeks_not_included = 4) {
-  min_date <- min(data[[date_var]], na.rm = TRUE)
-  max_date <- max(data[[date_var]], na.rm = TRUE)
-  max_date_fit <- max_date - lubridate::weeks(number_of_weeks + past_weeks_not_included)
-  number_of_weeks_available_fitting <- as.numeric(difftime(max_date_fit, min_date, units = "weeks"))
+
+  checkmate::check_date(min_date)
+  checkmate::check_date(max_date)
+
+  max_date_fit <- max_date - lubridate::weeks(number_of_weeks)
+  # we subtract 1 day because otherwise the time difference between the dates is computed and e.g. difftime("2020-01-08","2020-01-01", units = "weeks) gives 1 week we want to count end and start date in as well thus the number of days for this example is 8
+  # furthermore result is rounded to the next integer as e.g. 1.3 weeks are 2 weeks in the aggregation
+  number_of_weeks_available_fitting <- ceiling(as.numeric(difftime(max_date_fit, min_date - lubridate::days(1), units = "weeks")))
 
   algos <- available_algorithms()
 
@@ -63,8 +62,6 @@ get_possible_methods <- function(data,
       "glm harmonic with timetrend"
     )
     methods_possible <- algos[!algos %in% not_possible]
-  } else if (number_of_weeks_available_fitting >= (52 + 26)) {
-    methods_possible <- algos[c("Mean", "CUSUM", "EARS", "FarringtonFlexible")]
   } else if (number_of_weeks_available_fitting >= 26) {
     methods_possible <- algos[c("Mean", "CUSUM", "EARS")]
   } else if (number_of_weeks_available_fitting >= 7) {

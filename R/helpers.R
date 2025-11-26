@@ -125,3 +125,26 @@ get_intervention_timepoint <- function(date, data_aggregated) {
   iso_week_year <- get_iso_week_year(date)
   which(data_aggregated$year == iso_week_year$iso_year & data_aggregated$week == iso_week_year$iso_week)
 }
+
+#' Get minimum and maximum date in the linelist
+#' @param data A \code{data.frame} containing the case linelist.
+#' @param date_var A character string specifying the name of the date variable in \code{data}.
+#'        Default is \code{"date_report"}.
+#' @return list with Dates, the minimum and maximum dates of the linelist
+get_min_max_date <- function(data, date_var = "date_report"){
+
+  min_date <- min(data[[date_var]], na.rm = TRUE)
+  max_date <- max(data[[date_var]], na.rm = TRUE)
+
+  # Convert to Date if needed
+  if (!inherits(min_date, "Date")) {
+    min_date <- as.Date(min_date)
+  }
+
+  if (!inherits(max_date, "Date")) {
+    max_date <- as.Date(max_date)
+  }
+
+  return(list(min_date = min_date,
+              max_date = max_date))
+}
