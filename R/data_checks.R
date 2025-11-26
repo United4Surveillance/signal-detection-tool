@@ -358,7 +358,7 @@ check_empty_rows <- function(data) {
     if (is.factor(x)) x <- as.character(x)
     # For non-character types there are usually no "", only NA
     if (is.character(x)) {
-      is.na(x) | x == ""
+      is.na(x) | x == "" | x == "NA"
     } else {
       is.na(x)
     }
@@ -483,7 +483,7 @@ remove_empty_columns <- function(data) {
     if (is.factor(x)) x <- as.character(x)
 
     if (is.character(x)) {
-      all(is.na(x) | x == "")
+      all(is.na(x) | x == "" | x == "NA")
     } else {
       all(is.na(x))
     }
