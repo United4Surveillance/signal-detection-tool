@@ -4,24 +4,15 @@
 \alias{get_possible_methods}
 \title{Determine Possible Outbreak Detection Methods Based on Available Data}
 \usage{
-get_possible_methods(
-  data,
-  date_var = "date_report",
-  number_of_weeks = 6,
-  past_weeks_not_included = 4
-)
+get_possible_methods(min_date, max_date, number_of_weeks = 6)
 }
 \arguments{
-\item{data}{A \code{data.frame} containing the case linelist.}
+\item{min_date}{Date, minimum date in the time series used for fitting a model}
 
-\item{date_var}{A character string specifying the name of the date variable in \code{data}.
-Default is \code{"date_report"}.}
+\item{max_date}{Date, maximum date in the time series used for fitting a model}
 
 \item{number_of_weeks}{Integer, number of weeks to include for model fitting.
 Default is \code{6}.}
-
-\item{past_weeks_not_included}{Integer, number of recent weeks to exclude from fitting.
-Default is \code{4}.}
 }
 \value{
 A character vector of possible algorithm names. Returns \code{NULL} if
@@ -31,17 +22,16 @@ A character vector of possible algorithm names. Returns \code{NULL} if
 This function identifies which algorithms can be applied for outbreak detection
 depending on the number of weeks available for model fitting. The selection is
 based on the minimum and maximum dates in the dataset and the specified parameters
-for fitting and excluded past weeks.
+for fitting.
 }
 \details{
 The method selection criteria are:
 - If 4 years (208 weeks) or more of data are available: All  methods are possible.
-- If 3 to 4 years (156 to 208 weeks) of data are available: All methods except "glm farrington" and "glm farrington with timetrend" are possible.
-- If 2 to 3 years (104 to 156 weeks) of data are available: Same methods as above except for "glm harmonic with timetrend".
-- If 1.5 to 2 years (78 to 104 weeks) of data are available: Mean, CUSUM, Ears and FlexibleFarrington are possible.
-- If 26 weeks to 1.5 years (26 to 78 weeks) of data are available: Mean, CUSUM and Ears are possible.
-- If 7 weeks to 26 weeks of data is available: Mean and CUSUM are available.
-- If 1 week to 7 weeks are available: CUSUM is available.
+- If at least 3 of historic data are available: All methods except "glm farrington" and "glm farrington with timetrend" are possible.
+- If at least 2 years of historic data are available: Same methods as above except for "glm harmonic with timetrend".
+- If at least 26 weeks of historic data are available: Mean, CUSUM and Ears are possible.
+- If at least 7 weeks of historic data is available: Mean and CUSUM are available.
+- If at least 1 week of historic data is available: CUSUM is possible.
 - If no training data is availble `NULL` is returned
 
 The function calculates the number of weeks available for fitting and
