@@ -1,37 +1,71 @@
-#' Determine Possible Outbreak Detection Methods Based on Available Data
+#' Determine Possible Outbreak Detection Methods Based on Available Historic Data
 #'
 #' This function identifies which algorithms can be applied for outbreak detection
-#' depending on the number of weeks available for model fitting. The selection is
-#' based on the minimum and maximum dates in the dataset and the specified parameters
-#' for fitting.
+#' depending on the amount of historic data available for model fitting. The
+#' decision is based on the minimum and maximum dates of the time series and the
+#' number of weeks reserved at the end of the series (e.g. for current detection).
 #'
-#' The method selection criteria are:
-#' - If 4 years (208 weeks) or more of data are available: All  methods are possible.
-#' - If at least 3 of historic data are available: All methods except "glm farrington" and "glm farrington with timetrend" are possible.
-#' - If at least 2 years of historic data are available: Same methods as above except for "glm harmonic with timetrend".
-#' - If at least 26 weeks of historic data are available: Mean, CUSUM and Ears are possible.
-#' - If at least 7 weeks of historic data is available: Mean and CUSUM are available.
-#' - If at least 1 week of historic data is available: CUSUM is possible.
-#' - If no training data is availble `NULL` is returned
-#' @param min_date Date, minimum date in the time series used for fitting a model
-#' @param max_date Date, maximum date in the time series used for fitting a model
-#' @param number_of_weeks Integer, number of weeks to include for model fitting.
-#'        Default is \code{6}.
+#' Historic data is defined as the period from \code{min_date} to
+#' \code{max_date - number_of_weeks}. The number of available weeks is computed
+#' on this interval, counting partial weeks as full weeks to match the weekly
+#' aggregation used by the algorithms.
 #'
-#' @details The function calculates the number of weeks available for fitting and
-#' selects appropriate algorithms based on that. The more historical data available,
-#' the more complex models can be used.
+#' The method selection criteria are approximately:
+#' \itemize{
+#'   \item If 4 years (about 208 weeks) or more of historic data are available:
+#'         all methods are possible.
+#'   \item If 3 to <4 years (about 156 to <208 weeks) of historic data are
+#'         available: all methods except \code{"glm farrington"} and
+#'         \code{"glm farrington with timetrend"} are possible.
+#'   \item If 2 to <3 years (about 104 to <156 weeks) of historic data are
+#'         available: all methods except \code{"glm farrington"},
+#'         \code{"glm farrington with timetrend"} and
+#'         \code{"glm harmonic with timetrend"} are possible.
+#'   \item If 26 to <104 weeks of historic data are available:
+#'         \code{"Mean"}, \code{"CUSUM"} and \code{"EARS"} are possible.
+#'   \item If 7 to <26 weeks of historic data are available:
+#'         \code{"Mean"} and \code{"CUSUM"} are possible.
+#'   \item If 1 to <7 weeks of historic data are available:
+#'         \code{"CUSUM"} is possible.
+#'   \item If no training data is available (less than 1 week),
+#'         \code{NULL} is returned.
+#' }
 #'
-#' @return A character vector of possible algorithm names. Returns \code{NULL} if
-#'         no method is applicable.
+#' @param min_date A \code{Date} object, the minimum date in the time series
+#'   used for fitting a model.
+#' @param max_date A \code{Date} object, the maximum date in the time series
+#'   used for fitting a model.
+#' @param number_of_weeks Integer. Number of weeks at the end of the time series
+#'   that are reserved for detection / monitoring and therefore not counted as
+#'   historic data for model fitting. Default is \code{6}.
+#'
+#' @details
+#' The function computes
+#' \code{max_date_fit = max_date - number_of_weeks} and then calculates the
+#' number of weeks between \code{min_date} and \code{max_date_fit}. Partial
+#' weeks are counted as full weeks to align with the weekly aggregation of the
+#' data. Based on this number of historic weeks, suitable algorithms are
+#' selected using \code{\link{available_algorithms}}.
+#'
+#' @return A character vector of possible algorithm names. Returns \code{NULL}
+#'   if no method is applicable.
 #'
 #' @examples
 #' \dontrun{
-#' data <- data.frame(date_report = seq.Date(Sys.Date() - 500, Sys.Date(), by = "week"))
-#' get_possible_methods(data)
+#' data <- data.frame(
+#'   date_report = seq.Date(Sys.Date() - 500, Sys.Date(), by = "day")
+#' )
+#'
+#' mm <- get_min_max_date(data, date_var = "date_report")
+#'
+#' get_possible_methods(
+#'   min_date = mm$min_date,
+#'   max_date = mm$max_date,
+#'   number_of_weeks = 6
+#' )
 #' }
 #'
-#' @seealso \code{\link{available_algorithms}}
+#' @seealso \code{\link{available_algorithms}}, \code{\link{get_min_max_date}}
 #' @export
 get_possible_methods <- function(min_date,
                                  max_date,

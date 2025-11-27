@@ -50,14 +50,6 @@ cusum_with_reset(
                 }
               }
               \item{\code{alpha}}{parameter of the negative binomial distribution, s.t. the variance is \eqn{m+\alpha *m^2} }
-              \item{\code{reset}}{
-                logical: Should the CUSUM statistic be reset to 0
-                immediately after an alarm? This is the traditional form
-                of the chart as used in industrial process control,
-                but not the default choice in outbreak detection when
-                continuous periods of abnormal disease activity should
-                be flagged.
-              }
         }
       }
 
