@@ -4,7 +4,7 @@
 \alias{create_fn_data}
 \title{Create a data.frame with 10 seasgroups components for harmonic modeling.}
 \usage{
-create_fn_data(ts_length, freq = 52)
+create_fn_data(ts_length, freq = 52.25)
 }
 \arguments{
 \item{ts_length}{integer, specifying the length of the time series for which the seasonal group data is to be generated.}

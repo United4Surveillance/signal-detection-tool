@@ -1,46 +1,6 @@
 # This file should include all relevant helper functions required to run the actual signal detection tool
 # Feel free to complete the file
 
-#' Finds correct age interval for given age
-#' @param age integer age in years
-#' @param x vector of age group break points
-#'
-#' @examples
-#' \dontrun{
-#' find_age_group(5, c(0, 5, 10, 99)) # would result in "05-09"
-#' find_age_group(12, c(0, 5, 15, 99)) # would result in "05-14"
-#' find_age_group(NA, c(0, 5, 15, 99)) # would result in NA
-#' }
-find_age_group <- function(age, x) {
-  intervals <- length(x) # number of age groups
-
-  for (i in 1:intervals) { # finding interval in which age lies
-    if (i == intervals) { # check if last age group
-      group <- paste0(x[i], "+")
-      return(group)
-    }
-    if (is.na(age)) {
-      group <- NA_character_
-      return(group)
-    } else {
-      if ((x[i] <= age) & (age < x[i + 1])) {
-        if (age < 10 | x[i] < 10) { # zero padding
-          group <- paste(paste0(0, x[i]),
-            ifelse(x[i + 1] - 1 < 10,
-              paste0(0, x[i + 1] - 1),
-              x[i + 1] - 1
-            ),
-            sep = "-"
-          )
-          return(group)
-        } else {
-          group <- paste(x[i], x[i + 1] - 1, sep = "-")
-          return(group)
-        }
-      }
-    }
-  }
-}
 
 #' Creation of age_group levels from different formats of the age_group column
 #'
@@ -360,9 +320,24 @@ complete_agegrp_arr <- function(df, format_check_results) {
   return(all_agegrps)
 }
 
-#' Creates age grouping variable for a given data set
-#' @param df data frame on which the age grouping is created
-#' @param break_at integer that controls the length of the age groups
+#' Create age grouping variable for a given data set
+#'
+#' If `df$age_group` already exists, it is only reformatted and recoded as a
+#' factor with complete, ordered levels. Otherwise a new `age_group` variable
+#' is created based on `df$age`.
+#'
+#' Ages are grouped into intervals of the form `"LL-UU"` or `"LL+"`, with
+#' lower and upper bounds zero-padded to two digits.
+#'
+#' @param df A data frame containing at least one of the columns `age` or
+#'   `age_group`. If `age_group` already exists, it is not recomputed but only
+#'   reformatted and its levels are completed.
+#' @param break_at An integer vector specifying additional lower bounds of
+#'   age groups (excluding 0, which is always used as the first lower bound).
+#'   If `NULL` (the default), 5-year age groups 00-04, 05-09, ..., 125+ are used.
+#'
+#' @return The input data frame `df` with a factor column `age_group` added
+#'   (or reformatted) and levels stored in `app_cache_env$age_group_levels`.
 #'
 #' @examples
 #' \dontrun{
@@ -370,74 +345,94 @@ complete_agegrp_arr <- function(df, format_check_results) {
 #' data <- read.csv(input_path, header = TRUE, sep = ",")
 #' data$age <- sample(1:125, 10, replace = TRUE)
 #' age_groups(data) # default age groups
-#' age_groups(data, c(15L, 35L, 65L, 100L)) # custom age groups
+#' age_groups(data, c(15L, 35L, 65L, 100L)) # custom age groups (lower bounds)
 #' }
 age_groups <- function(df, break_at = NULL) {
-  # error checking ----------------------------------------------------------
-
-  # check whether age_groups already exist
-  if (!("age_group" %in% colnames(df))) {
-    # if age_group doesn't exist, create it from age
-    if (!is.null(break_at)) { # check for non integer values
-      if (!(is.integer(break_at))) {
-        stop("Input of integer type is only allowed")
-      }
-
-      var <- length(break_at) # helper vector
-      for (i in 1:(var - 1)) { # check if break points are ordered
-        if (break_at[i + 1] < break_at[i]) {
-          stop("Invalid break points")
-        }
-      }
-    }
-
-    # setting up age groups ---------------------------------------------------
-    default_break_at <- seq(5, 125, 5)
-
-    if (is.null(break_at)) { # use default age groups
-      set <- c(0, default_break_at) # helper vector
-    } else { # use custom age groups
-      set <- c(0, break_at)
-    }
-
-    if (!checkmate::test_integerish(df$age)) { # check for integer, it is sufficient that they are whole numbers does not need to be of type integer, i.e. is.integer(3) would give FALSE
+  # If age_group already exists, do not recompute it
+  if (!("age_group" %in% names(df))) {
+    # --- Checks -------------------------------------------------------------
+    if (!checkmate::test_integerish(df$age)) {
       stop("Type of age is not integer")
     }
 
-    # assigning age group  ----------------------------------------------------
-    for (i in 1:nrow(df)) { # assign age group to every age in data frame
-      df$age_group[i] <- find_age_group(df$age[i], set)
+    if (!is.null(break_at)) {
+      if (!is.integer(break_at)) {
+        stop("Input of integer type is only allowed")
+      }
+      if (is.unsorted(break_at, strictly = TRUE)) {
+        stop("Invalid break points")
+      }
+      inner_breaks <- break_at
+    } else {
+      inner_breaks <- seq(5L, 125L, 5L)
     }
 
-    # move age_group to correct position
+    # set = all lower bounds including 0, as before
+    set <- c(0L, inner_breaks)
+    n_int <- length(set)
+
+    # --- Prepare labels (as in option 1, but without cut()) -----------------
+    lower <- set
+    upper <- c(set[-1L] - 1L, Inf) # last group is open-ended
+
+
+    is_last <- is.infinite(upper)
+    lower_chr <- sprintf("%02d", as.integer(lower))
+
+    upper_chr <- character(n_int)
+    upper_chr[!is_last] <- sprintf("%02d", as.integer(upper[!is_last]))
+    upper_chr[is_last] <- "+" # placeholder
+
+    labels <- character(n_int)
+    labels[!is_last] <- paste(lower_chr[!is_last], upper_chr[!is_last], sep = "-")
+    labels[is_last] <- paste0(lower_chr[is_last], "+")
+
+    # --- Assign groups with findInterval (vectorised) -----------------------
+    age <- df$age
+
+    # Index of the interval: 0, 1, ..., n_int
+    idx <- findInterval(age, set, rightmost.closed = FALSE, all.inside = FALSE)
+    # NA in age -> NA in idx, that's fine
+
+    # Exact reproduction of the original function:
+    # All non-NA values with idx == 0 (i.e. age < set[1])
+    # are assigned to the LAST group.
+    idx[!is.na(idx) & idx == 0] <- n_int
+
+    # Now assign labels
+    age_group <- rep(NA_character_, length(age))
+    not_na <- !is.na(idx)
+    age_group[not_na] <- labels[idx[not_na]]
+
+    df$age_group <- age_group
     df <- df %>% dplyr::relocate(age_group, .after = age)
   }
 
-  # conducting format enquires
+  # --- Format checks as before ---------------------------------------------
   format_check_results <- age_format_check(df)
 
-  # if not the correct xx-xx format is used, insert leading 0's where necesary
   if (length(format_check_results$format_agegrp_xx) > 0) {
-    splits <- stringr::str_split_fixed(as.character(df$age_group), format_check_results$agegrp_div, 2)
+    splits <- stringr::str_split_fixed(
+      as.character(df$age_group),
+      format_check_results$agegrp_div,
+      2
+    )
 
-    for (item in format_check_results$format_agegrp_xx) {
-      df$age_group[item] <- paste0(
-        sprintf("%02d", as.numeric(splits[item, 1])),
-        format_check_results$agegrp_div,
-        sprintf("%02d", as.numeric(splits[item, 2]))
-      )
-    }
+    idx_fix <- format_check_results$format_agegrp_xx
+
+    df$age_group[idx_fix] <- paste0(
+      sprintf("%02d", as.numeric(splits[idx_fix, 1])),
+      format_check_results$agegrp_div,
+      sprintf("%02d", as.numeric(splits[idx_fix, 2]))
+    )
   }
 
   all_agegroups <- complete_agegrp_arr(df, format_check_results)
-
-  # store the age groups in the environment
   app_cache_env$age_group_levels <- stringr::str_sort(all_agegroups, numeric = TRUE)
 
-  # converting age_group to factor ------------------------------------------
   df$age_group <- factor(df$age_group,
     levels = app_cache_env$age_group_levels
   )
 
-  return(df)
+  df
 }

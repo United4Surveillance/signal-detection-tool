@@ -107,6 +107,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                   )
                 ),
                 shiny::uiOutput(ns("conditional_date_input"))
+              ),
+              shiny::column(
+                width = 12,
+                shiny::conditionalPanel(
+                  condition = sprintf("output['%s'] == 'FALSE'", ns("algorithm_glm")),
+                  checkboxInput(ns("pad_signals_choice"), "Show expectation and threshold for historic data (computation intensive)")
+                )
               )
             ),
             shiny::fluidRow(
@@ -163,7 +170,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       message = "This input is required to be able to choose a signal detection algorithm."
     ))
     iv_weeks$add_rule("n_weeks", shinyvalidate::sv_integer())
-    iv_weeks$add_rule("n_weeks", shinyvalidate::sv_between(1, 52))
+    iv_weeks$add_rule("n_weeks", shinyvalidate::sv_between(1, 12))
     iv_weeks$enable()
 
     iv_min_cases <- shinyvalidate::InputValidator$new()
@@ -396,19 +403,10 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       if (nrow(filtered_data()) < 1) {
         return(NULL)
       }
-      signals_cusum_ears_farr <- dplyr::bind_rows(purrr::map(c("farrington", "ears", "cusum"), function(algorithm) {
-        signals <- get_signals(filtered_data(),
-          method = algorithm,
-          number_of_weeks = input$n_weeks
-        )
-        if (!is.null(signals)) {
-          signals <- signals %>% dplyr::mutate(method = algorithm)
-        }
-      }))
-      # for the glm based algorithms we can compute based on the data when which algorithms are possible
-      glm_methods_possible <- get_possible_glm_methods(filtered_data(), number_of_weeks = input$n_weeks)
+      # compute based on the data when which algorithms are possible
+      min_max_date <- get_min_max_date(filtered_data())
+      algorithms_working <- get_possible_methods(min_max_date[["min_date"]], min_max_date[["max_date"]], number_of_weeks = input$n_weeks)
 
-      algorithms_working <- c(glm_methods_possible, unique(signals_cusum_ears_farr$method))
       algorithms_working_named <- available_algorithms()[unlist(available_algorithms()) %in% algorithms_working]
 
 
@@ -554,6 +552,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       method = shiny::reactive(input$algorithm_choice),
       no_algorithm_possible = shiny::reactive(no_algorithm_possible()),
       intervention_date = shiny::reactive(intervention_date()),
+      pad_signals_choice = shiny::reactive(input$pad_signals_choice),
       min_cases_signals = shiny::reactive(input$min_cases_signals)
     ))
   })

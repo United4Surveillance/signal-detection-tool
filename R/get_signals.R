@@ -162,32 +162,42 @@ get_signals_stratified <- function(data,
   # Loop through each category
   for (category in stratification_columns) {
     if (is.factor(data[, category])) {
-      # adding the NAs to also calculate signals for them
-      strata <- levels(droplevels(addNA(data[, category], ifany = TRUE)))
+      strata <- levels(droplevels(data[, category]))
     } else {
       strata <- unique(data[, category]) # character is supported as well
     }
 
+    sub_data <- data %>%
+      dplyr::mutate(
+        !!rlang::sym(category) := factor(!!rlang::sym(category), levels = strata)
+      )
+
+    # adding the NAs to also calculate signals for them
+    if (any(is.na(data[, category]))) {
+      sub_data <- sub_data |>
+        dplyr::mutate(
+          !!rlang::sym(category) := forcats::fct_na_value_to_level(!!rlang::sym(category), level = "NA")
+        )
+    }
+    sub_data <- sub_data |>
+      # filter the data
+      filter_by_date(date_var = date_var, date_start = date_start, date_end = date_end) %>%
+      # aggregate data
+      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, group = category)
+
+    split_list <- sub_data %>%
+      dplyr::group_split(!!rlang::sym(category), .keep = FALSE)
+    strata <- levels(sub_data[, category])
+    names(split_list) <- strata
+
     # iterate over all strata and run algorithm
     for (stratum in strata) {
       i <- i + 1
-      # when stratum is NA filter needs to be done differently otherwise the NA stratum is lost
-      if (is.na(stratum)) {
-        sub_data <- data %>% dplyr::filter(is.na(.data[[category]]))
-      } else {
-        sub_data <- data %>% dplyr::filter(.data[[category]] == stratum)
-      }
-
-      sub_data_agg <- sub_data %>%
-        # filter the data
-
-        filter_by_date(date_var = date_var, date_start = date_start, date_end = date_end) %>%
-        # aggregate data
-        aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end)
-
-
-      # run selected algorithm
-      if (nrow(sub_data) == 0) {
+      sub_data_agg <- split_list[[stratum]]
+      # are there cases in the test period?
+      n_cases <- sum(sub_data_agg %>% dplyr::slice_tail(n = number_of_weeks) %>% dplyr::select(cases))
+      # run selected algorithm if there are cases
+      if (n_cases == 0) {
         # don't run algorithm on those strata with 0 cases created by factors
         results <- sub_data_agg %>%
           # set alarms to FALSE for the timeperiod signals are generated for in the other present levels
@@ -213,6 +223,9 @@ get_signals_stratified <- function(data,
         ))
       } else {
         # add information on stratification to results
+        if (stratum == "NA") {
+          stratum <- NA
+        }
         results <- results %>% dplyr::mutate(
           category = category, stratum = stratum
         )
@@ -334,6 +347,10 @@ get_signals <- function(data,
       time_trend <- TRUE
     }
   }
+
+  data <- data |>
+    add_cw_iso(date_start = date_start, date_end = date_end, date_var = date_var)
+
 
   if (is.null(stratification)) {
     data_agg <- data %>%
@@ -493,17 +510,27 @@ pad_signals <- function(data,
     unique(signals$category)[!is.na(unique(signals$category))]
   }
 
+  # data_signals <- signals |>
+  #   dplyr::filter(!is.na(alarms)) |>
+  #   dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
+
+
   number_of_weeks <- unique(signals$number_of_weeks)
   method <- unique(signals$method)
 
   stopifnot(length(number_of_weeks) == 1)
   stopifnot(length(method) == 1)
 
+  cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(number_of_weeks)
+
+  data_no_signals <- data |>
+    dplyr::filter(date_report <= cutoff_date)
+
   available_thresholds <- c(26, 20, 14, 8, 2)
   for (timeopt in available_thresholds) {
     max_time_opt <- timeopt
     signals_timeopt <- get_signals(
-      data,
+      data_no_signals,
       method = method,
       number_of_weeks = timeopt + number_of_weeks
     )
@@ -513,8 +540,7 @@ pad_signals <- function(data,
   }
 
   result_padding_unstratified <- signals_timeopt %>%
-    dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected) %>%
-    head(n = -(number_of_weeks - 1))
+    dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
 
   # preparing dataset with padding
   if (is.null(stratification)) {
@@ -542,6 +568,7 @@ pad_signals <- function(data,
   results <- signals %>%
     dplyr::arrange(category, stratum, year, week) %>%
     dplyr::left_join(x = ., y = result_padding, by = c("category", "stratum", "year", "week"))
+
 
   # adjusting padding that the first upperbound which is calculated in the signals is set to the last upperbound padding such that no jump in the visualisation occurs
   results <- results %>%
