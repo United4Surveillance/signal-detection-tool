@@ -57,9 +57,12 @@ htmltools::tagList(plotly::ggplotly(ggplot2::ggplot()))
 ```{r}
 # height of card: 460
 # height of tab row: 35
-# elements per row: 8 - 10
+# allow 155 characters max per tabrow
 
-tabrows <- ceiling(number_stratum/8)
+characters_strata <- dplyr::distinct(df, .data[["stratum"]]) %>%
+  dplyr::pull() %>% paste(collapse = "     ") # "   " simulates space between tabs
+
+tabrows <- ceiling(nchar(characters_strata)/155)
 ```
 
 `r paste0("Row {.tabset data-height=", 425+tabrows*35, "}")`
