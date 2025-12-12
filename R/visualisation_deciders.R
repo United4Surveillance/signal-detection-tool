@@ -28,7 +28,8 @@ create_map_or_table <- function(signals_agg,
                                 shape = get_shp_config_or_internal(),
                                 interactive = TRUE,
                                 toggle_alarms = FALSE,
-                                partial = FALSE) {
+                                partial = FALSE,
+                                elementID = NULL) {
   checkmate::assertChoice(region, region_variable_names())
 
   checkmate::assert(
@@ -130,7 +131,8 @@ create_map_or_table <- function(signals_agg,
     format <- ifelse(interactive, "DataTable", "Flextable")
     output <- build_signals_agg_table(
       signals_agg,
-      format = format
+      format = format,
+      elementID = elementID
     )
   }
 
@@ -160,7 +162,8 @@ create_barplot_or_table <- function(signals_agg,
                                     n_levels = 25,
                                     interactive = TRUE,
                                     toggle_alarms = FALSE,
-                                    partial = FALSE) {
+                                    partial = FALSE,
+                                    elementID = NULL) {
   signals_agg <- signals_agg %>%
     dplyr::filter(category == category_selected)
 
@@ -175,7 +178,8 @@ create_barplot_or_table <- function(signals_agg,
     format <- ifelse(interactive, "DataTable", "Flextable")
     build_signals_agg_table(
       signals_agg,
-      format = format
+      format = format,
+      elementID = elementID
     )
   }
 }
@@ -196,7 +200,8 @@ decider_barplot_map_table <- function(signals_agg,
                                       signal_category,
                                       interactive = TRUE,
                                       toggle_alarms = FALSE,
-                                      partial = FALSE) {
+                                      partial = FALSE,
+                                      elementID = NULL) {
   if (signal_category %in% region_variable_names()) {
     plot_or_table <- create_map_or_table(
       signals_agg,
@@ -204,7 +209,8 @@ decider_barplot_map_table <- function(signals_agg,
       signal_category,
       interactive = interactive,
       toggle_alarms = toggle_alarms,
-      partial = partial
+      partial = partial,
+      elementID = elementID
     )
   } else {
     plot_or_table <- create_barplot_or_table(
@@ -212,7 +218,8 @@ decider_barplot_map_table <- function(signals_agg,
       signal_category,
       interactive = interactive,
       toggle_alarms = toggle_alarms,
-      partial = partial
+      partial = partial,
+      elementID = elementID
     )
   }
   return(plot_or_table)
