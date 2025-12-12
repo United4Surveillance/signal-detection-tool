@@ -1,8 +1,10 @@
 ---
 title: "`r params$title`"
-date: "Report generated on `r Sys.Date()`"
-lang: "en"
-
+date: "`r {
+i18n <- shiny.i18n::Translator$new(translation_json_path = 'translation.json')
+i18n$set_translation_language(params$lang)
+paste(i18n$t('report_generated_on'), Sys.Date())
+}`"
 
 params: 
   data: NULL
@@ -15,6 +17,10 @@ params:
   signals_agg: NULL
   intervention_date: NULL
   title: "Signal Detection Report"
+  lang:
+    label: "Language"
+    value: "de"
+    choices: ["de", "en"]
 
 ---
 ```{css, echo = FALSE}
@@ -40,6 +46,39 @@ library(SignalDetectionTool)
 library(htmltools)
 library(flexdashboard)
 library(bslib)
+library(shiny.i18n)
+```
+
+```{r, echo=FALSE}
+# localisation
+i18n <- Translator$new(translation_json_path = "translation.json")
+i18n$set_translation_language(params$lang)
+
+dt_options_language <- list(
+      decimal        = i18n$t("datatable_decimal"),
+      thousands      = i18n$t("datatable_thousands"),
+      processing     = i18n$t("datatable_processing"),
+      search         = i18n$t("datatable_search"),
+      lengthMenu     = i18n$t("datatable_length_menu"),
+      info           = i18n$t("datatable_info"),
+      infoEmpty      = i18n$t("datatable_info_empty"),
+      infoFiltered   = i18n$t("datatable_info_filtered"),
+      infoPostFix    = i18n$t("datatable_info_postfix"),
+      loadingRecords = i18n$t("datatable_loading_records"),
+      zeroRecords    = i18n$t("datatable_zero_records"),
+      emptyTable     = i18n$t("datatable_empty_table"),
+      paginate = list(
+        first    = i18n$t("datatable_paginate_first"),
+        previous = i18n$t("datatable_paginate_previous"),
+        `next`     = i18n$t("datatable_paginate_next"),
+        last     = i18n$t("datatable_paginate_last")
+      ),
+      aria = list(
+        sortAscending  = i18n$t("datatable_aria_sort_ascending"),
+        sortDescending = i18n$t("datatable_aria_sort_descending")
+      )
+    )
+
 ```
 
 ```{r}
@@ -82,27 +121,44 @@ text_diseases <- ifelse(
 
 )
 
-# selected stratifications
-text_strata <- ""
-if(length(params$strata) >= 1){
-  text_strata <- ", as well as stratified by "
-  if(length(params$strata) == 1){
-    text_strata <- paste0(text_strata, params$strata)
-  } else if(length(params$strata) == 2){
-    text_strata <- paste0(text_strata,
-                          params$strata[1], " and ", params$strata[2])
-  } else {
-    text_strata <- paste0(text_strata,
-                          paste0(params$strata[1:(length(params$strata) - 1)],
-                                 collapse = ", "), 
-                          ", and ", tail(params$strata, 1))
-  }
-} 
 ```
 
-This report contains an overview of signals observed for the period `r head(records$yearweek, 1)` to `r tail(records$yearweek, 1)` for `r text_diseases` in `r params$country`. The signals were calculated using the `r params$method` algorithm.
+``` {r}
+# prepare Text of left sidebar
 
-For each disease, you can find an unstratified overview of the observed signals`r text_strata`. 
+start_week <- head(records$yearweek, 1)
+end_week   <- tail(records$yearweek, 1)
+
+intro_paragraph <- glue::glue(
+  i18n$t("report_sidebar_intro_paragraph"),
+  start_week = start_week,
+  end_week   = end_week,
+  diseases   = text_diseases,
+  country    = params$country,
+  method     = params$method,
+  .open = "{", .close = "}"
+)
+
+intro_unstratified <- i18n$t("report_sidebar_intro_unstratified")
+
+if(length(params$strata) >= 1){
+  text_strata <- glue::glue_collapse(params$strata, sep=", ",
+                                     last=sprintf(" %s ", i18n$t("and")))
+  intro_strata <- glue::glue(
+    i18n$t("report_sidebar_intro_strata"),
+    strata = text_strata,
+    .open = "{", .close = "}")
+  
+  intro_strata <- paste0(intro_unstratified, ", ",
+                         intro_strata, ".")
+} else {
+  intro_strata <- paste0(intro_unstratified, ".")
+}
+
+```
+`r intro_paragraph`
+
+`r intro_strata` 
 
 ```{r}
 results_cases <- params$signals_padded %>% 
@@ -113,7 +169,7 @@ results_cases <- params$signals_padded %>%
 
 Row
 --------------------------------------------------------------
-### Summary
+### `r i18n$t("report_heading_summary")`
 ```{r}
 # Summary all signals
 tmp_df <- params$signals_padded %>%
@@ -161,11 +217,11 @@ dt <- DT::datatable(
     dplyr::arrange(desc(total)),
   rownames = FALSE,
   escape = FALSE,
-  caption = paste0("Number of signals encountered in each stratification level in the last ",
-                   params$number_of_weeks, " weeks"),
+  caption = sprintf(i18n$t("report_summary_table_caption"), params$number_of_weeks),
   fillContainer = FALSE,
   class = list(stripe = FALSE),
-  options = list(pageLength = 25)
+  options = list(pageLength = 25,
+                 language = dt_options_language)
   )
 
 for(cate in c("Unstratified", strata)){

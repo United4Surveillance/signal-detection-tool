@@ -1,8 +1,10 @@
 ---
 title: "`r params$title`"
-date: "Report generated on `r Sys.Date()`"
-lang: "en"
-
+date: "`r {
+i18n <- shiny.i18n::Translator$new(translation_json_path = 'translation.json')
+i18n$set_translation_language(params$lang)
+paste(i18n$t('report_generated_on'), Sys.Date())
+}`"
 
 params: 
   disease: "Pertussis"
@@ -12,12 +14,21 @@ params:
   signals_padded: NULL
   intervention_date: NULL
   title: "Signal Detection Report"
+  lang:
+    label: "Language"
+    value: "de"
+    choices: ["de", "en"]
 ---
 
 `r paste(params$disease, params$category, sep  = "-")`
 ===========================================================================
 
 <!-- Filtering strata -->
+```{r}
+i18n <- shiny.i18n::Translator$new(translation_json_path = 'translation.json')
+i18n$set_translation_language(params$lang)
+```
+
 ```{r}
 categ <- params$category
 
@@ -79,5 +90,5 @@ for(st in unique(df$stratum)){
 
 Row
 -------------------------------------------------------------------------------
-[Go back](`r paste0(patho_f, ".html")`)
+[`r i18n$t("go_back")`](`r paste0(patho_f, ".html")`)
 

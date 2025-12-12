@@ -13,6 +13,7 @@
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @param partial logical, add partial bundle to plotly
+#' @param translator (optional) A shiny.i18n::Translator object or NULL
 #' @returns a table or a plot depending on whether the matching of the NUTS IDs was fully possible, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 #' @examples
 #' \dontrun{
@@ -28,7 +29,8 @@ create_map_or_table <- function(signals_agg,
                                 shape = get_shp_config_or_internal(),
                                 interactive = TRUE,
                                 toggle_alarms = FALSE,
-                                partial = FALSE) {
+                                partial = FALSE,
+                                translator = NULL) {
   checkmate::assertChoice(region, region_variable_names())
 
   checkmate::assert(
@@ -124,7 +126,8 @@ create_map_or_table <- function(signals_agg,
       signals_agg_unknown_region,
       interactive = interactive,
       toggle_alarms = toggle_alarms,
-      partial = partial
+      partial = partial,
+      translator = translator
     )
   } else {
     format <- ifelse(interactive, "DataTable", "Flextable")
@@ -146,6 +149,7 @@ create_map_or_table <- function(signals_agg,
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @param partial logical, add partial bundle to plotly
+#' @param translator (optional) A shiny.i18n::Translator object or NULL
 #' @returns a table or a plot depending on whether number of unique levels for the category to visualise, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 #' @examples
 #' \dontrun{
@@ -160,7 +164,8 @@ create_barplot_or_table <- function(signals_agg,
                                     n_levels = 25,
                                     interactive = TRUE,
                                     toggle_alarms = FALSE,
-                                    partial = FALSE) {
+                                    partial = FALSE,
+                                    translator = NULL) {
   signals_agg <- signals_agg %>%
     dplyr::filter(category == category_selected)
 
@@ -169,7 +174,8 @@ create_barplot_or_table <- function(signals_agg,
   if (n_levels_data < n_levels) {
     plot_barchart(signals_agg,
       interactive = interactive, toggle_alarms = toggle_alarms,
-      partial = partial
+      partial = partial,
+      translator = translator
     )
   } else {
     format <- ifelse(interactive, "DataTable", "Flextable")
@@ -190,13 +196,15 @@ create_barplot_or_table <- function(signals_agg,
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @param partial logical, add partial bundle to plotly
+#' @param translator (optional) A shiny.i18n::Translator object or NULL
 #' @return a table or a plot depending on signal_category, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 decider_barplot_map_table <- function(signals_agg,
                                       data_surveillance,
                                       signal_category,
                                       interactive = TRUE,
                                       toggle_alarms = FALSE,
-                                      partial = FALSE) {
+                                      partial = FALSE,
+                                      translator = NULL) {
   if (signal_category %in% region_variable_names()) {
     plot_or_table <- create_map_or_table(
       signals_agg,
@@ -204,7 +212,8 @@ decider_barplot_map_table <- function(signals_agg,
       signal_category,
       interactive = interactive,
       toggle_alarms = toggle_alarms,
-      partial = partial
+      partial = partial,
+      translator = translator
     )
   } else {
     plot_or_table <- create_barplot_or_table(
@@ -212,7 +221,8 @@ decider_barplot_map_table <- function(signals_agg,
       signal_category,
       interactive = interactive,
       toggle_alarms = toggle_alarms,
-      partial = partial
+      partial = partial,
+      translator = translator
     )
   }
   return(plot_or_table)

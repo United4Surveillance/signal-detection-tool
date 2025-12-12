@@ -6,6 +6,7 @@
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @param partial logical, add partial bundle to plotly
+#' @param translator (optional) A shiny.i18n::Translator object or NULL
 #' @returns either a gg or plotly object
 #' @examples
 #' \dontrun{
@@ -18,7 +19,8 @@
 plot_barchart <- function(signals_agg,
                           interactive = TRUE,
                           toggle_alarms = FALSE,
-                          partial = FALSE) {
+                          partial = FALSE,
+                          translator = NULL) {
   checkmate::assert(
     checkmate::check_true(interactive),
     checkmate::check_false(interactive),
@@ -42,6 +44,9 @@ plot_barchart <- function(signals_agg,
 
   signals_agg <- create_factor_with_unknown(signals_agg)
 
+  legend_keys <- c(translator$t("at_least_one_signal"), translator$t("no_signals"))
+  legend_values <- c("red", "#304794")
+
   p <- ggplot2::ggplot(data = signals_agg) +
     ggplot2::geom_bar(
       stat = "identity",
@@ -50,19 +55,17 @@ plot_barchart <- function(signals_agg,
         y = cases,
         color = dplyr::if_else(any_alarms, "At least 1 signal", "No signals"),
         text = sprintf(
-          "Number of cases: %.0f \nNumber of signals: %.0f",
-          .data$cases, .data$n_alarms
+          "%s: %.0f \n%s: %.0f",
+          translator$t("number_of_cases"),
+          .data$cases, translator$t("number_of_signals"), .data$n_alarms
         )
       ),
       fill = "#304794",
       linewidth = 1.2
     ) +
-    ggplot2::labs(x = x_label, y = "Number of cases") +
+    ggplot2::labs(x = x_label, y = translator$t("number_of_cases")) +
     ggplot2::scale_color_manual("",
-      values = c(
-        "At least 1 signal" = "red",
-        "No signals" = "#304794"
-      )
+      values = setNames(legend_values, legend_keys)
     ) +
     ggplot2::scale_x_discrete(
       na.translate = TRUE, labels = function(x) ifelse(is.na(x), "unknown", x),

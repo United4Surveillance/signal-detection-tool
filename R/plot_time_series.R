@@ -9,7 +9,7 @@
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done.The  intervention is marked with a dashed line.
 #' @param number_of_weeks number of weeks to be covered in the plot
 #' @param partial logical, add partial bundle to plotly
-#'
+#' @param translator (optional) A shiny.i18n::Translator object or NULL
 #' @return either a gg or plotly object
 #' @export
 #'
@@ -22,7 +22,8 @@
 plot_time_series <- function(results, interactive = FALSE,
                              intervention_date = NULL,
                              number_of_weeks = 52,
-                             partial = FALSE) {
+                             partial = FALSE,
+                             translator = NULL) {
   # check whether timeseries contains padding or not
   padding_upperbound <- "upperbound_pad" %in% colnames(results)
   padding_expected <- "expected_pad" %in% colnames(results)

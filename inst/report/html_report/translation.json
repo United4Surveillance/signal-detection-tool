@@ -1,0 +1,221 @@
+{
+  "cultural_date_format": "%d.%m.%Y",
+  "languages": ["key", "en", "de"],
+  "translation": [
+    {
+	  "key": "and",
+	  "en": "and",
+	  "de": "und"
+	},
+	{
+	  "key": "report_generated_on",
+	  "en": "Report generated on",
+	  "de": "Bericht erstellt am"
+	},
+	{
+	  "key": "report_heading_summary",
+	  "en": "Summary",
+	  "de": "Übersicht"
+	},
+	{
+	  "key": "report_summary_table_caption",
+	  "en": "Number of signals encountered in each stratification level in the last %d weeks.",
+	  "de": "Anzahl an erkannten Signalen je Stratifikation in den letzten %d Wochen."
+	},
+	{
+	  "key": "report_sidebar_intro_paragraph",
+	  "en": "This report contains an overview of signals observed for the period {start_week} to {end_week} for {diseases} in {country}. The signals were calculated using the {method} algorithm.",
+	  "de": "Dieser Bericht enthält eine Übersicht über die im Zeitraum von {start_week} bis {end_week} beobachteten Signale für {diseases} in {country}. Die Signale wurden mit dem Algorithmus {method} berechnet."
+	},
+	{
+	  "key": "report_sidebar_intro_unstratified",
+	  "en": "For each disease, you can find an unstratified overview of the observed signals",
+	  "de": "Für jede Krankheit finden Sie eine Übersicht über die beobachteten unstratifizierten Signale"
+	},
+	{
+	  "key": "report_sidebar_intro_strata",
+	  "en": "as well as stratified by {strata}",
+	  "de": "als auch stratifiziert nach {strata}"
+	},
+    {
+      "key": "datatable_decimal",
+      "en": ".",
+      "de": ","
+    },
+    {
+      "key": "datatable_thousands",
+      "en": ",",
+      "de": "."
+    },
+    {
+      "key": "datatable_processing",
+      "en": "Processing...",
+      "de": "Bitte warten..."
+    },
+    {
+      "key": "datatable_search",
+      "en": "Search:",
+      "de": "Suche:"
+    },
+    {
+      "key": "datatable_length_menu",
+      "en": "Show _MENU_ entries",
+      "de": "Zeige _MENU_ Einträge"
+    },
+    {
+      "key": "datatable_info",
+      "en": "Showing _START_ to _END_ of _TOTAL_ entries",
+      "de": "Zeige _START_ bis _END_ von _TOTAL_ Einträgen"
+    },
+    {
+      "key": "datatable_info_empty",
+      "en": "Showing 0 to 0 of 0 entries",
+      "de": "Zeige 0 bis 0 von 0 Einträgen"
+    },
+    {
+      "key": "datatable_info_filtered",
+      "en": "(filtered from _MAX_ total entries)",
+      "de": "(gefiltert von _MAX_ Einträgen insgesamt)"
+    },
+    {
+      "key": "datatable_info_postfix",
+      "en": "",
+      "de": ""
+    },
+    {
+      "key": "datatable_loading_records",
+      "en": "Loading...",
+      "de": "Lade..."
+    },
+    {
+      "key": "datatable_zero_records",
+      "en": "No matching records found",
+      "de": "Keine passenden Einträge gefunden"
+    },
+    {
+      "key": "datatable_empty_table",
+      "en": "No data available in table",
+      "de": "Keine Daten in der Tabelle vorhanden"
+    },
+    {
+      "key": "datatable_paginate_first",
+      "en": "First",
+      "de": "Erste"
+    },
+    {
+      "key": "datatable_paginate_previous",
+      "en": "Previous",
+      "de": "Zurück"
+    },
+    {
+      "key": "datatable_paginate_next",
+      "en": "Next",
+      "de": "Weiter"
+    },
+    {
+      "key": "datatable_paginate_last",
+      "en": "Last",
+      "de": "Letzte"
+    },
+    {
+      "key": "datatable_aria_sort_ascending",
+      "en": ": activate to sort column ascending",
+      "de": ": aktivieren, um Spalte aufsteigend zu sortieren"
+    },
+    {
+      "key": "datatable_aria_sort_descending",
+      "en": ": activate to sort column descending",
+      "de": ": aktivieren, um Spalte absteigend zu sortieren"
+    },
+    {
+      "key": "number_of_cases",
+      "en": "Number of cases",
+      "de": "Anzahl an Fällen"
+    },
+    {
+      "key": "number_of_signals",
+      "en": "Number of signals",
+      "de": "Anzahl an Signalen"
+    },
+    {
+      "key": "heading_unstratified_timeseries",
+      "en": "Unstratified time series",
+      "de": "Unstratifizierte Zeitreihe"
+    },
+	{
+      "key": "heading_signal_detection_table",
+      "en": "Table: Detected Signals",
+      "de": "Tabelle: Gefundene Signale"
+    },
+    {
+      "key": "n_signals_weeks",
+      "en": "Number of signals in the last %d weeks",
+      "de": "Anzahl an Signalen in den letzten %d Wochen"
+    },
+    {
+      "key": "cases",
+      "en": "cases",
+      "de": "Fälle"
+    },
+    {
+      "key": "case",
+      "en": "case",
+      "de": "Fall"
+    },
+    {
+      "key": "signal",
+      "en": "signal",
+      "de": "Signal"
+    },
+    {
+      "key": "signals",
+      "en": "signals",
+      "de": "Signale"
+    },
+    {
+      "key": "no_signals",
+      "en": "No signals",
+      "de": "Keine Signale"
+    },
+    {
+      "key": "at_least_one_signal",
+      "en": "At least 1 signal",
+      "de": "Mindestens 1 Signal"
+    },
+    {
+      "key": "cases_of",
+      "en": "cases of %s",
+      "de": "Fälle von %s"
+    },
+    {
+      "key": "signals_in",
+      "en": "Signals in",
+      "de": "Signale in"
+    },
+    {
+      "key": "distribution_by",
+      "en": "Distribution by",
+      "de": "Verteilung nach"
+    },
+	{
+      "key": "plot_caption_unstratified_timeseries",
+      "en": "Number of %s cases by week and signals, %s",
+      "de": "Anzahl an %s Fällen nach Woche und Signalen, %s"
+    },
+    {
+      "key": "msg_no_signals_detected",
+      "en": "No signals were detected.",
+      "de": "Es wurden keine Signale gefunden."
+    },
+    {
+      "key": "go_back",
+      "en": "Go back",
+      "de": "zurück"
+    },
+    {
+      "key": "error_msg_empty_geometry",
+      "en": "Empty geometry would silently remove signal marker(s). Please fix your supplied shapefile.",
+      "de": "Leere Geometrie würde Signalmarker still entfernen. Bitte das beigefügte Shapefile korrigieren."
+    }		
+  ]
+}

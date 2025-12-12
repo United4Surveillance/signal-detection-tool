@@ -4,7 +4,7 @@
 #' @param age_group_col name of the age-group column
 #' @param by_col name of the grouping column
 #' @param interactive if TRUE, interactive plot is returned
-#'
+#' @param translator (optional) A shiny.i18n::Translator object or NULL
 #' @return either a gg or plotly object
 #' @export
 #'
@@ -19,7 +19,8 @@
 plot_agegroup_by <- function(df,
                              age_group_col = "age_group",
                              by_col = NULL,
-                             interactive = FALSE) {
+                             interactive = FALSE,
+                             translator = NULL) {
   # check if age_group_col is contained in df and if age_group_col is a factor
   checkmate::assert(
     checkmate::check_choice(age_group_col, choices = names(df)),

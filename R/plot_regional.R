@@ -4,12 +4,14 @@
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @param partial logical, add partial bundle to plotly
+#' @param translator (optional) A shiny.i18n::Translator object or NULL
 #' @returns either a ggplot object if static plot is chosen or a plotly object for the interactive plot
 plot_regional <- function(shape_with_signals,
                           signals_agg_unknown_region = NULL,
                           interactive = FALSE,
                           toggle_alarms = FALSE,
-                          partial = FALSE) {
+                          partial = FALSE,
+                          translator = translator) {
   checkmate::assertClass(shape_with_signals, "sf")
 
   checkmate::assert(
@@ -23,6 +25,10 @@ plot_regional <- function(shape_with_signals,
     checkmate::check_false(toggle_alarms),
     combine = "or"
   )
+
+  t_ <- function(key, default){
+    if(is.null(translator)) default else translator$t(key)
+  }
 
   shape_with_signals <- shape_with_signals %>%
     dplyr::mutate(
@@ -49,8 +55,8 @@ plot_regional <- function(shape_with_signals,
         colour = any_alarms,
         text = paste0(
           NUTS_NAME,
-          "<br>Number of cases: ", round(cases, 0), # show actual case numbers
-          "<br>Number of signals: ", n_alarms
+          "<br>",t_("number_of_cases", "Number of cases"), ": ", round(cases, 0), # show actual case numbers
+          "<br>",t_("number_of_signals", "Number of signals"), ": ", n_alarms
         )
       ),
       lwd = 1.2
@@ -58,7 +64,7 @@ plot_regional <- function(shape_with_signals,
     ggplot2::theme_void() +
     ggplot2::scale_fill_gradientn(
       colours = grDevices::colorRampPalette(c("#eaecf4", "#304794", "#1c2a58"))(8),
-      name = "Cases",
+      name = translator$t("cases"),
       labels = function(x) round(x, 0) # show actual case numbers
     ) +
     ggplot2::scale_color_manual(
@@ -80,11 +86,13 @@ plot_regional <- function(shape_with_signals,
   text_region_missing <- NULL
   if (!is.null(signals_agg_unknown_region) & nrow(signals_agg_unknown_region) > 0) {
     text_region_missing <- paste0(
-      signals_agg_unknown_region$cases, " case",
-      ifelse(signals_agg_unknown_region$cases > 1, "s ", " "),
-      "from unknown region with \n", signals_agg_unknown_region$n_alarms,
-      " signal",
-      ifelse(signals_agg_unknown_region$n_alarms > 1, "s", ""), ".\n"
+      signals_agg_unknown_region$cases, " ",
+      ifelse(signals_agg_unknown_region$cases > 1,
+             translator$t("cases"), translator$t("case")),
+      " from unknown region with \n", signals_agg_unknown_region$n_alarms,
+      " ",
+      ifelse(signals_agg_unknown_region$n_alarms > 1,
+             translator$t("signals"), translator$t("signal")), ".\n"
     )
     if (!interactive) {
       plot <- plot +
@@ -125,12 +133,13 @@ plot_regional <- function(shape_with_signals,
         split = ~NUTS_ID,
         color = ~cases,
         colors = grDevices::colorRampPalette(c("#eaecf4", "#304794", "#1c2a58"))(8),
+        colorbar = list(title=translator$t("cases")),
         stroke = I("black"),
         alpha = 1,
         text = ~ paste(
           NUTS_NAME,
-          "\nNumber of cases:", cases,
-          "\nNumber of signals:", n_alarms
+          "\n", paste0(translator$t("number_of_cases"), ":"), cases,
+          "\n", paste0(translator$t("number_of_signals"), ":"), n_alarms
         ),
         hoverinfo = "text",
         hoveron = "fills",
@@ -158,8 +167,7 @@ plot_regional <- function(shape_with_signals,
       sf::sf_use_s2(old_s2)
 
       if (nrow(stars_sf) < nrow_stars_before) {
-        stop("Empty geometry would silently remove signal marker(s).
-             Please fix your supplied shapefile.")
+        stop(translator$t("error_msg_empty_geometry"))
       }
 
       # explicitly add points
@@ -169,8 +177,8 @@ plot_regional <- function(shape_with_signals,
           x = coords[, 1], y = coords[, 2],
           marker = list(symbol = "star", size = 10, color = "red"),
           text = paste(
-            stars_sf$NUTS_NAME, "\nNumber of cases:", stars_sf$cases,
-            "\nNumber of signals:", stars_sf$n_alarms
+            stars_sf$NUTS_NAME, paste0("\n", translator$t("number_of_cases"), ":"), stars_sf$cases,
+            paste0("\n", translator$t("number_of_signals"), ":"), stars_sf$n_alarms
           ),
           hoverinfo = "text",
           showlegend = FALSE,

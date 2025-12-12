@@ -7,7 +7,7 @@
 #' @param interactive logical, if TRUE, interactive plot is returned; default, static plot.
 #' @param branding named vector with branding colours
 #' @param partial logical, add partial bundle to plotly
-#'
+#' @param translator (optional) A shiny.i18n::Translator object or NULL
 #' @return either a ggplot or plotly object
 #'
 #' @examples
@@ -17,7 +17,8 @@
 #'
 #' plot_signals_per_week(signals)
 #' }
-plot_signals_per_week <- function(results, interactive = FALSE, branding = NULL, partial = FALSE) {
+plot_signals_per_week <- function(results, interactive = FALSE, branding = NULL, partial = FALSE,
+                                  translator = NULL) {
   if (is.null(branding)) {
     branding <- stats::setNames(c("lightgray", "#be1622"), c("primary", "danger"))
   } else {

@@ -1,8 +1,10 @@
 ---
 title: "`r params$title`"
-date: "Report generated on `r Sys.Date()`"
-lang: "en"
-
+date: "`r {
+i18n <- shiny.i18n::Translator$new(translation_json_path = 'translation.json')
+i18n$set_translation_language(params$lang)
+paste(i18n$t('report_generated_on'), Sys.Date())
+}`"
 
 params:
   data: NULL
@@ -14,6 +16,10 @@ params:
   signals_agg: NULL
   intervention_date: NULL
   title: "Signal Detection Report"
+  lang:
+    label: "Language"
+    value: "de"
+    choices: ["de", "en"]
 ---
 
 ```{r}
@@ -36,6 +42,10 @@ brand_colors <- bslib::bs_get_variables(
 =====================================
 
 <!-- Pathogen without stratification page -->
+```{r}
+i18n <- shiny.i18n::Translator$new(translation_json_path = 'translation.json')
+i18n$set_translation_language(params$lang)
+```
 
 ```{r}
 # formatting pathogen name for links 
@@ -58,14 +68,14 @@ results_analysis <- s_pad %>%
 Row
 -------------------------------------------------------------------------------
 
-### Number of cases
+### `r i18n$t("number_of_cases")`
 ```{r}
 flexdashboard::valueBox(value = sum(results_analysis$cases[is.na(results_analysis$category)]), 
-         caption = paste("cases of", params$disease),
+         caption = sprintf(i18n$t("cases_of"), params$disease),
          color = brand_colors["info"])
 ```
 
-### Number of signals
+### `r i18n$t("number_of_signals")`
 ```{r}
 # signals across all strata
 n_signals_week <- sum(results_analysis$alarms)
@@ -80,9 +90,7 @@ n_signals_week_col <- ifelse(
   )
 
 flexdashboard::valueBox(value = n_signals_week,
-  caption = paste("Number of signals in the last",
-    params$number_of_weeks, 
-    "weeks"),
+  caption = sprintf(i18n$t("n_signals_weeks"), params$number_of_weeks),
   color = n_signals_week_col
 )
 ```
@@ -94,7 +102,7 @@ flexdashboard::valueBox(value = n_signals_week,
 for(cate in params$strata){
 
   cate_link <- paste0("[", cate, "](",pate ,"-", cate, ".html)")
-  cat("### Signals in", cate_link, "\n\n")
+  cat("###", i18n$t("signals_in"), cate_link, "\n\n")
   
   p <- s_pad %>% 
     dplyr::filter(category == cate) %>% 
@@ -113,14 +121,15 @@ for(cate in params$strata){
 for(cate in params$strata){
 
   cate_link <- paste0("[", cate, "](",pate ,"-", cate, ".html)")
-  cat("### Distribution by", cate_link, "\n\n")
+  cat("###", i18n$t("distribution_by"), cate_link, "\n\n")
   
-  dist_plot <- SignalDetectionTool:::decider_barplot_map_table(
+  dist_plot <- decider_barplot_map_table(
      s_agg,
      params$data,
      cate,
      interactive = TRUE,
-     partial = TRUE
+     partial = TRUE,
+     translator = i18n
     ) 
   
   print(htmltools::tagList(dist_plot))
@@ -131,7 +140,7 @@ for(cate in params$strata){
 
 Row
 -----------------------------------------------
-### Unstratified timeseries 
+### `r i18n$t("heading_unstratified_timeseries")`
 
 ```{r}
 SignalDetectionTool::plot_time_series(
@@ -143,11 +152,11 @@ SignalDetectionTool::plot_time_series(
 )
 ```
 
-> `r paste("Number of", params$disease, "cases by week and signals,", params$country)`
+> `r sprintf(i18n$t("plot_caption_unstratified_timeseries"), params$disease, params$country)`
 
 Row 
 -------------------------------------
-### Signal Detection Table
+### `r i18n$t("heading_signal_detection_table")`
 
 ```{r}
 txt <- NULL
@@ -158,7 +167,7 @@ if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
     format = "DataTable"
   )
 } else {
-  txt <- "No signals were detected."
+  txt <- i18n$t("msg_no_signals_detected")
 }
 ```
 
@@ -185,4 +194,4 @@ if(!is.null(params$strata)){
 
 Row
 -------------------------------------------------------------------------------
-[Go back](../SignalDetectionReport.html)
+[`r i18n$t("go_back")`](../SignalDetectionReport.html)
