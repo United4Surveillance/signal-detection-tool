@@ -152,6 +152,23 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE,
     if (length(float_columns)) {
       table <- table %>% DT::formatRound(float_columns, 2)
     }
+
+    #chatGPT suggestion to solve non-completely-show tables
+    table <- table %>%
+      htmlwidgets::onRender("
+      function(el, x) {
+      function redraw() {
+      var tbl = $(el).find('table').DataTable();
+      tbl.columns.adjust().draw(false);
+      }
+
+      // when switching flexdashboard pages (bootstrap tabs)
+      $(document).on('shown.bs.tab', 'a[data-toggle=\"tab\"]', redraw);
+
+      // also helpful on resize
+      $(window).on('resize', redraw);
+      }
+      ")
   } else {
     # create static table for reports
     table <- data %>%
