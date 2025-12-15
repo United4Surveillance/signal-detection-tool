@@ -17,3 +17,5 @@ $run_dev.*
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+\.Rprof$
+\.Rprofvis$

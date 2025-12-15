@@ -70,3 +70,7 @@ inst/doc
 /doc/
 /Meta/
 docs
+
+# R profiling outputs
+*.Rprof
+*.Rprofvis

@@ -1,10 +1,3 @@
-test_that("Categorization of age", {
-  expect_identical(find_age_group(5, c(0, 5, 10, 99)), "05-09")
-  expect_identical(find_age_group(12, c(0, 5, 15, 99)), "05-14")
-  expect_identical(find_age_group(99, c(0, 5, 15, 99)), "99+")
-  expect_identical(find_age_group(56, c(0, 5, 15, 99)), "15-98")
-})
-
 test_that("Age group column is added correctly", {
   input_data <- read.csv(
     test_path(
@@ -139,4 +132,55 @@ test_that("age_groups function works correctly when usage of >60 for the last ag
   # not working yet
   # expect_equal(levels(age_groups(test_data_3_without_age)$age_group),c("00-04", "05-09", "10-39","40-59","60+"))
   expect_true(anyNA(age_groups(test_data_4_without_age)))
+})
+
+test_that("age_groups respects custom break_at lower bounds", {
+  df <- data.frame(
+    age = c(0L, 5L, 20L, 40L, 70L, 100L, 120L, NA_integer_)
+  )
+
+  res <- age_groups(df, break_at = c(15L, 35L, 65L, 100L))
+
+  expect_equal(
+    as.character(res$age_group),
+    c("00-14", "00-14", "15-34", "35-64", "65-99", "100+", "100+", NA)
+  )
+
+  expect_equal(
+    levels(res$age_group),
+    c("00-14", "15-34", "35-64", "65-99", "100+")
+  )
+})
+
+test_that("age_groups zero-pads existing age_group labels", {
+  df <- data.frame(
+    age_group = c("1-5", "6-10", "11-15", NA_character_)
+  )
+
+  res <- age_groups(df)
+
+  expect_equal(
+    as.character(res$age_group[1:3]),
+    c("01-05", "06-10", "11-15")
+  )
+  expect_true(anyNA(res$age_group))
+})
+
+
+test_that("break_at must be sorted integer vector", {
+  df <- data.frame(age = 1:10)
+
+  expect_error(
+    age_groups(df, break_at = c(5L, 10L, 3L)),
+    "Invalid break points"
+  )
+
+  expect_error(
+    age_groups(df, break_at = c(5, 10, 20.5)),
+    "Input of integer type is only allowed"
+  )
+
+  expect_no_error(
+    age_groups(df, break_at = c(5L, 10L, 20L))
+  )
 })

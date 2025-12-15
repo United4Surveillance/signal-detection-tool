@@ -32,7 +32,7 @@ the fitting process. This can be useful for excluding recent data with outbreaks
 Default is `4`.}
 }
 \value{
-data.frame containing all columns needed for the glm model. These are columns for the seasonality, time_trend and intercepts. This model data is used to fit the parameters for these coviariates.
+data.frame containing all columns needed for the glm model. These are columns for the seasonality, time_trend and intercepts. This model data is used to fit the parameters for these coviariates. If model = "mean", time_trend = FALSE and intervention_start = NULL create_model_data() returns and empty tibble.
 }
 \description{
 This function generates a dataset containing all the necessary columns for fitting a Generalized Linear Model (GLM) in the context of epidemiological time series analysis. The generated dataset can include components for seasonality, time trends, and baseline adjustments, depending on the specified model type and intervention parameters.

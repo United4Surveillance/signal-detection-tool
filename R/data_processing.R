@@ -30,32 +30,55 @@ preprocess_data <- function(data) {
   data <- data %>%
     dplyr::filter_at(check_for_missing_values(), dplyr::all_vars(!is.na(.)))
 
+  na_tokens <- c("", "unknown", "NA", "na") # cover both cases
+  lvl_ynu <- unlist(yes_no_unknown_levels())
+
+  char_cols <- names(Filter(is.character, data))
+  date_cols <- grep("^date", names(data), value = TRUE)
+
   data <- data %>%
-    # strip trailing or leading whitespaces
-    dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ stringr::str_trim(.x))) %>%
-    dplyr::mutate(dplyr::across(dplyr::all_of(to_lower_vars), ~ tolower(.x))) %>%
-    dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, ""))) %>%
-    dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, "unknown"))) %>%
-    dplyr::mutate(dplyr::across(dplyr::where(is.character), ~ dplyr::na_if(.x, "NA"))) %>%
-    dplyr::mutate(dplyr::across(dplyr::starts_with("date"), ~ as.Date(.x, optional = T))) %>%
-    dplyr::mutate(dplyr::across(dplyr::all_of(regional_id_vars), ~ as.character(.x))) %>%
-    dplyr::mutate(dplyr::across(
-      dplyr::all_of(yes_no_unknown_vars),
-      ~ factor(.x, levels = unlist(yes_no_unknown_levels()))
-    )) %>%
-    dplyr::mutate(dplyr::across(dplyr::all_of(factorization_vars), ~ as.factor(.x)))
+    dplyr::mutate(
+      # 1) Trim whitespaces only once
+      dplyr::across(all_of(char_cols), ~ stringr::str_trim(.x)),
+
+      # 2) Convert only the desired columns to lowercase
+      dplyr::across(all_of(to_lower_vars), ~ tolower(.x)),
+
+      # 3) Set missing values consistently (one pass instead of three na_if)
+      dplyr::across(all_of(char_cols), ~ {
+        .x[.x %in% na_tokens] <- NA_character_
+        .x
+      }),
+
+      # 4) Parse date columns specifically and efficiently
+      dplyr::across(
+        all_of(date_cols),
+        ~ if (inherits(.x, "Date")) {
+          .x
+        } else {
+          readr::parse_date(.x, format = "%Y-%m-%d", na = na_tokens)
+        }
+      ),
+
+      # 5) Type adjustments / factorization
+      dplyr::across(all_of(regional_id_vars), as.character),
+      dplyr::across(all_of(yes_no_unknown_vars), ~ factor(.x, levels = lvl_ynu)),
+      dplyr::across(all_of(factorization_vars), as.factor)
+    )
 
 
   # add columns for isoyear and isoweek for each date
   data <- data %>%
-    dplyr::mutate(dplyr::across(dplyr::starts_with("date") & !dplyr::where(is.numeric),
-      ~ surveillance::isoWeekYear(.x)$ISOYear,
-      .names = "{.col}_year"
-    )) %>%
-    dplyr::mutate(dplyr::across(dplyr::starts_with("date") & !dplyr::where(is.numeric),
-      ~ surveillance::isoWeekYear(.x)$ISOWeek,
-      .names = "{.col}_week"
-    ))
+    dplyr::mutate(
+      dplyr::across(
+        starts_with("date") & !where(is.numeric),
+        .fns = list(
+          year = ~ lubridate::isoyear(.x),
+          week = ~ lubridate::isoweek(.x)
+        ),
+        .names = "{.col}_{.fn}"
+      )
+    )
 
   if ("age" %in% names(data())) {
     data <- data %>%
@@ -82,6 +105,7 @@ preprocess_data <- function(data) {
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @param date_start A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the minimum date of the dataset. This parameter can be used when the dataset should be extended further than the minimum date of the dataset.
 #' @param date_end A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.
+#' @param group A character specifying another grouping variable. Usually used for stratification.
 #' @examples
 #' \dontrun{
 #' data <- preprocess_data(input_example) %>% aggregate_data()
@@ -90,8 +114,9 @@ preprocess_data <- function(data) {
 aggregate_data <- function(data,
                            date_var = "date_report",
                            date_start = NULL,
-                           date_end = NULL) {
-  checkmate::check_subset(date_var, names(data))
+                           date_end = NULL,
+                           group = NULL) {
+  checkmate::check_subset(c(group, date_var), names(data), empty.ok = TRUE)
 
   checkmate::assert(
     checkmate::check_null(date_start),
@@ -104,18 +129,13 @@ aggregate_data <- function(data,
     combine = "or"
   )
 
-  week_var <- paste0(date_var, "_week")
-  year_var <- paste0(date_var, "_year")
-
-  data_agg <- data %>%
-    dplyr::group_by(!!rlang::sym(week_var), !!rlang::sym(year_var)) %>%
-    dplyr::summarize(cases = dplyr::n(), .groups = "drop") %>%
-    dplyr::select(
-      week = !!rlang::sym(week_var),
-      year = !!rlang::sym(year_var),
-      cases
-    ) %>%
-    dplyr::arrange(year, week)
+  if (is.null(group)) {
+    data_agg <- data %>%
+      dplyr::group_by(cw_iso, .drop = FALSE)
+  } else {
+    data_agg <- data %>%
+      dplyr::group_by(cw_iso, !!rlang::sym(group), .drop = FALSE)
+  }
 
   # add the missing isoweeks to the dataset
   # inform the user when date_start > min_date that the data is nevertheless extended
@@ -126,30 +146,35 @@ aggregate_data <- function(data,
     message("Notice: Your input date_end is smaller than the greatest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the greatest date in the dataset")
   }
 
-  data_agg <- data_agg %>% add_missing_isoweeks(
-    date_start = date_start,
-    date_end = date_end
-  )
+  data_agg <- data_agg %>%
+    dplyr::summarize(cases = dplyr::n(), .groups = "drop")
 
   if ("outbreak_status" %in% names(data)) {
-    data_outbreak_agg <- data %>%
-      dplyr::group_by(!!rlang::sym(week_var), !!rlang::sym(year_var)) %>%
+    if (is.null(group)) {
+      data_outbreak_agg <- data %>%
+        dplyr::group_by(cw_iso, .drop = FALSE)
+    } else {
+      data_outbreak_agg <- data %>%
+        dplyr::group_by(cw_iso, !!rlang::sym(group), .drop = FALSE)
+    }
+    data_outbreak_agg <- data_outbreak_agg %>%
       dplyr::summarize(
-        cases_in_outbreak = sum(outbreak_status == "yes", na.rm = T),
+        cases_in_outbreak = sum(outbreak_status == "yes", na.rm = TRUE),
         .groups = "drop"
-      ) %>%
-      dplyr::select(
-        week = !!rlang::sym(week_var),
-        year = !!rlang::sym(year_var),
-        cases_in_outbreak
-      ) %>%
-      dplyr::arrange(year, week)
+      )
 
     data_agg <- data_agg %>%
-      dplyr::left_join(data_outbreak_agg, by = c("year", "week")) %>%
+      dplyr::left_join(data_outbreak_agg, by = c("cw_iso", group)) %>%
       dplyr::mutate(cases_in_outbreak = dplyr::if_else(is.na(cases_in_outbreak), 0, cases_in_outbreak))
   }
-  data_agg
+  data_agg |>
+    tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "week")) |>
+    dplyr::mutate(
+      year = as.numeric(year),
+      week = as.numeric(week)
+    ) |>
+    dplyr::arrange(year, week) |>
+    as.data.frame()
 }
 
 #' Filter Data Frame by Date Range
@@ -237,89 +262,6 @@ convert_to_sts <- function(case_counts) {
   ))
 }
 
-#' Add missing isoweeks to an aggregated dataframe of case counts by year and week
-#'
-#' This function takes a data frame containing year-week and case count and ensures
-#' that it includes all possible year-week combinations within the specified
-#' range. It fills in missing rows with 0 values for cases and returns the
-#' updated data frame.
-#'
-#' @param data_agg An aggregated data frame containing at least the columns 'year','week','cases' representing the isoyear, isoweek and case counts.
-#' @param date_start A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the minimum date of the dataset. This parameter can be used when the dataset should be extended until the date_start provided.
-#' @param date_end A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended until the date_end provided.
-#' @return A data frame containing all year-week combinations within the input
-#'   range, with previously missing year-weeks filled in with 0 values for cases.
-#'
-#' @examples
-#' \dontrun{
-#' data_agg <- data.frame(
-#'   year = c(2021, 2022, 2022),
-#'   week = c(1, 2, 4),
-#'   cases = c(10, 15, 5)
-#' )
-#' updated_data <- add_missing_isoweeks(data_agg, "2022-01-21", "2023-05-01")
-#' updated_data <- add_missing_isoweeks(data_agg)
-#' updated_data
-#' }
-#' @export
-add_missing_isoweeks <- function(data_agg, date_start = NULL, date_end = NULL) {
-  checkmate::assert(
-    checkmate::check_subset("year", names(data_agg)),
-    checkmate::check_subset("week", names(data_agg)),
-    checkmate::check_subset("cases", names(data_agg)),
-    combine = "and"
-  )
-
-  checkmate::assert(
-    checkmate::check_null(date_start),
-    checkmate::check_date(lubridate::date(date_start)),
-    combine = "or"
-  )
-  checkmate::assert(
-    checkmate::check_null(date_end),
-    checkmate::check_date(lubridate::date(date_end)),
-    combine = "or"
-  )
-
-  # add a date based on isoweek and isoyear
-  data_agg <- data_agg %>%
-    dplyr::mutate(date = isoweek_to_date(week, year))
-
-  # extend to minimum date
-  min_date <- min(data_agg$date)
-  if (is.null(date_start)) {
-    date_start <- min_date
-  }
-  # extend to maximum date
-  max_date <- max(data_agg$date)
-  if (is.null(date_end)) {
-    date_end <- max_date
-  }
-
-  # Generate a sequence of dates from start to end date
-  # we add the date_end because the seq ends before date_end when there is a partial week remaining and we also want to have the isoweek of the date_end
-  date_seq <- c(seq.Date(from = as.Date(date_start), to = as.Date(date_end), by = "week"), date_end)
-  # Create a data frame with ISO weeks and ISO years
-  df_all_years_weeks <- data.frame(
-    year = lubridate::isoyear(date_seq),
-    week = lubridate::isoweek(date_seq)
-  ) %>%
-    # in case date_end is there twice due to adding before
-    dplyr::distinct(year, week)
-
-
-  # Merge the template with the original data to fill in missing rows
-  data_agg_complete <- merge(data_agg, df_all_years_weeks, by = c("year", "week"), all = TRUE) %>%
-    dplyr::select(-date)
-  # Replace missing cases with 0
-  data_agg_complete$cases[is.na(data_agg_complete$cases)] <- 0
-
-  data_agg_complete <- data_agg_complete %>%
-    dplyr::arrange(year, week)
-
-  return(data_agg_complete)
-}
-
 #' Filter the data so that only the data of the last n weeks are returned
 #' This function can be used to filter for those last n weeks where signals were generated.
 #' @param data_agg data.frame, aggregated surveillance or signals dataset, where aggregated means no linelist but cases or signals per week, year
@@ -336,4 +278,42 @@ filter_data_last_n_weeks <- function(data_agg,
     dplyr::arrange(year, week) %>%
     dplyr::slice_tail(n = number_of_weeks) %>%
     dplyr::ungroup()
+}
+
+#' Adds a column `cw_iso` to the data.frame `data`.
+#'
+#' Uses `date_var`to create a factor column of isoweeks. Factor levels are all
+#' weeks between `date_start` and `date_end`.
+#' @inheritParams aggregate_data
+add_cw_iso <- function(data,
+                       date_start = NULL,
+                       date_end = NULL,
+                       date_var = "date_report") {
+  # get min and max date of the whole dataset before stratification
+  # stratified aggregated data can be filled up with 0s until min and max date
+  # of the full dataset
+  if (is.null(date_start)) {
+    date_start <- min(data[[date_var]], na.rm = TRUE)
+  }
+  if (is.null(date_end)) {
+    date_end <- max(data[[date_var]], na.rm = TRUE)
+  }
+
+  # function to get all iso weeks between date_start and date_end
+  get_all_cw_iso <- function(date_start, date_end) {
+    all_weeks_as_dates <- c(seq.Date(from = date_start, to = date_end, by = "week"), date_end)
+    unique(paste0(lubridate::isoyear(all_weeks_as_dates), "-", lubridate::isoweek(all_weeks_as_dates)))
+  }
+
+  # add cw_iso (isoweeks) as factor levels
+  all_cw_iso <- get_all_cw_iso(date_start = date_start, date_end = date_end)
+  data <- data |>
+    dplyr::mutate(
+      cw_iso = paste0(
+        lubridate::isoyear(!!rlang::sym(date_var)), "-",
+        lubridate::isoweek(!!rlang::sym(date_var))
+      ),
+      cw_iso = factor(cw_iso, levels = all_cw_iso)
+    )
+  data
 }

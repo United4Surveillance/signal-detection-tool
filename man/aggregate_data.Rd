@@ -9,7 +9,8 @@ aggregate_data(
   data,
   date_var = "date_report",
   date_start = NULL,
-  date_end = NULL
+  date_end = NULL,
+  group = NULL
 )
 }
 \arguments{
@@ -20,6 +21,8 @@ aggregate_data(
 \item{date_start}{A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the minimum date of the dataset. This parameter can be used when the dataset should be extended further than the minimum date of the dataset.}
 
 \item{date_end}{A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.}
+
+\item{group}{A character specifying another grouping variable. Usually used for stratification.}
 }
 \description{
 Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek and adds missing isoweeks to the aggregated dataset.
