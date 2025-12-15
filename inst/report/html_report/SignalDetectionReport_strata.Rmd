@@ -54,13 +54,24 @@ txt <- NULL
 htmltools::tagList(plotly::ggplotly(ggplot2::ggplot()))
 ```
 
-Row {.tabset}
+```{r}
+# height of card: 460
+# height of tab row: 35
+# allow 155 characters max per tabrow
+
+characters_strata <- dplyr::distinct(df, .data[["stratum"]]) %>%
+  dplyr::pull() %>% paste(collapse = "     ") # "   " simulates space between tabs
+
+tabrows <- ceiling(nchar(characters_strata)/155)
+```
+
+`r paste0("Row {.tabset data-height=", 425+tabrows*35, "}")`
 -------------------------------------------------------------------------------
 <!-- Print plot for each stratum -->
 
 ```{r, results='asis'}
 for(st in unique(df$stratum)){
-  cat("### timeseries -", st, "\n")
+  cat("###", st, "\n")
   
   plot_stratum <- plot_time_series(
     df %>% dplyr::filter(.data[["stratum"]] == st),
