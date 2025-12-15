@@ -44,7 +44,6 @@ plot_time_series <- function(results, interactive = FALSE,
         ~ round(.x, 1)
       )
     )
-
   results <- results %>%
     dplyr::mutate(
       isoweek = paste0(
@@ -226,7 +225,7 @@ plot_time_series <- function(results, interactive = FALSE,
           )
         ),
         hovermode = "x unified",
-        xaxis = list(hoverformat = "Week: %Y-W%W")
+        xaxis = list(hoverformat = "Week: %G-W%V")
       )
 
     if (padding_upperbound && any(!is.na(results$upperbound_pad))) {
