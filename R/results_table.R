@@ -133,7 +133,7 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE,
         rowGroup = list(dataSrc = 0),
         columnDefs = list(list(visible = FALSE, targets = 0)),
         dom = "tfrBip",
-        scrollY = FALSE,
+        scrollY = "200px", # find a value that work well for all. Possibly also for scrollX
         buttons = c("copy", "csv", "excel", "pdf"),
         initComplete = DT::JS(
           "function(settings, json) {",
