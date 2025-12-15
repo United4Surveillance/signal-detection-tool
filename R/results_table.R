@@ -70,7 +70,7 @@ get_float_columns <- function(data) {
 #' format_table(data_agg)
 #' }
 format_table <- function(data, signals_only = TRUE, interactive = TRUE,
-                         dt_selection_type = "single", elementID = NULL) {
+                         dt_selection_type = "single") {
   checkmate::assert(
     checkmate::check_true(interactive),
     checkmate::check_false(interactive),
@@ -123,7 +123,6 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE,
   if (interactive == TRUE) {
     # create interactive table
     table <- DT::datatable(data,
-      elementId = elementID,
       style = "default",
       class = "cell-border stripe hover", rownames = FALSE,
       filter = list(position = "bottom", plain = TRUE),
@@ -280,8 +279,7 @@ prepare_signals_table <- function(data,
 build_signals_table <- function(signal_results,
                                 signals_only = TRUE,
                                 format = "DataTable",
-                                dt_selection_type = "single",
-                                elementID = NULL) {
+                                dt_selection_type = "single") {
   checkmate::assert(
     checkmate::check_choice(format, choices = c(
       "data.frame",
@@ -307,8 +305,7 @@ build_signals_table <- function(signal_results,
     table <- table %>%
       format_table(
         signals_only = signals_only, interactive = TRUE,
-        dt_selection_type = dt_selection_type,
-        elementID = elementID
+        dt_selection_type = dt_selection_type
       )
   }
   if (format == "Flextable") {
@@ -412,8 +409,7 @@ prepare_signals_agg_table <- function(signals_agg) {
 #' build_signals_agg_table(signals_agg)
 #' }
 build_signals_agg_table <- function(signals_agg,
-                                    format = "DataTable",
-                                    elementID = NULL) {
+                                    format = "DataTable") {
   checkmate::assert(
     checkmate::check_choice(format, choices = c(
       "data.frame",
@@ -426,7 +422,7 @@ build_signals_agg_table <- function(signals_agg,
 
   if (format == "DataTable") {
     table <- table %>%
-      format_table(signals_only = TRUE, interactive = TRUE, elementID = elementID)
+      format_table(signals_only = TRUE, interactive = TRUE)
   }
   if (format == "Flextable") {
     table <- table %>%

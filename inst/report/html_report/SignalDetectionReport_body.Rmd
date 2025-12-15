@@ -120,8 +120,7 @@ for(cate in params$strata){
      params$data,
      cate,
      interactive = TRUE,
-     partial = TRUE,
-     elementID = paste("table", pate, cate, sep = "_")
+     partial = TRUE
     ) 
   
   print(htmltools::tagList(dist_plot))
@@ -156,8 +155,7 @@ txt <- NULL
 if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
   SignalDetectionTool::build_signals_table(
     s_pad,
-    format = "DataTable",
-    elementID = paste("all_signals_table", pate, sep = "_")
+    format = "DataTable"
   )
 } else {
   txt <- "No signals were detected."
