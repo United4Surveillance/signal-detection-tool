@@ -20,6 +20,7 @@
 * Added function add_cw_iso() which adds a column with iso week-year which is used for aggregation
 * aggregate_data() modified such that in can take a grouping variable and thus looping over levels in the strata in get_signals_stratified() could be removed
 * replace dependency on surveillance package for the computation of seasgroups in create_fn_data() by own computation
+* fixed incorrect display of week in plot_time_series(interactive = T) (#401)
 
 
 
