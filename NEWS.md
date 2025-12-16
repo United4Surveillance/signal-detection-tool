@@ -1,3 +1,28 @@
+* Added signal post processing by an option to filter signals with a specified minimum number of cases
+* Change highlighting for signals in map from red border to stars
+* Map shows all regions according to NUTS level, independently of the number of cases
+* Changed the internal structure of the HTML report such that individual rmds are rendered for each strata
+* The HTML Report is divided into several pages to reduce its size and improve its loading time. The report pages are returned as a zip File
+* Improvements on the content of the HTML report such as 
+  * adapted color scheme on landing page to highlight signals
+  * changed order and length of landing page pathogens
+  * user can provide own report title via app or yaml
+* Added a check for the column names in the provided shapefile
+* Added shapefile_metadata.md with description of the required shapefile format
+* Improved speed of the app by
+  * improved and vectorized internal functions such as preprocess_data() and age_groups() for speed
+  * make it optional to show historic threshold and expectation for FarringtonFlexible, if padding is used no unnecessary recomputation for signal weeks is performed
+  * In GLM based methods do not recompute the model for each week in the signal detection period, just fit once on the historic data never include weeks from signal detection period
+  * Creating a general get_possible_methods() function which checks which algorithms are possible based on the available number of weeks in historic data. Removed fitting non glm methods to data to verify if they can be applied.
+  * When no cases are available in signal detection period no algorithm is applied
+* Restrict the maximum number of weeks for signal detection to 12 weeks
+* The functions add_missing_isoweeks(), find_age_group() and get_possible_glm_methods() are deleted.
+* Added function add_cw_iso() which adds a column with iso week-year which is used for aggregation
+* aggregate_data() modified such that in can take a grouping variable and thus looping over levels in the strata in get_signals_stratified() could be removed
+* replace dependency on surveillance package for the computation of seasgroups in create_fn_data() by own computation
+
+
+
 # SignalDetectionTool 0.8.0
 
 * Adds ability to generate one HTML report for multiple pathogens.

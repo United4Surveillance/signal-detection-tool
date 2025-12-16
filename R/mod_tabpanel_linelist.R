@@ -41,14 +41,15 @@ mod_tabpanel_linelist_ui <- function(id) {
 #'
 #' @noRd
 mod_tabpanel_linelist_server <- function(
-    id,
-    filtered_data,
-    errors_detected,
-    number_of_weeks_input_valid,
-    method,
-    no_algorithm_possible,
-    intervention_date,
-    signals_padded) {
+  id,
+  filtered_data,
+  errors_detected,
+  number_of_weeks_input_valid,
+  method,
+  no_algorithm_possible,
+  intervention_date,
+  signals_padded
+) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 

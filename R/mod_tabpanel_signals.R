@@ -36,15 +36,18 @@ mod_tabpanel_signals_ui <- function(id) {
 #'
 #' @noRd
 mod_tabpanel_signals_server <- function(
-    id,
-    filtered_data,
-    errors_detected,
-    number_of_weeks,
-    number_of_weeks_input_valid,
-    strat_vars,
-    method,
-    no_algorithm_possible,
-    intervention_date) {
+  id,
+  filtered_data,
+  errors_detected,
+  number_of_weeks,
+  number_of_weeks_input_valid,
+  strat_vars,
+  method,
+  no_algorithm_possible,
+  intervention_date,
+  pad_signals_choice,
+  min_cases_signals
+) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -206,8 +209,11 @@ mod_tabpanel_signals_server <- function(
         date_var = "date_report",
         number_of_weeks = number_of_weeks()
       )
-
-      results
+      results %>% dplyr::mutate(
+        alarms = dplyr::if_else(alarms & cases < min_cases_signals(),
+          FALSE, alarms, missing = alarms
+        )
+      )
     })
 
     signals_agg <- shiny::reactive({
@@ -304,8 +310,10 @@ mod_tabpanel_signals_server <- function(
       if (grepl("glm", method())) {
         # for those the results are already padded
         signal_results()
-      } else {
+      } else if (isTRUE(pad_signals_choice())) {
         pad_signals(filtered_data(), signal_results())
+      } else {
+        signal_results() %>% dplyr::mutate(upperbound_pad = NA_real_, expected_pad = NA_real_)
       }
     })
 

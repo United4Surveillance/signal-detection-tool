@@ -32,7 +32,7 @@ check_raw_surveillance_data <- function(data) {
 
   errors <- c(errors, errors_mandatory, errors_optional, errors_consistency_region)
 
-  # return TRUE or print error messages
+  # return potential error messages
   if (length(errors) != 0) {
     # remove empty slots
     errors <- errors[sapply(errors, function(element) !is.null(element))]
@@ -285,7 +285,6 @@ check_type_and_value_age_group <- function(data) {
 }
 
 
-
 #' Helper function to check for presence of age variable or instead age_group
 #' @param data_columns vector, column names of raw surveillance linelist
 #' @returns boolean, TRUE when the required variables are present, FALSE if not present
@@ -342,11 +341,34 @@ get_missing_data <- function(data) {
 #' @param data data.frame, raw linelist of surveillance cases
 #' @returns boolean, TRUE when there was an empty row inside the data, FALSE when no empty rows
 check_empty_rows <- function(data) {
-  # transform POSICXct variables to character before to not produce an error in the check below
-  data <- data %>%
-    dplyr::mutate(dplyr::across(where(lubridate::is.POSIXct), as.character))
+  n <- nrow(data)
+  if (n == 0L) {
+    return(FALSE)
+  }
 
-  any(apply(data == "" | is.na(data) | is.null(data), 1, all))
+  # POSIXct -> character (as in the original)
+  is_posix <- vapply(data, lubridate::is.POSIXct, logical(1L))
+  if (any(is_posix)) {
+    data[is_posix] <- lapply(data[is_posix], as.character)
+  }
+
+  # For each column a logical vector: TRUE if the field is "empty" (NA or "")
+  is_empty_col <- function(x) {
+    # Treat factors and POSIXct (now char) as character
+    if (is.factor(x)) x <- as.character(x)
+    # For non-character types there are usually no "", only NA
+    if (is.character(x)) {
+      is.na(x) | x == "" | x == "NA"
+    } else {
+      is.na(x)
+    }
+  }
+
+  # Result: matrix nrow(data) x ncol(data)
+  empty_mat <- vapply(data, is_empty_col, logical(n))
+
+  # At least one row in which all columns are "empty"?
+  any(rowSums(empty_mat) == ncol(data))
 }
 
 #' Check whether the region and corresponding region_id columns only have one region name per ID
@@ -457,11 +479,20 @@ get_empty_columns <- function(data) {
 #' @param data data.frame, dataset to remove empty columns from, can be linelist of surveillance data
 #' @returns data.frame without columns which only contained missing values
 remove_empty_columns <- function(data) {
-  empty_columns <- get_empty_columns(data)
-  empty_column_names <- names(empty_columns)[empty_columns]
-  data %>%
-    dplyr::select(-dplyr::all_of(empty_column_names))
+  is_empty_column <- function(x) {
+    if (is.factor(x)) x <- as.character(x)
+
+    if (is.character(x)) {
+      all(is.na(x) | x == "" | x == "NA")
+    } else {
+      all(is.na(x))
+    }
+  }
+
+  keep <- !vapply(data, is_empty_column, logical(1L))
+  data[keep]
 }
+
 
 #' Helper to check that values of a character variable are in given levels
 #' @param vector a vector i.e. column of the data whose values should be checked
@@ -477,4 +508,13 @@ check_character_levels <- function(vector, levels) {
 get_case_id_duplicates <- function(data) {
   data %>%
     dplyr::filter(duplicated(case_id))
+}
+
+#' check that shapefile contains NUTS_ID, LEVL_CODE, and CNTR_CODE
+#' @param shape shapefile object loaded using sf::st_read()
+#' @returns if check passess, returns TRUE invisibly. If not, throws an error message
+check_columns_shapefile <- function(shape) {
+  col_names <- colnames(shape)
+  # NUTS_ID, LEVL_CODE, and CNTR_CODE are subset of colnames(shape)
+  checkmate::assert_subset(c("NUTS_ID", "LEVL_CODE", "CNTR_CODE"), col_names)
 }

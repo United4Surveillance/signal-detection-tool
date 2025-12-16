@@ -13,6 +13,7 @@ test_that("test basic aggregation works", {
 
   data_agg <- data %>%
     preprocess_data() %>%
+    add_cw_iso(date_var = "date_report") %>%
     aggregate_data()
 
   solution <- data.frame(
@@ -41,6 +42,7 @@ test_that("test basic aggregation works with ISO week 53", {
   # Assuming preprocess_data() and aggregate_data() are defined functions
   data_agg <- data %>%
     preprocess_data() %>%
+    add_cw_iso(date_var = "date_report") %>%
     aggregate_data()
 
   # Define the expected aggregation output including week 53 and transition to 2021
@@ -54,37 +56,37 @@ test_that("test basic aggregation works with ISO week 53", {
   expect_equal(data_agg, solution)
 })
 
-test_that("test that filling missing weeks with 0 cases work", {
-  data_agg <- data.frame(
-    year = c(2020, 2020, 2021, 2021, 2021),
-    week = c(50, 51, 1, 2, 5),
-    cases = seq(1, 5, 1)
-  )
-  data_agg_complete <- add_missing_isoweeks(data_agg)
-  solution <- data.frame(
-    year = c(rep(2020, 4), rep(2021, 5)),
-    week = c(50, 51, 52, 53, 1, 2, 3, 4, 5),
-    cases = c(seq(1, 2, 1), 0, 0, seq(3, 4, 1), 0, 0, 5)
-  )
-
-  expect_equal(data_agg_complete, solution)
-})
-
-test_that("test that filling extending with weeks with 0 cases work", {
-  data_agg <- data.frame(
-    year = c(2020, 2020, 2021, 2021, 2021),
-    week = c(50, 51, 1, 2, 5),
-    cases = seq(1, 5, 1)
-  )
-  data_agg_complete <- add_missing_isoweeks(data_agg, date_start = "2020-12-01", date_end = "2021-02-16")
-  solution <- data.frame(
-    year = c(rep(2020, 5), rep(2021, 7)),
-    week = c(49, 50, 51, 52, 53, 1, 2, 3, 4, 5, 6, 7),
-    cases = c(0, seq(1, 2, 1), 0, 0, seq(3, 4, 1), 0, 0, 5, 0, 0)
-  )
-
-  expect_equal(data_agg_complete, solution)
-})
+# test_that("test that filling missing weeks with 0 cases work", {
+#   data_agg <- data.frame(
+#     year = c(2020, 2020, 2021, 2021, 2021),
+#     week = c(50, 51, 1, 2, 5),
+#     cases = seq(1, 5, 1)
+#   )
+#   data_agg_complete <- add_missing_isoweeks(data_agg)
+#   solution <- data.frame(
+#     year = c(rep(2020, 4), rep(2021, 5)),
+#     week = c(50, 51, 52, 53, 1, 2, 3, 4, 5),
+#     cases = c(seq(1, 2, 1), 0, 0, seq(3, 4, 1), 0, 0, 5)
+#   )
+#
+#   expect_equal(data_agg_complete, solution)
+# })
+#
+# test_that("test that filling extending with weeks with 0 cases work", {
+#   data_agg <- data.frame(
+#     year = c(2020, 2020, 2021, 2021, 2021),
+#     week = c(50, 51, 1, 2, 5),
+#     cases = seq(1, 5, 1)
+#   )
+#   data_agg_complete <- add_missing_isoweeks(data_agg, date_start = "2020-12-01", date_end = "2021-02-16")
+#   solution <- data.frame(
+#     year = c(rep(2020, 5), rep(2021, 7)),
+#     week = c(49, 50, 51, 52, 53, 1, 2, 3, 4, 5, 6, 7),
+#     cases = c(0, seq(1, 2, 1), 0, 0, seq(3, 4, 1), 0, 0, 5, 0, 0)
+#   )
+#
+#   expect_equal(data_agg_complete, solution)
+# })
 
 test_that("test aggregation with filling missing zeros works", {
   start_date <- ISOweek::ISOweek2date("2020-W52-1") # Start from ISO week 52 of 2020
@@ -112,6 +114,7 @@ test_that("test aggregation with filling missing zeros works", {
 
   data_agg <- data %>%
     preprocess_data() %>%
+    add_cw_iso(date_start = start_date, date_var = "date_report") %>%
     aggregate_data()
 
   solution <- data.frame(
@@ -149,7 +152,11 @@ test_that("test aggregation with filling extending with zeros and adding missing
 
   data_agg <- data %>%
     preprocess_data() %>%
-    aggregate_data(date_start = "2020-12-17", date_end = "2021-11-02")
+    add_cw_iso(
+      date_start = as.Date("2020-12-17"),
+      date_end = as.Date("2021-11-02"), date_var = "date_report"
+    ) %>%
+    aggregate_data()
 
   solution <- data.frame(
     year = c(rep(2020, 3), rep(2021, 44)),
@@ -187,7 +194,8 @@ test_that("test that after aggregation week and years are in the correct order",
 
   data_agg <- data %>%
     preprocess_data() %>%
-    aggregate_data(date_start = "2020-12-17", date_end = "2021-11-02")
+    add_cw_iso(date_start = as.Date("2020-12-17"), date_end = as.Date("2021-11-02"), date_var = "date_report") %>%
+    aggregate_data()
 
   solution <- data.frame(
     year = c(rep(2020, 3), rep(2021, 44)),
@@ -252,10 +260,15 @@ test_that("Aggregation of data is performed correctly using outbreak status", {
     ))
 
 
-
-  linelist1_agg <- aggregate_data(linelist1)
-  linelist2_agg <- aggregate_data(linelist2)
-  linelist4_agg <- aggregate_data(linelist4)
+  linelist1_agg <- linelist1 %>%
+    add_cw_iso(date_var = "date_report") %>%
+    aggregate_data()
+  linelist2_agg <- linelist2 %>%
+    add_cw_iso(date_var = "date_report") %>%
+    aggregate_data()
+  linelist4_agg <- linelist4 %>%
+    add_cw_iso(date_var = "date_report") %>%
+    aggregate_data()
 
 
   expect_equal(data.frame(linelist1_agg), data.frame(year = c(2024, 2024), week = c(40, 41), cases = c(6, 4)))

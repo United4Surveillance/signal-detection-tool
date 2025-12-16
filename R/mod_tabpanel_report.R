@@ -62,6 +62,13 @@ mod_tabpanel_report_server <- function(id,
             col_widths = c(6, 6),
             bslib::card(
               bslib::card_title("Download Report", container = shiny::h1),
+              shiny::textInput(
+                NS(id, "report_title"), "Report Title",
+                get_data_config_value(
+                  "report:title",
+                  "Signal Detection Report"
+                )
+              ),
               shiny::selectInput(NS(id, "format"), "Choose a format:",
                 choices = c("HTML", "DOCX")
               ),
@@ -71,6 +78,14 @@ mod_tabpanel_report_server <- function(id,
                 shiny::checkboxInput(NS(id, "tables"),
                   "Include signals tables for strata",
                   value = TRUE
+                )
+              ),
+              shiny::conditionalPanel(
+                condition = sprintf("input['%s'] == 'HTML'", NS(id, "format")),
+                shiny::div(
+                  style = "margin-top: 10px; color: #304794",
+                  shiny::icon("info-circle"),
+                  "The HTML report is downloaded as a ZIP File. Please extract (unzip) this file before opening the report. If you open the HTML file directly inside the ZIP archive, the report will not display correctly."
                 )
               ),
               shiny::downloadButton(NS(id, "downloadReport"), "Create Report")
@@ -110,13 +125,12 @@ mod_tabpanel_report_server <- function(id,
       )
     })
 
-
     output$downloadReport <- shiny::downloadHandler(
       filename = function() {
         paste0(
           "SignalDetectionReport.",
           switch(input$format,
-            HTML = "html",
+            HTML = "zip",
             DOCX = "docx"
           )
         )
@@ -134,7 +148,8 @@ mod_tabpanel_report_server <- function(id,
           output_dir = NULL,
           signals_padded = signals_padded() %>% dplyr::mutate(pathogen = pathogen_vars()),
           signals_agg = signals_agg() %>% dplyr::mutate(pathogen = pathogen_vars()),
-          intervention_date = intervention_date()
+          intervention_date = intervention_date(),
+          title = input$report_title
         )
       }
     )

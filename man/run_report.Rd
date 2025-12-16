@@ -18,7 +18,9 @@ run_report(
   signals_agg = NULL,
   intervention_date = NULL,
   custom_logo = NULL,
-  custom_theme = NULL
+  custom_theme = NULL,
+  min_cases_signals = 1,
+  title = NULL
 )
 }
 \arguments{
@@ -62,6 +64,10 @@ If not `NULL`, the provided `signals_agg` is used directly and signals are not r
 \item{custom_logo}{A character string with a path to a png or svg logo, to replace the default United4Surveillance logo. Only used when `report_format` is `"HTML"`.}
 
 \item{custom_theme}{A bslib::bs_theme() to replace the default United4Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact. Only used when `report_format` is `"HTML"`.}
+
+\item{min_cases_signals}{integer, minimum number of cases a signal must have. All signals with case counts smaller than this will be filtered in a post-processing step}
+
+\item{title}{NULL or a character string. Specifies the title of the report that is to be created}
 }
 \value{
 the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
