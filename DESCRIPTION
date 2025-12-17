@@ -29,6 +29,7 @@ Imports:
     DT (>= 0.26),
     flexdashboard (>= 0.6.2),
     flextable (>= 0.9.2),
+    ggforce (>= 0.4.2),
     ggplot2 (>= 3.4.4),
     golem (>= 0.4.1),
     htmlwidgets (>= 1.5.3),
