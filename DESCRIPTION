@@ -15,7 +15,7 @@ Authors@R:
     person("Tomas", "Martin-Bertelsen", role = c("aut")),
     person("Andreas", "Hicketier", role = c("ctb")),
     person("Juan", "Estupinan Mendez", role = c("ctb")),
-    person("Jana","Herret, role = c("ctb"))
+    person("Jana","Herret", role = c("ctb"))
     )
 Description: An interactive shiny app for signal detection of infectious disease surveillance data. This app allows the user to investigate generated signals and corresponding surveillance time series. It includes upload of csv or Excel files, data checks, possibility to set parameters for signal detection, visualisation of results and generation of reports.
 License: MIT + file LICENSE
