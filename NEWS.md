@@ -1,3 +1,5 @@
+# SignalDetectionTool 0.9.0
+
 * Added signal post processing by an option to filter signals with a specified minimum number of cases
 * Change highlighting for signals in map from red border to stars
 * Map shows all regions according to NUTS level, independently of the number of cases
@@ -23,8 +25,6 @@
 * replace dependency on surveillance package for the computation of seasgroups in create_fn_data() by own computation
 * fixed incorrect display of warning message your "Notice: Your input date_end is smaller than the greatest date in the dataset."
 * fixed incorrect display of week in plot_time_series(interactive = T) (#401)
-
-
 
 # SignalDetectionTool 0.8.0
 
