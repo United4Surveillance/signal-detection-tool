@@ -1,0 +1,40 @@
+# Prepares aggregated signals of one category for producing a table.
+
+It expects the aggregated signals input to only have one category. It
+converts certain columns to integers and the stratum column to factor
+with NA converted to unknown for styling purposes. It orders the strata
+by the factor levels. This table is used to show stratified signal
+results for one category, i.e. sex and results for all the strata no
+matter whether there are signals or not.
+
+## Usage
+
+``` r
+prepare_signals_agg_table(signals_agg)
+```
+
+## Arguments
+
+- signals_agg:
+
+  A tibble or data.frame containing aggregated signals produced from
+  [aggregate_signals](https://united4surveillance.github.io/signal-detection-tool/reference/aggregate_signals.md)(signals,number_of_weeks
+  = 6) for only one category
+
+## Value
+
+tibble with preprocessed aggregated signals
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+signals_agg <- input_example %>%
+  preprocess_data() %>%
+  get_signals(stratification = c("age_group", "sex")) %>%
+  aggregate_signals(number_of_weeks = 6) %>%
+  filter(category == "age_group")
+
+prepare_signals_agg_table(signals_agg)
+} # }
+```

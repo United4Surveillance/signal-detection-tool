@@ -9,7 +9,7 @@ Additionally number of cases part of a known outbreak is added if the variable o
 
     <a class="navbar-brand me-2" href="../index.html">SignalDetectionTool</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,8 @@ Additionally number of cases part of a known outbreak is added if the variable o
 <span>  <span class="va">data</span>,</span>
 <span>  date_var <span class="op">=</span> <span class="st">"date_report"</span>,</span>
 <span>  date_start <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  date_end <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  date_end <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  group <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -69,6 +70,10 @@ Additionally number of cases part of a known outbreak is added if the variable o
 <dt id="arg-date-end">date_end<a class="anchor" aria-label="anchor" href="#arg-date-end"></a></dt>
 <dd><p>A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.</p></dd>
 
+
+<dt id="arg-group">group<a class="anchor" aria-label="anchor" href="#arg-group"></a></dt>
+<dd><p>A character specifying another grouping variable. Usually used for stratification.</p></dd>
+
 </dl></div>
 
     <div class="section level2">
@@ -87,7 +92,7 @@ Additionally number of cases part of a known outbreak is added if the variable o
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

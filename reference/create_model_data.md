@@ -1,0 +1,80 @@
+# Create Model Data for Generalized Linear Modeling
+
+This function generates a dataset containing all the necessary columns
+for fitting a Generalized Linear Model (GLM) in the context of
+epidemiological time series analysis. The generated dataset can include
+components for seasonality, time trends, and baseline adjustments,
+depending on the specified model type and intervention parameters.
+
+## Usage
+
+``` r
+create_model_data(
+  ts_len,
+  model = "mean",
+  time_trend = TRUE,
+  intervention_start = NULL,
+  min_timepoints_baseline = 12,
+  min_timepoints_trend = 12,
+  past_weeks_not_included = 4
+)
+```
+
+## Arguments
+
+- ts_len:
+
+  integer, specifying the length of the aggregated timeseries of case
+  counts
+
+- model:
+
+  character, default "mean" one of c("mean", "sincos", "FN") specifying
+  which kind of model the glm is fitting. "mean" fits an intercept
+  model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from
+  farrington to fit parameters for seasonality.
+
+- time_trend:
+
+  boolean, default TRUE, when TRUE a timetrend is fitted in the glm
+  describing the expected number of cases.
+
+- intervention_start:
+
+  integer, specifying the rownumber in the aggregated timeseries which
+  corresponds to the intervention date.
+
+- min_timepoints_baseline:
+
+  integer, default 12, this parameter is only used when
+  intervention_date is not NULL, specifying the number of weeks at least
+  needed for fitting a new baseline after the intervention.
+
+- min_timepoints_trend:
+
+  integer, default 12, this parameter is only used when
+  intervention_date is not NULL, specifying the number of weeks at least
+  needed for fitting a new timetrend after the intervention.
+
+- past_weeks_not_included:
+
+  An integer specifying the number of past weeks to exclude from the
+  fitting process. This can be useful for excluding recent data with
+  outbreaks or data that may not be fully reported. Default is \`4\`.
+
+## Value
+
+data.frame containing all columns needed for the glm model. These are
+columns for the seasonality, time_trend and intercepts. This model data
+is used to fit the parameters for these coviariates. If model = "mean",
+time_trend = FALSE and intervention_start = NULL create_model_data()
+returns and empty tibble.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+create_model_data(100)
+create_model_data(100, intervention_start = 50)
+} # }
+```

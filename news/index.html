@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">SignalDetectionTool</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,36 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.9.0" id="signaldetectiontool-090">SignalDetectionTool 0.9.0<a class="anchor" aria-label="anchor" href="#signaldetectiontool-090"></a></h2>
+<ul><li>Added signal post processing by an option to filter signals with a specified minimum number of cases</li>
+<li>Change highlighting for signals in map from red border to stars</li>
+<li>Map shows all regions according to NUTS level, independently of the number of cases</li>
+<li>Changed the internal structure of the HTML report such that individual rmds are rendered for each strata</li>
+<li>The HTML Report is divided into several pages to reduce its size and improve its loading time. The report pages are returned as a zip File</li>
+<li>Improvements on the content of the HTML report such as
+<ul><li>adapted color scheme on landing page to highlight signals</li>
+<li>changed order and length of landing page pathogens</li>
+<li>user can provide own report title via app or yaml</li>
+</ul></li>
+<li>Added a check for the column names in the provided shapefile</li>
+<li>Added shapefile_metadata.md with description of the required shapefile format</li>
+<li>Improved speed of the app by
+<ul><li>vectorizing internal functions such as preprocess_data() and age_groups() for speed</li>
+<li>make it optional to show historic threshold and expectation for FarringtonFlexible</li>
+<li>if historic threshold is shown for FarringtonFlexible no unnecessary recomputation for signal weeks is performed</li>
+<li>In GLM based methods do not recompute the model for each week in the signal detection period, just fit once on the historic data never include weeks from signal detection period</li>
+<li>Creating a general get_possible_methods() function which checks which algorithms are possible based on the available number of weeks in historic data. Removed fitting non glm methods to data to verify if they can be applied.</li>
+<li>When no cases are available in signal detection period no algorithm is applied</li>
+</ul></li>
+<li>Restrict the maximum number of weeks for signal detection to 12 weeks</li>
+<li>The functions add_missing_isoweeks(), find_age_group() and get_possible_glm_methods() are deleted.</li>
+<li>Added function add_cw_iso() which adds a column with iso week-year which is used for aggregation</li>
+<li>aggregate_data() modified such that in can take a grouping variable and thus looping over levels in the strata in get_signals_stratified() could be removed</li>
+<li>replace dependency on surveillance package for the computation of seasgroups in create_fn_data() by own computation</li>
+<li>fixed incorrect display of warning message your “Notice: Your input date_end is smaller than the greatest date in the dataset.”</li>
+<li>fixed incorrect display of week in plot_time_series(interactive = T) (#401)</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.8.0" id="signaldetectiontool-080">SignalDetectionTool 0.8.0<a class="anchor" aria-label="anchor" href="#signaldetectiontool-080"></a></h2>
 <ul><li>Adds ability to generate one HTML report for multiple pathogens.</li>
@@ -164,7 +194,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

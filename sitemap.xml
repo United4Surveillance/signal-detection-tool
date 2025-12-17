@@ -9,7 +9,7 @@
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/authors.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/index.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/news/index.html</loc></url>
-<url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/add_missing_isoweeks.html</loc></url>
+<url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/add_cw_iso.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/age_format_check.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/age_groups.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/aggregate_data.html</loc></url>
@@ -22,6 +22,7 @@
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/build_signals_table.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/check_any_age.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/check_character_levels.html</loc></url>
+<url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/check_columns_shapefile.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/check_empty_rows.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/check_for_missing_values.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/check_mandatory_variables.html</loc></url>
@@ -52,7 +53,6 @@
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/decider_barplot_map_table.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/filter_by_date.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/filter_data_last_n_weeks.html</loc></url>
-<url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/find_age_group.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/format_table.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_case_id_duplicates.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_data_config_value.html</loc></url>
@@ -61,9 +61,10 @@
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_float_columns.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_intervention_timepoint.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_iso_week_year.html</loc></url>
+<url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_min_max_date.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_missing_data.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_name_by_value.html</loc></url>
-<url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_possible_glm_methods.html</loc></url>
+<url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_possible_methods.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_region_from_region_id.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_region_id_from_region.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_shp_config_or_internal.html</loc></url>

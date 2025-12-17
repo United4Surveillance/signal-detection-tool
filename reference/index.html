@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">SignalDetectionTool</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,625 +36,733 @@
 
 
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
 
       <dl><dt>
 
-          <code><a href="add_missing_isoweeks.html">add_missing_isoweeks()</a></code>
+          <code><a href="add_cw_iso.html">add_cw_iso()</a></code>
 
         </dt>
-        <dd>Add missing isoweeks to an aggregated dataframe of case counts by year and week</dd>
-      </dl><dl><dt>
+        <dd>Adds a column `cw_iso` to the data.frame `data`.</dd>
+
+        <dt>
 
           <code><a href="age_format_check.html">age_format_check()</a></code>
 
         </dt>
         <dd>Age Group Format Check</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="age_groups.html">age_groups()</a></code>
 
         </dt>
-        <dd>Creates age grouping variable for a given data set</dd>
-      </dl><dl><dt>
+        <dd>Create age grouping variable for a given data set</dd>
+
+        <dt>
 
           <code><a href="aggregate_data.html">aggregate_data()</a></code>
 
         </dt>
         <dd>Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek and adds missing isoweeks to the aggregated dataset. Additionally number of cases part of a known outbreak is added if the variable outbreak_status exists in the data.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="aggregate_pad_signals.html">aggregate_pad_signals()</a></code>
 
         </dt>
         <dd>Aggregate and Pad Signals for Reporting</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="aggregate_signals.html">aggregate_signals()</a></code>
 
         </dt>
         <dd>Aggregate cases and signals over the number of weeks. First the signals are filtered to obtain the signals for the last n weeks aggregating the number of cases observed, create variable any signal generated and the aggregate the number of signals</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="algo.cusum_with_reset.html">algo.cusum_with_reset()</a></code>
 
         </dt>
         <dd>Implementation of the CUSUM algorithm retrieved from the surveillance package and adapted so that after a signal was triggered the cusum is set to 0 Parameters are inherited from surveillance algo.cusum</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="available_algorithms.html">available_algorithms()</a></code>
 
         </dt>
         <dd>List Available Signal Detection Algorithms</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="build_empty_datatable.html">build_empty_datatable()</a></code>
 
         </dt>
         <dd>Create an Empty DataTable with a Custom Message</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="build_signals_agg_table.html">build_signals_agg_table()</a></code>
 
         </dt>
         <dd>Builds the aggregated signal detection results table with different formating options.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="build_signals_table.html">build_signals_table()</a></code>
 
         </dt>
         <dd>Builds the signal detection results table with different formating options. To get the raw data.frame containing method ald number_of_weeks as well use format = "data.frame", to obtain nicely formated tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="check_any_age.html">check_any_age()</a></code>
 
         </dt>
         <dd>Helper function to check for presence of age variable or instead age_group</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="check_character_levels.html">check_character_levels()</a></code>
 
         </dt>
         <dd>Helper to check that values of a character variable are in given levels</dd>
-      </dl><dl><dt>
+
+        <dt>
+
+          <code><a href="check_columns_shapefile.html">check_columns_shapefile()</a></code>
+
+        </dt>
+        <dd>check that shapefile contains NUTS_ID, LEVL_CODE, and CNTR_CODE</dd>
+
+        <dt>
 
           <code><a href="check_empty_rows.html">check_empty_rows()</a></code>
 
         </dt>
         <dd>check whether there is a completely empty row in provided surveillance data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="check_for_missing_values.html">check_for_missing_values()</a></code>
 
         </dt>
         <dd>Varible names which should be checked for missing values</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="check_mandatory_variables.html">check_mandatory_variables()</a></code>
 
         </dt>
         <dd>checking mandatory variables in the surveillance data check if mandatory variables are present in the data check if they have the correct type and correct values</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="check_presence_mandatory_variables.html">check_presence_mandatory_variables()</a></code>
 
         </dt>
         <dd>checking presence of mandatory variables in surveillance data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="check_raw_surveillance_data.html">check_raw_surveillance_data()</a></code>
 
         </dt>
         <dd>Checking whether raw surveillance linelist fulfills requirements to the data specified in the SOP Checking presence and correct type of mandatory variables Checking type and values of optional variables</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="check_region_region_id_consistency.html">check_region_region_id_consistency()</a></code>
 
         </dt>
         <dd>Check whether the region and corresponding region_id columns only have one region name per ID</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="check_type_and_value_age_group.html">check_type_and_value_age_group()</a></code>
 
         </dt>
         <dd>Checking type and values of the age_group column</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="check_type_and_value_case_id.html">check_type_and_value_case_id()</a></code>
 
         </dt>
         <dd>Checking type of case_id, duplication or missing case_id</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="check_type_and_value_date.html">check_type_and_value_date()</a></code>
 
         </dt>
         <dd>Checking type and values of date variables date variable can be of type character or date</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="check_type_and_value_mandatory_variables.html">check_type_and_value_mandatory_variables()</a></code>
 
         </dt>
         <dd>Checking those mandatory variables which are present in the data for their type</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="check_type_and_value_optional_variables.html">check_type_and_value_optional_variables()</a></code>
 
         </dt>
         <dd>Checking correct type and value of optional variables which are present in the data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="check_type_and_value_yes_no_unknown.html">check_type_and_value_yes_no_unknown()</a></code>
 
         </dt>
         <dd>Checking type and values of variables which should have yes,no,unknown values</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="complete_agegrp_arr.html">complete_agegrp_arr()</a></code>
 
         </dt>
         <dd>Complete Age Group Array</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="conjure_filename.html">conjure_filename()</a></code>
 
         </dt>
         <dd>Conjure Filename</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="convert_columns_integer.html">convert_columns_integer()</a></code>
 
         </dt>
         <dd>Convert specified columns to integer type</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="convert_to_sts.html">convert_to_sts()</a></code>
 
         </dt>
         <dd>Turns aggregated data into surveillance's sts format</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="create_age_group_levels.html">create_age_group_levels()</a></code>
 
         </dt>
         <dd>Creation of age_group levels from different formats of the age_group column</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="create_barplot_or_table.html">create_barplot_or_table()</a></code>
 
         </dt>
         <dd>Decider function to create barplot or table of aggregated cases with signals Depending on the number of unique levels to visualise it is decided whether a barplot or a table is shown. The aggregated number of cases for each stratum and whether any signal are shown.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="create_baseline.html">create_baseline()</a></code>
 
         </dt>
         <dd>Create a data.frame with a constant baseline for an intercept only regression model.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="create_factor_with_unknown.html">create_factor_with_unknown()</a></code>
 
         </dt>
         <dd>Create a factor out of the stratum column with transforming NA to unknown</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="create_fn_data.html">create_fn_data()</a></code>
 
         </dt>
         <dd>Create a data.frame with 10 seasgroups components for harmonic modeling.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="create_formula.html">create_formula()</a></code>
 
         </dt>
         <dd>Create a model formula based on the columns in the model_data dataframe.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="create_map_or_table.html">create_map_or_table()</a></code>
 
         </dt>
         <dd>Decider for creating a map or a table based on whether all NUTS_ids are found in the shapefile</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="create_model_data.html">create_model_data()</a></code>
 
         </dt>
         <dd>Create Model Data for Generalized Linear Modeling</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="create_sincos_data.html">create_sincos_data()</a></code>
 
         </dt>
         <dd>Create a data.frame with sine and cosine components for harmonic modeling.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="create_time_trend.html">create_time_trend()</a></code>
 
         </dt>
         <dd>Create a data.frame with variable time trend for regression modeling.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="cusum_with_reset.html">cusum_with_reset()</a></code>
 
         </dt>
         <dd>Wrapper around the algo.cusum_with_reset Copied from the code of the surveillance package and adapted for algo.cusum_with_reset</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="decider_barplot_map_table.html">decider_barplot_map_table()</a></code>
 
         </dt>
         <dd>Decider function whether create_map_or_table or create_barplot_or_table is used</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="filter_by_date.html">filter_by_date()</a></code>
 
         </dt>
         <dd>Filter Data Frame by Date Range</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="filter_data_last_n_weeks.html">filter_data_last_n_weeks()</a></code>
 
         </dt>
         <dd>Filter the data so that only the data of the last n weeks are returned This function can be used to filter for those last n weeks where signals were generated.</dd>
-      </dl><dl><dt>
 
-          <code><a href="find_age_group.html">find_age_group()</a></code>
-
-        </dt>
-        <dd>Finds correct age interval for given age</dd>
-      </dl><dl><dt>
+        <dt>
 
           <code><a href="format_table.html">format_table()</a></code>
 
         </dt>
         <dd>Format the signal results to an interactive or static table</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_case_id_duplicates.html">get_case_id_duplicates()</a></code>
 
         </dt>
         <dd>Checking for duplicates in case_id</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_data_config_value.html">get_data_config_value()</a></code>
 
         </dt>
         <dd>Retrieve a Configuration Value from DATA_CONFIG</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_database_connection.html">get_database_connection()</a></code>
 
         </dt>
         <dd>Establish a Database Connection (Example Implementation)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_empty_columns.html">get_empty_columns()</a></code>
 
         </dt>
         <dd>Retrieveing which columns in the dataset only contain missing values</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_float_columns.html">get_float_columns()</a></code>
 
         </dt>
         <dd>Get the numeric columns that are not integer columns</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_intervention_timepoint.html">get_intervention_timepoint()</a></code>
 
         </dt>
         <dd>Get row number of aggregated data which is the isoweek and isoyear corresponding to the date given</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_iso_week_year.html">get_iso_week_year()</a></code>
 
         </dt>
         <dd>Get isoweek and isoyear from a given date</dd>
-      </dl><dl><dt>
+
+        <dt>
+
+          <code><a href="get_min_max_date.html">get_min_max_date()</a></code>
+
+        </dt>
+        <dd>Get minimum and maximum date in the linelist</dd>
+
+        <dt>
 
           <code><a href="get_missing_data.html">get_missing_data()</a></code>
 
         </dt>
         <dd>retrieve 'case_id's which have missing values in computationally crucial variables</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_name_by_value.html">get_name_by_value()</a></code>
 
         </dt>
         <dd>Function to retrieve name from named vector given its value Can be used to retrieve the "pretty" names to show to the user and in the background work with the values</dd>
-      </dl><dl><dt>
 
-          <code><a href="get_possible_glm_methods.html">get_possible_glm_methods()</a></code>
+        <dt>
+
+          <code><a href="get_possible_methods.html">get_possible_methods()</a></code>
 
         </dt>
-        <dd>Get Possible GLM Methods Based on Available Data</dd>
-      </dl><dl><dt>
+        <dd>Determine Possible Outbreak Detection Methods Based on Available Historic Data</dd>
+
+        <dt>
 
           <code><a href="get_region_from_region_id.html">get_region_from_region_id()</a></code>
 
         </dt>
         <dd>Function to extract corresponding region to the region_id variable</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_region_id_from_region.html">get_region_id_from_region()</a></code>
 
         </dt>
         <dd>Function to get the region_id variable names from the region variables</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_shp_config_or_internal.html">get_shp_config_or_internal()</a></code>
 
         </dt>
         <dd>Get Shapefile: Read from Config or Use Internal Dataset</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_signals.html">get_signals()</a></code>
 
         </dt>
         <dd>Get Signals</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_signals_aeddo.html">get_signals_aeddo()</a></code>
 
         </dt>
         <dd>Automated and Early Detection of Disease Outbreaks</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_signals_all.html">get_signals_all()</a></code>
 
         </dt>
         <dd>Get Signals for All Strata Including Unstratified</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_signals_cusum.html">get_signals_cusum()</a></code>
 
         </dt>
         <dd>Get signals of CUSUM algorithm with reset</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_signals_ears.html">get_signals_ears()</a></code>
 
         </dt>
         <dd>Get signals of surveillance's EARS algorithm</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_signals_farringtonflexible.html">get_signals_farringtonflexible()</a></code>
 
         </dt>
         <dd>Get signals of surveillance's farringtonFlexible algorithm</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_signals_glm.html">get_signals_glm()</a></code>
 
         </dt>
         <dd>Get signals based on a weigthed GLM quasipoisson regression model for the expected case counts The GLM is flexible being able to just fit a mean, add a time trend, fit a harmonic sin/cos model or the seasons from the farringtonflexible.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_signals_stratified.html">get_signals_stratified()</a></code>
 
         </dt>
         <dd>Get Signals Stratified</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_strata_from_signals_agg.html">get_strata_from_signals_agg()</a></code>
 
         </dt>
         <dd>Extract strata from precomputed signals_agg</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_unused_variables.html">get_unused_variables()</a></code>
 
         </dt>
         <dd>retrieve variables which are in provided in surveillance linelist but are not used in the tool</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_valid_dates_intervention_start.html">get_valid_dates_intervention_start()</a></code>
 
         </dt>
         <dd>Get a default and minimum and maximum date for the intervention time point for the glm algorithms with pandemic correction. This is based on the data provided and the settings for the delays.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="input_example.html">input_example</a></code>
 
         </dt>
         <dd>Example input data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="input_example_multipathogen.html">input_example_multipathogen</a></code>
 
         </dt>
         <dd>Multipathogen input data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="input_metadata.html">input_metadata</a></code>
 
         </dt>
         <dd>Input metadata</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="is_ISO8601.html">is_ISO8601()</a></code>
 
         </dt>
         <dd>checking YYYYY-mm-dd format of date variables</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="is_ISO8601_detailed.html">is_ISO8601_detailed()</a></code>
 
         </dt>
         <dd>detailed check of date variables check that months are numbers between 01-12 and days are from 01-31</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="is_age_group_format.html">is_age_group_format()</a></code>
 
         </dt>
         <dd>checking age_group column only containing digits, separators and &lt;,&gt;,+ For the first age_group using seperator, i.e. 00-05, &lt;5 is allowed. For the last age group using seperators, i.e. 95-100, &gt;100 and 100+ is allowed. Separators like - (dash), _ (underscore), and — (em dash) are also allowed for intermediate age ranges.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="is_last_age_group_format.html">is_last_age_group_format()</a></code>
 
         </dt>
         <dd>checking the format of the last/biggest age group to follow the format digit separator digit, digit+ or &gt;digit</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="isoweek_to_date.html">isoweek_to_date()</a></code>
 
         </dt>
         <dd>Create a Date from ISO Year and Week</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="load_data_db.html">load_data_db()</a></code>
 
         </dt>
         <dd>Load Data from Database (Example Implementation)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="nuts_shp.html">nuts_shp</a></code>
 
         </dt>
         <dd>NUTS-Regions</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="pad_signals.html">pad_signals()</a></code>
 
         </dt>
         <dd>Extend the computed threshold and expectation of the signal detection method to the past for visualisation purposes but not for signal generation Inside the function it is computed what the maximum number of timepoints is the signal detection algorithms can be applied for. This depends on the algorithm and the amount of historic data. The already generated signals dataframe is then extended with the expectation and threshold into the past</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot_agegroup_by.html">plot_agegroup_by()</a></code>
 
         </dt>
         <dd>Plot age-groups grouped by another variable</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot_barchart.html">plot_barchart()</a></code>
 
         </dt>
         <dd>Barplot visualising the number of cases and information about any signals</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot_regional.html">plot_regional()</a></code>
 
         </dt>
         <dd>Plot number of cases with number of signals by region</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot_signals_per_week.html">plot_signals_per_week()</a></code>
 
         </dt>
         <dd>Plot in how many strata an signal was detected under the detection period</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot_time_series.html">plot_time_series()</a></code>
 
         </dt>
         <dd>Plot time-series based on the results of a signal detection algorithm, being alarms, threshold and expectation</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="prepare_signals_agg_table.html">prepare_signals_agg_table()</a></code>
 
         </dt>
         <dd>Prepares aggregated signals of one category for producing a table.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="prepare_signals_table.html">prepare_signals_table()</a></code>
 
         </dt>
         <dd>Prepare the signal detection results for creation of table with results</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="preprocess_data.html">preprocess_data()</a></code>
 
         </dt>
         <dd>Preprocessing of linelist surveillance data with or without outbreak_ids</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="query_database.html">query_database()</a></code>
 
         </dt>
         <dd>Query Database (Example Implementation)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="read_csv_both_sep.html">read_csv_both_sep()</a></code>
 
         </dt>
         <dd>Read csv files which can have seperators ; or ,</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="read_csv_or_excel.html">read_csv_or_excel()</a></code>
 
         </dt>
         <dd>Read csv or excel files Checks the input file for its type and then reads the file</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="region_id_variable_names.html">region_id_variable_names()</a></code>
 
         </dt>
         <dd>Variable names of the region_id variables including those which do not necessarily follow NUTS format</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="region_variable_names.html">region_variable_names()</a></code>
 
         </dt>
         <dd>Variable names of the region_id variables including those which do not necessarily follow NUTS format</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="remove_empty_columns.html">remove_empty_columns()</a></code>
 
         </dt>
         <dd>Removing columns from data which only contain missing values</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="run_app.html">run_app()</a></code>
 
         </dt>
         <dd>Run the Shiny Application</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="run_report.html">run_report()</a></code>
 
         </dt>
         <dd>Renders signal detection report</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="save_signals.html">save_signals()</a></code>
 
         </dt>
         <dd>Save signals</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="sex_levels.html">sex_levels()</a></code>
 
         </dt>
         <dd>Allowed levels for sex in preprocessed surveillance data used for all calculations</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="sex_raw_levels.html">sex_raw_levels()</a></code>
 
         </dt>
         <dd>Allowed levels for sex in raw surveillance data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="transform_required_format.html">transform_required_format()</a></code>
 
         </dt>
         <dd>Transform Data to Required Format (Example Implementation)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="yes_no_unknown_levels.html">yes_no_unknown_levels()</a></code>
 
         </dt>
         <dd>Allowed levels for variables with yes, no, unknown levels in preprocessed surveillance data used for calculations</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="yes_no_unknown_raw_levels.html">yes_no_unknown_raw_levels()</a></code>
 
         </dt>
         <dd>Allowed levels for variables with yes, no, unknown levels in raw surveillance data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="yes_no_unknown_variables.html">yes_no_unknown_variables()</a></code>
 
@@ -669,7 +777,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
