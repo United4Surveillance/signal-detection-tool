@@ -10,8 +10,9 @@
 * Added a check for the column names in the provided shapefile
 * Added shapefile_metadata.md with description of the required shapefile format
 * Improved speed of the app by
-  * improved and vectorized internal functions such as preprocess_data() and age_groups() for speed
-  * make it optional to show historic threshold and expectation for FarringtonFlexible, if padding is used no unnecessary recomputation for signal weeks is performed
+  * vectorizing internal functions such as preprocess_data() and age_groups() for speed
+  * make it optional to show historic threshold and expectation for FarringtonFlexible
+  * if historic threshold is shown for FarringtonFlexible no unnecessary recomputation for signal weeks is performed
   * In GLM based methods do not recompute the model for each week in the signal detection period, just fit once on the historic data never include weeks from signal detection period
   * Creating a general get_possible_methods() function which checks which algorithms are possible based on the available number of weeks in historic data. Removed fitting non glm methods to data to verify if they can be applied.
   * When no cases are available in signal detection period no algorithm is applied
@@ -20,6 +21,7 @@
 * Added function add_cw_iso() which adds a column with iso week-year which is used for aggregation
 * aggregate_data() modified such that in can take a grouping variable and thus looping over levels in the strata in get_signals_stratified() could be removed
 * replace dependency on surveillance package for the computation of seasgroups in create_fn_data() by own computation
+* fixed incorrect display of warning message your "Notice: Your input date_end is smaller than the greatest date in the dataset."
 * fixed incorrect display of week in plot_time_series(interactive = T) (#401)
 
 
