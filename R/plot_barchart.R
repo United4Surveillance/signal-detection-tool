@@ -50,8 +50,8 @@ plot_barchart <- function(signals_agg,
         y = cases,
         color = dplyr::if_else(any_alarms, "At least 1 signal", "No signals"),
         text = sprintf(
-          "Number of cases: %.0f \nNumber of signals: %.0f",
-          .data$cases, .data$n_alarms
+          "%s \nNumber of cases: %.0f \nNumber of signals: %.0f",
+          .data$stratum, .data$cases, .data$n_alarms
         )
       ),
       fill = "#304794",
@@ -63,10 +63,6 @@ plot_barchart <- function(signals_agg,
         "At least 1 signal" = "red",
         "No signals" = "#304794"
       )
-    ) +
-    ggplot2::scale_x_discrete(
-      na.translate = TRUE, labels = function(x) ifelse(is.na(x), "unknown", x),
-      drop = FALSE
     ) +
     ggplot2::scale_y_continuous(
       breaks = scales::pretty_breaks(n = 10),
@@ -101,6 +97,12 @@ plot_barchart <- function(signals_agg,
   }
 
   if (interactive) {
+    p <- p + ggplot2::scale_x_discrete(
+      na.translate = TRUE,
+      drop = FALSE,
+      labels = \(x) shorten_label(x)
+    )
+
     p <- plotly::ggplotly(p, tooltip = "text") %>%
       plotly::config(modeBarButtonsToRemove = c(
         "autoScale2d",
@@ -118,4 +120,20 @@ plot_barchart <- function(signals_agg,
     }
   }
   return(p)
+}
+
+#' Shorten labels for plotting
+#'
+#' Truncates character labels to a fixed width and replacing the rest with ... .
+#'
+#' @param x A character vector of labels.
+#' @param width Integer specifying the maximum number of characters to keep.
+#'
+#' @return A character vector with labels truncated to the specified width.
+#'
+#' @examples
+#' shorten_label(c("Very long category name", "Short"))
+#' shorten_label("This is a long string", width = 10)
+shorten_label <- function(x, width = 16) {
+    stringr::str_trunc(x, width = width, side = "right", ellipsis = "…")
 }
