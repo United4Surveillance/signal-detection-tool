@@ -135,5 +135,5 @@ plot_barchart <- function(signals_agg,
 #' shorten_label(c("Very long category name", "Short"))
 #' shorten_label("This is a long string", width = 10)
 shorten_label <- function(x, width = 16) {
-    stringr::str_trunc(x, width = width, side = "right", ellipsis = "…")
+  stringr::str_trunc(x, width = width, side = "right", ellipsis = "…")
 }
