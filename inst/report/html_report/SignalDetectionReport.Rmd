@@ -148,15 +148,14 @@ dt <- DT::datatable(
       names_from = category,
       values_from = signals
     ) %>% 
+    dplyr::mutate(total = rowSums(dplyr::across(is.integer))) %>%
     dplyr::right_join(results_cases, by = "pathogen") %>% 
-    dplyr::relocate(cases, .after = "pathogen") %>% 
+    dplyr::relocate(cases, .after = "pathogen") %>%
     dplyr::mutate(
       pathogen_f = tolower(pathogen),
       pathogen_f = gsub("[~(),./?&!#<>\\]", "", pathogen_f),
       pathogen_f = gsub("\\s", "-", pathogen_f), 
-      pathogen = paste0("<a href='report_pages/", pathogen_f,".html'>", pathogen,"</a>"),
-      total = rowSums(dplyr::across(is.integer))
-    ) %>% 
+      pathogen = paste0("<a href='report_pages/", pathogen_f,".html'>", pathogen,"</a>")) %>% 
     dplyr::select(-pathogen_f) %>% 
     dplyr::arrange(desc(total)),
   rownames = FALSE,
