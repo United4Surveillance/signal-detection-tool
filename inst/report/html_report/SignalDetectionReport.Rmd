@@ -105,10 +105,10 @@ This report contains an overview of signals observed for the period `r head(reco
 For each disease, you can find an unstratified overview of the observed signals`r text_strata`. 
 
 ```{r}
-results_cases <- params$signals_padded %>% 
-  dplyr::filter(!is.na(alarms)) %>% 
-  dplyr::group_by(pathogen) %>% 
-  dplyr::summarise(cases = sum(cases))
+# compute unstratified number of cases in the last 6 weeks
+results_cases <- params$signals_agg %>% 
+  dplyr::filter(is.na(category)) %>% 
+  dplyr::select(pathogen,cases)
 ```
 
 Row

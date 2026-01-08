@@ -60,7 +60,7 @@ Row
 
 ### Number of cases
 ```{r}
-flexdashboard::valueBox(value = sum(results_analysis$cases[is.na(results_analysis$category)]), 
+flexdashboard::valueBox(value = s_agg$cases[is.na(s_agg$category)], 
          caption = paste("cases of", params$disease),
          color = brand_colors["info"])
 ```
