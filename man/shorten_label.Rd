@@ -18,6 +18,8 @@ A character vector with labels truncated to the specified width.
 Truncates character labels to a fixed width and replacing the rest with ... .
 }
 \examples{
+\dontrun{
 shorten_label(c("Very long category name", "Short"))
 shorten_label("This is a long string", width = 10)
+}
 }
