@@ -93,7 +93,7 @@ run_report <- function(
     method = "FarringtonFlexible",
     number_of_weeks = 6,
     pathogens = NULL,
-    strata = c("county", "age_group"),
+    strata = c("county","age_group"),
     tables = TRUE,
     output_file = NULL,
     output_dir = ".",
@@ -129,17 +129,21 @@ run_report <- function(
     checkmate::check_subset(pathogens, choices = unique(signals_padded$pathogen)),
     combine = "or"
   )
+#
+#   strata_df <- tibble::tribble(~pathogen, ~strata,
+#                                    "Salmonella", c("age_group","sex","state"),
+#                                    "Pertussis", c("age_group","hospitalization"))
   # Validate strata
-  checkmate::assert_character(strata, null.ok = TRUE, min.len = 1)
+  #checkmate::assert_character(strata, null.ok = TRUE, min.len = 1)
   # check that all columns are present in the data
   if ("None" %in% strata) {
     strata <- NULL
   }
-  for (col in strata) {
-    checkmate::assert(
-      checkmate::check_choice(col, choices = names(data))
-    )
-  }
+  # for (col in strata) {
+  #   checkmate::assert(
+  #     checkmate::check_choice(col, choices = names(data))
+  #   )
+  # }
   checkmate::assert_logical(tables)
   checkmate::assert_character(output_file, null.ok = TRUE, len = 1)
   checkmate::assert_string(output_dir, null.ok = TRUE)
@@ -217,10 +221,12 @@ run_report <- function(
   # only need to check signals_agg as when signals_padded is NULL signals are anyways recomputed
   # prevents errors when user did not specify strata and used signals_agg, signals_padded
   if(!is.null(signals_agg)){
+    # this needs to be changed such that there we also get this tribble then!
     strata <- get_strata_from_signals_agg(signals_agg)
   }
 
   # compute signals if not provided to run_report by the user
+  # here we can also do it that we can use different stratification for each pathogen
   if (is.null(signals_agg) | is.null(signals_padded)) {
     preprocessed_data <- data %>% preprocess_data()
 
@@ -231,10 +237,12 @@ run_report <- function(
       preprocessed_data_pat <- preprocessed_data %>%
         dplyr::filter(pathogen == pat)
 
+      strata_per_path <- get_strata_for_path(strata,pat)
+
       signals <- get_signals_all(preprocessed_data_pat,
         method = method,
         intervention_date = intervention_date,
-        stratification = strata,
+        stratification = strata_per_path, # hier auch Erregerspezifisches Stratum verwenden
         date_start = NULL,
         date_end = NULL,
         date_var = "date_report",
@@ -265,6 +273,7 @@ run_report <- function(
     # Clean up as these can be large
     rm(signals_agg_list, signals_padded_list)
     gc()
+    browser()
   }
 
   title <- if(is.null(title) || trimws(title) == "") paste0("Signal Detection Report - ", unique(data$country)) else title
@@ -381,6 +390,7 @@ run_report <- function(
 
 
     for(patho in pathogens){
+      print(patho)
       # formatted pathogen name (used for links)
       patho_f <- tolower(patho)
       patho_f <- gsub("[~(),./?&!#<>\\]", "", patho_f) #remove special characters
@@ -393,12 +403,15 @@ run_report <- function(
       signals_agg_p <-  signals_agg %>%
         dplyr::filter(.data$pathogen == patho)
 
+      # pathogen specific strata are obtained if given
+      strata_per_path <- get_strata_for_path(strata,patho)
+
       pathogen_report_params <- list(
         data = data,
         disease = patho,
         country = unique(data$country),
         number_of_weeks = number_of_weeks,
-        strata = strata,
+        strata = strata_per_path,
         signals_padded = signals_pad_p,
         signals_agg = signals_agg_p,
         intervention_date = intervention_date,
@@ -412,8 +425,9 @@ run_report <- function(
         output_file = patho_f,
         output_dir = file.path(temp_dir, "report_pages")
       )
+      print("rendered pathogen page for this patho")
 
-      for(ctg in strata){
+      for(ctg in strata_per_path){
 
         # strata pages parameters
         signals_pad_c <-  signals_padded %>%
@@ -436,13 +450,15 @@ run_report <- function(
           output_file = paste(patho_f, ctg, sep  = "-"),
           output_dir = file.path(temp_dir, "report_pages")
         )
+        print(ctg)
+        print("rendered this category page")
       }
     }
 
     # Render Pathogen page
     rmarkdown::render(rmd_path,
       output_format = output_format,
-      params = report_params,
+      params = report_params, # hier ist unter strata dann wieder die ursprungsliste drin
       output_file = "SignalDetectionReport.html",
       output_dir = temp_dir
     )
@@ -471,5 +487,27 @@ run_report <- function(
       output_file = output_file,
       output_dir = output_dir
     )
+  }
+}
+
+# for a given pathogen get the stratification list
+# deal with all cases the NULL case, the non list case i.e. the former case with strata = c("age_group","sex")
+# and the new case with a list defining strata used per pathogen group
+get_strata_for_path <- function(strata,pat = NULL){
+
+  if(is.null(strata)) return(NULL)
+
+  # usage from the app and previous usage of strata
+  if(is.character(strata)){
+    if("None" %in% strata) return(NULL)
+    return(strata)
+  }
+
+  if(is.data.frame(strata)){
+    # check that pat is given to match strata to given pathogen, before pat is not needed
+    checkmate::assert_string(pat)
+
+    i <- match(pat, strata$pathogen)
+    return(strata$strata[[i]])
   }
 }

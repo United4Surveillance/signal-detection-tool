@@ -82,27 +82,12 @@ text_diseases <- ifelse(
 
 )
 
-# selected stratifications
-text_strata <- ""
-if(length(params$strata) >= 1){
-  text_strata <- ", as well as stratified by "
-  if(length(params$strata) == 1){
-    text_strata <- paste0(text_strata, params$strata)
-  } else if(length(params$strata) == 2){
-    text_strata <- paste0(text_strata,
-                          params$strata[1], " and ", params$strata[2])
-  } else {
-    text_strata <- paste0(text_strata,
-                          paste0(params$strata[1:(length(params$strata) - 1)],
-                                 collapse = ", "), 
-                          ", and ", tail(params$strata, 1))
-  }
-} 
 ```
 
 This report contains an overview of signals observed for the period `r head(records$yearweek, 1)` to `r tail(records$yearweek, 1)` for `r text_diseases` in `r params$country`. The signals were calculated using the `r params$method` algorithm.
 
-For each disease, you can find an unstratified overview of the observed signals`r text_strata`. 
+For each disease, an unstratified overview of the observed signals is provided, as well as stratified analyses by relevant characteristics.
+The stratification may differ by disease.
 
 ```{r}
 # compute unstratified number of cases in the last 6 weeks
@@ -116,8 +101,7 @@ Row
 ### Summary
 ```{r}
 # Summary all signals
-tmp_df <- params$signals_padded %>%
-  dplyr::filter(!is.na(alarms)) %>%
+tmp_df <- params$signals_agg %>%
   dplyr::mutate(
     category = dplyr::case_when(
       is.na(category)~"Unstratified", 
@@ -125,13 +109,12 @@ tmp_df <- params$signals_padded %>%
       )
   ) %>% 
   dplyr::group_by(pathogen, category) %>%
-  dplyr::summarise(signals = sum(alarms))
+  dplyr::summarise(signals = sum(n_alarms))
 
 # max number of signals in category in period
 maxsignals <- params$signals_agg %>% 
-  dplyr::filter(pathogen == params$disease[1]) %>% 
-  dplyr::group_by(category) %>% 
-  dplyr::summarise(max_signals = n()*params$number_of_weeks) %>% 
+  dplyr::group_by(category,pathogen) %>% 
+  dplyr::summarise(max_signals = dplyr::n()*params$number_of_weeks) %>% 
   dplyr::mutate(
     category = dplyr::case_when(
       is.na(category)~"Unstratified", 
@@ -148,7 +131,7 @@ dt <- DT::datatable(
       names_from = category,
       values_from = signals
     ) %>% 
-    dplyr::mutate(total = rowSums(dplyr::across(is.integer))) %>%
+    dplyr::mutate(total = rowSums(dplyr::across(dplyr::where(is.integer)), na.rm = T)) %>%
     dplyr::right_join(results_cases, by = "pathogen") %>% 
     dplyr::relocate(cases, .after = "pathogen") %>%
     dplyr::mutate(
@@ -157,7 +140,8 @@ dt <- DT::datatable(
       pathogen_f = gsub("\\s", "-", pathogen_f), 
       pathogen = paste0("<a href='report_pages/", pathogen_f,".html'>", pathogen,"</a>")) %>% 
     dplyr::select(-pathogen_f) %>% 
-    dplyr::arrange(desc(total)),
+    dplyr::arrange(desc(total)) %>% 
+    dplyr::mutate(dplyr::across(dplyr::everything(), ~ tidyr::replace_na(as.character(.x) ,"-"))),
   rownames = FALSE,
   escape = FALSE,
   caption = paste0("Number of signals encountered in each stratification level in the last ",
@@ -171,18 +155,18 @@ for(cate in c("Unstratified", strata)){
   # Calculates bins for colouring
   max_s <- maxsignals$max_signals[maxsignals$category == cate]
   cuts <- seq(0, max_s, length.out = 11)
-  
+
   # colours for interpolate, uses brand color
   colours <- c(brand_colors["bg"], brand_colors["warning"], brand_colors["danger"])
-  values <- colorRamp(colours, bias = log(0.2)/log(0.5))(cuts/max_s)   # bias transforms warning value to 20% 
+  values <- colorRamp(colours, bias = log(0.2)/log(0.5))(cuts/max_s)   # bias transforms warning value to 20%
   values <- rgb(values[,1],
                 values[,2],
-                values[,3], 
+                values[,3],
                 maxColorValue = 255)
-  
-  # assign each column the colour formatting 
-  dt <- dt %>% 
-    DT::formatStyle(cate, 
+
+  # assign each column the colour formatting
+  dt <- dt %>%
+    DT::formatStyle(cate,
     backgroundColor = DT::styleInterval(cuts[2:11], values)
     )
 }
