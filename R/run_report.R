@@ -106,7 +106,7 @@ run_report <- function(
     title = NULL) {
 
   # Currently multi pathogen report is only supported for HTML
-  if (report_format == "DOCX" & length(unique(data$pathogen)) > 1) {
+  if ((report_format == "DOCX" & length(unique(data$pathogen)) > 1) | report_format == "DOCX" & is.data.frame(strata)) {
     stop("Currently the Multi-Pathogen Report functionality is only supported for HTML Reports. In case you want to get a Word report, please generate reports seperately for each pathogen by using a dataset containing only one pathogen.")
   }
 
@@ -129,21 +129,13 @@ run_report <- function(
     checkmate::check_subset(pathogens, choices = unique(signals_padded$pathogen)),
     combine = "or"
   )
-#
-#   strata_df <- tibble::tribble(~pathogen, ~strata,
-#                                    "Salmonella", c("age_group","sex","state"),
-#                                    "Pertussis", c("age_group","hospitalization"))
+
   # Validate strata
-  #checkmate::assert_character(strata, null.ok = TRUE, min.len = 1)
-  # check that all columns are present in the data
   if ("None" %in% strata) {
     strata <- NULL
   }
-  # for (col in strata) {
-  #   checkmate::assert(
-  #     checkmate::check_choice(col, choices = names(data))
-  #   )
-  # }
+  check_strata(strata,pathogens,data)
+
   checkmate::assert_logical(tables)
   checkmate::assert_character(output_file, null.ok = TRUE, len = 1)
   checkmate::assert_string(output_dir, null.ok = TRUE)
@@ -217,16 +209,7 @@ run_report <- function(
     }
   }
 
-  # when signals_agg provided then use strata inside this dataset
-  # only need to check signals_agg as when signals_padded is NULL signals are anyways recomputed
-  # prevents errors when user did not specify strata and used signals_agg, signals_padded
-  if(!is.null(signals_agg)){
-    # this needs to be changed such that there we also get this tribble then!
-    strata <- get_strata_from_signals_agg(signals_agg)
-  }
-
   # compute signals if not provided to run_report by the user
-  # here we can also do it that we can use different stratification for each pathogen
   if (is.null(signals_agg) | is.null(signals_padded)) {
     preprocessed_data <- data %>% preprocess_data()
 
@@ -273,7 +256,6 @@ run_report <- function(
     # Clean up as these can be large
     rm(signals_agg_list, signals_padded_list)
     gc()
-    browser()
   }
 
   title <- if(is.null(title) || trimws(title) == "") paste0("Signal Detection Report - ", unique(data$country)) else title
@@ -284,7 +266,6 @@ run_report <- function(
     disease = pathogens,
     number_of_weeks = number_of_weeks,
     method = method,
-    strata = strata,
     signals_padded = signals_padded,
     signals_agg = signals_agg,
     intervention_date = intervention_date,
@@ -390,7 +371,6 @@ run_report <- function(
 
 
     for(patho in pathogens){
-      print(patho)
       # formatted pathogen name (used for links)
       patho_f <- tolower(patho)
       patho_f <- gsub("[~(),./?&!#<>\\]", "", patho_f) #remove special characters
@@ -425,7 +405,6 @@ run_report <- function(
         output_file = patho_f,
         output_dir = file.path(temp_dir, "report_pages")
       )
-      print("rendered pathogen page for this patho")
 
       for(ctg in strata_per_path){
 
@@ -450,15 +429,13 @@ run_report <- function(
           output_file = paste(patho_f, ctg, sep  = "-"),
           output_dir = file.path(temp_dir, "report_pages")
         )
-        print(ctg)
-        print("rendered this category page")
       }
     }
 
-    # Render Pathogen page
+    # Render Landing Page
     rmarkdown::render(rmd_path,
       output_format = output_format,
-      params = report_params, # hier ist unter strata dann wieder die ursprungsliste drin
+      params = report_params,
       output_file = "SignalDetectionReport.html",
       output_dir = temp_dir
     )
@@ -510,4 +487,84 @@ get_strata_for_path <- function(strata,pat = NULL){
     i <- match(pat, strata$pathogen)
     return(strata$strata[[i]])
   }
+}
+
+check_strata <- function(strata, pathogens, data) {
+
+  # NULL is allowed
+  if (is.null(strata)) {
+    return(invisible(TRUE))
+  }
+
+  # character vector erlaubt
+  if (is.character(strata)) {
+    checkmate::assert_character(strata, min.len = 1, any.missing = FALSE)
+    for (col in strata) {
+       checkmate::assert(
+       checkmate::check_choice(col, choices = names(data))
+       )
+    }
+    return(invisible(TRUE))
+  }
+
+  # 3. Must be a tibble / data frame
+  if (!inherits(strata, "data.frame")) {
+    stop(
+      "`strata` must be NULL, \"None\", a character vector or a tibble.",
+      call. = FALSE
+    )
+  }
+
+  # Required columns
+  required_cols <- c("pathogen", "strata")
+  missing_cols <- setdiff(required_cols, names(strata))
+
+  if (length(missing_cols) > 0) {
+    stop(
+      "The following columns are missing from the `strata` dataframe: ",
+      paste(missing_cols, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  # pathogen column must be character
+  if (!is.character(strata$pathogen)) {
+    stop("`strata$pathogen` must be a character vector.", call. = FALSE)
+  }
+
+  # strata column must be a list of character vectors
+  if (!is.list(strata$strata)) {
+    stop(
+      "`strata$strata` must be a list-column of character vectors.",
+      call. = FALSE
+    )
+  }
+
+  # Pathogen coverage checks
+  unknown_pathogens <- setdiff(strata$pathogen, pathogens)
+  if (length(unknown_pathogens) > 0) {
+    stop(
+      "There are pathogens in the stratification that were not specified in the parameter pathogens: ",
+      paste(unknown_pathogens, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  missing_pathogens <- setdiff(pathogens, strata$pathogen)
+  if (length(missing_pathogens) > 0) {
+    stop(
+      "Missing strata definitions for pathogens: ",
+      paste(missing_pathogens, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  all_strata <- unique(unlist(strata$strata, use.names = FALSE))
+  for (col in all_strata) {
+    checkmate::assert(
+      checkmate::check_choice(col, choices = names(data))
+    )
+   }
+
+  invisible(TRUE)
 }
