@@ -61,7 +61,7 @@ Row
 ### Number of cases
 ```{r}
 flexdashboard::valueBox(value = s_agg$cases[is.na(s_agg$category)], 
-         caption = paste("cases of", params$disease),
+         caption = paste("Number of", params$disease,"cases in the last", params$number_of_weeks,"weeks"),
          color = brand_colors["info"])
 ```
 
@@ -80,7 +80,7 @@ n_signals_week_col <- ifelse(
   )
 
 flexdashboard::valueBox(value = n_signals_week,
-  caption = paste("Number of signals in the last",
+  caption = paste("Number of signals for", params$disease, "in the last",
     params$number_of_weeks, 
     "weeks"),
   color = n_signals_week_col
