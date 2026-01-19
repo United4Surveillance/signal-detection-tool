@@ -123,14 +123,40 @@ maxsignals <- params$signals_agg %>%
   )
 ```
 
+```{r}
+# We colour the cell values according to the percentage of triggered signals
+# We create two tables for this end
+
+# table with signals, maxsignals, and percentages
+s_tbl <- dplyr::left_join(tmp_df, maxsignals, by = c("pathogen", "category")) %>% dplyr::mutate(p_signals = signals/max_signals)
+
+# format and join both tables
+dt_abs <- s_tbl %>% 
+  tidyr::pivot_wider(
+    id_cols = pathogen,
+    names_from = category,
+    values_from = signals
+  )
+
+dt_perc <- s_tbl %>% 
+  tidyr::pivot_wider(
+    id_cols = pathogen,
+    names_from = category,
+    values_from = p_signals
+  )
+
+tmp_dt <- dplyr::left_join(dt_abs, dt_perc, by = "pathogen", suffix = c("", ".perc"))
+```
+
+
 ```{r, out.width="1000px"}
+# percentage column names
+perc_cols <- names(tmp_dt)[stringr::str_ends(names(tmp_dt), ".perc")]
+abs_cols <- stringr::str_remove(perc_cols, ".perc")
+
+# create datatable with hidden percentage columns and replacing NA with - in absolute columns
 dt <- DT::datatable(
-  tmp_df %>%
-    tidyr::pivot_wider(
-      id_cols = pathogen, 
-      names_from = category,
-      values_from = signals
-    ) %>% 
+  tmp_dt %>%
     dplyr::mutate(total = rowSums(dplyr::across(dplyr::where(is.integer)), na.rm = T)) %>%
     dplyr::right_join(results_cases, by = "pathogen") %>% 
     dplyr::relocate(cases, .after = "pathogen") %>%
@@ -141,33 +167,37 @@ dt <- DT::datatable(
       pathogen = paste0("<a href='report_pages/", pathogen_f,".html'>", pathogen,"</a>")) %>% 
     dplyr::select(-pathogen_f) %>% 
     dplyr::arrange(desc(total)) %>% 
-    dplyr::mutate(dplyr::across(dplyr::everything(), ~ tidyr::replace_na(as.character(.x) ,"-"))),
+    dplyr::mutate(dplyr::across(abs_cols, ~ tidyr::replace_na(as.character(.x) ,"-"))),
   rownames = FALSE,
   escape = FALSE,
   caption = paste0("Number of signals encountered in each stratification level in the last ",
                    params$number_of_weeks, " weeks"),
   fillContainer = FALSE,
   class = list(stripe = FALSE),
-  options = list(pageLength = 25)
+  options = list(
+    pageLength = 25,
+    columnDefs = list(list(targets = perc_cols, visible = FALSE))
+    )
   )
 
-for(cate in c("Unstratified", strata)){
-  # Calculates bins for colouring
-  max_s <- maxsignals$max_signals[maxsignals$category == cate]
-  cuts <- seq(0, max_s, length.out = 11)
+# colour each column according to corresponding percentage
+cuts <- seq(0, 1, length.out = 11) # bins for colouring
 
-  # colours for interpolate, uses brand color
-  colours <- c(brand_colors["bg"], brand_colors["warning"], brand_colors["danger"])
-  values <- colorRamp(colours, bias = log(0.2)/log(0.5))(cuts/max_s)   # bias transforms warning value to 20%
-  values <- rgb(values[,1],
-                values[,2],
-                values[,3],
-                maxColorValue = 255)
-
-  # assign each column the colour formatting
+# colours for interpolate, uses brand color
+colours <- c(brand_colors["bg"], brand_colors["warning"], brand_colors["danger"])
+values <- colorRamp(colours, bias = log(0.2)/log(0.5))(cuts)   # bias transforms warning value to 20%
+values <- rgb(values[,1],
+              values[,2],
+              values[,3],
+              maxColorValue = 255)
+  
+# assign each absolute column the colour formatting
+for(cate in abs_cols){
   dt <- dt %>%
-    DT::formatStyle(cate,
-    backgroundColor = DT::styleInterval(cuts[2:11], values)
+    DT::formatStyle(
+      cate,
+      valueColumns = paste0(cate, ".perc"),
+      backgroundColor = DT::styleInterval(cuts[2:11], values)
     )
 }
 
