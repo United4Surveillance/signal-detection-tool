@@ -65,7 +65,7 @@ If not `NULL`, the provided `signals_agg` is used directly and signals are not r
 
 \item{custom_theme}{A bslib::bs_theme() to replace the default United4Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact. Only used when `report_format` is `"HTML"`.}
 
-\item{min_cases_signals}{integer, minimum number of cases a signal must have. All signals with case counts smaller than this will be filtered in a post-processing step}
+\item{min_cases_signals}{integer, minimum number of cases a signal must have. All signals with case counts smaller than this will be filtered in a post-processing step. This parameter is only applied when precomputed signals_agg and signals_padded are not given. If you want to post-process your precomputed signals you need to do that before generating the report.}
 
 \item{title}{NULL or a character string. Specifies the title of the report that is to be created}
 }
