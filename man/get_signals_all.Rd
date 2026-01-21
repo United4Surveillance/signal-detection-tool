@@ -7,6 +7,7 @@
 get_signals_all(
   preprocessed_data,
   method = "farrington",
+  p_value = 0.05,
   intervention_date = NULL,
   stratification = NULL,
   date_start = NULL,
@@ -20,6 +21,8 @@ get_signals_all(
 
 \item{method}{A character string specifying the signal detection method to use.
 See [available_algorithms()] for options.}
+
+\item{p_value}{A numeric value specifying the p-value to use.}
 
 \item{intervention_date}{A date or character string in yyyy-mm-dd format indicating the
 start of a post-intervention period for time series correction (only relevant for certain models).}

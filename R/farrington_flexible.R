@@ -1,7 +1,7 @@
 #' Get signals of surveillance's farringtonFlexible algorithm
 #' @param data_aggregated data.frame, aggregated data with case counts
 #' @param number_of_weeks integer, specifying number of weeks to generate signals for
-#' @param alpha decimal between 0 and 1, default 0.05 specifying the p-value cutoff used for computing the threshold, when set to 0.05 the 95 percent quantile is used.
+#' @param p_value numeric value between 0 and 1, default 0.05 specifying the p-value cutoff used for computing the threshold, when set to 0.05 the 95 percent quantile is used.
 #'
 #' @examples
 #' \dontrun{
