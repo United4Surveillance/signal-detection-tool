@@ -98,10 +98,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
               shiny::column(
                 width = 12,
                 shiny::conditionalPanel(
-                    condition = sprintf("output['%s'] == 'TRUE' || output['%s'] == 'TRUE'", ns("algorithm_glm"), ns("algorithm_farrington_chosen")),
-                shiny::span("Set the p-value."),
-                shiny::uiOutput(ns("p_value"))
-              )),
+                  condition = sprintf("output['%s'] == 'TRUE' || output['%s'] == 'TRUE'", ns("algorithm_glm"), ns("algorithm_farrington_chosen")),
+                  shiny::span("Set the p-value."),
+                  shiny::uiOutput(ns("p_value"))
+                )
+              ),
               shiny::column(
                 width = 12,
                 shiny::conditionalPanel(

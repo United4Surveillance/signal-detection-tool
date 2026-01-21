@@ -370,7 +370,7 @@ get_signals <- function(data,
     if (grepl("glm", method)) {
       results <- fun(data_agg, number_of_weeks, model = model, p_value = p_value, time_trend = time_trend, intervention_date = intervention_date)
     } else {
-      results <- fun(data_agg, number_of_weeks,p_value = p_value)
+      results <- fun(data_agg, number_of_weeks, p_value = p_value)
     }
     if (!is.null(results)) {
       results <- results %>%
