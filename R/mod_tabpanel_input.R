@@ -83,7 +83,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
             shiny::span("Select up to 3 variables you want to stratify by. Signals and visualisations will be generated for each stratum."),
             shiny::uiOutput(ns("strat_choices")),
             shiny::br(),
-            shiny::h2("Signal detection deriod"),
+            shiny::h2("Signal detection period"),
             shiny::span("Set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks."),
             shiny::uiOutput(ns("weeks_selection")),
             shiny::textOutput(ns("text_weeks_selection")),
@@ -95,6 +95,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 shiny::span("Depending on the number of weeks you want to generate signals for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
                 shiny::uiOutput(ns("algorithm_choice"))
               ),
+              shiny::column(
+                width = 12,
+                shiny::conditionalPanel(
+                    condition = sprintf("output['%s'] == 'TRUE' || output['%s'] == 'TRUE'", ns("algorithm_glm"), ns("algorithm_farrington_chosen")),
+                shiny::span("Set the p-value."),
+                shiny::uiOutput(ns("p_value"))
+              )),
               shiny::column(
                 width = 12,
                 shiny::conditionalPanel(
@@ -152,6 +159,19 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       ) # TODO: make this dynamic
     })
 
+    output$p_value <- shiny::renderUI({
+      shiny::req(!errors_detected())
+      shiny::numericInput(
+        inputId = ns("p_value"),
+        label = NULL,
+        value = get_data_config_value("params:p_value", 0.05),
+        min = 0,
+        max = 1,
+        step = 0.01,
+        width = "40%"
+      )
+    })
+
     output$filter_min_cases_signals <- shiny::renderUI({
       shiny::req(!errors_detected())
       shiny::numericInput(
@@ -172,6 +192,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     iv_weeks$add_rule("n_weeks", shinyvalidate::sv_integer())
     iv_weeks$add_rule("n_weeks", shinyvalidate::sv_between(1, 12))
     iv_weeks$enable()
+
+    iv_p_value <- shinyvalidate::InputValidator$new()
+    iv_p_value$add_rule("p_value", shinyvalidate::sv_numeric())
+    iv_p_value$add_rule("p_value", shinyvalidate::sv_between(0, 1))
+    iv_p_value$enable()
 
     iv_min_cases <- shinyvalidate::InputValidator$new()
     iv_min_cases$add_rule("min_cases_signals", shinyvalidate::sv_integer())
@@ -491,6 +516,26 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }
     })
 
+    # Output (not seen in UI) for FarringtonFlexible p-value output
+    algorithm_farrington_chosen <- reactive({
+      shiny::req(!errors_detected())
+      shiny::req(input$algorithm_choice)
+
+      if (grepl("farrington", input$algorithm_choice, ignore.case = TRUE)) {
+        TRUE
+      } else {
+        FALSE
+      }
+    })
+
+    output$algorithm_farrington_chosen <- renderText({
+      algorithm_farrington_chosen() # This will return "TRUE" or "FALSE" as a string
+    })
+
+    # Force the output to be sent to the client even if not rendered in UI
+    # this needs to be here otherwise the conditionalPanel for the input box is not evaluated!
+    outputOptions(output, "algorithm_farrington_chosen", suspendWhenHidden = FALSE)
+
     # Conditional UI for date input
     output$conditional_date_input <- shiny::renderUI({
       if (isTRUE(input$pandemic_correction)) {
@@ -547,6 +592,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }),
       n_weeks = shiny::reactive(input$n_weeks),
       weeks_input_valid = shiny::reactive(iv_weeks$is_valid()),
+      p_value = shiny::reactive(input$p_value),
+      p_value_input_valid = shiny::reactive(iv_p_value$is_valid()),
       strat_vars = shiny::reactive(input$strat_vars),
       pathogen_vars = shiny::reactive(input$pathogen_vars),
       method = shiny::reactive(input$algorithm_choice),
