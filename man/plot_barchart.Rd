@@ -4,12 +4,7 @@
 \alias{plot_barchart}
 \title{Barplot visualising the number of cases and information about any signals}
 \usage{
-plot_barchart(
-  signals_agg,
-  interactive = TRUE,
-  toggle_alarms = FALSE,
-  partial = FALSE
-)
+plot_barchart(signals_agg, interactive = TRUE, toggle_alarms = FALSE)
 }
 \arguments{
 \item{signals_agg}{tibble, aggregated signals which can be obtained from using the function \code{\link{aggregate_signals}}. It contains the number of cases, any_alarms and n_alarms for one category, i.e. age group summed over the number of weeks used in \code{\link{aggregate_signals}}.}
@@ -17,8 +12,6 @@ plot_barchart(
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
 
 \item{toggle_alarms}{boolean identifying whether the plot should showing number of signals explicitly or only when hovering}
-
-\item{partial}{logical, add partial bundle to plotly}
 }
 \value{
 either a gg or plotly object

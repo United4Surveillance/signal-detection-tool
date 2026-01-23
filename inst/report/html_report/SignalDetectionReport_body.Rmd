@@ -98,7 +98,7 @@ for(cate in params$strata){
   
   p <- s_pad %>% 
     dplyr::filter(category == cate) %>% 
-    plot_signals_per_week(interactive = TRUE, branding = brand_colors, partial = FALSE )
+    plot_signals_per_week(interactive = TRUE, branding = brand_colors)
   
   print(htmltools::tagList(p))
   
@@ -119,8 +119,7 @@ for(cate in params$strata){
      s_agg,
      params$data,
      cate,
-     interactive = TRUE,
-     partial = FALSE 
+     interactive = TRUE
     ) 
   
   print(htmltools::tagList(dist_plot))
@@ -138,8 +137,7 @@ SignalDetectionTool::plot_time_series(
   s_pad %>%
     dplyr::filter(is.na(category)),
   intervention_date = params$intervention_date,
-  interactive = TRUE,
-  partial = FALSE 
+  interactive = TRUE
 )
 ```
 

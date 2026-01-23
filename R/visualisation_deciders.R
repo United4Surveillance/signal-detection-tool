@@ -12,7 +12,6 @@
 #'   - By default, this parameter is set to `get_shp_config_or_internal()`, which handles this logic dynamically.
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
-#' @param partial logical, add partial bundle to plotly
 #' @returns a table or a plot depending on whether the matching of the NUTS IDs was fully possible, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 #' @examples
 #' \dontrun{
@@ -27,8 +26,7 @@ create_map_or_table <- function(signals_agg,
                                 region,
                                 shape = get_shp_config_or_internal(),
                                 interactive = TRUE,
-                                toggle_alarms = FALSE,
-                                partial = FALSE) {
+                                toggle_alarms = FALSE) {
   checkmate::assertChoice(region, region_variable_names())
 
   checkmate::assert(
@@ -123,8 +121,7 @@ create_map_or_table <- function(signals_agg,
     output <- plot_regional(shape_with_signals,
       signals_agg_unknown_region,
       interactive = interactive,
-      toggle_alarms = toggle_alarms,
-      partial = partial
+      toggle_alarms = toggle_alarms
     )
   } else {
     format <- ifelse(interactive, "DataTable", "Flextable")
@@ -145,7 +142,6 @@ create_map_or_table <- function(signals_agg,
 #' @param n_levels the threshold for the number of levels from which we decide when a table is generated instead of a barchart visualisation
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
-#' @param partial logical, add partial bundle to plotly
 #' @returns a table or a plot depending on whether number of unique levels for the category to visualise, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 #' @examples
 #' \dontrun{
@@ -159,8 +155,7 @@ create_barplot_or_table <- function(signals_agg,
                                     category_selected,
                                     n_levels = 25,
                                     interactive = TRUE,
-                                    toggle_alarms = FALSE,
-                                    partial = FALSE) {
+                                    toggle_alarms = FALSE) {
   signals_agg <- signals_agg %>%
     dplyr::filter(category == category_selected)
 
@@ -168,8 +163,7 @@ create_barplot_or_table <- function(signals_agg,
 
   if (n_levels_data < n_levels) {
     plot_barchart(signals_agg,
-      interactive = interactive, toggle_alarms = toggle_alarms,
-      partial = partial
+      interactive = interactive, toggle_alarms = toggle_alarms
     )
   } else {
     format <- ifelse(interactive, "DataTable", "Flextable")
@@ -189,30 +183,26 @@ create_barplot_or_table <- function(signals_agg,
 #' @param signal_category character, naming the category which should be visualised, i.e. "state","age_group","sex"
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
-#' @param partial logical, add partial bundle to plotly
 #' @return a table or a plot depending on signal_category, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 decider_barplot_map_table <- function(signals_agg,
                                       data_surveillance,
                                       signal_category,
                                       interactive = TRUE,
-                                      toggle_alarms = FALSE,
-                                      partial = FALSE) {
+                                      toggle_alarms = FALSE) {
   if (signal_category %in% region_variable_names()) {
     plot_or_table <- create_map_or_table(
       signals_agg,
       data_surveillance,
       signal_category,
       interactive = interactive,
-      toggle_alarms = toggle_alarms,
-      partial = partial
+      toggle_alarms = toggle_alarms
     )
   } else {
     plot_or_table <- create_barplot_or_table(
       signals_agg,
       signal_category,
       interactive = interactive,
-      toggle_alarms = toggle_alarms,
-      partial = partial
+      toggle_alarms = toggle_alarms
     )
   }
   return(plot_or_table)
