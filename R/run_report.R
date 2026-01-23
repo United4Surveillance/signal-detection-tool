@@ -418,12 +418,15 @@ run_report <- function(
         # strata pages parameters
         signals_pad_c <-  signals_padded %>%
           dplyr::filter(.data$pathogen == patho, .data$category == ctg)
+        signals_agg_c <- signals_agg_p %>%
+          dplyr::filter(.data$category == ctg)
 
         strata_report_params <- list(
           disease = patho,
           country = unique(data$country),
           number_of_weeks = number_of_weeks,
           category = ctg,
+          signals_agg = signals_agg_c,
           signals_padded = signals_pad_c,
           intervention_date = intervention_date,
           title = title

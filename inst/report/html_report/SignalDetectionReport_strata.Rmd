@@ -8,7 +8,8 @@ params:
   disease: "Pertussis"
   country: "Austria"
   number_of_weeks: 6
-  category: "age_group" 
+  category: "age_group"
+  signals_agg: NULL 
   signals_padded: NULL
   intervention_date: NULL
   title: "Signal Detection Report"
@@ -32,6 +33,10 @@ strat_text <- dplyr::case_when(
 ```
 
 ```{r}
+# stratum with signals
+s_df <- params$signals_agg %>% 
+  SignalDetectionTool:::create_factor_with_unknown()
+
 df <- params$signals_padded %>%
   dplyr::filter(.data$category %in% categ) %>%
   SignalDetectionTool:::create_factor_with_unknown()
@@ -71,7 +76,13 @@ tabrows <- ceiling(nchar(characters_strata)/155)
 
 ```{r, results='asis'}
 for(st in unique(df$stratum)){
-  cat("###", st, "\n")
+  # add marker to stratum with signals
+  if(s_df$any_alarms[s_df$stratum == st]){
+    st_f <- paste0("<b>\U2605 ", st, "</b>")
+  } else {
+    st_f <- st
+  }
+  cat("###", st_f, "\n")
   
   plot_stratum <- plot_time_series(
     df %>% dplyr::filter(.data[["stratum"]] == st),
