@@ -170,8 +170,8 @@ plot_time_series <- function(results, interactive = FALSE,
   if (interactive) {
     # threshold and expected lines extended
     dt <- c(
-      head(results$date[!is.na(results$alarms)], 1) - 3,
-      tail(results$date[!is.na(results$alarms)], 1) + 3
+      head(results$date[!is.na(results$alarms)], 1) -0,
+      tail(results$date[!is.na(results$alarms)], 1) +3
     )
     th <- c(
       head(results$upperbound[!is.na(results$alarms)], 1),
@@ -181,6 +181,13 @@ plot_time_series <- function(results, interactive = FALSE,
       head(results$expected[!is.na(results$alarms)], 1),
       tail(results$expected[!is.na(results$alarms)], 1)
     )
+
+    x1 <- results$date[!is.na(results$expected_pad)]
+    x2 <- c(dt[1], results$date[!is.na(results$alarms)], dt[2])
+    x_combined <- c(x1, x2)
+    y1 <- c(ex[1], results$expected[!is.na(results$alarms)], ex[2])
+    y2 <-  results$expected_pad[!is.na(results$expected_pad)]
+    y_combined <- c(y1,y2)
 
     plt <- plotly::plot_ly() %>%
       plotly::add_trace( # Training Data Bars
@@ -250,24 +257,12 @@ plot_time_series <- function(results, interactive = FALSE,
           type = "scatter",
           mode = "lines",
           line = list(shape = "hvh", width = 2),
-          x = c(dt[1], results$date[!is.na(results$alarms)], dt[2]),
-          y = c(ex[1], results$expected[!is.na(results$alarms)], ex[2]),
+          x = x_combined,
+          y = y_combined,
           color = I(col.expected),
           hoverinfo = "name + y",
           legendgroup = "exp"
-        ) %>%
-        plotly::add_trace( # Expected Training period
-          name = "Expected",
-          type = "scatter",
-          mode = "lines",
-          line = list(shape = "hvh", width = 0.5),
-          x = results$date[!is.na(results$expected_pad)],
-          y = results$expected_pad[!is.na(results$expected_pad)],
-          color = I(col.expected),
-          hoverinfo = "name + y",
-          legendgroup = "exp",
-          showlegend = F
-        )
+          )
     } else if (any(!is.na(results$expected))) {
       plt <- plt %>%
         plotly::add_trace( # Expected Test period
@@ -431,8 +426,9 @@ plot_time_series <- function(results, interactive = FALSE,
         ggplot2::geom_step(ggplot2::aes(y = expected, color = "Expected"),
           linewidth = 1.3, direction = "hv"
         ) +
-        ggplot2::geom_step(ggplot2::aes(y = expected_pad, color = "Expected", linetype = "Training data"),
-          linewidth = 0.3, direction = "hv"
+        ggplot2::geom_step(ggplot2::aes(y = expected_pad, color = "Expected" #, linetype = "Training data"
+                                        ),
+          linewidth = 1.3, direction = "hv"
         )
     } else if (any(!is.na(results$expected))) {
       plt <- plt +
