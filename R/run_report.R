@@ -130,12 +130,6 @@ run_report <- function(
     combine = "or"
   )
 
-  # Validate strata
-  if ("None" %in% strata) {
-    strata <- NULL
-  }
-  check_strata(strata,pathogens,data)
-
   checkmate::assert_logical(tables)
   checkmate::assert_character(output_file, null.ok = TRUE, len = 1)
   checkmate::assert_string(output_dir, null.ok = TRUE)
@@ -208,6 +202,13 @@ run_report <- function(
       pathogens <- unique(signals_padded$pathogen)
     }
   }
+
+  # Validate strata
+  if ("None" %in% strata) {
+    strata <- NULL
+  }
+  # validate it here because now pathogens always have a non NULL value
+  check_strata(strata,pathogens,data)
 
   # compute signals if not provided to run_report by the user
   if (is.null(signals_agg) | is.null(signals_padded)) {
