@@ -170,8 +170,8 @@ plot_time_series <- function(results, interactive = FALSE,
   if (interactive) {
     # threshold and expected lines extended
     dt <- c(
-      head(results$date[!is.na(results$alarms)], 1) - 3,
-      tail(results$date[!is.na(results$alarms)], 1) + 3
+      head(results$date[!is.na(results$alarms)], 1) - 0,
+      tail(results$date[!is.na(results$alarms)], 1) + 0
     )
     th <- c(
       head(results$upperbound[!is.na(results$alarms)], 1),
@@ -261,7 +261,7 @@ plot_time_series <- function(results, interactive = FALSE,
           type = "scatter",
           mode = "lines",
           line = list(shape = "hvh", width = 0.5),
-          x = results$date[!is.na(results$expected_pad)],
+          x = results$date[!is.na(results$expected_pad)]-7,
           y = results$expected_pad[!is.na(results$expected_pad)],
           color = I(col.expected),
           hoverinfo = "name + y",
