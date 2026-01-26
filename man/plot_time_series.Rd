@@ -8,8 +8,7 @@ plot_time_series(
   results,
   interactive = FALSE,
   intervention_date = NULL,
-  number_of_weeks = 52,
-  partial = FALSE
+  number_of_weeks = 52
 )
 }
 \arguments{
@@ -20,8 +19,6 @@ plot_time_series(
 \item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done.The  intervention is marked with a dashed line.}
 
 \item{number_of_weeks}{number of weeks to be covered in the plot}
-
-\item{partial}{logical, add partial bundle to plotly}
 }
 \value{
 either a gg or plotly object
