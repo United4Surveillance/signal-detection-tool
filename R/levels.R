@@ -108,7 +108,7 @@ pretty_variable_names <- function() {
   )
 }
 
-#' Varible names which should be checked for missing values
+#' Variable names which should be checked for missing values
 check_for_missing_values <- function() {
   c("date_report")
 }

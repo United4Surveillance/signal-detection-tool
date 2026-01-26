@@ -91,7 +91,7 @@ preprocess_data <- function(data) {
   # sex is not mandatory
   if ("sex" %in% colnames(data)) {
     data <- data %>%
-      dplyr::mutate(sex = factor(sex, levels = sex_levels()))
+      dplyr::mutate(sex = factor(sex, levels = sex_raw_levels()))
   }
 
   data
