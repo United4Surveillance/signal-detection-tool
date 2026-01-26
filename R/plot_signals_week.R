@@ -6,7 +6,6 @@
 #' @param results dataframe of a single-pathogen signal detection results for a strata category
 #' @param interactive logical, if TRUE, interactive plot is returned; default, static plot.
 #' @param branding named vector with branding colours
-#' @param partial logical, add partial bundle to plotly
 #'
 #' @return either a ggplot or plotly object
 #'
@@ -17,7 +16,7 @@
 #'
 #' plot_signals_per_week(signals)
 #' }
-plot_signals_per_week <- function(results, interactive = FALSE, branding = NULL, partial = FALSE) {
+plot_signals_per_week <- function(results, interactive = FALSE, branding = NULL) {
   if (is.null(branding)) {
     branding <- stats::setNames(c("lightgray", "#be1622"), c("primary", "danger"))
   } else {
@@ -127,10 +126,6 @@ plot_signals_per_week <- function(results, interactive = FALSE, branding = NULL,
           xanchor = "center", yanchor = "bottom"
         )
       )
-
-    if (partial) {
-      p <- plotly::partial_bundle(p)
-    }
   }
 
   return(p)
