@@ -8,7 +8,6 @@
 #' @param interactive logical, if TRUE, interactive plot is returned; default, static plot.
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done.The  intervention is marked with a dashed line.
 #' @param number_of_weeks number of weeks to be covered in the plot
-#' @param partial logical, add partial bundle to plotly
 #'
 #' @return either a gg or plotly object
 #' @export
@@ -21,8 +20,7 @@
 #' }
 plot_time_series <- function(results, interactive = FALSE,
                              intervention_date = NULL,
-                             number_of_weeks = 52,
-                             partial = FALSE) {
+                             number_of_weeks = 52) {
   # check whether timeseries contains padding or not
   padding_upperbound <- "upperbound_pad" %in% colnames(results)
   padding_expected <- "expected_pad" %in% colnames(results)
@@ -390,10 +388,6 @@ plot_time_series <- function(results, interactive = FALSE,
     }
     # Update the plot with dynamic y-axis adjustment and x-axis bugfix
     plt <- update_axes(plt)
-
-    if (partial) {
-      plt <- plotly::partial_bundle(plt)
-    }
   } else {
     plt <-
       results %>%

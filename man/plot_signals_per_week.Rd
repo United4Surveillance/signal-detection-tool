@@ -4,12 +4,7 @@
 \alias{plot_signals_per_week}
 \title{Plot in how many strata an signal was detected under the detection period}
 \usage{
-plot_signals_per_week(
-  results,
-  interactive = FALSE,
-  branding = NULL,
-  partial = FALSE
-)
+plot_signals_per_week(results, interactive = FALSE, branding = NULL)
 }
 \arguments{
 \item{results}{dataframe of a single-pathogen signal detection results for a strata category}
@@ -17,8 +12,6 @@ plot_signals_per_week(
 \item{interactive}{logical, if TRUE, interactive plot is returned; default, static plot.}
 
 \item{branding}{named vector with branding colours}
-
-\item{partial}{logical, add partial bundle to plotly}
 }
 \value{
 either a ggplot or plotly object
