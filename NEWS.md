@@ -1,3 +1,12 @@
+* Bug fixes and improvements to the HTML report
+  * mark those timeseries widgets in the stratified page that had signals
+  * make the text in the overview boxes on the pathogens page uniform and complete
+  * fix bug in tooltip not showing the week correctly in unstratified time series in report
+  * fix wrong number of total cases in html report landing page
+  * fix signals tables being scrollable again 
+* Shortening of long x axis labels in barcharts and adding complete axis text to tooltip
+
+
 # SignalDetectionTool 0.9.0
 
 * Added signal post processing by an option to filter signals with a specified minimum number of cases
