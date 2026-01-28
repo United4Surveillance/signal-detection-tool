@@ -204,7 +204,7 @@ create_formula <- function(model_data) {
 #' @param model character, default "mean" one of c("mean", "sincos", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.
 #' @param time_trend boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.
 #' @param return_full_model boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_weeks should be returned and attached to data_aggregated as well.
-#' @param alpha_upper decimal between 0 and 1, default 0.05 specifying the pvalue cutoff used for computing the threshold, when set to 0.05 the 95 percent quantile is used.
+#' @param p_value decimal between 0 and 1, default 0.05 specifying the p-value cutoff used for computing the threshold, when set to 0.05 the 95 percent quantile is used.
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done, i.e. no additional intercept and possibly new time trend is fitted. When a date is given a new intercept and possibly time_trend (if time_trend == TRUE) is fitted.
 #' @param min_timepoints_baseline integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.
 #' @param min_timepoints_trend integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.
@@ -226,7 +226,7 @@ get_signals_glm <- function(data_aggregated,
                             model = "mean",
                             time_trend = TRUE,
                             return_full_model = TRUE,
-                            alpha_upper = 0.05,
+                            p_value = 0.05,
                             intervention_date = NULL,
                             min_timepoints_baseline = 12,
                             min_timepoints_trend = 12,
@@ -312,13 +312,13 @@ get_signals_glm <- function(data_aggregated,
     bounds <- data.frame(
       cases = pred_data$cases,
       expectation = mean,
-      upper = qnbinom(1 - alpha_upper, mean / (phi - 1), 1 / phi)
+      upper = qnbinom(1 - p_value, mean / (phi - 1), 1 / phi)
     )
   } else {
     bounds <- data.frame(
       cases = pred_data$cases,
       expectation = mean,
-      upper = qpois(1 - alpha_upper, mean)
+      upper = qpois(1 - p_value, mean)
     )
   }
 

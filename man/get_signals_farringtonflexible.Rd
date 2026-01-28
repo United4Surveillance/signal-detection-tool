@@ -4,12 +4,18 @@
 \alias{get_signals_farringtonflexible}
 \title{Get signals of surveillance's farringtonFlexible algorithm}
 \usage{
-get_signals_farringtonflexible(data_aggregated, number_of_weeks = 52)
+get_signals_farringtonflexible(
+  data_aggregated,
+  number_of_weeks = 52,
+  p_value = 0.05
+)
 }
 \arguments{
 \item{data_aggregated}{data.frame, aggregated data with case counts}
 
 \item{number_of_weeks}{integer, specifying number of weeks to generate signals for}
+
+\item{p_value}{numeric value between 0 and 1, default 0.05 specifying the p-value cutoff used for computing the threshold, when set to 0.05 the 95 percent quantile is used.}
 }
 \description{
 Get signals of surveillance's farringtonFlexible algorithm

@@ -8,6 +8,7 @@
 #' @param preprocessed_data A data frame that has been preprocessed using [preprocess_data()].
 #' @param method A character string specifying the signal detection method to use.
 #'   See [available_algorithms()] for options.
+#' @param p_value A numeric value specifying the p-value to use.
 #' @param intervention_date A date or character string in yyyy-mm-dd format indicating the
 #'   start of a post-intervention period for time series correction (only relevant for certain models).
 #' @param stratification A character vector specifying the variables to stratify the analysis on.
@@ -35,6 +36,7 @@
 #' @export
 get_signals_all <- function(preprocessed_data,
                             method = "farrington",
+                            p_value = 0.05,
                             intervention_date = NULL,
                             stratification = NULL,
                             date_start = NULL,
@@ -44,6 +46,7 @@ get_signals_all <- function(preprocessed_data,
   results <- get_signals(
     data = preprocessed_data,
     method = method,
+    p_value = p_value,
     intervention_date = intervention_date,
     stratification = stratification,
     date_start = date_start,
@@ -56,6 +59,7 @@ get_signals_all <- function(preprocessed_data,
     results_unstratified <- get_signals(
       data = preprocessed_data,
       method = method,
+      p_value = p_value,
       intervention_date = intervention_date,
       stratification = NULL,
       date_start = date_start,
@@ -77,6 +81,7 @@ get_signals_all <- function(preprocessed_data,
 #' @param data A data frame containing the surveillance data.
 #' @param fun The signal detection function to apply to each stratum.
 #' @param model character, default empty string which is the choice if farrington, ears or cusum are used and if a glm method was chosen as outbreak detection method then one of c("mean","sincos", "FN")
+#' @param p_value A numeric value specifying the p-value to use.
 #' @param intervention_date A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.
 #' @param time_trend boolean default TRUE setting time_trend in the get_signals_glm(). This parameter is only used when an the glm based outbreak detection models are used, i.e. for the models c("mean","sincos", "FN")
 #' @param stratification_columns A character vector specifying the columns to
@@ -102,6 +107,7 @@ get_signals_all <- function(preprocessed_data,
 get_signals_stratified <- function(data,
                                    fun,
                                    model = "",
+                                   p_value = 0.05,
                                    intervention_date = NULL,
                                    time_trend = FALSE,
                                    stratification_columns,
@@ -117,6 +123,10 @@ get_signals_stratified <- function(data,
   }
 
   checkmate::check_choice(model, choices = c("", "mean", "sincos", "FN"))
+
+  checkmate::assert(
+    checkmate::check_number(p_value, lower = 0.01, upper = 0.2)
+  )
 
   checkmate::assert(
     checkmate::check_null(intervention_date),
@@ -210,7 +220,7 @@ get_signals_stratified <- function(data,
           )
       } else {
         if (model != "") {
-          results <- fun(sub_data_agg, number_of_weeks, model = model, time_trend = time_trend, intervention_date = intervention_date)
+          results <- fun(sub_data_agg, number_of_weeks, model = model, p_value = p_value, time_trend = time_trend, intervention_date = intervention_date)
         } else {
           results <- fun(sub_data_agg, number_of_weeks)
         }
@@ -252,6 +262,7 @@ get_signals_stratified <- function(data,
 #'   You can retrieve the full list using [available_algorithms()].
 #'
 #' @seealso [available_algorithms()]
+#' @param p_value A numeric value specifying the p-value to use.
 #' @param intervention_date A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.
 #' @param stratification A character vector specifying the columns to stratify
 #'   the analysis. Default is NULL.
@@ -273,6 +284,7 @@ get_signals_stratified <- function(data,
 #' }
 get_signals <- function(data,
                         method = "farrington",
+                        p_value = 0.05,
                         intervention_date = NULL,
                         stratification = NULL,
                         date_start = NULL,
@@ -282,6 +294,10 @@ get_signals <- function(data,
   # check that input method and stratification are correct
   checkmate::assert(
     checkmate::check_choice(method, choices = available_algorithms())
+  )
+
+  checkmate::assert(
+    checkmate::check_number(p_value, lower = 0.01, upper = 0.2)
   )
 
   checkmate::assert(
@@ -360,7 +376,9 @@ get_signals <- function(data,
       aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end)
 
     if (grepl("glm", method)) {
-      results <- fun(data_agg, number_of_weeks, model = model, time_trend = time_trend, intervention_date = intervention_date)
+      results <- fun(data_agg, number_of_weeks, model = model, p_value = p_value, time_trend = time_trend, intervention_date = intervention_date)
+    } else if (grepl("farrington", method)) {
+      results <- fun(data_agg, number_of_weeks, p_value = p_value)
     } else {
       results <- fun(data_agg, number_of_weeks)
     }
@@ -373,6 +391,7 @@ get_signals <- function(data,
       data,
       fun,
       model = model,
+      p_value = p_value,
       intervention_date = intervention_date,
       time_trend = time_trend,
       stratification,

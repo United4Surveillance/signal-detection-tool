@@ -7,6 +7,7 @@
 get_signals(
   data,
   method = "farrington",
+  p_value = 0.05,
   intervention_date = NULL,
   stratification = NULL,
   date_start = NULL,
@@ -24,6 +25,8 @@ Available options include:
 `"glm harmonic"`, `"glm harmonic with timetrend"`,
 `"glm farrington"`, `"glm farrington with timetrend"`.
 You can retrieve the full list using [available_algorithms()].}
+
+\item{p_value}{A numeric value specifying the p-value to use.}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.}
 

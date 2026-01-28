@@ -27,6 +27,7 @@ pertussis:
       - sex
     signal_detection_period: 6
     signal_detection_algorithm: glm harmonic
+    p_value: 0.05
     pandemic_correction: TRUE
     intervention_date: 2020-03-18
   shapefile_path: ~
@@ -39,5 +40,6 @@ salmonella:
       - subtype
       - county
       - sex
+    p_value: 0.05
     signal_detection_algorithm: farrington
   shapefile_path: ~

@@ -11,7 +11,7 @@ get_signals_glm(
   model = "mean",
   time_trend = TRUE,
   return_full_model = TRUE,
-  alpha_upper = 0.05,
+  p_value = 0.05,
   intervention_date = NULL,
   min_timepoints_baseline = 12,
   min_timepoints_trend = 12,
@@ -29,7 +29,7 @@ get_signals_glm(
 
 \item{return_full_model}{boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_weeks should be returned and attached to data_aggregated as well.}
 
-\item{alpha_upper}{decimal between 0 and 1, default 0.05 specifying the pvalue cutoff used for computing the threshold, when set to 0.05 the 95 percent quantile is used.}
+\item{p_value}{decimal between 0 and 1, default 0.05 specifying the p-value cutoff used for computing the threshold, when set to 0.05 the 95 percent quantile is used.}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done, i.e. no additional intercept and possibly new time trend is fitted. When a date is given a new intercept and possibly time_trend (if time_trend == TRUE) is fitted.}
 

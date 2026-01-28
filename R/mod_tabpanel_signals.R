@@ -43,6 +43,8 @@ mod_tabpanel_signals_server <- function(
   number_of_weeks_input_valid,
   strat_vars,
   method,
+  p_value,
+  # p_value_input_valid,
   no_algorithm_possible,
   intervention_date,
   pad_signals_choice,
@@ -204,6 +206,7 @@ mod_tabpanel_signals_server <- function(
       results <- get_signals_all(
         preprocessed_data = filtered_data(),
         method = method(),
+        p_value = p_value(),
         intervention_date = intervention_date(),
         stratification = strat_vars_tidy(),
         date_var = "date_report",

@@ -121,6 +121,10 @@ This method models the expected number of cases using the season groups defined 
 
 The same as the Step harmonic method but with fitted timetrend to account for the underlying trend in the data.
 
+### P-value selection
+
+Here you can set the p-value which is used by several signal detection algorithms to determine the alert threshold. The p-value determines how sensitive the algorithm is to changes in the data. Lower p-values result in higher thresholds, meaning fewer alerts and a less sensitive algorithm. Higher p-values lower the threshold, making the algorithm more sensitive and increasing the likelihood of detecting signals. It is possible to apply the correction to the following algorithms: FarringtonFlexible, Mean, Timetrend, Harmonic, Harmonic with timetrend, Step harmonic, Step harmonic with timetrend. 
+
 ### Covid19 Pandemic correction
 
 The "Covid19 Pandemic Correction" feature, accessible via an additional button, applies an interrupted time series analysis to the outbreak detection methods. It is possible to apply the correction to the following algorithms: Mean, Timetrend, Harmonic, Harmonic with timetrend, Step harmonic, Step harmonic with timetrend.  
