@@ -28,7 +28,7 @@ app_server <- function(input, output, session) {
     number_of_weeks = datinput$n_weeks,
     number_of_weeks_input_valid = datinput$weeks_input_valid,
     p_value = datinput$p_value,
-    #p_value_input_valid = datinput$p_value_input_valid,
+    # p_value_input_valid = datinput$p_value_input_valid,
     strat_vars = datinput$strat_vars,
     errors_detected = data_load_check_result$errors_detected,
     method = datinput$method,

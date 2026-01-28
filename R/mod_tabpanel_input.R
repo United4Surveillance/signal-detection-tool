@@ -166,7 +166,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         inputId = ns("p_value"),
         label = NULL,
         value = as.numeric(
-          sub(",", ".",get_data_config_value("params:p_value", 0.05))),
+          sub(",", ".", get_data_config_value("params:p_value", 0.05))
+        ),
         min = 0.001,
         max = 0.2,
         step = 0.01,
@@ -595,7 +596,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       n_weeks = shiny::reactive(input$n_weeks),
       weeks_input_valid = shiny::reactive(iv_weeks$is_valid()),
       p_value = shiny::reactive(input$p_value),
-      #p_value_input_valid = shiny::reactive(iv_p_value$is_valid()),
+      # p_value_input_valid = shiny::reactive(iv_p_value$is_valid()),
       strat_vars = shiny::reactive(input$strat_vars),
       pathogen_vars = shiny::reactive(input$pathogen_vars),
       method = shiny::reactive(input$algorithm_choice),
