@@ -22,7 +22,8 @@ get_signals_all(
 \item{method}{A character string specifying the signal detection method to use.
 See [available_algorithms()] for options.}
 
-\item{p_value}{A numeric value specifying the p-value to use.}
+\item{p_value}{numeric between 0.001 and 0.2 (default: 0.05).
+Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
 
 \item{intervention_date}{A date or character string in yyyy-mm-dd format indicating the
 start of a post-intervention period for time series correction (only relevant for certain models).}

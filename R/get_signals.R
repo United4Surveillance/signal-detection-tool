@@ -8,7 +8,8 @@
 #' @param preprocessed_data A data frame that has been preprocessed using [preprocess_data()].
 #' @param method A character string specifying the signal detection method to use.
 #'   See [available_algorithms()] for options.
-#' @param p_value A numeric value specifying the p-value to use.
+#' @param p_value numeric between 0.001 and 0.2 (default: 0.05).
+#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
 #' @param intervention_date A date or character string in yyyy-mm-dd format indicating the
 #'   start of a post-intervention period for time series correction (only relevant for certain models).
 #' @param stratification A character vector specifying the variables to stratify the analysis on.
@@ -81,7 +82,8 @@ get_signals_all <- function(preprocessed_data,
 #' @param data A data frame containing the surveillance data.
 #' @param fun The signal detection function to apply to each stratum.
 #' @param model character, default empty string which is the choice if farrington, ears or cusum are used and if a glm method was chosen as outbreak detection method then one of c("mean","sincos", "FN")
-#' @param p_value A numeric value specifying the p-value to use.
+#' @param p_value numeric between 0.001 and 0.2 (default: 0.05).
+#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
 #' @param intervention_date A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.
 #' @param time_trend boolean default TRUE setting time_trend in the get_signals_glm(). This parameter is only used when an the glm based outbreak detection models are used, i.e. for the models c("mean","sincos", "FN")
 #' @param stratification_columns A character vector specifying the columns to
@@ -125,7 +127,7 @@ get_signals_stratified <- function(data,
   checkmate::check_choice(model, choices = c("", "mean", "sincos", "FN"))
 
   checkmate::assert(
-    checkmate::check_number(p_value, lower = 0.01, upper = 0.2)
+    checkmate::check_number(p_value, lower = 0.001, upper = 0.2)
   )
 
   checkmate::assert(
@@ -221,6 +223,8 @@ get_signals_stratified <- function(data,
       } else {
         if (model != "") {
           results <- fun(sub_data_agg, number_of_weeks, model = model, p_value = p_value, time_trend = time_trend, intervention_date = intervention_date)
+        } else if (identical(fun, get_signals_farringtonflexible)){
+          results <- fun(sub_data_agg, number_of_weeks, p_value = p_value)
         } else {
           results <- fun(sub_data_agg, number_of_weeks)
         }
@@ -262,7 +266,8 @@ get_signals_stratified <- function(data,
 #'   You can retrieve the full list using [available_algorithms()].
 #'
 #' @seealso [available_algorithms()]
-#' @param p_value A numeric value specifying the p-value to use.
+#' @param p_value numeric between 0.001 and 0.2 (default: 0.05).
+#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
 #' @param intervention_date A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.
 #' @param stratification A character vector specifying the columns to stratify
 #'   the analysis. Default is NULL.
@@ -297,7 +302,7 @@ get_signals <- function(data,
   )
 
   checkmate::assert(
-    checkmate::check_number(p_value, lower = 0.01, upper = 0.2)
+    checkmate::check_number(p_value, lower = 0.001, upper = 0.2)
   )
 
   checkmate::assert(
@@ -407,7 +412,8 @@ get_signals <- function(data,
     results <- results %>%
       dplyr::mutate(
         method = method,
-        number_of_weeks = number_of_weeks
+        number_of_weeks = number_of_weeks,
+        p_value = p_value
       )
   }
 
@@ -455,18 +461,24 @@ get_signals <- function(data,
 aggregate_pad_signals <- function(signal_results,
                                   preprocessed,
                                   number_of_weeks,
-                                  method) {
-  # aggregate signals for report
+                                  method,
+                                  p_value = NULL) {
+
   signals_agg <- aggregate_signals(signal_results, number_of_weeks = number_of_weeks)
 
+  if (!grepl("farrington", method)) {
+    p_value <- NULL
+  } else {
+    if (!is.null(p_value)) {
+      stopifnot(is.numeric(p_value), length(p_value) == 1, !is.na(p_value))
+    }
+  }
 
-  # padd timeseries so it also has information before detection period
   logic_apply_padding <- function() {
     if (grepl("glm", method)) {
-      # for those the results are already padded
       return(signal_results)
     }
-    pad_signals(preprocessed, signal_results)
+    pad_signals(preprocessed, signal_results, p_value = p_value)
   }
 
   signals_padded <- logic_apply_padding()
@@ -476,6 +488,7 @@ aggregate_pad_signals <- function(signal_results,
     signals_padded = signals_padded
   )
 }
+
 
 #' Aggregate cases and signals over the number of weeks.
 
@@ -537,6 +550,12 @@ pad_signals <- function(data,
   number_of_weeks <- unique(signals$number_of_weeks)
   method <- unique(signals$method)
 
+  if (grepl("farrington", method)) {
+    p_value <- unique(signals$p_value)
+  } else {
+    p_value <- NULL
+  }
+
   stopifnot(length(number_of_weeks) == 1)
   stopifnot(length(method) == 1)
 
@@ -546,16 +565,23 @@ pad_signals <- function(data,
     dplyr::filter(date_report <= cutoff_date)
 
   available_thresholds <- c(26, 20, 14, 8, 2)
+
   for (timeopt in available_thresholds) {
     max_time_opt <- timeopt
-    signals_timeopt <- get_signals(
+    args <- list(
       data_no_signals,
       method = method,
       number_of_weeks = timeopt + number_of_weeks
     )
+    if (!is.null(p_value)){
+      args$p_value <- p_value
+      }
+
+    signals_timeopt <- do.call(SignalDetectionTool::get_signals, args)
+
     if (!is.null(signals_timeopt)) {
       break
-    }
+      }
   }
 
   result_padding_unstratified <- signals_timeopt %>%
@@ -565,13 +591,17 @@ pad_signals <- function(data,
   if (is.null(stratification)) {
     result_padding <- result_padding_unstratified
   } else {
-    result_padding_stratified <- SignalDetectionTool::get_signals(
+    args_strat <- list(
       data = data,
       method = method,
       date_var = "date_report",
       stratification = stratification,
-      number_of_weeks = (max_time_opt + number_of_weeks)
-    ) %>%
+      number_of_weeks = max_time_opt + number_of_weeks
+    )
+    if (!is.null(p_value)) {
+      args_strat$p_value <- p_value
+    }
+    result_padding_stratified <- do.call(SignalDetectionTool::get_signals, args_strat) %>%
       dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected, category, stratum) %>%
       dplyr::group_by(category, stratum) %>%
       dplyr::slice_head(n = -(number_of_weeks - 1)) %>%

@@ -15,7 +15,8 @@ get_signals_farringtonflexible(
 
 \item{number_of_weeks}{integer, specifying number of weeks to generate signals for}
 
-\item{p_value}{numeric value between 0 and 1, default 0.05 specifying the p-value cutoff used for computing the threshold, when set to 0.05 the 95 percent quantile is used.}
+\item{p_value}{numeric between 0.001 and 0.2 (default: 0.05).
+Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
 }
 \description{
 Get signals of surveillance's farringtonFlexible algorithm

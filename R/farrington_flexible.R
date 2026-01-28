@@ -1,7 +1,8 @@
 #' Get signals of surveillance's farringtonFlexible algorithm
 #' @param data_aggregated data.frame, aggregated data with case counts
 #' @param number_of_weeks integer, specifying number of weeks to generate signals for
-#' @param p_value numeric value between 0 and 1, default 0.05 specifying the p-value cutoff used for computing the threshold, when set to 0.05 the 95 percent quantile is used.
+#' @param p_value numeric between 0.001 and 0.2 (default: 0.05).
+#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
 #'
 #' @examples
 #' \dontrun{
@@ -16,6 +17,10 @@ get_signals_farringtonflexible <- function(data_aggregated,
                                            p_value = 0.05) {
   checkmate::assert(
     checkmate::check_integerish(number_of_weeks)
+  )
+
+  checkmate::assert(
+    checkmate::check_number(p_value, lower = 0.001, upper = 0.2)
   )
 
   sts_cases <- convert_to_sts(data_aggregated)

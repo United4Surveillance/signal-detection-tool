@@ -26,7 +26,8 @@ Available options include:
 `"glm farrington"`, `"glm farrington with timetrend"`.
 You can retrieve the full list using [available_algorithms()].}
 
-\item{p_value}{A numeric value specifying the p-value to use.}
+\item{p_value}{numeric between 0.001 and 0.2 (default: 0.05).
+Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.}
 
