@@ -167,7 +167,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         label = NULL,
         value = as.numeric(
           sub(",", ".",get_data_config_value("params:p_value", 0.05))),
-        min = 0.01,
+        min = 0.001,
         max = 0.2,
         step = 0.01,
         width = "40%"
