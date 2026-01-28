@@ -99,7 +99,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 width = 12,
                 shiny::conditionalPanel(
                   condition = sprintf("output['%s'] == 'TRUE' || output['%s'] == 'TRUE'", ns("algorithm_glm"), ns("algorithm_farrington_chosen")),
-                  shiny::span("Set the p-value."),
+                  shiny::span("Set a p-value"),
                   shiny::uiOutput(ns("p_value"))
                 )
               ),
@@ -165,9 +165,10 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::numericInput(
         inputId = ns("p_value"),
         label = NULL,
-        value = get_data_config_value("params:p_value", 0.05),
-        min = 0,
-        max = 1,
+        value = as.numeric(
+          sub(",", ".",get_data_config_value("params:p_value", 0.05))),
+        min = 0.01,
+        max = 0.2,
         step = 0.01,
         width = "40%"
       )
@@ -196,7 +197,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     iv_p_value <- shinyvalidate::InputValidator$new()
     iv_p_value$add_rule("p_value", shinyvalidate::sv_numeric())
-    iv_p_value$add_rule("p_value", shinyvalidate::sv_between(0, 1))
+    iv_p_value$add_rule("p_value", shinyvalidate::sv_between(0.01, 0.2))
     iv_p_value$enable()
 
     iv_min_cases <- shinyvalidate::InputValidator$new()
@@ -594,7 +595,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       n_weeks = shiny::reactive(input$n_weeks),
       weeks_input_valid = shiny::reactive(iv_weeks$is_valid()),
       p_value = shiny::reactive(input$p_value),
-      p_value_input_valid = shiny::reactive(iv_p_value$is_valid()),
+      #p_value_input_valid = shiny::reactive(iv_p_value$is_valid()),
       strat_vars = shiny::reactive(input$strat_vars),
       pathogen_vars = shiny::reactive(input$pathogen_vars),
       method = shiny::reactive(input$algorithm_choice),

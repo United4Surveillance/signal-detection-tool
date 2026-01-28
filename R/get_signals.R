@@ -125,6 +125,10 @@ get_signals_stratified <- function(data,
   checkmate::check_choice(model, choices = c("", "mean", "sincos", "FN"))
 
   checkmate::assert(
+    checkmate::check_number(p_value, lower = 0.01, upper = 0.2)
+  )
+
+  checkmate::assert(
     checkmate::check_null(intervention_date),
     checkmate::check_date(lubridate::date(intervention_date)),
     combine = "or"
@@ -290,6 +294,10 @@ get_signals <- function(data,
   # check that input method and stratification are correct
   checkmate::assert(
     checkmate::check_choice(method, choices = available_algorithms())
+  )
+
+  checkmate::assert(
+    checkmate::check_number(p_value, lower = 0.01, upper = 0.2)
   )
 
   checkmate::assert(

@@ -44,7 +44,7 @@ mod_tabpanel_signals_server <- function(
   strat_vars,
   method,
   p_value,
-  p_value_input_valid,
+  #p_value_input_valid,
   no_algorithm_possible,
   intervention_date,
   pad_signals_choice,
