@@ -492,7 +492,7 @@ aggregate_pad_signals <- function(signal_results,
   logic_apply_padding <- function() {
     if (grepl("glm", method)) {
       return(signal_results)
-    } else if (grepl("farrington", method)){
+    } else if (grepl("farrington", method)) {
       pad_signals(preprocessed, signal_results, p_value = p_value)
     } else {
       pad_signals(preprocessed, signal_results)
