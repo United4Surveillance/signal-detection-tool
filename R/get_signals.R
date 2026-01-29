@@ -130,7 +130,7 @@ get_signals_stratified <- function(data,
     checkmate::assert(
       checkmate::check_number(p_value, lower = 0.001, upper = 0.2)
     )
-  } else if (identical(fun, get_signals_farringtonflexible)){
+  } else if (identical(fun, get_signals_farringtonflexible)) {
     checkmate::assert(
       checkmate::check_number(p_value, lower = 0.001, upper = 0.2)
     )
@@ -231,7 +231,7 @@ get_signals_stratified <- function(data,
       } else {
         if (model != "") {
           results <- fun(sub_data_agg, number_of_weeks, model = model, p_value = p_value, time_trend = time_trend, intervention_date = intervention_date)
-        } else if (identical(fun, get_signals_farringtonflexible)){
+        } else if (identical(fun, get_signals_farringtonflexible)) {
           results <- fun(sub_data_agg, number_of_weeks, p_value = p_value)
         } else {
           results <- fun(sub_data_agg, number_of_weeks)
@@ -479,7 +479,6 @@ aggregate_pad_signals <- function(signal_results,
                                   number_of_weeks,
                                   method,
                                   p_value = NULL) {
-
   signals_agg <- aggregate_signals(signal_results, number_of_weeks = number_of_weeks)
 
   if (!grepl("farrington", method)) {
@@ -589,15 +588,15 @@ pad_signals <- function(data,
       method = method,
       number_of_weeks = timeopt + number_of_weeks
     )
-    if (!is.null(p_value)){
+    if (!is.null(p_value)) {
       args$p_value <- p_value
-      }
+    }
 
     signals_timeopt <- do.call(SignalDetectionTool::get_signals, args)
 
     if (!is.null(signals_timeopt)) {
       break
-      }
+    }
   }
 
   result_padding_unstratified <- signals_timeopt %>%
