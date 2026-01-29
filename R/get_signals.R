@@ -126,9 +126,17 @@ get_signals_stratified <- function(data,
 
   checkmate::check_choice(model, choices = c("", "mean", "sincos", "FN"))
 
-  checkmate::assert(
-    checkmate::check_number(p_value, lower = 0.001, upper = 0.2)
-  )
+  if (model != "") {
+    checkmate::assert(
+      checkmate::check_number(p_value, lower = 0.001, upper = 0.2)
+    )
+  } else if (identical(fun, get_signals_farringtonflexible)){
+    checkmate::assert(
+      checkmate::check_number(p_value, lower = 0.001, upper = 0.2)
+    )
+  } else {
+    NULL
+  }
 
   checkmate::assert(
     checkmate::check_null(intervention_date),
@@ -301,9 +309,17 @@ get_signals <- function(data,
     checkmate::check_choice(method, choices = available_algorithms())
   )
 
-  checkmate::assert(
-    checkmate::check_number(p_value, lower = 0.001, upper = 0.2)
-  )
+  if (grepl("glm", method)) {
+    checkmate::assert(
+      checkmate::check_number(p_value, lower = 0.001, upper = 0.2)
+    )
+  } else if (grepl("farrington", method)) {
+    checkmate::assert(
+      checkmate::check_number(p_value, lower = 0.001, upper = 0.2)
+    )
+  } else {
+    NULL
+  }
 
   checkmate::assert(
     checkmate::check_null(intervention_date),

@@ -5,8 +5,7 @@
   * fix wrong number of total cases in html report landing page
   * fix signals tables being scrollable again 
 * Shortening of long x axis labels in barcharts and adding complete axis text to tooltip
-* Added an adjustable p-value parameter for signal detection when using GLM-based or FarringtonFlexible algorithms 
-
+* Added an adjustable p-value parameter for signal detection when using FarringtonFlexible or GLM-based algorithms 
 
 # SignalDetectionTool 0.9.0
 
