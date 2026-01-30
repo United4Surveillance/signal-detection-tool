@@ -8,7 +8,7 @@ get_signals_stratified(
   data,
   fun,
   model = "",
-  p_value = 0.05,
+  alpha_upper = 0.05,
   intervention_date = NULL,
   time_trend = FALSE,
   stratification_columns,
@@ -25,7 +25,7 @@ get_signals_stratified(
 
 \item{model}{character, default empty string which is the choice if farrington, ears or cusum are used and if a glm method was chosen as outbreak detection method then one of c("mean","sincos", "FN")}
 
-\item{p_value}{numeric between 0.001 and 0.2 (default: 0.05).
+\item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05).
 Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.}

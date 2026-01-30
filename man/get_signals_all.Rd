@@ -7,7 +7,7 @@
 get_signals_all(
   preprocessed_data,
   method = "farrington",
-  p_value = 0.05,
+  alpha_upper = 0.05,
   intervention_date = NULL,
   stratification = NULL,
   date_start = NULL,
@@ -22,7 +22,7 @@ get_signals_all(
 \item{method}{A character string specifying the signal detection method to use.
 See [available_algorithms()] for options.}
 
-\item{p_value}{numeric between 0.001 and 0.2 (default: 0.05).
+\item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05).
 Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
 
 \item{intervention_date}{A date or character string in yyyy-mm-dd format indicating the

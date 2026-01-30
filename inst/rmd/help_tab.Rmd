@@ -121,9 +121,9 @@ This method models the expected number of cases using the season groups defined 
 
 The same as the Step harmonic method but with fitted timetrend to account for the underlying trend in the data.
 
-### P-value selection
+### Alpha_upper selection
 
-Here you can set the p-value which is used by several signal detection algorithms to determine the alert threshold. The p-value determines how sensitive the algorithm is to changes in the data. Lower p-values result in higher thresholds, meaning fewer alerts and a less sensitive algorithm. Higher p-values lower the threshold, making the algorithm more sensitive and increasing the likelihood of detecting signals. It is possible to apply the correction to the following algorithms: FarringtonFlexible, Mean, Timetrend, Harmonic, Harmonic with timetrend, Step harmonic, Step harmonic with timetrend. 
+Here you can specify the p-value cutoff, denoted as the one-sided significance level alpha_upper, which is used by several signal detection algorithms to define the corresponding signal threshold. The p-value represents the probability, under the null hypothesis of no signal, of observing a result at least as extreme as the one obtained. In practice, the algorithm triggers a signal when the observation exceeds the threshold defined by the upper (1−alpha_upper)*100 % quantile of the predictive distribution. If a p-value is smaller than alpha_upper the null hypothesis is rejected. Lower p-value cutoffs result in higher thresholds, meaning fewer signals and a less sensitive algorithm. Higher p-value cutoffs lower the threshold, making the algorithm more sensitive and increasing the likelihood of detecting signals, but also raising the false alarm rate. It is possible to apply the correction to the following algorithms: FarringtonFlexible, Mean, Timetrend, Harmonic, Harmonic with timetrend, Step harmonic, Step harmonic with timetrend.  
 
 ### Covid19 Pandemic correction
 

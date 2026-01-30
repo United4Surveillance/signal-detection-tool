@@ -7,7 +7,7 @@
 get_signals_farringtonflexible(
   data_aggregated,
   number_of_weeks = 52,
-  p_value = 0.05
+  alpha_upper = 0.05
 )
 }
 \arguments{
@@ -15,8 +15,8 @@ get_signals_farringtonflexible(
 
 \item{number_of_weeks}{integer, specifying number of weeks to generate signals for}
 
-\item{p_value}{numeric between 0.001 and 0.2 (default: 0.05).
-Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
+\item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05).
+Specifies the p-value cutoff used to define the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
 }
 \description{
 Get signals of surveillance's farringtonFlexible algorithm

@@ -99,8 +99,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 width = 12,
                 shiny::conditionalPanel(
                   condition = sprintf("output['%s'] == 'TRUE' || output['%s'] == 'TRUE'", ns("algorithm_glm"), ns("algorithm_farrington_chosen")),
-                  shiny::span("Set a p-value"),
-                  shiny::uiOutput(ns("p_value"))
+                  shiny::span("Set a p-value cutoff used for computing the threshold"),
+                  shiny::uiOutput(ns("alpha_upper"))
                 )
               ),
               shiny::column(
@@ -160,13 +160,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       ) # TODO: make this dynamic
     })
 
-    output$p_value <- shiny::renderUI({
+    output$alpha_upper <- shiny::renderUI({
       shiny::req(!errors_detected())
       shiny::numericInput(
-        inputId = ns("p_value"),
+        inputId = ns("alpha_upper"),
         label = NULL,
         value = as.numeric(
-          sub(",", ".", get_data_config_value("params:p_value", 0.05))
+          sub(",", ".", get_data_config_value("params:alpha_upper", 0.05))
         ),
         min = 0.001,
         max = 0.2,
@@ -196,10 +196,10 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     iv_weeks$add_rule("n_weeks", shinyvalidate::sv_between(1, 12))
     iv_weeks$enable()
 
-    iv_p_value <- shinyvalidate::InputValidator$new()
-    iv_p_value$add_rule("p_value", shinyvalidate::sv_numeric())
-    iv_p_value$add_rule("p_value", shinyvalidate::sv_between(0.001, 0.2))
-    iv_p_value$enable()
+    iv_alpha_upper <- shinyvalidate::InputValidator$new()
+    iv_alpha_upper$add_rule("alpha_upper", shinyvalidate::sv_numeric())
+    iv_alpha_upper$add_rule("alpha_upper", shinyvalidate::sv_between(0.001, 0.2))
+    iv_alpha_upper$enable()
 
     iv_min_cases <- shinyvalidate::InputValidator$new()
     iv_min_cases$add_rule("min_cases_signals", shinyvalidate::sv_integer())
@@ -595,7 +595,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }),
       n_weeks = shiny::reactive(input$n_weeks),
       weeks_input_valid = shiny::reactive(iv_weeks$is_valid()),
-      p_value = shiny::reactive(input$p_value),
+      alpha_upper = shiny::reactive(input$alpha_upper),
       strat_vars = shiny::reactive(input$strat_vars),
       pathogen_vars = shiny::reactive(input$pathogen_vars),
       method = shiny::reactive(input$algorithm_choice),

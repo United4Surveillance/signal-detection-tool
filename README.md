@@ -407,7 +407,7 @@ Defines key variables for analysis and signal detection.
 - `signal_detection_algorithm` *(Scalar: String)* – Method used for
   signal detection (e.g., `ears`).
 
-- `p-value`: *(Scalar: Numeric)* – Adjust the p-value cutoff used to
+- `alpha_upper`: *(Scalar: Numeric)* – Adjust the p-value cutoff used to
   compute the threshold, only used in FarringtonFlexible and GLM
   algorithms.
 

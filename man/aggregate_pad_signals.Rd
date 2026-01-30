@@ -4,13 +4,7 @@
 \alias{aggregate_pad_signals}
 \title{Aggregate and Pad Signals for Reporting}
 \usage{
-aggregate_pad_signals(
-  signal_results,
-  preprocessed,
-  number_of_weeks,
-  method,
-  p_value = NULL
-)
+aggregate_pad_signals(signal_results, preprocessed, number_of_weeks, method)
 }
 \arguments{
 \item{signal_results}{A tibble returned by [get_signals()], containing weekly
