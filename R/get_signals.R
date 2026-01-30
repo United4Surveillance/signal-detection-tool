@@ -478,7 +478,6 @@ aggregate_pad_signals <- function(signal_results,
                                   preprocessed,
                                   number_of_weeks,
                                   method) {
-
   signals_agg <- aggregate_signals(signal_results, number_of_weeks = number_of_weeks)
 
   logic_apply_padding <- function() {

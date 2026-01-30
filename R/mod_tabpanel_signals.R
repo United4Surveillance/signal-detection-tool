@@ -205,7 +205,7 @@ mod_tabpanel_signals_server <- function(
       results <- get_signals_all(
         preprocessed_data = filtered_data(),
         method = method(),
-        alpha_upper=alpha_upper(),
+        alpha_upper = alpha_upper(),
         intervention_date = intervention_date(),
         stratification = strat_vars_tidy(),
         date_var = "date_report",
