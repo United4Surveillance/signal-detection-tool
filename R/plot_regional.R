@@ -153,8 +153,6 @@ plot_regional <- function(shape_with_signals,
         sf::st_collection_extract("POINT") |> # only keep points
         dplyr::filter(!sf::st_is_empty(geometry)) # remove empty ones
 
-      # others_all <- sf::st_union(sf::st_geometry(shape_areas_sf))
-
       stars_sf <- stars_sf |>
         rowwise() |>
         mutate(
