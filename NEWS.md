@@ -4,6 +4,7 @@
   * fix bug in tooltip not showing the week correctly in unstratified time series in report
   * fix wrong number of total cases in html report landing page
   * fix signals tables being scrollable again 
+  * fix positions of signals not appearing outside other regions 
 * Shortening of long x axis labels in barcharts and adding complete axis text to tooltip
 
 
