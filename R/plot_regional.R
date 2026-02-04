@@ -158,7 +158,7 @@ plot_regional <- function(shape_with_signals,
         mutate(
           geometry = {
             pt <- geometry
-            self  <- shape_areas_sf[shape_areas_sf$NUTS_ID == NUTS_ID, ]
+            self <- shape_areas_sf[shape_areas_sf$NUTS_ID == NUTS_ID, ]
             other <- shape_areas_sf[shape_areas_sf$NUTS_ID != NUTS_ID, ]
 
             hit_other <- lengths(sf::st_intersects(pt, other)) > 0
@@ -167,8 +167,9 @@ plot_regional <- function(shape_with_signals,
               pt
             } else {
               safe <- sf::st_difference(sf::st_geometry(self), sf::st_union(sf::st_geometry(other)))
-              if (length(safe) == 0 || sf::st_is_empty(safe)) sf::st_point_on_surface(self)
-              else {
+              if (length(safe) == 0 || sf::st_is_empty(safe)) {
+                sf::st_point_on_surface(self)
+              } else {
                 if (length(safe) > 1) safe <- safe[which.max(sf::st_area(safe))]
                 sf::st_point_on_surface(safe)
               }
