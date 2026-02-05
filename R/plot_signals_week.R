@@ -4,6 +4,7 @@
 #' strata had higher than expected case numbers
 #'
 #' @param results dataframe of a single-pathogen signal detection results for a strata category
+#' @param n_strata integer. Number of stratification levels in category. Usually determined automatically by signals_agg
 #' @param interactive logical, if TRUE, interactive plot is returned; default, static plot.
 #' @param branding named vector with branding colours
 #'
@@ -16,7 +17,7 @@
 #'
 #' plot_signals_per_week(signals)
 #' }
-plot_signals_per_week <- function(results, interactive = FALSE, branding = NULL) {
+plot_signals_per_week <- function(results, n_strata, interactive = FALSE, branding = NULL) {
   if (is.null(branding)) {
     branding <- stats::setNames(c("lightgray", "#be1622"), c("primary", "danger"))
   } else {
@@ -41,8 +42,8 @@ plot_signals_per_week <- function(results, interactive = FALSE, branding = NULL)
     dplyr::group_by(.data$isoweek) %>%
     dplyr::summarise(
       n.signals = sum(.data$alarms),
-      n.rest = dplyr::n() - .data$n.signals,
-      p.signals = sum(.data$alarms) / dplyr::n() * 100 %>% round(1),
+      n.rest = n_strata - .data$n.signals,
+      p.signals = sum(.data$alarms) / n_strata * 100 %>% round(1),
       p.rest = 100 - .data$p.signals
     ) %>%
     dplyr::ungroup()
