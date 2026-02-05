@@ -143,7 +143,7 @@ SignalDetectionTool::plot_time_series(
 
 > `r paste("Number of", params$disease, "cases by week and signals,", params$country)`
 
-Row 
+Row {data-height=700}
 -------------------------------------
 ### Signal Detection Table
 
