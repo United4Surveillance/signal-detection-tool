@@ -263,7 +263,7 @@ prepare_signals_table <- function(data,
 #'   - `"DataTable"`: An interactive table using the DataTable library.
 #'   - `"Flextable"`: A formatted table suitable for reporting,i.e. word documents.
 #'  Default is "DataTable".
-#'  @param page_length integer indicating number of elements per DataTable page. Default is 10
+#' @param page_length integer indicating number of elements per DataTable page. Default is 10
 #'
 #' @param dt_selection_type String controlling the DataTable selection argument. Expected values are "multiple", "single", "none" (default is 'single').
 #' @return data.frame or DataTable or Flextable depending on `format`
