@@ -8,7 +8,8 @@ build_signals_table(
   signal_results,
   signals_only = TRUE,
   format = "DataTable",
-  dt_selection_type = "single"
+  dt_selection_type = "single",
+  page_length = 10
 )
 }
 \arguments{
@@ -20,7 +21,8 @@ build_signals_table(
  - `"data.frame"`: A standard R data frame.
  - `"DataTable"`: An interactive table using the DataTable library.
  - `"Flextable"`: A formatted table suitable for reporting,i.e. word documents.
-Default is "DataTable".}
+Default is "DataTable".
+@param page_length integer indicating number of elements per DataTable page. Default is 10}
 
 \item{dt_selection_type}{String controlling the DataTable selection argument. Expected values are "multiple", "single", "none" (default is 'single').}
 }
