@@ -42,7 +42,7 @@ get_float_columns <- function(data) {
 #' @param interactive Logical indicating whether to create an interactive
 #'   DataTable (default is TRUE).
 #' @param dt_selection_type String controlling the DataTable selection argument. Expected values are "multiple", "single", "none" (default is 'single').
-#'
+#' @param page_length integer indicating number of elements per DataTable page. Default is 10
 #' @return An interactive DataTable or a static gt table, depending on the value
 #'   of `interactive`.
 #'
@@ -70,7 +70,7 @@ get_float_columns <- function(data) {
 #' format_table(data_agg)
 #' }
 format_table <- function(data, signals_only = TRUE, interactive = TRUE,
-                         dt_selection_type = "single") {
+                         dt_selection_type = "single", page_length = 10) {
   checkmate::assert(
     checkmate::check_true(interactive),
     checkmate::check_false(interactive),
@@ -130,7 +130,7 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE,
       selection = dt_selection_type,
       fillContainer = TRUE,
       options = list(
-        pageLength = 10,
+        pageLength = page_length,
         rowGroup = list(dataSrc = 0),
         columnDefs = list(list(visible = FALSE, targets = 0)),
         dom = "tfrBip",
@@ -263,6 +263,7 @@ prepare_signals_table <- function(data,
 #'   - `"DataTable"`: An interactive table using the DataTable library.
 #'   - `"Flextable"`: A formatted table suitable for reporting,i.e. word documents.
 #'  Default is "DataTable".
+#'  @param page_length integer indicating number of elements per DataTable page. Default is 10
 #'
 #' @param dt_selection_type String controlling the DataTable selection argument. Expected values are "multiple", "single", "none" (default is 'single').
 #' @return data.frame or DataTable or Flextable depending on `format`
@@ -279,7 +280,8 @@ prepare_signals_table <- function(data,
 build_signals_table <- function(signal_results,
                                 signals_only = TRUE,
                                 format = "DataTable",
-                                dt_selection_type = "single") {
+                                dt_selection_type = "single",
+                                page_length = 10) {
   checkmate::assert(
     checkmate::check_choice(format, choices = c(
       "data.frame",
@@ -305,7 +307,7 @@ build_signals_table <- function(signal_results,
     table <- table %>%
       format_table(
         signals_only = signals_only, interactive = TRUE,
-        dt_selection_type = dt_selection_type
+        dt_selection_type = dt_selection_type, page_length = page_length
       )
   }
   if (format == "Flextable") {
@@ -393,6 +395,7 @@ prepare_signals_agg_table <- function(signals_agg) {
 #'   - `"DataTable"`: An interactive table using the DataTable library.
 #'   - `"Flextable"`: A formatted table suitable for reporting,i.e. word documents.
 #'   Default is "DataTable".
+#' @param page_length integer indicating number of elements per DataTable page. Default is 10 description
 #'
 #' @return data.frame or DataTable or Flextable depending on `format`
 #'
@@ -409,7 +412,8 @@ prepare_signals_agg_table <- function(signals_agg) {
 #' build_signals_agg_table(signals_agg)
 #' }
 build_signals_agg_table <- function(signals_agg,
-                                    format = "DataTable") {
+                                    format = "DataTable",
+                                    page_length = 10) {
   checkmate::assert(
     checkmate::check_choice(format, choices = c(
       "data.frame",
@@ -422,7 +426,7 @@ build_signals_agg_table <- function(signals_agg,
 
   if (format == "DataTable") {
     table <- table %>%
-      format_table(signals_only = TRUE, interactive = TRUE)
+      format_table(signals_only = TRUE, interactive = TRUE, page_length = page_length)
   }
   if (format == "Flextable") {
     table <- table %>%
