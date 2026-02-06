@@ -26,7 +26,8 @@ strata had higher than expected case numbers
 \dontrun{
 dat <- preprocess_data(input_example)
 signals <- get_signals(dat, stratification = "county")
+n.strata <- 9
 
-plot_signals_per_week(signals)
+plot_signals_per_week(signals, n_strata = n.strata)
 }
 }
