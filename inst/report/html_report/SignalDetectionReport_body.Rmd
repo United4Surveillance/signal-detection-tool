@@ -100,7 +100,9 @@ for(cate in params$strata){
   cate_link <- paste0("[", cate, "](",pate ,"-", cate, ".html)")
   cat("### Signals in", cate_link, "\n\n")
   
-  n.strata <- strata_per_category$n[strata_per_category$category == cate]
+  n.strata <- strata_per_category %>%
+    dplyr::filter(category == cate) %>% 
+    dplyr::pull(n)
   
   p <- s_pad %>% 
     dplyr::filter(category == cate) %>% 
