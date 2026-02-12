@@ -196,9 +196,23 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       req(data)
       req(!errors_detected())
 
-      # add subset indicator for selected pathogens
-      dat <- data() %>%
-        dplyr::mutate(subset = pathogen %in% input$pathogen_vars)
+
+      # dat <- data() %>%
+      #   dplyr::mutate(subset = pathogen %in% input$pathogen_vars)
+
+      # add column containing the maximum date of the whole dataset
+      df_max <- data()
+      date_cols <- grep("^date", names(df_max), value = TRUE)
+      shiny::req(length(date_cols) > 0)
+      maximum_date <- max(as.Date(unlist(df_max[date_cols], use.names = FALSE)), na.rm = TRUE)
+      maximum_date <- lubridate::floor_date(maximum_date, unit = "week", week_start = 1) +
+        lubridate::days(6)
+
+      dat <- df_max %>%
+        dplyr::mutate(
+          maximum_date = maximum_date,
+          subset = pathogen %in% input$pathogen_vars # add subset indicator for selected pathogens
+        )
 
       return(dat)
     })
