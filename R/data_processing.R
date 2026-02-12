@@ -66,6 +66,9 @@ preprocess_data <- function(data) {
       dplyr::across(all_of(factorization_vars), as.factor)
     )
 
+  # maximum_date <- max(as.Date(unlist(data[date_cols], use.names = FALSE)), na.rm = TRUE)
+  #
+  # data <- data %>% dplyr::mutate(maximum_date = maximum_date)
 
   # add columns for isoyear and isoweek for each date
   data <- data %>%
@@ -302,13 +305,14 @@ filter_by_date <- function(data, date_var = "date_report", date_start = NULL, da
   if (!is.null(date_start)) date_start <- as.Date(date_start)
   if (!is.null(date_end))   date_end   <- as.Date(date_end)
 
-  # define global maximum date and redefine it as the end of the isoweek selected
-  date_cols <- grep("^date", names(data), value = TRUE)
-  maximum_date <- max(as.Date(unlist(data[date_cols], use.names = FALSE)), na.rm = TRUE)
-  maximum_date <- lubridate::floor_date(maximum_date, unit = "week", week_start = 1) +
-    lubridate::days(6)
-
-  data <- data %>% dplyr::mutate(maximum_date = maximum_date)
+  # define global maximum date and redefine it as the end of the isoweek selected for strata
+  # filtering is calculated before on the whole dataset in mod_tabpanel_input.R
+  # date_cols <- grep("^date", names(data), value = TRUE)
+  # maximum_date <- max(as.Date(unlist(data[date_cols], use.names = FALSE)), na.rm = TRUE)
+  # maximum_date <- lubridate::floor_date(maximum_date, unit = "week", week_start = 1) +
+  #   lubridate::days(6)
+  #
+  # data <- data %>% dplyr::mutate(maximum_date = maximum_date)
 
   # select different maximum for global date and calculate aggregate_data with local maximum
   if (!is.null(date_end)) {
@@ -341,7 +345,7 @@ filter_by_date <- function(data, date_var = "date_report", date_start = NULL, da
 convert_to_sts <- function(case_counts) {
   # create sts object
   return(surveillance::sts(case_counts$cases,
-                           start = c(
+                             start = c(
                              case_counts$year[1],
                              case_counts$week[1]
                            ),
