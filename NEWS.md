@@ -5,7 +5,7 @@
   * fix wrong number of total cases in html report landing page
   * fix signals tables being scrollable again 
 * Shortening of long x axis labels in barcharts and adding complete axis text to tooltip
-
+* Added new multi-seasonal harmonic method with annual and semiannual components and optional timetrend
 
 # SignalDetectionTool 0.9.0
 

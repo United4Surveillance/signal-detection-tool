@@ -90,6 +90,7 @@ available_algorithms <- function() {
     "Timetrend" = "glm timetrend",
     "Harmonic" = "glm harmonic",
     "Harmonic with timetrend" = "glm harmonic with timetrend",
+    "Multi-seasonal harmonic" = "glm harmonic multi",
     "Step harmonic" = "glm farrington",
     "Step harmonic with timetrend" = "glm farrington with timetrend"
   )

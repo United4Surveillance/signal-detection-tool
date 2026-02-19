@@ -112,6 +112,9 @@ This method augments the intercept-only model (as used by “Mean”) with sine 
 
 The same as the Harmonic method but with fitted timetrend to account for the underlying trend in the data.
 
+### Multi-seasonal harmonic
+
+This method extends the Harmonic method by incorporating two pairs of sine and cosine terms to capture multiple seasonal components. By default, it models one and two cycles per year (annual and semiannual seasonality). A fitted timetrend is included to account for the underlying trend in the data. However, the timetrend is removed and the model is refitted if any predicted value in the test period exceeds twice the maximum observed count in the training period.
 
 #### Step harmonic
 
