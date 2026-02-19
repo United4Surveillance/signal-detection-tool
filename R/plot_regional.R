@@ -153,6 +153,31 @@ plot_regional <- function(shape_with_signals,
         sf::st_collection_extract("POINT") |> # only keep points
         dplyr::filter(!sf::st_is_empty(geometry)) # remove empty ones
 
+      stars_sf <- stars_sf |>
+        rowwise() |>
+        mutate(
+          geometry = {
+            pt <- geometry
+            self <- shape_areas_sf[shape_areas_sf$NUTS_ID == NUTS_ID, ]
+            other <- shape_areas_sf[shape_areas_sf$NUTS_ID != NUTS_ID, ]
+
+            hit_other <- lengths(sf::st_intersects(pt, other)) > 0
+
+            if (!hit_other) {
+              pt
+            } else {
+              safe <- sf::st_difference(sf::st_geometry(self), sf::st_union(sf::st_geometry(other)))
+              if (length(safe) == 0 || sf::st_is_empty(safe)) {
+                sf::st_point_on_surface(self)
+              } else {
+                if (length(safe) > 1) safe <- safe[which.max(sf::st_area(safe))]
+                sf::st_point_on_surface(safe)
+              }
+            }
+          }
+        ) |>
+        ungroup()
+
       sf::sf_use_s2(old_s2)
 
       if (nrow(stars_sf) < nrow_stars_before) {
