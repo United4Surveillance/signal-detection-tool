@@ -53,6 +53,10 @@ s_pad <- params$signals_padded %>%
 ```{r}
 results_analysis <- s_pad %>%
   dplyr::filter(!is.na(alarms))
+
+strata_per_category <- s_agg %>% 
+  dplyr::count(.data$category)
+  
 ```
 
 Row
@@ -96,9 +100,13 @@ for(cate in params$strata){
   cate_link <- paste0("[", cate, "](",pate ,"-", cate, ".html)")
   cat("### Signals in", cate_link, "\n\n")
   
+  n.strata <- strata_per_category %>%
+    dplyr::filter(category == cate) %>% 
+    dplyr::pull(n)
+  
   p <- s_pad %>% 
     dplyr::filter(category == cate) %>% 
-    plot_signals_per_week(interactive = TRUE, branding = brand_colors)
+    plot_signals_per_week(n_strata = n.strata, interactive = TRUE, branding = brand_colors)
   
   print(htmltools::tagList(p))
   

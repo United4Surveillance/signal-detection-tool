@@ -4,10 +4,12 @@
 \alias{plot_signals_per_week}
 \title{Plot in how many strata an signal was detected under the detection period}
 \usage{
-plot_signals_per_week(results, interactive = FALSE, branding = NULL)
+plot_signals_per_week(results, n_strata, interactive = FALSE, branding = NULL)
 }
 \arguments{
 \item{results}{dataframe of a single-pathogen signal detection results for a strata category}
+
+\item{n_strata}{integer. Number of stratification levels in category. Usually determined automatically by signals_agg}
 
 \item{interactive}{logical, if TRUE, interactive plot is returned; default, static plot.}
 
@@ -24,7 +26,8 @@ strata had higher than expected case numbers
 \dontrun{
 dat <- preprocess_data(input_example)
 signals <- get_signals(dat, stratification = "county")
+n.strata <- 9
 
-plot_signals_per_week(signals)
+plot_signals_per_week(signals, n_strata = n.strata)
 }
 }
