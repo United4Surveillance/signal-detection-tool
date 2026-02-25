@@ -156,6 +156,8 @@ aggregate_data <- function(data,
 
   print(date_end_eff)
 
+ # if (max(data[[date_var]])<data_max){
+
   fill_weeks_until <- function(data, date_end_eff, date_var = "date_report") {
 
     wk_max <- max(lubridate::floor_date(data[[date_var]], unit = "week", week_start = 1), na.rm = TRUE)
@@ -183,6 +185,7 @@ aggregate_data <- function(data,
   }
 
   data <- fill_weeks_until(data, date_end_eff,date_var)
+ # }
 
   if (is.null(group)) {
     data_agg <- data %>%
@@ -301,6 +304,8 @@ filter_by_date <- function(data, date_var = "date_report", date_start = NULL, da
     checkmate::check_date(lubridate::date(date_end)),
     combine = "or"
   )
+  print(date_end)
+  print(date_start)
 
   if (!is.null(date_start)) date_start <- as.Date(date_start)
   if (!is.null(date_end))   date_end   <- as.Date(date_end)
