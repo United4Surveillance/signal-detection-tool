@@ -132,14 +132,12 @@ aggregate_data <- function(data,
     combine = "or"
   )
 
-  # use maximum local date
   data_min <- min(data[[date_var]], na.rm = TRUE)
 
-  # use maximum global date or filtered maximum date (after applying filter_by_date())
-  data_max <-  unique(data$maximum_date)
-
-  print(class(data$maximum_date))
-  print(sort(unique(as.Date(data$maximum_date))))
+  if ("maximum_date" %in% names(data)){
+    data_max <- unique(data$maximum_date)} else {
+    data_max <- max(data[[date_var]], na.rm = TRUE)
+    }
 
   if (!is.null(date_start)) date_start <- as.Date(date_start)
   if (!is.null(date_end))   date_end   <- as.Date(date_end)
@@ -153,10 +151,6 @@ aggregate_data <- function(data,
   }
 
   date_end_eff   <- if (is.null(date_end))   data_max else max(date_end, data_max)
-
-  print(date_end_eff)
-
- # if (max(data[[date_var]])<data_max){
 
   fill_weeks_until <- function(data, date_end_eff, date_var = "date_report") {
 
@@ -185,7 +179,6 @@ aggregate_data <- function(data,
   }
 
   data <- fill_weeks_until(data, date_end_eff,date_var)
- # }
 
   if (is.null(group)) {
     data_agg <- data %>%
@@ -304,22 +297,10 @@ filter_by_date <- function(data, date_var = "date_report", date_start = NULL, da
     checkmate::check_date(lubridate::date(date_end)),
     combine = "or"
   )
-  print(date_end)
-  print(date_start)
 
   if (!is.null(date_start)) date_start <- as.Date(date_start)
   if (!is.null(date_end))   date_end   <- as.Date(date_end)
 
-  # define global maximum date and redefine it as the end of the isoweek selected for strata
-  # filtering is calculated before on the whole dataset in mod_tabpanel_input.R
-  # date_cols <- grep("^date", names(data), value = TRUE)
-  # maximum_date <- max(as.Date(unlist(data[date_cols], use.names = FALSE)), na.rm = TRUE)
-  # maximum_date <- lubridate::floor_date(maximum_date, unit = "week", week_start = 1) +
-  #   lubridate::days(6)
-  #
-  # data <- data %>% dplyr::mutate(maximum_date = maximum_date)
-
-  # select different maximum for global date and calculate aggregate_data with local maximum
   if (!is.null(date_end)) {
     if (!"maximum_date" %in% names(data)) {
       data$maximum_date <- date_end
