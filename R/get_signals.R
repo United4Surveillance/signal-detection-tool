@@ -155,7 +155,7 @@ get_signals_stratified <- function(data,
     date_start <- min(data[[date_var]], na.rm = TRUE)
   }
   if (is.null(date_end)) {
-    date_end <- unique(data$maximum_date) #max(data[[date_var]], na.rm = TRUE)
+    date_end <- unique(data$maximum_date) # max(data[[date_var]], na.rm = TRUE)
   }
 
   i <- 0

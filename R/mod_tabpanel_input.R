@@ -210,7 +210,6 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     })
 
     data_sub <- shiny::reactive({
-
       shiny::req(data)
       shiny::req(!errors_detected())
 
@@ -229,7 +228,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
           as.Date(input$date_choice)
         } else {
           global_max
-        })
+        }
+      )
 
       # cap the chosen date
       dat <- df_max %>%
@@ -259,7 +259,6 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     # selecting the max date of the dataframe
     output$date_choice_ui <- shiny::renderUI({
-
       df <- data()
       shiny::req(nrow(df) > 0)
 
@@ -386,7 +385,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
         df <- if (lubridate::is.Date(df[[rlang::as_name(filter_var)]])) {
           dplyr::filter(df, !!filter_var %in% seq(filter_val[1], filter_val[2], "day")) %>%
-          dplyr::mutate( maximum_date = filter_val[2])
+            dplyr::mutate(maximum_date = filter_val[2])
         } else if (rlang::as_name(filter_var) == "age") {
           dplyr::filter(df, between(!!filter_var, filter_val[1], filter_val[2]))
         } else {
