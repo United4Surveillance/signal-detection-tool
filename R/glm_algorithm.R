@@ -48,7 +48,7 @@ create_sincos_data <- function(ts_len, freq = 52, S = 1) {
 #' @param S_1 integer, default 1, specifying the number of cycles per freq. When freq = 52 this specifies the number of cycles to have per year
 #' @param S_2 integer, default 2, specifying the number of cycles per freq. When freq = 52 this specifies the number of cycles to have per year. S_2 has to be greater than S_1 and at least 2
 #' @return A data frame with columns for the sine and cosine values over time.
-create_fourier_terms <- function(ts_len, freq = 52, S_1 = 1, S_2= 2) {
+create_fourier_terms <- function(ts_len, freq = 52, S_1 = 1, S_2 = 2) {
   checkmate::assert_number(S_1, lower = 1)
   checkmate::assert_int(S_2, lower = 2)
   checkmate::assert_true(S_2 > S_1)
@@ -89,7 +89,7 @@ create_model_data <- function(ts_len,
                               past_weeks_not_included = 4) {
   # check that input method and stratification are correct
   checkmate::assert(
-    checkmate::check_choice(model, choices = c("mean", "sincos","sincos_multiS", "FN"))
+    checkmate::check_choice(model, choices = c("mean", "sincos", "sincos_multiS", "FN"))
   )
 
   data_season <- NULL
@@ -382,22 +382,24 @@ get_signals_glm <- function(data_aggregated,
     data_aggregated
   }
 
-  if (model=="sincos_multiS" &&
-      time_trend==TRUE &&
-      max(data_aggregated$expected[(nrow(data_aggregated) - number_of_weeks+1):nrow(data_aggregated)], na.rm = TRUE) > 2*max(data_aggregated$cases[1:(nrow(data_aggregated) - number_of_weeks)], na.rm = TRUE)
-      ){
+  if (model == "sincos_multiS" &&
+    time_trend == TRUE &&
+    max(data_aggregated$expected[(nrow(data_aggregated) - number_of_weeks + 1):nrow(data_aggregated)], na.rm = TRUE) > 2 * max(data_aggregated$cases[1:(nrow(data_aggregated) - number_of_weeks)], na.rm = TRUE)
+  ) {
     return(
       get_signals_glm(
-      data_aggregated=data_aggregated,
-      number_of_weeks = number_of_weeks,
-      model = model,
-      time_trend = FALSE,
-      return_full_model = return_full_model,
-      alpha_upper = alpha_upper,
-      intervention_date = intervention_date,
-      min_timepoints_baseline = min_timepoints_baseline,
-      min_timepoints_trend = min_timepoints_trend,
-      past_weeks_not_included = past_weeks_not_included))
+        data_aggregated = data_aggregated,
+        number_of_weeks = number_of_weeks,
+        model = model,
+        time_trend = FALSE,
+        return_full_model = return_full_model,
+        alpha_upper = alpha_upper,
+        intervention_date = intervention_date,
+        min_timepoints_baseline = min_timepoints_baseline,
+        min_timepoints_trend = min_timepoints_trend,
+        past_weeks_not_included = past_weeks_not_included
+      )
+    )
   }
 
   data_aggregated
