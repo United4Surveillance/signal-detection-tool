@@ -1,7 +1,7 @@
 #' Plot in how many strata an signal was detected under the detection period
 #'
 #' Using the results of signal detection, plot a week-to-week representation of
-#' strata had higher than expected case numbers
+#' strata that had alarms
 #'
 #' @param results dataframe of a single-pathogen signal detection results for a strata category
 #' @param n_strata integer. Number of stratification levels in category. Usually determined automatically by signals_agg

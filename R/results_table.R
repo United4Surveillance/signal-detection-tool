@@ -251,7 +251,7 @@ prepare_signals_table <- function(data,
   data
 }
 
-#' Builds the signal detection results table with different formating options. To get the raw data.frame containing method ald number_of_weeks as well use format = "data.frame", to obtain nicely formated tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".
+#' Builds the signal detection results table with different formatting options. To get the raw data.frame containing method ald number_of_weeks as well use format = "data.frame", to obtain nicely formatted tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".
 #'
 #' This function applies the \link{prepare_signals_table} and if format = c("DataTable","Flextable") \link{format_table} to create a nicely formated results table based on the input data frame. If format = "data.frame" \link{format_table} is not applied and the raw preprocessed signal_results are returned. It can
 #' filter the data based on the `signals_only` parameter and converts certain
@@ -383,10 +383,10 @@ prepare_signals_agg_table <- function(signals_agg) {
   signals_agg
 }
 
-#' Builds the aggregated signal detection results table with different formating options.
+#' Builds the aggregated signal detection results table with different formatting options.
 #'
 #' Prepares and formats the aggregated signal results table for one category and orders the strata by the factor levels.
-#' This function combines the preparation of the aggregated signals data.frame with the final formating of the table by applying \link{prepare_signals_agg_table} and \link{format_table}.
+#' This function combines the preparation of the aggregated signals data.frame with the final formatting of the table by applying \link{prepare_signals_agg_table} and \link{format_table}.
 #' @param signals_agg A tibble or data.frame containing aggregated signals produced from \link{aggregate_signals}(signals,number_of_weeks = 6).
 #' @param format Character specifying the output format. Must be one of:
 #'   - `"data.frame"`: A standard R data frame.
