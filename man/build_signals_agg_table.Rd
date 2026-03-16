@@ -2,7 +2,7 @@
 % Please edit documentation in R/results_table.R
 \name{build_signals_agg_table}
 \alias{build_signals_agg_table}
-\title{Builds the aggregated signal detection results table with different formating options.}
+\title{Builds the aggregated signal detection results table with different formatting options.}
 \usage{
 build_signals_agg_table(signals_agg, format = "DataTable")
 }
@@ -20,7 +20,7 @@ data.frame or DataTable or Flextable depending on `format`
 }
 \description{
 Prepares and formats the aggregated signal results table for one category and orders the strata by the factor levels.
-This function combines the preparation of the aggregated signals data.frame with the final formating of the table by applying \link{prepare_signals_agg_table} and \link{format_table}.
+This function combines the preparation of the aggregated signals data.frame with the final formatting of the table by applying \link{prepare_signals_agg_table} and \link{format_table}.
 }
 \examples{
 \dontrun{

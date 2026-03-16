@@ -2,7 +2,7 @@
 % Please edit documentation in R/results_table.R
 \name{build_signals_table}
 \alias{build_signals_table}
-\title{Builds the signal detection results table with different formating options. To get the raw data.frame containing method ald number_of_weeks as well use format = "data.frame", to obtain nicely formated tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".}
+\title{Builds the signal detection results table with different formatting options. To get the raw data.frame containing method ald number_of_weeks as well use format = "data.frame", to obtain nicely formatted tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".}
 \usage{
 build_signals_table(
   signal_results,

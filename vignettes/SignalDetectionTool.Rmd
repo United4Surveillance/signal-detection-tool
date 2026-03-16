@@ -50,6 +50,7 @@ It is possible to run the app with customised settings using a yaml file. Please
 ### Data
 The input to the SDT is a linelist of infectious disease cases structured according to the format defined in `input_metadata`.
 A sample linelist (`input_example`) and its corresponding metadata specification (`input_metadata`) is available in the package as internal datasets and can be accessed using:
+
 ```{r, eval=FALSE}
 data("input_example")
 data("input_metadata")
@@ -60,6 +61,7 @@ data("input_metadata")
 To apply signal detection to your data for the most recent 6 weeks you first need to preprocess your linelist and then apply `get_signals()`. Inside `get_signals()` the linelist is aggregated to a timeseries containing weekly counts of cases.  
 To apply different signal detection methods use the parameter method. To generate stratified signals use the parameter stratification. Please have a look at the function documentation for more details. 
 This is an example for signals generated using the default parameters with FarringtonFlexible and no stratification: 
+
 ```{r}
 data_prepro <- input_example %>% preprocess_data()
 signals <- data_prepro %>% get_signals()
@@ -102,85 +104,60 @@ In this example we obtain:
 
 ### Create visualisations and tables
 
-To visualise signal detection in your data for the most recent `number_of_weeks`, you first need to preprocess your linelist and then apply `get_signals()`. For some visualisations you then have to aggregate data and need to specify a shapefile to use. In the final step you can apply a function to either create a plot or a table.
+To visualise signal detection in your data for the most recent `number_of_weeks`, you first need to preprocess your linelist and then apply `get_signals()`. To display aggregated signal detection results, first aggregate the signals. In the final step, apply a function to generate either a plot or a table.
 
-The following example shows how to visualise the timeseries of detected signals using the default parameters of FarringtonFlexible without stratification.`plot_time_series()`:
+The following example shows how to visualise the time series of detected signals using the default parameters of FarringtonFlexible without stratification in `plot_time_series()`:
+
 ```{r}
 data_prepro <- input_example %>% preprocess_data()
 signals <- data_prepro %>% get_signals()
-time_series <- signals %>% plot_time_series()
+signals_time_series <- signals %>% plot_time_series()
 ```
 
-In the timeseries visualisation, the detection period is shaded in blue. The expectation is shown as a black line. The threshold is indicated by a blue line. Weekly case counts are displayed as bars. A signal is generated for a given week when the number of cases exceeds the threshold.
-
-To create a table with different formatting options you can use `build_signals_table()`. This is an example for creating a DataTable using age_group as `stratum` and default options: 
-```{r}
-data_prepro <- input_example %>% preprocess_data()
-signals <- data_prepro %>% get_signals(stratification = c("age_group"), 
-                                       number_of_weeks = 6
-                                       )
-build_signals_table(signals)
-```
-
-To create a non-interactive map you have to use aggregated signals and an appropriate shapefile. Both have to be specified in `create_map_or_table()` and interactive should be set to FALSE. `plot_regional()` is used by the function. This is an example for visualising the specified data using "county" as `stratum` as a map because the matching of the NUTS IDs is fully possible. Otherwise a table would be created. 
-```{r}
-data_prepro <- input_example %>% preprocess_data() 
-signals <- data_prepro %>% get_signals(stratification = c("county"))
-signals_agg <- signals %>% aggregate_signals(number_of_weeks = 6)
-create_map_or_table(signals_agg, 
-                    input_example, 
-                    "county", 
-                    nuts_shp, 
-                    interactive = FALSE
-                    )
-```
-
-In the non-interactive map visualisation, the number of cases per region is represented by the shade of blue, with darker shades indicating higher case counts. Regions without signals are shown with a black border. If at least one signal occurs in a region, the border is coloured red and the number of signals is displayed as a label within the region.
-
-To create an interactive or a non-interactive barplot or a table you have to use aggregated signals in `create_barplot_or_table()`. Depending on the number of unique levels to visualise it is decided whether a barplot or a table is shown. If you want to visualise a barplot you can use `plot_barchart()` following the same steps. This is an example for visualising the specified data using "age group" as `stratum` and for the non-interactive plot using `create_barplot_or_table()`:
-```{r}
-data_prepro <- input_example %>% preprocess_data() 
-signals <- data_prepro %>% get_signals(stratification = c("age_group"))
-signals_agg <- signals %>% aggregate_signals(number_of_weeks = 6)
-
-# Choose one of the two functions: 
-create_barplot_or_table(signals_agg, "age_group", 
-                        interactive = FALSE
-                        )
-plot_barchart(signals_agg)
-```
-
-In the non-interactive barplot visualisation, the number of cases is represented by the height of the bars. If no signal occurs in a given stratum, the bar has no border. If at least one signal is detected, the bar is outlined in red. For non-interactive plots, the number of signals is additionally displayed as a label above the bar.
-
-To create an interactive or a non-interactive 100% stacked barplot showing a week-to-week representation of strata levels that had alarms you have to use signal data and specify the number of stratification levels in `plot_signals_per_week()`. This is an example for visualising the specified data using "county" as `stratum` with 9 levels for the non-interactive plot:
-```{r}
-data_prepro <- preprocess_data(input_example)
-signals <- get_signals(data_prepro, 
-                       stratification = "county"
-                       )
-n.strata <- 9
-plot_signals_per_week(signals, 
-                      n_strata = n.strata
-                      )
-```
-
-In the non-interactive 100% stacked barplot visualisation, the proportion of levels with alarms per week is represented by the height of the red segment of each bar. If no signal occurs in a given week, the bar is shown entirely in grey.
+In the time series visualisation, the detection period is shaded in blue. The expectation is shown as a black line. The threshold is indicated by a blue line. Weekly case counts are displayed as bars. A signal is generated for a given week when the number of cases exceeds the threshold.
 
 To create a bar plot grouping the "age_group" by another `stratum` use preprocessed data in `plot_agegroup_by()`. This is an example using the `stratum` "county": 
+
 ```{r}
 data_prepro <- input_example %>% preprocess_data()
-plot_agegroup_by(df = data_prepro,
-                 age_group_col = "age_group", 
-                 by_col = "county"
-                 )
+plot_agegroup <- data_prepro %>% plot_agegroup_by(
+  age_group_col = "age_group", 
+  by_col = "county"
+  )
 ```
 
-In the bar plot the height of a bar represents the case count for the specified "county" and "age group". 
+In the bar plot, bar height represents the case count for the specified "county" and "age group".
+
+To create a signals detection results table with different formatting options you can use `build_signals_table()`. This is an example for creating a DataTable using age_group as `stratum` and default options: 
+
+```{r}
+data_prepro <- input_example %>% preprocess_data()
+signals <- data_prepro %>% get_signals(
+  stratification = c("age_group"), 
+  number_of_weeks = 6
+  )
+signals_table <- signals %>% build_signals_table()
+```
+
+To create an aggregated signal detection results table with different formatting options you can use `build_signals_agg_table()`. This is an example for creating a DataTable using age_group as `stratum` and default options: 
+
+```{r}
+data_prepro <- input_example %>% preprocess_data()
+signals <- data_prepro %>% get_signals(
+  stratification = c("age_group"), 
+  number_of_weeks = 6
+  )
+agg_signals <- signals %>%  aggregate_signals(number_of_weeks = 6) 
+agg_signals %>% build_signals_agg_table()
+```
+
+In the table, rows with a signal are highlighted in red.
 
 ### Run the report
 #### Single-pathogen reporting
 
 You can directly generate an HTML or Word report containing signal results and visualizations using `run_report()`. Simply pass your surveillance linelist—structured according to the format defined in `input_metadata`—to `run_report()`. The data will be preprocessed automatically within the function. The following code chunk generates a Word report using EARS without any stratification (default) for the past six weeks (default):
+
 ```{r, eval=FALSE}
 run_report(input_example,
   report_format = "DOCX",
@@ -189,6 +166,7 @@ run_report(input_example,
 ```
 
 This generates an HTML report (default) with stratification by age group, county and sex for the last 2 weeks using FarringtonFlexible (default):
+
 ```{r, eval=FALSE}
 run_report(input_example,
   strata = c("age_group", "county", "sex"),
@@ -211,6 +189,7 @@ data("input_example_multipathogen")
 ```
 
 To run an HTML report with the EARS algorithm and stratification by age_group and county for all pathogens in the line list you can run: 
+
 ```{r, eval=FALSE}
 run_report(input_example_multipathogen,
   strata = c("age_group", "county"),
