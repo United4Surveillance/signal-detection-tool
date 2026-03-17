@@ -17,7 +17,7 @@ create_fn_data <- function(ts_length, freq = 52.25) {
   breaks[1] <- -1
   seasgroups <- cut(((1:ts_length - 1) %% freq), breaks = breaks, labels = FALSE)
 
-  data.frame(seasgroups = seasgroups) |>
+  data.frame(seasgroups = seasgroups) %>%
     dplyr::mutate(seasgroups = factor(seasgroups, levels = 1:noPeriods))
 }
 
