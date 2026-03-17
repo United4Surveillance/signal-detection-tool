@@ -14,8 +14,7 @@ test_that("test basic aggregation works", {
   data_agg <- data %>%
     preprocess_data() %>%
     add_cw_iso(date_var = "date_report") %>%
-    aggregate_data() %>%
-    dplyr::select(year, week, cases)
+    aggregate_data()
 
   solution <- data.frame(
     year = rep(2023, 3),
@@ -44,8 +43,7 @@ test_that("test basic aggregation works with ISO week 53", {
   data_agg <- data %>%
     preprocess_data() %>%
     add_cw_iso(date_var = "date_report") %>%
-    aggregate_data() %>%
-    dplyr::select(year, week, cases)
+    aggregate_data()
 
   # Define the expected aggregation output including week 53 and transition to 2021
   solution <- data.frame(
@@ -117,8 +115,7 @@ test_that("test aggregation with filling missing zeros works", {
   data_agg <- data %>%
     preprocess_data() %>%
     add_cw_iso(date_start = start_date, date_var = "date_report") %>%
-    aggregate_data() %>%
-    dplyr::select(year, week, cases)
+    aggregate_data()
 
   solution <- data.frame(
     year = c(rep(2020, 2), rep(2021, 10)),
@@ -159,8 +156,7 @@ test_that("test aggregation with filling extending with zeros and adding missing
       date_start = as.Date("2020-12-17"),
       date_end = as.Date("2021-11-02"), date_var = "date_report"
     ) %>%
-    aggregate_data() %>%
-    dplyr::select(year, week, cases)
+    aggregate_data()
 
   solution <- data.frame(
     year = c(rep(2020, 3), rep(2021, 44)),
@@ -199,8 +195,7 @@ test_that("test that after aggregation week and years are in the correct order",
   data_agg <- data %>%
     preprocess_data() %>%
     add_cw_iso(date_start = as.Date("2020-12-17"), date_end = as.Date("2021-11-02"), date_var = "date_report") %>%
-    aggregate_data() %>%
-    dplyr::select(year, week, cases)
+    aggregate_data()
 
   solution <- data.frame(
     year = c(rep(2020, 3), rep(2021, 44)),
@@ -267,16 +262,13 @@ test_that("Aggregation of data is performed correctly using outbreak status", {
 
   linelist1_agg <- linelist1 %>%
     add_cw_iso(date_var = "date_report") %>%
-    aggregate_data() %>%
-    dplyr::select(year, week, cases)
+    aggregate_data()
   linelist2_agg <- linelist2 %>%
     add_cw_iso(date_var = "date_report") %>%
-    aggregate_data() %>%
-    dplyr::select(year, week, cases, cases_in_outbreak)
+    aggregate_data()
   linelist4_agg <- linelist4 %>%
     add_cw_iso(date_var = "date_report") %>%
-    aggregate_data() %>%
-    dplyr::select(year, week, cases, cases_in_outbreak)
+    aggregate_data()
 
 
   expect_equal(data.frame(linelist1_agg), data.frame(year = c(2024, 2024), week = c(40, 41), cases = c(6, 4)))

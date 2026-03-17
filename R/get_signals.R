@@ -15,6 +15,7 @@
 #'   the beginning of the analysis period.
 #' @param date_end Optional. A date or character string in yyyy-mm-dd format indicating
 #'   the end of the analysis period.
+#' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL
 #' @param date_var A character string specifying the column name of the date variable to use.
 #'   Default is "date_report".
 #' @param number_of_weeks Integer specifying how many weeks to generate signals for.
@@ -39,6 +40,7 @@ get_signals_all <- function(preprocessed_data,
                             stratification = NULL,
                             date_start = NULL,
                             date_end = NULL,
+                            date_ext = NULL,
                             date_var = "date_report",
                             number_of_weeks = 6) {
   results <- get_signals(
@@ -48,6 +50,7 @@ get_signals_all <- function(preprocessed_data,
     stratification = stratification,
     date_start = date_start,
     date_end = date_end,
+    date_ext = date_ext,
     date_var = date_var,
     number_of_weeks = number_of_weeks
   )
@@ -60,6 +63,7 @@ get_signals_all <- function(preprocessed_data,
       stratification = NULL,
       date_start = date_start,
       date_end = date_end,
+      date_ext = date_ext,
       date_var = date_var,
       number_of_weeks = number_of_weeks
     )
@@ -83,6 +87,7 @@ get_signals_all <- function(preprocessed_data,
 #'   stratify the data by.
 #' @param date_start A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.
 #' @param date_end A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.
+#' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL.
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @param number_of_weeks integer, specifying number of weeks to generate signals for.
 #' @return A tibble containing the results of the signal detection analysis
@@ -107,6 +112,7 @@ get_signals_stratified <- function(data,
                                    stratification_columns,
                                    date_start = NULL,
                                    date_end = NULL,
+                                   date_ext = NULL,
                                    date_var = "date_report",
                                    number_of_weeks = 6) {
   # check that all columns are present in the data
@@ -134,6 +140,11 @@ get_signals_stratified <- function(data,
   checkmate::assert(
     checkmate::check_null(date_end),
     checkmate::check_date(lubridate::date(date_end)),
+    combine = "or"
+  )
+  checkmate::assert(
+    checkmate::check_null(date_ext),
+    checkmate::check_date(lubridate::date(date_ext)),
     combine = "or"
   )
 
@@ -183,7 +194,7 @@ get_signals_stratified <- function(data,
       # filter the data
       filter_by_date(date_var = date_var, date_start = date_start, date_end = date_end) %>%
       # aggregate data
-      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, group = category)
+      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext, group = category)
 
     split_list <- sub_data %>%
       dplyr::group_split(!!rlang::sym(category), .keep = FALSE)
@@ -257,6 +268,7 @@ get_signals_stratified <- function(data,
 #'   the analysis. Default is NULL.
 #' @param date_start A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.
 #' @param date_end A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.
+#' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @param number_of_weeks integer, specifying number of weeks to generate signals for.
 #' @return A tibble containing the results of the signal detection analysis.
@@ -277,6 +289,7 @@ get_signals <- function(data,
                         stratification = NULL,
                         date_start = NULL,
                         date_end = NULL,
+                        date_ext = NULL,
                         date_var = "date_report",
                         number_of_weeks = 6) {
   # check that input method and stratification are correct
@@ -357,7 +370,7 @@ get_signals <- function(data,
       # filter the data
       filter_by_date(date_start = date_start, date_end = date_end, date_var = date_var) %>%
       # aggregate and complete the data
-      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end)
+      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext)
 
     if (grepl("glm", method)) {
       results <- fun(data_agg, number_of_weeks, model = model, time_trend = time_trend, intervention_date = intervention_date)
@@ -370,16 +383,17 @@ get_signals <- function(data,
     }
   } else {
     results <- get_signals_stratified(
-      data,
-      fun,
+      data = data,
+      fun = fun,
       model = model,
       intervention_date = intervention_date,
       time_trend = time_trend,
-      stratification,
-      date_start,
-      date_end,
-      date_var,
-      number_of_weeks
+      stratification_columns = stratification,
+      date_start = date_start,
+      date_end = date_end,
+      date_ext = date_ext,
+      date_var = date_var,
+      number_of_weeks = number_of_weeks
     )
   }
 

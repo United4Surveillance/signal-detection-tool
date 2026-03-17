@@ -66,9 +66,6 @@ preprocess_data <- function(data) {
       dplyr::across(all_of(factorization_vars), as.factor)
     )
 
-  # maximum_date <- max(as.Date(unlist(data[date_cols], use.names = FALSE)), na.rm = TRUE)
-  #
-  # data <- data %>% dplyr::mutate(maximum_date = maximum_date)
 
   # add columns for isoyear and isoweek for each date
   data <- data %>%
@@ -108,6 +105,7 @@ preprocess_data <- function(data) {
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @param date_start A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the minimum date of the dataset. This parameter can be used when the dataset should be extended further than the minimum date of the dataset.
 #' @param date_end A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.
+#' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL
 #' @param group A character specifying another grouping variable. Usually used for stratification.
 #' @examples
 #' \dontrun{
@@ -118,6 +116,7 @@ aggregate_data <- function(data,
                            date_var = "date_report",
                            date_start = NULL,
                            date_end = NULL,
+                           date_ext = NULL,
                            group = NULL) {
   checkmate::check_subset(c(group, date_var), names(data), empty.ok = TRUE)
 
@@ -131,53 +130,19 @@ aggregate_data <- function(data,
     checkmate::check_date(lubridate::date(date_end)),
     combine = "or"
   )
+  checkmate::assert(
+    checkmate::check_null(date_ext),
+    checkmate::check_date(lubridate::date(date_ext)),
+    combine = "or"
+  )
 
-  data_min <- min(data[[date_var]], na.rm = TRUE)
-
-  if ("maximum_date" %in% names(data)) {
-    data_max <- unique(data$maximum_date)
-  } else {
-    data_max <- max(data[[date_var]], na.rm = TRUE)
-  }
-
-  if (!is.null(date_start)) date_start <- as.Date(date_start)
-  if (!is.null(date_end)) date_end <- as.Date(date_end)
-
-  # inform the user when date_start > min_date that the data is nevertheless extended
-  if (!is.null(date_start) && date_start > data_min) {
-    message("Notice: Your input date_start is greater than the smallest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the smallest date in the dataset")
-  }
-  if (!is.null(date_end) && date_end < data_max) {
-    message("Notice: Your input date_end is smaller than the greatest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the greatest date in the dataset")
-  }
-
-  date_end_eff <- if (is.null(date_end)) data_max else max(date_end, data_max)
-
-  fill_weeks_until <- function(data, date_end_eff, date_var = "date_report") {
-    wk_max <- max(lubridate::floor_date(data[[date_var]], unit = "week", week_start = 1), na.rm = TRUE)
-
-    wk_end <- lubridate::floor_date(date_end_eff, unit = "week", week_start = 1)
-
-    wk_seq <- seq.Date(wk_max, wk_end, by = "week")
-
-    all_cw <- sprintf("%d-%02d", lubridate::isoyear(wk_seq), lubridate::isoweek(wk_seq))
-
-    if (is.null(group)) {
-      data %>%
-        dplyr::mutate(cw_iso = as.character(cw_iso)) %>%
-        tidyr::complete(cw_iso = all_cw) %>%
-        dplyr::mutate(cw_iso = factor(cw_iso, levels = unique(c(levels(data$cw_iso), all_cw)))) %>%
-        dplyr::arrange(cw_iso)
-    } else {
-      data %>%
-        dplyr::mutate(cw_iso = as.character(cw_iso)) %>%
-        tidyr::complete(cw_iso = all_cw, !!rlang::sym(group)) %>%
-        dplyr::mutate(cw_iso = factor(cw_iso, levels = unique(c(levels(data$cw_iso), all_cw)))) %>%
-        dplyr::arrange(cw_iso)
+  if (!is.null(date_ext)){
+    if(is.null(date_start)){ #TODO check when is this really NULL
+      date_start <- min(data[[date_var]], na.rm = TRUE)
     }
+    extended_data_range <- get_all_cw_iso(date_start = date_start, date_end = date_ext)
+    data$cw_iso = factor(data$cw_iso, levels = extended_data_range)
   }
-
-  data <- fill_weeks_until(data, date_end_eff, date_var)
 
   if (is.null(group)) {
     data_agg <- data %>%
@@ -187,31 +152,17 @@ aggregate_data <- function(data,
       dplyr::group_by(cw_iso, !!rlang::sym(group), .drop = FALSE)
   }
 
-  data_agg <- data_agg %>%
-    dplyr::summarize(cases = sum(!is.na(.data[[date_var]])), .groups = "drop")
+  # add the missing isoweeks to the dataset
+  # inform the user when date_start > min_date that the data is nevertheless extended
+  if (!is.null(date_start) && date_start > min(data[[date_var]])) {
+    message("Notice: Your input date_start is greater than the smallest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the smallest date in the dataset")
+  }
+  if (!is.null(date_end) && date_end < max(data[[date_var]])) {
+    message("Notice: Your input date_end is smaller than the greatest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the greatest date in the dataset")
+  }
 
-  # add date_var for missing date_var rows between last date in subset and the last date in the whole dataset
-  data <- data %>%
-    dplyr::mutate(
-      "{date_var}" := dplyr::if_else(
-        is.na(.data[[date_var]]),
-        lubridate::floor_date(lubridate::ymd(paste0(substr(cw_iso, 1, 4), "-01-04")), # convention: first iso week has to contain 04th January
-          "week",
-          week_start = 1
-        ) +
-          lubridate::weeks(as.integer(substr(cw_iso, 6, 7)) - 1),
-        as.Date(.data[[date_var]])
-      )
-    )
-
-  # do the same for data_agg without checking for date_var as it does not exist anymore
   data_agg <- data_agg %>%
-    dplyr::mutate(
-      "{date_var}" := lubridate::floor_date(
-        lubridate::ymd(paste0(substr(cw_iso, 1, 4), "-01-04")),
-        unit = "week", week_start = 1
-      ) + lubridate::weeks(as.integer(substr(cw_iso, 6, 7)) - 1)
-    )
+    dplyr::summarize(cases = dplyr::n(), .groups = "drop")
 
   if ("outbreak_status" %in% names(data)) {
     if (is.null(group)) {
@@ -221,7 +172,6 @@ aggregate_data <- function(data,
       data_outbreak_agg <- data %>%
         dplyr::group_by(cw_iso, !!rlang::sym(group), .drop = FALSE)
     }
-
     data_outbreak_agg <- data_outbreak_agg %>%
       dplyr::summarize(
         cases_in_outbreak = sum(outbreak_status == "yes", na.rm = TRUE),
@@ -232,7 +182,6 @@ aggregate_data <- function(data,
       dplyr::left_join(data_outbreak_agg, by = c("cw_iso", group)) %>%
       dplyr::mutate(cases_in_outbreak = dplyr::if_else(is.na(cases_in_outbreak), 0, cases_in_outbreak))
   }
-
   data_agg |>
     tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "week")) |>
     dplyr::mutate(
@@ -242,7 +191,6 @@ aggregate_data <- function(data,
     dplyr::arrange(year, week) |>
     as.data.frame()
 }
-
 
 #' Filter Data Frame by Date Range
 #'
@@ -298,17 +246,6 @@ filter_by_date <- function(data, date_var = "date_report", date_start = NULL, da
     checkmate::check_date(lubridate::date(date_end)),
     combine = "or"
   )
-
-  if (!is.null(date_start)) date_start <- as.Date(date_start)
-  if (!is.null(date_end)) date_end <- as.Date(date_end)
-
-  if (!is.null(date_end)) {
-    if (!"maximum_date" %in% names(data)) {
-      data$maximum_date <- date_end
-    } else {
-      data <- data %>% dplyr::mutate(maximum_date = date_end)
-    }
-  }
 
   if (!is.null(date_start)) {
     data <- data %>% dplyr::filter(!!rlang::sym(date_var) >= date_start)
@@ -377,31 +314,24 @@ add_cw_iso <- function(data,
     date_end <- max(data[[date_var]], na.rm = TRUE)
   }
 
-  # function to get all iso weeks between date_start and date_end
-  get_all_cw_iso <- function(date_start, date_end) {
-    start <- lubridate::floor_date(date_start, unit = "week", week_start = 1)
-    end <- lubridate::floor_date(date_end, unit = "week", week_start = 1)
-
-    all_weeks_as_dates <- seq.Date(from = start, to = end, by = "week")
-
-    unique(sprintf(
-      "%d-%02d",
-      lubridate::isoyear(all_weeks_as_dates),
-      lubridate::isoweek(all_weeks_as_dates)
-    ))
-  }
-
   # add cw_iso (isoweeks) as factor levels
   all_cw_iso <- get_all_cw_iso(date_start = date_start, date_end = date_end)
-
   data <- data |>
     dplyr::mutate(
-      cw_iso = sprintf(
-        "%d-%02d",
-        lubridate::isoyear(!!rlang::sym(date_var)),
+      cw_iso = paste0(
+        lubridate::isoyear(!!rlang::sym(date_var)), "-",
         lubridate::isoweek(!!rlang::sym(date_var))
       ),
       cw_iso = factor(cw_iso, levels = all_cw_iso)
     )
   data
+}
+
+
+#' function to get all iso weeks between `date_start` and `date_end`
+#' @param date_start date object, starting date of sequence
+#' @param date_end date object, endind date of sequence
+get_all_cw_iso <- function(date_start, date_end) {
+  all_weeks_as_dates <- c(seq.Date(from = date_start, to = date_end, by = "week"), date_end)
+  unique(paste0(lubridate::isoyear(all_weeks_as_dates), "-", lubridate::isoweek(all_weeks_as_dates)))
 }
