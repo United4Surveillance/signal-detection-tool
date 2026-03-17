@@ -137,7 +137,7 @@ plot_regional <- function(shape_with_signals,
         inherit = FALSE
       )
 
-    stars_sf <- shape_with_signals  %>%
+    stars_sf <- shape_with_signals %>%
       dplyr::filter(any_alarms == "At least 1 signal")
     nrow_stars_before <- nrow(stars_sf)
 
