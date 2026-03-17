@@ -166,7 +166,7 @@ get_signals_stratified <- function(data,
     date_start <- min(data[[date_var]], na.rm = TRUE)
   }
   if (is.null(date_end)) {
-    date_end <- unique(data$maximum_date) # max(data[[date_var]], na.rm = TRUE)
+    date_end <- max(data[[date_var]], na.rm = TRUE)
   }
 
   i <- 0
@@ -214,7 +214,7 @@ get_signals_stratified <- function(data,
           # set alarms to FALSE for the timeperiod signals are generated for in the other present levels
           # logically the alarms column should also contain NA but later on computations are based on when the first alarm appears and when giving 0 timeseries to the algorithms they also put FALSE to the alarms column thus it is consistent
           # upperbound and expected to NA
-          dplyr::mutate(alarms = dplyr::if_else(dplyr::row_number() > (nrow(.) - number_of_weeks + 1), FALSE, NA)) %>%
+          dplyr::mutate(alarms = dplyr::if_else(dplyr::row_number() >= (nrow(.) - number_of_weeks + 1), FALSE, NA)) %>%
           dplyr::mutate(
             upperbound = NA,
             expected = NA
