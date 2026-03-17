@@ -136,12 +136,12 @@ aggregate_data <- function(data,
     combine = "or"
   )
 
-  if (!is.null(date_ext)){
-    if(is.null(date_start)){ #TODO check when is this really NULL
+  if (!is.null(date_ext)) {
+    if (is.null(date_start)) { # TODO check when is this really NULL
       date_start <- min(data[[date_var]], na.rm = TRUE)
     }
     extended_data_range <- get_all_cw_iso(date_start = date_start, date_end = date_ext)
-    data$cw_iso = factor(data$cw_iso, levels = extended_data_range)
+    data$cw_iso <- factor(data$cw_iso, levels = extended_data_range)
   }
 
   if (is.null(group)) {
