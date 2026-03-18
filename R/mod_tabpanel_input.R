@@ -65,13 +65,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 ns("ext"),
                 "Time period extension",
                 value = get_data_config_value(
-                  "params:date_choice",
+                  "params:date_ext_enabled",
                   FALSE, c(TRUE, FALSE)
                 )
               ),
               shiny::conditionalPanel(
                 condition = sprintf("input['%s'] === true", ns("ext")),
-                shiny::uiOutput(ns("date_choice_ui"))
+                shiny::uiOutput(ns("date_ext_ui"))
               )
             ),
             shiny::br(),
@@ -202,10 +202,10 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::req(iv_weeks$is_valid())
 
       # subtracting 1 from input$n_weeks to get correct dates for flooring (issue #256)
-      date_floor <- lubridate::floor_date(max(filtered_data()$maximum_date) - lubridate::weeks(input$n_weeks - 1),
+      date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(input$n_weeks - 1),
         week_start = 1, unit = "week"
       )
-      date_ceil <- lubridate::floor_date(max(filtered_data()$maximum_date), unit = "week", week_start = 7)
+      date_ceil <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 7)
       paste("Chosen signal detection period from", date_floor, "to", date_ceil)
     })
 
@@ -213,32 +213,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::req(data)
       shiny::req(!errors_detected())
 
-      df_max <- data()
+      # add subset indicator for selected pathogens
+      dat <- data() %>%
+        dplyr::mutate(subset = pathogen %in% input$pathogen_vars)
 
-      date_cols <- grep("^date", names(df_max), value = TRUE)
-      shiny::req(length(date_cols) > 0)
-
-      global_max <- max(as.Date(unlist(df_max[date_cols], use.names = FALSE)), na.rm = TRUE)
-
-      global_max <- lubridate::floor_date(global_max, unit = "week", week_start = 1) +
-        lubridate::days(6)
-
-      chosen_date <- shiny::req(
-        if (isTRUE(input$ext) && !is.null(input$date_choice)) {
-          as.Date(input$date_choice)
-        } else {
-          global_max
-        }
-      )
-
-      # cap the chosen date
-      dat <- df_max %>%
-        dplyr::mutate(
-          maximum_date = chosen_date,
-          subset = pathogen %in% input$pathogen_vars
-        )
-
-      dat
+      return(dat)
     })
 
     ## showing options in ui
@@ -257,29 +236,43 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       ))
     })
 
-    # selecting the max date of the dataframe
-    output$date_choice_ui <- shiny::renderUI({
+    # showing the max date in ui
+    output$date_ext_ui <- shiny::renderUI({
       df <- data()
       shiny::req(nrow(df) > 0)
 
+      if (!isTRUE(input$ext)) {
+        return(NULL)
+      }
+
       max_date <- max(df$date_report, na.rm = TRUE)
 
-      date_choice_config <- as.Date(get_data_config_value("params:date_choice"))
+      date_ext_config <- as.Date(get_data_config_value("params:date_ext_date"))
 
-      if (!is.null(date_choice_config)) {
-        default_date_choice_config <- date_choice_config
+      if (!is.null(date_ext_config)) {
+        default_date_ext_config <- date_ext_config
       } else {
-        default_date_choice_config <- as.Date(max_date)
+        default_date_ext_config <- as.Date(max_date)
       }
 
       shiny::dateInput(
-        ns("date_choice"),
-        "Choose a date to extend the shown time period beyond the end of the linelist",
-        value = default_date_choice_config,
+        ns("date_ext"),
+        "Choose a date to extend the time period beyond the end of the linelist. Note that when the selected maximum date is earlier than the time extension end date, observed weeks (including weeks with cases) beyond the week of the selected maximum date are removed and replaced with artificially added zero-case weeks.",
+        value = default_date_ext_config,
         min   = max_date,
         max   = Sys.Date(),
         width = "90%"
       )
+    })
+
+    # Reactive expression for the time series extension date
+    date_ext <- shiny::reactive({
+      if (!isTRUE(input$ext)) {
+        return(NULL)
+      }
+
+      shiny::req(input$date_ext)
+      as.Date(input$date_ext)
     })
 
     # variable options for filter ui and strata selection
@@ -384,8 +377,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
         filter_val <- params$filter_val()
 
         df <- if (lubridate::is.Date(df[[rlang::as_name(filter_var)]])) {
-          dplyr::filter(df, !!filter_var %in% seq(filter_val[1], filter_val[2], "day")) %>%
-            dplyr::mutate(maximum_date = filter_val[2])
+          dplyr::filter(df, !!filter_var %in% seq(filter_val[1], filter_val[2], "day"))
         } else if (rlang::as_name(filter_var) == "age") {
           dplyr::filter(df, between(!!filter_var, filter_val[1], filter_val[2]))
         } else {
@@ -614,6 +606,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       weeks_input_valid = shiny::reactive(iv_weeks$is_valid()),
       strat_vars = shiny::reactive(input$strat_vars),
       pathogen_vars = shiny::reactive(input$pathogen_vars),
+      date_ext = shiny::reactive(date_ext()),
       method = shiny::reactive(input$algorithm_choice),
       no_algorithm_possible = shiny::reactive(no_algorithm_possible()),
       intervention_date = shiny::reactive(intervention_date()),
