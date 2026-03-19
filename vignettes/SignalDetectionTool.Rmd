@@ -139,7 +139,7 @@ signals <- data_prepro %>% get_signals(
   number_of_weeks = 6
 )
 signals_table <- signals %>% build_signals_table()
-signals_table 
+signals_table
 ```
 
 To create an aggregated signal detection results table with different formatting options you can use `build_signals_agg_table()`. This is an example for creating a DataTable using age_group as `stratum` and default options: 
