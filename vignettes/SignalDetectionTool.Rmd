@@ -104,51 +104,55 @@ In this example we obtain:
 
 ### Create visualisations and tables
 
-To visualise signal detection in your data for the most recent `number_of_weeks`, you first need to preprocess your linelist and then apply `get_signals()`. To display aggregated signal detection results, first aggregate the signals. In the final step, apply a function to generate either a plot or a table.
+To visualise signal detection in your data for the most recent `number_of_weeks`, you first need to preprocess your linelist and then apply `get_signals()`. To display aggregated signal detection results, first aggregate the signals. In the final step, apply a function to generate either a plot or a table. The plotting functions support both interactive and static outputs; by default, static plots are generated. Tables are returned as interactive DataTables by default, with options to convert them to data.frame or flextable formats.
 
 The following example shows how to visualise the time series of detected signals using the default parameters of FarringtonFlexible without stratification in `plot_time_series()`:
 
-```{r}
+```{r, warning=FALSE, fig.height=4, fig.width=12}
 data_prepro <- input_example %>% preprocess_data()
 signals <- data_prepro %>% get_signals()
 signals_time_series <- signals %>% plot_time_series()
+signals_time_series
 ```
 
 In the time series visualisation, the detection period is shaded in blue. The expectation is shown as a black line. The threshold is indicated by a blue line. Weekly case counts are displayed as bars. A signal is generated for a given week when the number of cases exceeds the threshold.
 
 To create a bar plot grouping the "age_group" by another `stratum` use preprocessed data in `plot_agegroup_by()`. This is an example using the `stratum` "county": 
 
-```{r}
+```{r, warning=FALSE, results='asis', fig.height=4, fig.width=12}
 data_prepro <- input_example %>% preprocess_data()
 plot_agegroup <- data_prepro %>% plot_agegroup_by(
   age_group_col = "age_group",
   by_col = "county"
 )
+plot_agegroup
 ```
 
 In the bar plot, bar height represents the case count for the specified "county" and "age group".
 
 To create a signals detection results table with different formatting options you can use `build_signals_table()`. This is an example for creating a DataTable using age_group as `stratum` and default options: 
 
-```{r}
+```{r, warning=FALSE, results='asis'}
 data_prepro <- input_example %>% preprocess_data()
 signals <- data_prepro %>% get_signals(
   stratification = c("age_group"),
   number_of_weeks = 6
 )
 signals_table <- signals %>% build_signals_table()
+signals_table 
 ```
 
 To create an aggregated signal detection results table with different formatting options you can use `build_signals_agg_table()`. This is an example for creating a DataTable using age_group as `stratum` and default options: 
 
-```{r}
+```{r, warning=FALSE, results='asis'}
 data_prepro <- input_example %>% preprocess_data()
 signals <- data_prepro %>% get_signals(
   stratification = c("age_group"),
   number_of_weeks = 6
 )
 agg_signals <- signals %>% aggregate_signals(number_of_weeks = 6)
-agg_signals %>% build_signals_agg_table()
+agg_signals_table <- agg_signals %>% build_signals_agg_table()
+agg_signals_table
 ```
 
 In the table, rows with a signal are highlighted in red.
