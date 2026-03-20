@@ -6,6 +6,7 @@
   * fix signals tables being scrollable again 
   * fix positions of signals not appearing outside other regions 
 * Shortening of long x axis labels in barcharts and adding complete axis text to tooltip
+* Reports now include a description of filter variables applied via the UI
 
 
 # SignalDetectionTool 0.9.0

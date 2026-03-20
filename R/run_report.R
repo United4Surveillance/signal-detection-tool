@@ -18,6 +18,7 @@
 #'   If `NULL` (default), all pathogens present in `data`, `signals_padded`, or `signals_agg` are used.
 #'   Multi-pathogen reports are supported only for HTML output.
 #' @param strata A character vector specifying the columns to stratify. If `NULL` no strata are used. If precomputed signals are provided  this argument is ignored and strata are inferred from the provided signals. Defaults to c("county", "age_group") when no precomputed signals were provided.
+#' @param selected_filter_vars A character vector specifying the variables used for filtering. If `NULL` either no filter is used or the filter is applied outside the app.
 #' @param tables Logical, default TRUE. True if Signal Detection Tables should be included in report. Only used for DOCX reports, the parameter is ignored for HTML reports.
 #' @param output_file A character string specifying the name of the output file (without directory path). If `NULL` (default), the file name is automatically generated to be SignalDetectionReport. See \link[rmarkdown]{render} for more details.
 #' @param output_dir A character string specifying the output directory for the rendered output file (default is ".", which means the rendered file will be saved in the current working directory. See \link[rmarkdown]{render} for more details. `NULL` is used when running the report from shiny app which will take the Downloads folder as default option for saving.
@@ -94,6 +95,7 @@ run_report <- function(
     number_of_weeks = 6,
     pathogens = NULL,
     strata = c("county", "age_group"),
+    selected_filter_vars = NULL,
     tables = TRUE,
     output_file = NULL,
     output_dir = ".",
@@ -276,6 +278,7 @@ run_report <- function(
     number_of_weeks = number_of_weeks,
     method = method,
     strata = strata,
+    selected_filter_vars = selected_filter_vars,
     signals_padded = signals_padded,
     signals_agg = signals_agg,
     intervention_date = intervention_date,

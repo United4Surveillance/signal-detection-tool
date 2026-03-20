@@ -43,7 +43,8 @@ mod_tabpanel_report_server <- function(id,
                                        number_of_weeks_input_valid,
                                        signals_padded,
                                        signals_agg,
-                                       intervention_date) {
+                                       intervention_date,
+                                       selected_filter_vars) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -116,12 +117,12 @@ mod_tabpanel_report_server <- function(id,
 
     # Download generated report
     output$report_text <- shiny::renderText({
-      paste(
-        "Generates report for", pathogen_vars(), " stratified ",
-        "by ", paste0(strat_vars(), collapse = ", "), "for the last",
+      paste0(
+        "Generates report for ", pathogen_vars(), " stratified ",
+        "by ", paste0(strat_vars(), collapse = ", "), " for the last ",
         number_of_weeks(), " weeks using ",
         names(available_algorithms())[available_algorithms() == method()],
-        " as outbreak detection algorithm."
+        " as outbreak detection algorithm. The following filters were applied: ", ifelse(length(selected_filter_vars())!=0, paste0(selected_filter_vars(), collapse = ", "), paste0("None")), "."
       )
     })
 
@@ -143,6 +144,7 @@ mod_tabpanel_report_server <- function(id,
           number_of_weeks = number_of_weeks(),
           pathogens = pathogen_vars(),
           strata = strat_vars(),
+          selected_filter_vars = selected_filter_vars(),
           tables = tables(),
           output_file = con,
           output_dir = NULL,
