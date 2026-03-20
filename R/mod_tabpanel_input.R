@@ -341,7 +341,6 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     # Extract filter variables
     selected_filter_vars <- shiny::reactive({
-
       vars <- c()
       n_filters()
 
