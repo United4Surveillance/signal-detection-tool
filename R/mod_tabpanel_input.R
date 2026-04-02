@@ -57,6 +57,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
             shiny::h2("Pathogen"),
             shiny::uiOutput(ns("pathogen_choices")),
             shiny::br(),
+            shiny::h2("Time unit aggregation"),
+            shiny::uiOutput(ns("aggregation_choice")),
+            shiny::br(),
             shiny::h2("Filters"),
             span("You can chose to investigate a subset of your data according to the filters you select. When filtering by date_report you have the possibility select a specific timeperiod you want to investigate. In the timeseries visualisation only the timeperiod you selected will be shown and the outbreak detection algorithms will only train on the data from the timeperiod you selected."),
             shiny::div(
@@ -84,15 +87,15 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
             shiny::uiOutput(ns("strat_choices")),
             shiny::br(),
             shiny::h2("Signal detection deriod"),
-            shiny::span("Set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks."),
-            shiny::uiOutput(ns("weeks_selection")),
+            shiny::span("Set the number of time units you want to generate signals for. The signals are generated for the most recent time units."),
+            shiny::uiOutput(ns("time_unit_selection")),
             shiny::textOutput(ns("text_weeks_selection")),
             shiny::br(),
             shiny::fluidRow(
               shiny::column(
                 width = 12,
                 shiny::h2("Signal detection algorithm"),
-                shiny::span("Depending on the number of weeks you want to generate signals for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
+                shiny::span("Depending on the number of time units you want to generate signals for and the filters you set, the choice of algorithms is automatically updated to those which are possible to apply for your settings."),
                 shiny::uiOutput(ns("algorithm_choice"))
               ),
               shiny::column(
@@ -139,10 +142,10 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }
     })
 
-    output$weeks_selection <- shiny::renderUI({
+    output$time_unit_selection <- shiny::renderUI({
       shiny::req(!errors_detected())
       shiny::numericInput(
-        inputId = ns("n_weeks"),
+        inputId = ns("n_time_units"),
         label = "",
         value = get_data_config_value("params:signal_detection_period", 6),
         min = 1,
@@ -165,13 +168,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     })
 
     # using shinyvalidate to ensure value between min and max
-    iv_weeks <- shinyvalidate::InputValidator$new()
-    iv_weeks$add_rule("n_weeks", shinyvalidate::sv_required(
+    iv_time_units <- shinyvalidate::InputValidator$new()
+    iv_time_units$add_rule("n_time_units", shinyvalidate::sv_required(
       message = "This input is required to be able to choose a signal detection algorithm."
     ))
-    iv_weeks$add_rule("n_weeks", shinyvalidate::sv_integer())
-    iv_weeks$add_rule("n_weeks", shinyvalidate::sv_between(1, 12))
-    iv_weeks$enable()
+    iv_time_units$add_rule("n_time_units", shinyvalidate::sv_integer())
+    iv_time_units$add_rule("n_time_units", shinyvalidate::sv_between(1, 12))
+    iv_time_units$enable()
 
     iv_min_cases <- shinyvalidate::InputValidator$new()
     iv_min_cases$add_rule("min_cases_signals", shinyvalidate::sv_integer())
@@ -180,13 +183,21 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     output$text_weeks_selection <- shiny::renderText({
       shiny::req(!errors_detected())
-      shiny::req(input$n_weeks)
-      shiny::req(iv_weeks$is_valid())
+      shiny::req(input$n_time_units)
+      shiny::req(input$time_unit)
+      shiny::req(iv_time_units$is_valid())
 
-      # subtracting 1 from input$n_weeks to get correct dates for flooring (issue #256)
-      date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(input$n_weeks - 1),
-        week_start = 1, unit = "week"
-      )
+      # subtracting 1 from input$n_time_units to get correct dates for flooring (issue #256)
+      if (input$time_unit=="weekly"){
+      date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(input$n_time_units - 1),
+        week_start = 1, unit = "week")
+      } else if (input$time_unit == "biweekly"){
+        date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(2*input$n_time_units) + lubridate::weeks(1),
+                                            week_start = 1, unit = "week")
+      } else if (input$time_unit == "monthly"){
+        date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - months(input$n_time_units - 1),
+                                            unit = "month")
+      }
       date_ceil <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 7)
 
       paste("Chosen signal detection period from", date_floor, "to", date_ceil)
@@ -215,6 +226,19 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
           unique(data()$pathogen)[1],
           unique(data()$pathogen)
         ),
+        width = "40%"
+      ))
+    })
+
+    # showing options in ui
+    output$aggregation_choice <- shiny::renderUI({
+      #shiny::req(!errors_detected())
+      return(shiny::selectInput(
+        inputId = ns("time_unit"),
+        label = "Select a time unit used for case aggregation",
+        choices = list("weekly", "biweekly", "monthly"),
+        multiple = FALSE,
+        selected = get_data_config_value("params:time_unit", "weekly"),
         width = "40%"
       ))
     })
@@ -396,8 +420,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     # this is checking whether there is enough training data for the algorithm to compute a baseline
     algorithms_possible <- shiny::reactive({
       shiny::req(filtered_data)
-      shiny::req(input$n_weeks)
-      shiny::req(iv_weeks$is_valid())
+      shiny::req(input$n_time_units)
+      shiny::req(iv_time_units$is_valid())
 
       # checking whether data has any rows after filtering
       if (nrow(filtered_data()) < 1) {
@@ -405,7 +429,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }
       # compute based on the data when which algorithms are possible
       min_max_date <- get_min_max_date(filtered_data())
-      algorithms_working <- get_possible_methods(min_max_date[["min_date"]], min_max_date[["max_date"]], number_of_weeks = input$n_weeks)
+      algorithms_working <- get_possible_methods(min_max_date[["min_date"]], min_max_date[["max_date"]], number_of_time_units = input$n_time_units)
 
       algorithms_working_named <- available_algorithms()[unlist(available_algorithms()) %in% algorithms_working]
 
@@ -414,7 +438,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     })
 
     # implementing that the algorithm choice does not always move back to the default
-    # farrington when the number of weeks is changed but stays with the last selected
+    # farrington when the number of time units is changed but stays with the last selected
     # algorithm as this algorithm is still working
     last_selected_algorithm <- shiny::reactiveVal(
       get_data_config_value("params:signal_detection_algorithm", "farrington")
@@ -437,7 +461,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       if (length(algorithms_possible()) == 0) {
         return(shiny::tagList(
           br(),
-          HTML("<b> It is not possible to apply any algorithm for the settings you chose. Please reduce the number of weeks you want generate signals for or change the filters you set. </b>"),
+          HTML("<b> It is not possible to apply any algorithm for the settings you chose. Please reduce the number of time units you want generate signals for or change the filters you set. </b>"),
           br()
         ))
       } else {
@@ -496,7 +520,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       if (isTRUE(input$pandemic_correction)) {
         valid_dates <- valid_dates_intervention()
         if (is.null(valid_dates$valid_start_date)) {
-          shiny::p("Your dataset does not have sufficient number of weeks to do a pandemic correction.")
+          shiny::p("Your dataset does not have sufficient number of time units to do a pandemic correction.")
         } else {
           intervention_date_config <- as.Date(get_data_config_value("params:intervention_date"))
           valid_intervention_interval <- lubridate::interval(valid_dates$valid_start_date, valid_dates$valid_end_date)
@@ -537,7 +561,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     # get default, min and max dates for intervention date
     valid_dates_intervention <- shiny::reactive({
-      get_valid_dates_intervention_start(filtered_data(), number_of_weeks = input$n_weeks, time_trend = time_trend())
+      get_valid_dates_intervention_start(filtered_data(), number_of_time_units = input$n_time_units, time_trend = time_trend())
     })
 
     # Return list of subsetted data and parameters
@@ -545,10 +569,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       filtered_data = reactive({
         dplyr::filter(filtered_data(), subset == TRUE)
       }),
-      n_weeks = shiny::reactive(input$n_weeks),
-      weeks_input_valid = shiny::reactive(iv_weeks$is_valid()),
+      n_time_units = shiny::reactive(input$n_time_units),
+      time_units_input_valid = shiny::reactive(iv_time_units$is_valid()),
       strat_vars = shiny::reactive(input$strat_vars),
       pathogen_vars = shiny::reactive(input$pathogen_vars),
+      time_unit = shiny::reactive(input$time_unit),
       method = shiny::reactive(input$algorithm_choice),
       no_algorithm_possible = shiny::reactive(no_algorithm_possible()),
       intervention_date = shiny::reactive(intervention_date()),

@@ -67,14 +67,15 @@ preprocess_data <- function(data) {
     )
 
 
-  # add columns for isoyear and isoweek for each date
+  # add columns for isoyear, month and isoweek for each date
   data <- data %>%
     dplyr::mutate(
       dplyr::across(
         starts_with("date") & !where(is.numeric),
         .fns = list(
           year = ~ lubridate::isoyear(.x),
-          week = ~ lubridate::isoweek(.x)
+          week = ~ lubridate::isoweek(.x),
+          month = ~ lubridate::month(.x)
         ),
         .names = "{.col}_{.fn}"
       )
@@ -98,13 +99,14 @@ preprocess_data <- function(data) {
 }
 
 
-#' Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek and adds missing isoweeks to the aggregated dataset.
+#' Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek or the month and adds missing isoweeks or months to the aggregated dataset.
 #' Additionally number of cases part of a known outbreak is added if the variable outbreak_status exists in the data.
 #'
 #' @param data data.frame, linelist of cases to be aggregated
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
-#' @param date_start A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the minimum date of the dataset. This parameter can be used when the dataset should be extended further than the minimum date of the dataset.
-#' @param date_end A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
+#' @param date_start A date object or character of format yyyy-mm-dd. Default is NULL which means that missing time units are added until the minimum date of the dataset. This parameter can be used when the dataset should be extended further than the minimum date of the dataset.
+#' @param date_end A date object or character of format yyyy-mm-dd. Default is NULL which means that missing time units are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.
 #' @param group A character specifying another grouping variable. Usually used for stratification.
 #' @examples
 #' \dontrun{
@@ -113,6 +115,7 @@ preprocess_data <- function(data) {
 #' @export
 aggregate_data <- function(data,
                            date_var = "date_report",
+                           time_unit = "weekly",
                            date_start = NULL,
                            date_end = NULL,
                            group = NULL) {
@@ -127,6 +130,12 @@ aggregate_data <- function(data,
     checkmate::check_null(date_end),
     checkmate::check_date(lubridate::date(date_end)),
     combine = "or"
+  )
+
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
   )
 
   if (is.null(group)) {
@@ -167,6 +176,8 @@ aggregate_data <- function(data,
       dplyr::left_join(data_outbreak_agg, by = c("cw_iso", group)) %>%
       dplyr::mutate(cases_in_outbreak = dplyr::if_else(is.na(cases_in_outbreak), 0, cases_in_outbreak))
   }
+
+  if (time_unit %in% c("weekly", "biweekly")){
   data_agg %>%
     tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "week")) %>%
     dplyr::mutate(
@@ -175,6 +186,16 @@ aggregate_data <- function(data,
     ) %>%
     dplyr::arrange(year, week) %>%
     as.data.frame()
+  } else if (time_unit %in% c("monthly")){
+      data_agg %>%
+        tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "month")) %>%
+        dplyr::mutate(
+          year = as.numeric(year),
+          month = as.numeric(month)
+        ) %>%
+        dplyr::arrange(year, month) %>%
+        as.data.frame()
+  }
 }
 
 #' Filter Data Frame by Date Range
@@ -252,43 +273,65 @@ filter_by_date <- function(data, date_var = "date_report", date_start = NULL, da
 #' sts_cases <- convert_to_sts(data)
 #' }
 convert_to_sts <- function(case_counts) {
-  # create sts object
-  return(surveillance::sts(case_counts$cases,
-    start = c(
-      case_counts$year[1],
-      case_counts$week[1]
-    ),
-    frequency = 52
-  ))
+if ("month" %in% names(case_counts)) {
+
+  start <- c(case_counts$year[1], case_counts$month[1])
+  frequency <- 12
+
+} else if ("week" %in% names(case_counts)) {
+
+  start <- c(case_counts$year[1], case_counts$week[1])
+  frequency <- 52
+
+} else {
+  stop("Neither 'week' nor 'month' column found in case_counts")
+}
+
+surveillance::sts(
+  observed = case_counts$cases,
+  start = start,
+  frequency = frequency
+)
 }
 
 #' Filter the data so that only the data of the last n weeks are returned
 #' This function can be used to filter for those last n weeks where signals were generated.
 #' @param data_agg data.frame, aggregated surveillance or signals dataset, where aggregated means no linelist but cases or signals per week, year
-#' @param number_of_weeks integer, specifying the number of weeks from the most recent week we want to filter the data for
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
+#' @param number_of_time_units integer, specifying the number of weeks from the most recent week we want to filter the data for
 #' @returns data.frame, aggregated data of last n weeks
-filter_data_last_n_weeks <- function(data_agg,
-                                     number_of_weeks) {
+filter_data_last_n_time_units <- function(data_agg,
+                                     time_unit = "weekly",
+                                     number_of_time_units) {
   checkmate::assert(
-    checkmate::check_integerish(number_of_weeks)
+    checkmate::check_integerish(number_of_time_units)
   )
 
-  data_agg %>%
+  if (time_unit %in% c("weekly", "biweekly")){
+    data_agg %>%
     dplyr::group_by(category, stratum) %>%
     dplyr::arrange(year, week) %>%
-    dplyr::slice_tail(n = number_of_weeks) %>%
+    dplyr::slice_tail(n = number_of_time_units) %>%
     dplyr::ungroup()
+  } else if (time_unit == "monthly"){
+    data_agg %>%
+      dplyr::group_by(category, stratum) %>%
+      dplyr::arrange(year, month) %>%
+      dplyr::slice_tail(n = number_of_time_units) %>%
+      dplyr::ungroup()
+  }
 }
 
 #' Adds a column `cw_iso` to the data.frame `data`.
 #'
-#' Uses `date_var`to create a factor column of isoweeks. Factor levels are all
-#' weeks between `date_start` and `date_end`.
+#' Uses `date_var`to create a factor column of time units. Factor levels are all
+#' time units between `date_start` and `date_end`.
 #' @inheritParams aggregate_data
 add_cw_iso <- function(data,
                        date_start = NULL,
                        date_end = NULL,
-                       date_var = "date_report") {
+                       date_var = "date_report",
+                       time_unit = "weekly") {
   # get min and max date of the whole dataset before stratification
   # stratified aggregated data can be filled up with 0s until min and max date
   # of the full dataset
@@ -299,14 +342,43 @@ add_cw_iso <- function(data,
     date_end <- max(data[[date_var]], na.rm = TRUE)
   }
 
-  # function to get all iso weeks between date_start and date_end
-  get_all_cw_iso <- function(date_start, date_end) {
-    all_weeks_as_dates <- c(seq.Date(from = date_start, to = date_end, by = "week"), date_end)
-    unique(paste0(lubridate::isoyear(all_weeks_as_dates), "-", lubridate::isoweek(all_weeks_as_dates)))
+  # change time_unit name for calculation if necessary
+  time_unit <- ifelse(time_unit=="biweekly", "2 weeks", time_unit)
+  time_unit <- ifelse(time_unit=="weekly", "week", time_unit)
+  time_unit <- ifelse(time_unit=="monthly", "month", time_unit)
+
+  # function to get all time units between date_start and date_end
+  get_all_cw_iso <- function(date_start, date_end, time_unit) {
+
+    all_dates <- seq.Date(from = date_start, to = date_end, by = "day")
+
+    if (time_unit == "week") {
+
+      unique(paste0(
+        lubridate::isoyear(all_dates), "-", lubridate::isoweek(all_dates)))
+
+    } else if (time_unit == "2 weeks") {
+
+      iso_year <- lubridate::isoyear(all_dates)
+      iso_week <- lubridate::isoweek(all_dates)
+
+      start_week <- iso_week - ((iso_week - 1) %% 2)
+
+      unique(paste0(
+        iso_year, "-",
+        sprintf("%02d", start_week)
+      ))
+
+    } else if (time_unit == "month") {
+
+      unique(paste0(
+        lubridate::year(all_dates), "-", lubridate::month(all_dates)))
+    }
   }
 
-  # add cw_iso (isoweeks) as factor levels
-  all_cw_iso <- get_all_cw_iso(date_start = date_start, date_end = date_end)
+  # add cw_iso as factor levels
+  all_cw_iso <- get_all_cw_iso(date_start = date_start, date_end = date_end, time_unit = time_unit)
+  if (time_unit == "week"){
   data <- data %>%
     dplyr::mutate(
       cw_iso = paste0(
@@ -314,6 +386,28 @@ add_cw_iso <- function(data,
         lubridate::isoweek(!!rlang::sym(date_var))
       ),
       cw_iso = factor(cw_iso, levels = all_cw_iso)
-    )
+    )} else if (time_unit == "2 weeks"){
+      data <- data %>%
+        dplyr::mutate(
+          iso_year = lubridate::isoyear(!!rlang::sym(date_var)),
+          iso_week = lubridate::isoweek(!!rlang::sym(date_var)),
+
+          start_week = iso_week - ((iso_week - 1) %% 2),
+
+          cw_iso = paste0(
+            iso_year, "-",
+            sprintf("%02d", start_week)
+          ),
+          cw_iso = factor(cw_iso, levels = all_cw_iso)
+        )} else if (time_unit == "month"){
+          data <- data %>%
+            dplyr::mutate(
+              cw_iso = paste0(
+                lubridate::year(!!rlang::sym(date_var)), "-",
+                sprintf("%02d", lubridate::month(!!rlang::sym(date_var)))
+              ),
+              cw_iso = factor(cw_iso, levels = all_cw_iso)
+            )
+        }
   data
 }

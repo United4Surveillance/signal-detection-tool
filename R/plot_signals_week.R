@@ -16,9 +16,9 @@
 #' signals <- get_signals(dat, stratification = "county")
 #' n.strata <- 9
 #'
-#' plot_signals_per_week(signals, n_strata = n.strata)
+#' plot_signals_per_time_unit(signals, n_strata = n.strata)
 #' }
-plot_signals_per_week <- function(results, n_strata, interactive = FALSE, branding = NULL) {
+plot_signals_per_time_unit <- function(results, n_strata, interactive = FALSE, branding = NULL) {
   if (is.null(branding)) {
     branding <- stats::setNames(c("lightgray", "#be1622"), c("primary", "danger"))
   } else {
@@ -38,8 +38,8 @@ plot_signals_per_week <- function(results, n_strata, interactive = FALSE, brandi
       date = ISOweek::ISOweek2date(paste0(.data$isoweek, "-1"))
     )
 
-  # count strata with signals for each week
-  signals_week <- results %>%
+  # count strata with signals for each time unit
+  signals_time_units <- results %>% # to do
     dplyr::group_by(.data$isoweek) %>%
     dplyr::summarise(
       n.signals = sum(.data$alarms),

@@ -1,13 +1,14 @@
 #' Plot time-series based on the results of a signal detection algorithm, being alarms, threshold and expectation
 #'
 #' Static plots (default) are only based on the dates of the latest
-#' `number_of_weeks` weeks. Interactive plots are based on all data, but zoom in
-#' by default on the latest `number_of_weeks` weeks.
+#' `number_of_time_units` time units. Interactive plots are based on all data, but zoom in
+#' by default on the latest `number_of_time_units` time units.
 #'
 #' @param results data returned by the get_signals_farringtonflexible()
 #' @param interactive logical, if TRUE, interactive plot is returned; default, static plot.
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done.The  intervention is marked with a dashed line.
-#' @param number_of_weeks number of weeks to be covered in the plot
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
+#' @param number_of_time_units number of time units to be covered in the plot
 #'
 #' @return either a gg or plotly object
 #' @export
@@ -20,7 +21,8 @@
 #' }
 plot_time_series <- function(results, interactive = FALSE,
                              intervention_date = NULL,
-                             number_of_weeks = 52) {
+                             time_unit = "weekly",
+                             number_of_time_units = 52) {
   # check whether timeseries contains padding or not
   padding_upperbound <- "upperbound_pad" %in% colnames(results)
   padding_expected <- "expected_pad" %in% colnames(results)
@@ -30,7 +32,7 @@ plot_time_series <- function(results, interactive = FALSE,
   results <- results %>%
     dplyr::mutate(
       dplyr::across(
-        c("year", "week", "cases", "number_of_weeks"),
+        c("year", "week", "cases", "number_of_time_units"), # to do
         ~ as.integer(.x)
       ),
       dplyr::across(
@@ -89,8 +91,8 @@ plot_time_series <- function(results, interactive = FALSE,
 
 
   # Periods - ends on the first date in the following week, [start; end)
-  # Dates for the latest ~year (`number_of_weeks` period).
-  range_dates_year <- max(results$date) - lubridate::weeks(c(number_of_weeks, 0) - 1)
+  # Dates for the latest ~year (`number_of_time_units` period).
+  range_dates_year <- max(results$date) - lubridate::weeks(c(number_of_time_units, 0) - 1) # to be corrected
 
   # Static plots should be based only on the latest `number_of_weeks` weeks
   if (!interactive) {

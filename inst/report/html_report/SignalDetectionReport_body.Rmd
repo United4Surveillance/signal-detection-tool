@@ -106,7 +106,7 @@ for(cate in params$strata){
   
   p <- s_pad %>% 
     dplyr::filter(category == cate) %>% 
-    plot_signals_per_week(n_strata = n.strata, interactive = TRUE, branding = brand_colors)
+    plot_signals_per_time_unit(n_strata = n.strata, interactive = TRUE, branding = brand_colors)
   
   print(htmltools::tagList(p))
   

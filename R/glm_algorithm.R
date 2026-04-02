@@ -200,7 +200,7 @@ create_formula <- function(model_data) {
 #' Get signals based on a weigthed GLM quasipoisson regression model for the expected case counts
 #' The GLM is flexible being able to just fit a mean, add a time trend, fit a harmonic sin/cos model or the seasons from the farringtonflexible.
 #' @param data_aggregated data.frame, aggregated data with case counts.
-#' @param number_of_weeks integer, specifying number of weeks to generate signals for.
+#' @param number_of_time_units integer, specifying number of time units to generate signals for.
 #' @param model character, default "mean" one of c("mean", "sincos", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.
 #' @param time_trend boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.
 #' @param return_full_model boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_weeks should be returned and attached to data_aggregated as well.
@@ -222,7 +222,7 @@ create_formula <- function(model_data) {
 #' results <- get_signals_glm(data_aggregated)
 #' }
 get_signals_glm <- function(data_aggregated,
-                            number_of_weeks = 6,
+                            number_of_time_units = 6,
                             model = "mean",
                             time_trend = TRUE,
                             return_full_model = TRUE,
@@ -242,8 +242,8 @@ get_signals_glm <- function(data_aggregated,
     intervention_start <- NULL
   }
 
-  # rev_number_weeks <- rev(seq(0, number_of_weeks - 1, 1))
-  first_signal_detection_week <- ts_len - number_of_weeks + 1
+  # rev_number_weeks <- rev(seq(0, number_of_time_units - 1, 1))
+  first_signal_detection_time_unit <- ts_len - number_of_time_units + 1
   bound_results <- data.frame(
     cases = integer(),
     expectation = numeric(),
@@ -261,9 +261,11 @@ get_signals_glm <- function(data_aggregated,
   formula <- as.formula(create_formula(model_data))
 
   # make sure the data is in the correct order to apply tail
+  sort_cols <- c("year", "month", "week")
+  sort_cols <- sort_cols[sort_cols %in% names(data_aggregated)]
   data_aggregated <- data_aggregated %>%
-    dplyr::arrange(year, week)
-  # take cases from the first signal detection week
+    dplyr::arrange(across(all_of(sort_cols)))
+  # take cases from the first signal detection time unit
   cases <- data_aggregated %>%
     dplyr::select(cases)
 
@@ -278,8 +280,8 @@ get_signals_glm <- function(data_aggregated,
   # we fit based on the data without the signal detection period and also removing the first past_weeks_not_included to not have the influence of outbreaks shortly before
   # we use the fitted model to predict the values for the whole signal detection period
   # we do not iterate over the signal detection period to refit models including more past data points to save computation time
-  fit_data <- model_data %>% head(first_signal_detection_week - (past_weeks_not_included + 1))
-  pred_data <- model_data %>% tail(number_of_weeks)
+  fit_data <- model_data %>% head(first_signal_detection_time_unit - (past_weeks_not_included + 1))
+  pred_data <- model_data %>% tail(number_of_time_units)
 
   # fit a glm based on formula and data provided
   fit_glm <- glm(formula,
@@ -325,13 +327,13 @@ get_signals_glm <- function(data_aggregated,
   bound_results <- rbind(bound_results, bounds)
   # drop = FALSE ensures that we still get a dataframe back even when using the mean method and thus data consisting only of one column
   # add the expectation for the past_weeks_not_included which are not part of the fitted model
-  data_past_weeks_not_included <- model_data[(first_signal_detection_week - past_weeks_not_included):(first_signal_detection_week - 1), , drop = FALSE]
-  pred_past_weeks_not_included <- predict.glm(fit_glm,
-    newdata = data_past_weeks_not_included,
+  data_past_time_units_not_included <- model_data[(first_signal_detection_time_unit - past_weeks_not_included):(first_signal_detection_time_unit - 1), , drop = FALSE]
+  pred_past_time_units_not_included <- predict.glm(fit_glm,
+    newdata = data_past_time_units_not_included,
     se.fit = TRUE
   )
-  mean_past_weeks_not_included <- exp(pred_past_weeks_not_included$fit)
-  full_model_expectation <- c(fit_glm$fitted.values, mean_past_weeks_not_included)
+  mean_past_time_units_not_included <- exp(pred_past_time_units_not_included$fit)
+  full_model_expectation <- c(fit_glm$fitted.values, mean_past_time_units_not_included)
 
   # generate alarms
   # here in the end give the whole dataframe back as we also do with the other algorithms
@@ -339,7 +341,7 @@ get_signals_glm <- function(data_aggregated,
     dplyr::mutate(alarms = cases > upper)
 
 
-  pad <- rep(NA, nrow(data_aggregated) - number_of_weeks)
+  pad <- rep(NA, nrow(data_aggregated) - number_of_time_units)
   alarms <- c(pad, bound_results$alarms)
   upperbound <- c(pad, bound_results$upper)
   expected <- c(pad, bound_results$expectation)
@@ -349,10 +351,10 @@ get_signals_glm <- function(data_aggregated,
   data_aggregated$expected <- expected
 
   if (return_full_model) {
-    pad_number_of_weeks <- rep(NA, number_of_weeks - 1)
+    pad_number_of_time_units <- rep(NA, number_of_time_units - 1)
     # and fill the expected_pad also for the first value where we have already have expectation from the prediction model
     # this is needed to not get a hole in the plot_time_series expected line
-    data_aggregated$expected_pad <- c(full_model_expectation, bound_results$expectation[1], pad_number_of_weeks)
+    data_aggregated$expected_pad <- c(full_model_expectation, bound_results$expectation[1], pad_number_of_time_units)
 
     data_aggregated
   }
@@ -363,7 +365,8 @@ get_signals_glm <- function(data_aggregated,
 #' Get a default and minimum and maximum date for the intervention time point for the glm algorithms with pandemic correction. This is based on the data provided and the settings for the delays.
 #' @param data data.frame, preprocessed linelist of surveillance data obtained using preprocess_data()
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
-#' @param number_of_weeks integer, specifying number of weeks to generate signals for
+#' @param number_of_time_units integer, specifying number of time units to generate signals for
+#' @param time_unit character, specifying the time units to aggreagte case data on
 #' @param time_trend boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases
 #' @param min_timepoints_baseline integer, default 12, specifying the number of weeks at least needed for fitting a new baseline after the intervention.
 #' @param min_timepoints_trend integer, default 12, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.
@@ -379,7 +382,8 @@ get_signals_glm <- function(data_aggregated,
 #' }
 get_valid_dates_intervention_start <- function(data,
                                                date_var = "date_report",
-                                               number_of_weeks = 6,
+                                               number_of_time_units = 6,
+                                               time_unit = "weekly",
                                                time_trend = TRUE,
                                                min_timepoints_baseline = 12,
                                                min_timepoints_trend = 12,
@@ -396,7 +400,7 @@ get_valid_dates_intervention_start <- function(data,
   # start after the delay to still have enough time points to fit the non intervention model
   # reality would be that the intervention is rather later in the timeseries but let's not be strict and the user decide
   min_date_plus_delay <- min_date + lubridate::weeks(delay)
-  max_date_minus_delay <- max_date - lubridate::weeks(number_of_weeks + delay + past_weeks_not_included)
+  max_date_minus_delay <- max_date - lubridate::weeks(number_of_time_units + delay + past_weeks_not_included)
 
   if (min_date_plus_delay > max_date_minus_delay) {
     min_date_plus_delay <- NULL

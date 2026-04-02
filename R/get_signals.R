@@ -17,7 +17,8 @@
 #'   the end of the analysis period.
 #' @param date_var A character string specifying the column name of the date variable to use.
 #'   Default is "date_report".
-#' @param number_of_weeks Integer specifying how many weeks to generate signals for.
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
+#' @param number_of_time_units Integer specifying how many time units to generate signals for.
 #'
 #' @return A tibble with columns for signals, expected values, thresholds, and
 #'   stratification information (if applicable), containing both stratified and
@@ -40,7 +41,8 @@ get_signals_all <- function(preprocessed_data,
                             date_start = NULL,
                             date_end = NULL,
                             date_var = "date_report",
-                            number_of_weeks = 6) {
+                            time_unit = "weekly",
+                            number_of_time_units = 6) {
   results <- get_signals(
     data = preprocessed_data,
     method = method,
@@ -49,7 +51,8 @@ get_signals_all <- function(preprocessed_data,
     date_start = date_start,
     date_end = date_end,
     date_var = date_var,
-    number_of_weeks = number_of_weeks
+    time_unit = time_unit,
+    number_of_time_units = number_of_time_units
   )
   # when stratified signals were computed also add unstratified signals to the dataframe so that all can be visualised
   if (!is.null(stratification)) {
@@ -61,7 +64,8 @@ get_signals_all <- function(preprocessed_data,
       date_start = date_start,
       date_end = date_end,
       date_var = date_var,
-      number_of_weeks = number_of_weeks
+      time_unit = time_unit,
+      number_of_time_units = number_of_time_units
     )
     results <- dplyr::bind_rows(results, results_unstratified)
   }
@@ -84,7 +88,8 @@ get_signals_all <- function(preprocessed_data,
 #' @param date_start A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.
 #' @param date_end A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
-#' @param number_of_weeks integer, specifying number of weeks to generate signals for.
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
+#' @param number_of_time_units integer, specifying number of time units to generate signals for.
 #' @return A tibble containing the results of the signal detection analysis
 #'   stratified by the specified columns.
 #'
@@ -108,7 +113,8 @@ get_signals_stratified <- function(data,
                                    date_start = NULL,
                                    date_end = NULL,
                                    date_var = "date_report",
-                                   number_of_weeks = 6) {
+                                   time_unit = "weekly",
+                                   number_of_time_units = 6) {
   # check that all columns are present in the data
   for (col in stratification_columns) {
     checkmate::assert(
@@ -142,7 +148,7 @@ get_signals_stratified <- function(data,
   )
 
   checkmate::assert(
-    checkmate::check_integerish(number_of_weeks)
+    checkmate::check_integerish(number_of_time_units)
   )
 
   # Initialize an empty list to store results per category
@@ -183,7 +189,7 @@ get_signals_stratified <- function(data,
       # filter the data
       filter_by_date(date_var = date_var, date_start = date_start, date_end = date_end) %>%
       # aggregate data
-      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, group = category)
+      aggregate_data(date_var = date_var, time_unit = time_unit, date_start = date_start, date_end = date_end, group = category)
 
     split_list <- sub_data %>%
       dplyr::group_split(!!rlang::sym(category), .keep = FALSE)
@@ -195,7 +201,7 @@ get_signals_stratified <- function(data,
       i <- i + 1
       sub_data_agg <- split_list[[stratum]]
       # are there cases in the test period?
-      n_cases <- sum(sub_data_agg %>% dplyr::slice_tail(n = number_of_weeks) %>% dplyr::select(cases))
+      n_cases <- sum(sub_data_agg %>% dplyr::slice_tail(n = number_of_time_units) %>% dplyr::select(cases))
       # run selected algorithm if there are cases
       if (n_cases == 0) {
         # don't run algorithm on those strata with 0 cases created by factors
@@ -203,16 +209,16 @@ get_signals_stratified <- function(data,
           # set alarms to FALSE for the timeperiod signals are generated for in the other present levels
           # logically the alarms column should also contain NA but later on computations are based on when the first alarm appears and when giving 0 timeseries to the algorithms they also put FALSE to the alarms column thus it is consistent
           # upperbound and expected to NA
-          dplyr::mutate(alarms = dplyr::if_else(dplyr::row_number() > (nrow(.) - number_of_weeks + 1), FALSE, NA)) %>%
+          dplyr::mutate(alarms = dplyr::if_else(dplyr::row_number() > (nrow(.) - number_of_time_units + 1), FALSE, NA)) %>%
           dplyr::mutate(
             upperbound = NA,
             expected = NA
           )
       } else {
         if (model != "") {
-          results <- fun(sub_data_agg, number_of_weeks, model = model, time_trend = time_trend, intervention_date = intervention_date)
+          results <- fun(sub_data_agg, number_of_time_units, model = model, time_trend = time_trend, intervention_date = intervention_date)
         } else {
-          results <- fun(sub_data_agg, number_of_weeks)
+          results <- fun(sub_data_agg, number_of_time_units)
         }
       }
 
@@ -258,7 +264,8 @@ get_signals_stratified <- function(data,
 #' @param date_start A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.
 #' @param date_end A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
-#' @param number_of_weeks integer, specifying number of weeks to generate signals for.
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
+#' @param number_of_time_units integer, specifying number of time units to generate signals for.
 #' @return A tibble containing the results of the signal detection analysis.
 #' @export
 #'
@@ -278,7 +285,8 @@ get_signals <- function(data,
                         date_start = NULL,
                         date_end = NULL,
                         date_var = "date_report",
-                        number_of_weeks = 6) {
+                        time_unit = "weekly",
+                        number_of_time_units = 6) {
   # check that input method and stratification are correct
   checkmate::assert(
     checkmate::check_choice(method, choices = available_algorithms())
@@ -310,7 +318,7 @@ get_signals <- function(data,
   )
 
   checkmate::assert(
-    checkmate::check_integerish(number_of_weeks)
+    checkmate::check_integerish(number_of_time_units)
   )
 
   model <- ""
@@ -349,7 +357,7 @@ get_signals <- function(data,
   }
 
   data <- data %>%
-    add_cw_iso(date_start = date_start, date_end = date_end, date_var = date_var)
+    add_cw_iso(date_start = date_start, date_end = date_end, date_var = date_var, time_unit = time_unit)
 
 
   if (is.null(stratification)) {
@@ -357,12 +365,12 @@ get_signals <- function(data,
       # filter the data
       filter_by_date(date_start = date_start, date_end = date_end, date_var = date_var) %>%
       # aggregate and complete the data
-      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end)
+      aggregate_data(date_var = date_var, time_unit = time_unit, date_start = date_start, date_end = date_end)
 
     if (grepl("glm", method)) {
-      results <- fun(data_agg, number_of_weeks, model = model, time_trend = time_trend, intervention_date = intervention_date)
+      results <- fun(data_agg, number_of_time_units, model = model, time_trend = time_trend, intervention_date = intervention_date)
     } else {
-      results <- fun(data_agg, number_of_weeks)
+      results <- fun(data_agg, number_of_time_units)
     }
     if (!is.null(results)) {
       results <- results %>%
@@ -379,16 +387,18 @@ get_signals <- function(data,
       date_start,
       date_end,
       date_var,
-      number_of_weeks
+      time_unit,
+      number_of_time_units
     )
   }
 
-  # add number of weeks and method to the results dataframe
+  # add number of time units, time unit and method to the results dataframe
   if (!is.null(results)) {
     results <- results %>%
       dplyr::mutate(
         method = method,
-        number_of_weeks = number_of_weeks
+        number_of_time_units = number_of_time_units,
+        time_unit = time_unit
       )
   }
 
@@ -406,7 +416,7 @@ get_signals <- function(data,
 #' @param signal_results A tibble returned by [get_signals()], containing weekly
 #'   signal detection results (cases, alarms, upperbound, expected, etc.).
 #' @param preprocessed A data frame containing the surveillance data preprocessed with [preprocess_data()].
-#' @param number_of_weeks Integer specifying how many weeks to include in the aggregation.
+#' @param number_of_time_units Integer specifying how many time units to include in the aggregation.
 #' @param method A character string specifying the method used to generate the signals.
 #'   Determines whether padding is necessary. For `"glm"` methods, padding is skipped
 #'   as it is assumed to be already included.
@@ -414,7 +424,7 @@ get_signals <- function(data,
 #' @return A named list with two elements:
 #' \describe{
 #'   \item{signals_agg}{A tibble with aggregated results per stratum, including total cases,
-#'     whether any alarms occurred, and the number of alarms in the last `number_of_weeks`.}
+#'     whether any alarms occurred, and the number of alarms in the last `number_of_time_units`.}
 #'   \item{signals_padded}{A tibble with the original `signal_results` augmented with additional
 #'     rows containing historical `expected` and `upperbound` values (if padding was applied).}
 #' }
@@ -428,17 +438,17 @@ get_signals <- function(data,
 #' @examples
 #' \dontrun{
 #' results <- get_signals(preprocessed_data, method = "farrington")
-#' output <- aggregate_pad_signals(results, number_of_weeks = 6, method = "farrington")
+#' output <- aggregate_pad_signals(results, number_of_time_units = 6, method = "farrington")
 #' output$signals_agg
 #' output$signals_padded
 #' }
 #' @export
 aggregate_pad_signals <- function(signal_results,
                                   preprocessed,
-                                  number_of_weeks,
+                                  number_of_time_units,
                                   method) {
   # aggregate signals for report
-  signals_agg <- aggregate_signals(signal_results, number_of_weeks = number_of_weeks)
+  signals_agg <- aggregate_signals(signal_results, number_of_time_units = number_of_time_units)
 
 
   # padd timeseries so it also has information before detection period
@@ -458,25 +468,25 @@ aggregate_pad_signals <- function(signal_results,
   )
 }
 
-#' Aggregate cases and signals over the number of weeks.
+#' Aggregate cases and signals over the number of time units.
 
-#' First the signals are filtered to obtain the signals for the last n weeks
+#' First the signals are filtered to obtain the signals for the last n time units
 #' aggregating the number of cases observed, create variable any signal generated and the aggregate the number of signals
 
-#' @param signals tibble, output of the \code{\link{get_signals}} function with number of cases and signal per week, year
-#' @param number_of_weeks integer, specifying the number of weeks we want to aggregate the number of cases and the generated signals
+#' @param signals tibble, output of the \code{\link{get_signals}} function with number of cases and signal per time unit, year
+#' @param number_of_time_units integer, specifying the number of time units we want to aggregate the number of cases and the generated signals
 #' @returns tibble, with one line per groups containing the number of cases, any_alarms and n_alarms
 #' @examples
 #' \dontrun{
 #' signals <- input_example %>%
 #'   preprocess_data() %>%
 #'   get_signals(stratification = c("sex", "county_id"))
-#' signals %>% aggregate_signals(number_of_weeks = 6)
+#' signals %>% aggregate_signals(number_of_time_units = 6)
 #' }
 #' @export
-aggregate_signals <- function(signals, number_of_weeks) {
+aggregate_signals <- function(signals, number_of_time_units) {
   signals %>%
-    filter_data_last_n_weeks(number_of_weeks = number_of_weeks) %>%
+    filter_data_last_n_time_units(number_of_time_units = number_of_time_units) %>%
     dplyr::group_by(category, stratum) %>%
     dplyr::summarise(
       cases = sum(cases, na.rm = T),
@@ -490,7 +500,7 @@ aggregate_signals <- function(signals, number_of_weeks) {
 
 #' Inside the function it is computed what the maximum number of timepoints is the signal detection algorithms can be applied for. This depends on the algorithm and the amount of historic data. The already generated signals dataframe is then extended with the expectation and threshold into the past
 #' @param data A data frame containing the surveillance data preprocessed with [preprocess_data()].
-#' @param signals tibble, output of the \code{\link{get_signals}} function with number of cases and signal per week, year
+#' @param signals tibble, output of the \code{\link{get_signals}} function with number of cases and signal per time unit, year
 #' @returns tibble, with padded signals
 #' @examples
 #' \dontrun{
@@ -503,7 +513,7 @@ aggregate_signals <- function(signals, number_of_weeks) {
 #' @export
 pad_signals <- function(data,
                         signals) {
-  # get the stratification, method and number_of_weeks from the signals data
+  # get the stratification, method, time_unit and number_of_time_units from the signals data
   stratification <- if (all(is.na(signals$category))) {
     NULL
   } else {
@@ -515,13 +525,21 @@ pad_signals <- function(data,
   #   dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
 
 
-  number_of_weeks <- unique(signals$number_of_weeks)
+  number_of_time_units <- unique(signals$number_of_time_units)
   method <- unique(signals$method)
+  time_unit <- unique(signals$time_unit)
 
-  stopifnot(length(number_of_weeks) == 1)
+  stopifnot(length(number_of_time_units) == 1)
   stopifnot(length(method) == 1)
+  stopifnot(length(time_unit) == 1)
 
-  cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(number_of_weeks)
+  if(time_unit %in% "weekly"){
+  cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(number_of_time_units)
+  } else if (time_unit %in% "biweekly"){
+    cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(2*number_of_time_units)
+  } else if (time_unit %in% "monthly"){
+    cutoff_date <- max(data$date_report, na.rm = TRUE) - months(number_of_time_units)
+  }
 
   data_no_signals <- data %>%
     dplyr::filter(date_report <= cutoff_date)
@@ -532,15 +550,43 @@ pad_signals <- function(data,
     signals_timeopt <- get_signals(
       data_no_signals,
       method = method,
-      number_of_weeks = timeopt + number_of_weeks
+      time_unit = time_unit,
+      number_of_time_units = timeopt + number_of_time_units
     )
     if (!is.null(signals_timeopt)) {
       break
     }
   }
 
+
+  if (time_unit %in% c("weekly", "biweekly")){
+    result_padding_unstratified <- signals_timeopt %>%
+      dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
+
+    # preparing dataset with padding
+    if (is.null(stratification)) {
+      result_padding <- result_padding_unstratified
+    } else {
+      result_padding_stratified <- SignalDetectionTool::get_signals(
+        data = data,
+        method = method,
+        date_var = "date_report",
+        stratification = stratification,
+        time_unit = time_unit,
+        number_of_time_units = (max_time_opt + number_of_time_units)
+      ) %>%
+        dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected, category, stratum) %>%
+        dplyr::group_by(category, stratum) %>%
+        dplyr::slice_head(n = -(number_of_time_units - 1)) %>%
+        dplyr::ungroup()
+
+      result_padding <- dplyr::bind_rows(
+        result_padding_stratified,
+        result_padding_unstratified
+      )
+  }} else if (time_unit %in% "monthly"){
   result_padding_unstratified <- signals_timeopt %>%
-    dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
+    dplyr::select(year, month, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
 
   # preparing dataset with padding
   if (is.null(stratification)) {
@@ -551,24 +597,30 @@ pad_signals <- function(data,
       method = method,
       date_var = "date_report",
       stratification = stratification,
-      number_of_weeks = (max_time_opt + number_of_weeks)
+      time_unit = time_unit,
+      number_of_time_units = (max_time_opt + number_of_time_units)
     ) %>%
-      dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected, category, stratum) %>%
+      dplyr::select(year, month, upperbound_pad = upperbound, expected_pad = expected, category, stratum) %>% # change week?
       dplyr::group_by(category, stratum) %>%
-      dplyr::slice_head(n = -(number_of_weeks - 1)) %>%
+      dplyr::slice_head(n = -(number_of_time_units - 1)) %>%
       dplyr::ungroup()
 
     result_padding <- dplyr::bind_rows(
       result_padding_stratified,
       result_padding_unstratified
     )
-  }
+  }}
 
   # preparing dataset within actual signal detection period
+  if (time_unit %in% c("weekly", "biweekly")){
   results <- signals %>%
     dplyr::arrange(category, stratum, year, week) %>%
     dplyr::left_join(x = ., y = result_padding, by = c("category", "stratum", "year", "week"))
-
+  } else if (time_unit %in% "monthly"){
+    results <- signals %>%
+      dplyr::arrange(category, stratum, year, month) %>%
+      dplyr::left_join(x = ., y = result_padding, by = c("category", "stratum", "year", "month"))
+}
 
   # adjusting padding that the first upperbound which is calculated in the signals is set to the last upperbound padding such that no jump in the visualisation occurs
   results <- results %>%
