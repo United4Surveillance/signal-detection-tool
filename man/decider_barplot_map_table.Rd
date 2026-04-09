@@ -9,6 +9,7 @@ decider_barplot_map_table(
   data_surveillance,
   signal_category,
   interactive = TRUE,
+  page_length = 10,
   toggle_alarms = FALSE
 )
 }
@@ -20,6 +21,8 @@ decider_barplot_map_table(
 \item{signal_category}{character, naming the category which should be visualised, i.e. "state","age_group","sex"}
 
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
+
+\item{page_length}{integer indicating number of elements per DataTable page. Default is 10}
 
 \item{toggle_alarms}{boolean identifying whether the plot should showing number of signals explicitly or only when hovering}
 }
