@@ -90,6 +90,8 @@ preprocess_data <- function(data) {
 
   # sex is not mandatory
   if ("sex" %in% colnames(data)) {
+    # reset sex_levels
+    app_cache_env$sex_levels <- c("male", "female", "diverse", NA_character_)
     data <- data %>%
       dplyr::mutate(sex = factor(sex, levels = sex_levels()))
   }
