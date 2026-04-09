@@ -116,7 +116,7 @@ get_signals_stratified <- function(data,
     )
   }
 
-  checkmate::check_choice(model, choices = c("", "mean", "sincos", "FN"))
+  checkmate::check_choice(model, choices = c("", "mean", "sincos", "sincos_multiS", "FN"))
 
   checkmate::assert(
     checkmate::check_null(intervention_date),
@@ -247,7 +247,7 @@ get_signals_stratified <- function(data,
 #' @param method A character string specifying the signal detection method to use.
 #'   Available options include:
 #'   `"farrington"`, `"ears"`, `"cusum"`, `"glm mean"`, `"glm timetrend"`,
-#'   `"glm harmonic"`, `"glm harmonic with timetrend"`,
+#'   `"glm harmonic"`, `"glm harmonic with timetrend"`, `"glm harmonic multi"`,
 #'   `"glm farrington"`, `"glm farrington with timetrend"`.
 #'   You can retrieve the full list using [available_algorithms()].
 #'
@@ -338,6 +338,9 @@ get_signals <- function(data,
       time_trend <- FALSE
     } else if (method == "glm harmonic with timetrend") {
       model <- "sincos"
+      time_trend <- TRUE
+    } else if (method == "glm harmonic multi") {
+      model <- "sincos_multiS"
       time_trend <- TRUE
     } else if (method == "glm farrington") {
       model <- "FN"

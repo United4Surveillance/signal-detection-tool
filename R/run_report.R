@@ -9,7 +9,7 @@
 #'
 #' @param data data.frame containing surveillance data in linelist format following the format specified in `input_metadata`
 #' @param report_format character, format of the report: "HTML" or "DOCX"
-#' @param method a character string, signal detection method to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend".
+#' @param method a character string, signal detection method to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend".
 #'   You can retrieve the full list using [names(available_algorithms())].
 #'
 #' @seealso [names(available_algorithms())]
@@ -33,7 +33,7 @@
 #'   Defaults to `NULL`, in which case the aggregated signals are computed from the linelist
 #'   within the `run_report()` function.
 #'   If not `NULL`, the provided `signals_agg` is used directly and signals are not recomputed.
-#' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.
+#' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.
 #' @param custom_logo A character string with a path to a png or svg logo, to replace the default United4Surveillance logo. Only used when `report_format` is `"HTML"`.
 #' @param custom_theme A bslib::bs_theme() to replace the default United4Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact. Only used when `report_format` is `"HTML"`.
 #' @param min_cases_signals integer, minimum number of cases a signal must have. All signals with case counts smaller than this will be filtered in a post-processing step. This parameter is only applied when precomputed signals_agg and signals_padded are not given. If you want to post-process your precomputed signals you need to do that before generating the report.

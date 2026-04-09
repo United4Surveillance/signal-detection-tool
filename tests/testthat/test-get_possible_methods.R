@@ -56,7 +56,7 @@ test_that("3 years of historic data all except glm farrington and glm farrington
   max_date <- min_date + lubridate::years(3)
   number_of_weeks <- 1
 
-  expect_setequal(names(get_possible_methods(min_date, max_date, number_of_weeks = number_of_weeks)), c("FarringtonFlexible", "EARS", "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend"))
+  expect_setequal(names(get_possible_methods(min_date, max_date, number_of_weeks = number_of_weeks)), c("FarringtonFlexible", "EARS", "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic"))
 })
 
 test_that("4 years of historic data all methods possible", {

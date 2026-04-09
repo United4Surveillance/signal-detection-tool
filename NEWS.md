@@ -10,7 +10,7 @@
   * fix positions of signals not appearing outside other regions 
 >>>>>>> develop
 * Shortening of long x axis labels in barcharts and adding complete axis text to tooltip
-
+* Added new multi-seasonal harmonic method with annual and semiannual components and optional timetrend
 
 # SignalDetectionTool 0.9.0
 
