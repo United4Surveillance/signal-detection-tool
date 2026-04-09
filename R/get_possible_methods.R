@@ -62,7 +62,7 @@
 #' get_possible_methods(
 #'   min_date = mm$min_date,
 #'   max_date = mm$max_date,
-#'   number_of_weeks = 6
+#'   number_of_time_units = 6
 #' )
 #' }
 #'
@@ -70,17 +70,17 @@
 #' @export
 get_possible_methods <- function(min_date,
                                  max_date,
-                                 time_unit = "week",
+                                 time_unit = "weekly",
                                  number_of_time_units = 6) {
   checkmate::check_date(min_date)
   checkmate::check_date(max_date)
 
-  if (time_unit == "week"){
+  if (time_unit == "weekly"){
     time_units_test <- lubridate::weeks(number_of_time_units)
-  } else if (time_unit == "2 weeks"){
+  } else if (time_unit == "biweekly"){
     time_units_test <- lubridate::weeks(number_of_time_units)*2
-  } else if (time_unit == "month"){
-    time_units_test <- lubridate::months(number_of_time_units) # this equals the real months
+  } else if (time_unit == "monthly"){
+    time_units_test <- months(number_of_time_units)
   }
 
   max_date_fit <- max_date - time_units_test
@@ -90,12 +90,12 @@ get_possible_methods <- function(min_date,
 
   number_of_time_units_available_fitting <- ceiling(as.numeric(difftime(max_date_fit, min_date - lubridate::days(1), units = "weeks")))
 
-  if (time_unit == "2 weeks"){
+  if (time_unit == "biweeekly"){
     number_of_time_units_available_fitting <- ceiling(number_of_time_units_available_fitting/2)
-  } else if (time_unit == "month"){
+  } else if (time_unit == "monthly"){
     number_of_time_units_available_fitting <- seq.Date(
       from = lubridate::floor_date(min_date, "month"),
-      to   = lubridate::floor_date(max_date_fit, "month"),
+      to   = lubridate::add_with_rollback(max_date, -time_units_test),
       by   = "month"
     ) %>% length()
   }
@@ -124,6 +124,11 @@ get_possible_methods <- function(min_date,
     methods_possible <- algos[c("CUSUM")]
   } else {
     methods_possible <- NULL
+  }
+
+  # restrict FarringtonFlexible usage to weekly aggregation level
+  if (time_unit != "weekly"){
+    methods_possible <- methods_possible[!grepl("farrington", methods_possible, ignore.case = TRUE)]
   }
 
   methods_possible

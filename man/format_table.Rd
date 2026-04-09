@@ -14,7 +14,7 @@ format_table(
 \arguments{
 \item{data}{A data frame.}
 
-\item{signals_only}{Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.}
+\item{signals_only}{Logical indicating whether to filter the signal results to include only the time units when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the time units with and without alarms.}
 
 \item{interactive}{Logical indicating whether to create an interactive
 DataTable (default is TRUE).}

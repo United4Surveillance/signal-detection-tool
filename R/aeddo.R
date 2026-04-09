@@ -6,7 +6,7 @@
 #' the aeddo algorithm to detect potential outbreaks.
 #'
 #' @param data_aggregated data.frame, aggregated data with case counts
-#' @param number_of_weeks integer, specifying the number of weeks to generate signals for
+#' @param number_of_time_units integer, specifying the number of time units to generate signals for
 #' @param population_size The population size for the aeddo algorithm. Default is 1.
 #' @inheritParams aeddo::aeddo
 #'
@@ -28,7 +28,7 @@
 #' For information on the aeddo algorithm, refer to the package documentation.
 #' @importFrom rlang .data
 get_signals_aeddo <- function(data_aggregated,
-                              number_of_weeks = 52,
+                              number_of_time_units = 52,
                               population_size = 1,
                               sig_level = 0.95,
                               exclude_past_outbreaks = TRUE,
@@ -38,7 +38,7 @@ get_signals_aeddo <- function(data_aggregated,
                               upper = c(1e2, 0.5, 1, 1, 10),
                               method = "L-BFGS-B") {
   checkmate::assert(
-    checkmate::check_integerish(number_of_weeks)
+    checkmate::check_integerish(number_of_time_units)
   )
 
   # Check if 'aeddo' is installed, as it's only listed under Suggests
@@ -50,13 +50,14 @@ get_signals_aeddo <- function(data_aggregated,
   fixed_effects_formula <- stats::as.formula(
     paste0(
       "y ~ 1 + t + sin(2*pi*w/",
-      number_of_weeks,
+      number_of_time_units,
       ") + cos(2*pi*w/",
-      number_of_weeks, ")"
+      number_of_time_units, ")"
     )
   )
 
   # Append the 'time' and population size, 'n', for the 'aeddo' algorithm
+  if ("week" %in% names(data_aggregated)) {
   data_aggregated <- data_aggregated %>%
     dplyr::mutate(week = formatC(.data$week, width = 2, flag = 0)) %>%
     dplyr::mutate(
@@ -68,6 +69,22 @@ get_signals_aeddo <- function(data_aggregated,
       w = as.integer(.data$week)
     ) %>%
     dplyr::rename(y = "cases")
+  } else if ("month" %in% names(data_aggregated)){
+    data_aggregated <- data_aggregated %>%
+      dplyr::mutate(month = formatC(.data$month, width = 2, flag = 0)) %>%
+      dplyr::mutate(
+        time = lubridate::ym(
+          paste0(
+            .data$year, "-",
+            stringr::str_pad(.data$month, 2, pad = "0")
+          )
+        ),
+        n = population_size,
+        t = dplyr::row_number(),
+        w = as.integer(.data$month)
+      ) %>%
+      dplyr::rename(y = "cases")
+  }
 
   # Employ the aeddo method to monitor the data
   aeddo_results <- aeddo::aeddo(

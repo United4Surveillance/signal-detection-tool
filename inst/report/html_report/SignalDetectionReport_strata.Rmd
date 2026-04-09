@@ -7,7 +7,7 @@ lang: "en"
 params: 
   disease: "Pertussis"
   country: "Austria"
-  number_of_weeks: 6
+  number_of_time_units: 6
   category: "age_group"
   signals_agg: NULL 
   signals_padded: NULL
@@ -86,7 +86,7 @@ for(st in unique(df$stratum)){
   
   plot_stratum <- plot_time_series(
     df %>% dplyr::filter(.data[["stratum"]] == st),
-    number_of_weeks = 52,
+    number_of_time_units = 52,
     intervention_date = params$intervention_date,
     interactive = TRUE
     )

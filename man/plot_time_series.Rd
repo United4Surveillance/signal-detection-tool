@@ -8,25 +8,25 @@ plot_time_series(
   results,
   interactive = FALSE,
   intervention_date = NULL,
-  number_of_weeks = 52
+  number_of_time_units = 52
 )
 }
 \arguments{
-\item{results}{data returned by the get_signals_farringtonflexible()}
+\item{results}{data returned by the get_signals_farringtonflexible() or signal detection results}
 
 \item{interactive}{logical, if TRUE, interactive plot is returned; default, static plot.}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done.The  intervention is marked with a dashed line.}
 
-\item{number_of_weeks}{number of weeks to be covered in the plot}
+\item{number_of_time_units}{number of time units to be covered in the plot}
 }
 \value{
 either a gg or plotly object
 }
 \description{
 Static plots (default) are only based on the dates of the latest
-`number_of_weeks` weeks. Interactive plots are based on all data, but zoom in
-by default on the latest `number_of_weeks` weeks.
+`number_of_time_units` time units. Interactive plots are based on all data, but zoom in
+by default on the latest `number_of_time_units` time units.
 }
 \examples{
 \dontrun{

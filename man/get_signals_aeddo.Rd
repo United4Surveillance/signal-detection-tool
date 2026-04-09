@@ -6,7 +6,7 @@
 \usage{
 get_signals_aeddo(
   data_aggregated,
-  number_of_weeks = 52,
+  number_of_time_units = 52,
   population_size = 1,
   sig_level = 0.95,
   exclude_past_outbreaks = TRUE,
@@ -20,7 +20,7 @@ get_signals_aeddo(
 \arguments{
 \item{data_aggregated}{data.frame, aggregated data with case counts}
 
-\item{number_of_weeks}{integer, specifying the number of weeks to generate signals for}
+\item{number_of_time_units}{integer, specifying the number of time units to generate signals for}
 
 \item{population_size}{The population size for the aeddo algorithm. Default is 1.}
 

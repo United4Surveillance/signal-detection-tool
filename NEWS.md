@@ -6,6 +6,7 @@
   * fix signals tables being scrollable again 
   * fix positions of signals not appearing outside other regions 
 * Shortening of long x axis labels in barcharts and adding complete axis text to tooltip
+* Added support for selecting different time units for case aggregation
 
 
 # SignalDetectionTool 0.9.0

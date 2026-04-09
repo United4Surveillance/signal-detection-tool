@@ -296,7 +296,7 @@ surveillance::sts(
 
 #' Filter the data so that only the data of the last n weeks are returned
 #' This function can be used to filter for those last n weeks where signals were generated.
-#' @param data_agg data.frame, aggregated surveillance or signals dataset, where aggregated means no linelist but cases or signals per week, year
+#' @param data_agg data.frame, aggregated surveillance or signals dataset, where aggregated means no linelist but cases or signals per week/month, year
 #' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
 #' @param number_of_time_units integer, specifying the number of weeks from the most recent week we want to filter the data for
 #' @returns data.frame, aggregated data of last n weeks
@@ -313,7 +313,7 @@ filter_data_last_n_time_units <- function(data_agg,
     dplyr::arrange(year, week) %>%
     dplyr::slice_tail(n = number_of_time_units) %>%
     dplyr::ungroup()
-  } else if (time_unit == "monthly"){
+  } else if (time_unit %in% "monthly"){
     data_agg %>%
       dplyr::group_by(category, stratum) %>%
       dplyr::arrange(year, month) %>%
@@ -371,8 +371,7 @@ add_cw_iso <- function(data,
 
     } else if (time_unit == "month") {
 
-      unique(paste0(
-        lubridate::year(all_dates), "-", lubridate::month(all_dates)))
+      unique(paste0(substr(all_dates,0,7)))
     }
   }
 

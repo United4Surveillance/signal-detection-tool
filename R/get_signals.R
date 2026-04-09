@@ -387,7 +387,7 @@ get_signals <- function(data,
       date_start,
       date_end,
       date_var,
-      time_unit,
+      time_unit = time_unit,
       number_of_time_units
     )
   }
@@ -417,6 +417,7 @@ get_signals <- function(data,
 #'   signal detection results (cases, alarms, upperbound, expected, etc.).
 #' @param preprocessed A data frame containing the surveillance data preprocessed with [preprocess_data()].
 #' @param number_of_time_units Integer specifying how many time units to include in the aggregation.
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
 #' @param method A character string specifying the method used to generate the signals.
 #'   Determines whether padding is necessary. For `"glm"` methods, padding is skipped
 #'   as it is assumed to be already included.
@@ -438,7 +439,7 @@ get_signals <- function(data,
 #' @examples
 #' \dontrun{
 #' results <- get_signals(preprocessed_data, method = "farrington")
-#' output <- aggregate_pad_signals(results, number_of_time_units = 6, method = "farrington")
+#' output <- aggregate_pad_signals(results, number_of_time_units = 6, time_unit == "weekly", method = "farrington")
 #' output$signals_agg
 #' output$signals_padded
 #' }
@@ -446,9 +447,10 @@ get_signals <- function(data,
 aggregate_pad_signals <- function(signal_results,
                                   preprocessed,
                                   number_of_time_units,
+                                  time_unit,
                                   method) {
   # aggregate signals for report
-  signals_agg <- aggregate_signals(signal_results, number_of_time_units = number_of_time_units)
+  signals_agg <- aggregate_signals(signal_results, number_of_time_units = number_of_time_units, time_unit = time_unit)
 
 
   # padd timeseries so it also has information before detection period
@@ -475,18 +477,19 @@ aggregate_pad_signals <- function(signal_results,
 
 #' @param signals tibble, output of the \code{\link{get_signals}} function with number of cases and signal per time unit, year
 #' @param number_of_time_units integer, specifying the number of time units we want to aggregate the number of cases and the generated signals
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
 #' @returns tibble, with one line per groups containing the number of cases, any_alarms and n_alarms
 #' @examples
 #' \dontrun{
 #' signals <- input_example %>%
 #'   preprocess_data() %>%
 #'   get_signals(stratification = c("sex", "county_id"))
-#' signals %>% aggregate_signals(number_of_time_units = 6)
+#' signals %>% aggregate_signals(number_of_time_units = 6, time_unit == "weekly")
 #' }
 #' @export
-aggregate_signals <- function(signals, number_of_time_units) {
+aggregate_signals <- function(signals, number_of_time_units, time_unit) {
   signals %>%
-    filter_data_last_n_time_units(number_of_time_units = number_of_time_units) %>%
+    filter_data_last_n_time_units(number_of_time_units = number_of_time_units, time_unit = time_unit) %>%
     dplyr::group_by(category, stratum) %>%
     dplyr::summarise(
       cases = sum(cases, na.rm = T),
@@ -538,8 +541,9 @@ pad_signals <- function(data,
   } else if (time_unit %in% "biweekly"){
     cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(2*number_of_time_units)
   } else if (time_unit %in% "monthly"){
-    cutoff_date <- max(data$date_report, na.rm = TRUE) - months(number_of_time_units)
-  }
+    #cutoff_date <- max(data$date_report, na.rm = TRUE) - months(number_of_time_units)
+    cutoff_date <- as.Date(lubridate::add_with_rollback(max(data$date_report, na.rm = TRUE, unit = "month"), -months(number_of_time_units), roll_to_first = TRUE))
+    }
 
   data_no_signals <- data %>%
     dplyr::filter(date_report <= cutoff_date)
@@ -600,7 +604,7 @@ pad_signals <- function(data,
       time_unit = time_unit,
       number_of_time_units = (max_time_opt + number_of_time_units)
     ) %>%
-      dplyr::select(year, month, upperbound_pad = upperbound, expected_pad = expected, category, stratum) %>% # change week?
+      dplyr::select(year, month, upperbound_pad = upperbound, expected_pad = expected, category, stratum) %>%
       dplyr::group_by(category, stratum) %>%
       dplyr::slice_head(n = -(number_of_time_units - 1)) %>%
       dplyr::ungroup()

@@ -12,7 +12,8 @@ get_signals(
   date_start = NULL,
   date_end = NULL,
   date_var = "date_report",
-  number_of_weeks = 6
+  time_unit = "weekly",
+  number_of_time_units = 6
 )
 }
 \arguments{
@@ -36,7 +37,9 @@ the analysis. Default is NULL.}
 
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 
-\item{number_of_weeks}{integer, specifying number of weeks to generate signals for.}
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "week".}
+
+\item{number_of_time_units}{integer, specifying number of time units to generate signals for.}
 }
 \value{
 A tibble containing the results of the signal detection analysis.

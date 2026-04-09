@@ -13,7 +13,8 @@
 #'   You can retrieve the full list using [names(available_algorithms())].
 #'
 #' @seealso [names(available_algorithms())]
-#' @param number_of_weeks integer, number of weeks for which signals are generated
+#' @param number_of_time_units integer, number of weeks for which signals are generated
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
 #' @param pathogens A character vector specifying which pathogens to include in the report.
 #'   If `NULL` (default), all pathogens present in `data`, `signals_padded`, or `signals_agg` are used.
 #'   Multi-pathogen reports are supported only for HTML output.
@@ -50,7 +51,7 @@
 #'   data = SignalDetectionTool::input_example,
 #'   method = "FarringtonFlexible",
 #'   strata = c("county", "sex"),
-#'   number_of_weeks = 6
+#'   number_of_time_units = 6
 #' )
 #' # Example 2: An example output directory specified
 #' run_report(
@@ -91,7 +92,8 @@ run_report <- function(
     data,
     report_format = "HTML",
     method = "FarringtonFlexible",
-    number_of_weeks = 6,
+    number_of_time_units = 6,
+    time_unit = "weekly",
     pathogens = NULL,
     strata = c("county", "age_group"),
     tables = TRUE,
@@ -120,8 +122,15 @@ run_report <- function(
     checkmate::check_choice(method, choices = names(available_algorithms()))
   )
   checkmate::assert(
-    checkmate::check_integerish(number_of_weeks, lower = 1)
+    checkmate::check_integerish(number_of_time_units, lower = 1)
   )
+
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
+  )
+
   # assert pathogens is NULL (default includes all pathogens) or exist in dataframe or padded signals
   checkmate::assert(
     checkmate::check_null(pathogens),
@@ -238,7 +247,8 @@ run_report <- function(
         date_start = NULL,
         date_end = NULL,
         date_var = "date_report",
-        number_of_weeks = number_of_weeks
+        number_of_time_units = number_of_time_units,
+        time_unit = time_unit
       ) %>%
         dplyr::mutate(pathogen = pat,
                       alarms = dplyr::if_else(alarms & cases < min_cases_signals,
@@ -248,7 +258,8 @@ run_report <- function(
       signals_agg_pad <- aggregate_pad_signals(
         signals,
         preprocessed_data_pat,
-        number_of_weeks,
+        number_of_time_units,
+        time_unit,
         method
       )
 
@@ -273,7 +284,8 @@ run_report <- function(
     data = data,
     country = unique(data$country),
     disease = pathogens,
-    number_of_weeks = number_of_weeks,
+    number_of_time_units = number_of_time_units,
+    time_unit = time_unit,
     method = method,
     strata = strata,
     signals_padded = signals_padded,
@@ -397,7 +409,8 @@ run_report <- function(
         data = data,
         disease = patho,
         country = unique(data$country),
-        number_of_weeks = number_of_weeks,
+        number_of_time_units = number_of_time_units,
+        time_unit = time_unit,
         strata = strata,
         signals_padded = signals_pad_p,
         signals_agg = signals_agg_p,
@@ -424,7 +437,8 @@ run_report <- function(
         strata_report_params <- list(
           disease = patho,
           country = unique(data$country),
-          number_of_weeks = number_of_weeks,
+          number_of_time_units = number_of_time_units,
+          time_unit = time_unit,
           category = ctg,
           signals_agg = signals_agg_c,
           signals_padded = signals_pad_c,

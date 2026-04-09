@@ -4,12 +4,12 @@
 \alias{get_signals_farringtonflexible}
 \title{Get signals of surveillance's farringtonFlexible algorithm}
 \usage{
-get_signals_farringtonflexible(data_aggregated, number_of_weeks = 52)
+get_signals_farringtonflexible(data_aggregated, number_of_time_units = 52)
 }
 \arguments{
 \item{data_aggregated}{data.frame, aggregated data with case counts}
 
-\item{number_of_weeks}{integer, specifying number of weeks to generate signals for}
+\item{number_of_time_units}{integer, specifying number of time units to generate signals for. The default is weeks and should not be changed.}
 }
 \description{
 Get signals of surveillance's farringtonFlexible algorithm
@@ -18,8 +18,7 @@ Get signals of surveillance's farringtonFlexible algorithm
 \dontrun{
 data_aggregated <- input_example \%>\%
   preprocess_data() \%>\%
-  aggregate_data() \%>\%
-  add_rows_missing_dates()
+  aggregate_data()
 results <- get_signals_farringtonflexible(data_aggregated)
 }
 }

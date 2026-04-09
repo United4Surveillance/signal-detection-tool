@@ -15,7 +15,7 @@ get_signals_ears <- function(data_aggregated,
                              number_of_time_units = 52,
                              method = "C1") {
   checkmate::assert(
-    checkmate::check_integerish(number_of_timme_units)
+    checkmate::check_integerish(number_of_time_units)
   )
   checkmate::assert(
     checkmate::check_choice(method, choices = c("C1", "C2", "C3"))

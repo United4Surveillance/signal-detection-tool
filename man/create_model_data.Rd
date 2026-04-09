@@ -8,10 +8,11 @@ create_model_data(
   ts_len,
   model = "mean",
   time_trend = TRUE,
+  time_unit = "weekly",
   intervention_start = NULL,
   min_timepoints_baseline = 12,
   min_timepoints_trend = 12,
-  past_weeks_not_included = 4
+  past_time_units_not_included = 4
 )
 }
 \arguments{
@@ -21,13 +22,15 @@ create_model_data(
 
 \item{time_trend}{boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.}
 
+\item{time_unit}{character, specifying the time units to aggreagte case data on}
+
 \item{intervention_start}{integer, specifying the rownumber in the aggregated timeseries which corresponds to the intervention date.}
 
 \item{min_timepoints_baseline}{integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.}
 
 \item{min_timepoints_trend}{integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.}
 
-\item{past_weeks_not_included}{An integer specifying the number of past weeks to exclude from
+\item{past_time_units_not_included}{An integer specifying the number of past time units to exclude from
 the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 Default is `4`.}
 }

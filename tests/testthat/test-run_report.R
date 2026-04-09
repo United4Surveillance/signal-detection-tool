@@ -54,7 +54,7 @@ test_that("run_report() successfully works for a different number of weeks", {
   output_file <- basename(output_path)
   output_dir <- dirname(output_path)
 
-  run_report(data = input_example, report_format = "HTML", method = "Mean", strata = NULL, output_file = output_file, output_dir = output_dir, number_of_weeks = 12)
+  run_report(data = input_example, report_format = "HTML", method = "Mean", strata = NULL, output_file = output_file, output_dir = output_dir, number_of_time_units = 12)
 
   expect_true(file.exists(output_path))
 })
@@ -73,13 +73,13 @@ test_that("run_report() works with pre-computed signals_agg and signals_pad", {
     preprocessed,
     method = "ears",
     stratification = "age_group",
-    number_of_weeks = 6
+    number_of_time_units = 6
   )
 
   signals_agg_pad <- aggregate_pad_signals(
     signal_results,
     preprocessed,
-    number_of_weeks = 6,
+    number_of_time_units = 6,
     method = "ears"
   )
 
@@ -167,14 +167,14 @@ test_that("run_report() works with multiple pathogens using precomputed signals_
       preprocessed_data_pat,
       method = "ears",
       stratification = "age_group",
-      number_of_weeks = 6
+      number_of_time_units = 6
     ) %>%
       dplyr::mutate(pathogen = pat)
 
     signals_agg_pad <- aggregate_pad_signals(
       signals,
       preprocessed_data_pat,
-      number_of_weeks = 6,
+      number_of_time_units = 6,
       method = "ears"
     )
 

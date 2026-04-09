@@ -12,7 +12,8 @@ get_signals_all(
   date_start = NULL,
   date_end = NULL,
   date_var = "date_report",
-  number_of_weeks = 6
+  time_unit = "weekly",
+  number_of_time_units = 6
 )
 }
 \arguments{
@@ -35,7 +36,9 @@ the end of the analysis period.}
 \item{date_var}{A character string specifying the column name of the date variable to use.
 Default is "date_report".}
 
-\item{number_of_weeks}{Integer specifying how many weeks to generate signals for.}
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "week".}
+
+\item{number_of_time_units}{Integer specifying how many time units to generate signals for.}
 }
 \value{
 A tibble with columns for signals, expected values, thresholds, and

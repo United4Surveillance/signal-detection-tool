@@ -7,7 +7,7 @@ The GLM is flexible being able to just fit a mean, add a time trend, fit a harmo
 \usage{
 get_signals_glm(
   data_aggregated,
-  number_of_weeks = 6,
+  number_of_time_units = 6,
   model = "mean",
   time_trend = TRUE,
   return_full_model = TRUE,
@@ -15,13 +15,13 @@ get_signals_glm(
   intervention_date = NULL,
   min_timepoints_baseline = 12,
   min_timepoints_trend = 12,
-  past_weeks_not_included = 4
+  past_time_units_not_included = 4
 )
 }
 \arguments{
 \item{data_aggregated}{data.frame, aggregated data with case counts.}
 
-\item{number_of_weeks}{integer, specifying number of weeks to generate signals for.}
+\item{number_of_time_units}{integer, specifying number of time units to generate signals for.}
 
 \item{model}{character, default "mean" one of c("mean", "sincos", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.}
 
@@ -37,7 +37,7 @@ get_signals_glm(
 
 \item{min_timepoints_trend}{integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.}
 
-\item{past_weeks_not_included}{An integer specifying the number of past weeks to exclude from
+\item{past_time_units_not_included}{An integer specifying the number of past time units to exclude from
 the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 Default is `4`.}
 }

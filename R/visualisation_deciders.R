@@ -2,7 +2,7 @@
 
 
 #' Decider for creating a map or a table based on whether all NUTS_ids are found in the shapefile
-#' @param signals_agg tibble, aggregated signals over n weeks with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. state and county.
+#' @param signals_agg tibble, aggregated signals over n time units with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. state and county.
 #' @param data_surveillance data.frame, surveillance linelist
 #' @param region character, specifying the variable for the region to be shown should be one of ("country","state",
 #' "county","community","region_level1", "region_level2","region_level3")
@@ -18,7 +18,7 @@
 #' signals <- input_example %>%
 #'   preprocess_data() %>%
 #'   get_signals(stratification = c("sex", "county"))
-#' signals_agg <- signals %>% aggregate_signals(number_of_weeks = 6)
+#' signals_agg <- signals %>% aggregate_signals(number_of_time_units = 6)
 #' create_map_or_table(signals_agg, input_example, "county", nuts_shp)
 #' }
 create_map_or_table <- function(signals_agg,
@@ -137,7 +137,7 @@ create_map_or_table <- function(signals_agg,
 #' Decider function to create barplot or table of aggregated cases with signals
 
 #' Depending on the number of unique levels to visualise it is decided whether a barplot or a table is shown. The aggregated number of cases for each stratum and whether any signal are shown.
-#' @param signals_agg tibble, aggregated signals over n weeks with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. age_group and county.
+#' @param signals_agg tibble, aggregated signals over n time units with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. age_group and county.
 #' @param category_selected the category from the signals_agg we want to visualise
 #' @param n_levels the threshold for the number of levels from which we decide when a table is generated instead of a barchart visualisation
 #' @param interactive boolean identifying whether the plot should be static or interactive
@@ -148,7 +148,7 @@ create_map_or_table <- function(signals_agg,
 #' signals <- input_example %>%
 #'   preprocess_data() %>%
 #'   get_signals(stratification = c("sex", "age_group"))
-#' signals_agg <- signals %>% aggregate_signals(number_of_weeks = 6)
+#' signals_agg <- signals %>% aggregate_signals(number_of_time_units = 6)
 #' create_barplot_or_table(signals_agg, "age_group")
 #' }
 create_barplot_or_table <- function(signals_agg,
@@ -178,7 +178,7 @@ create_barplot_or_table <- function(signals_agg,
 #'
 #' Depending on the category which should be visualised (regional variable) or non regional category such as age_group, sex, ... a map is tried for plotting or a barchart.
 #'
-#' @param signals_agg tibble, aggregated signals over n weeks with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. state and county.
+#' @param signals_agg tibble, aggregated signals over n time units with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. state and county.
 #' @param data_surveillance data.frame, surveillance linelist
 #' @param signal_category character, naming the category which should be visualised, i.e. "state","age_group","sex"
 #' @param interactive boolean identifying whether the plot should be static or interactive

@@ -8,7 +8,8 @@ params:
   data: NULL
   disease: "Pertussis"
   country: "Austria"
-  number_of_weeks: 6
+  number_of_time_units: 6
+  time_unit: "weekly"
   strata: !r c("county_id", "community_id", "sex", "age_group") 
   signals_padded: NULL
   signals_agg: NULL
@@ -65,29 +66,29 @@ Row
 ### Number of cases
 ```{r}
 flexdashboard::valueBox(value = s_agg$cases[is.na(s_agg$category)], 
-         caption = paste("Number of", params$disease,"cases in the last", params$number_of_weeks,"weeks"),
+         caption = paste0("Number of ", params$disease," cases in the last ", params$number_of_time_units," time units. The time unit is ", params$time_unit, "."),
          color = brand_colors["info"])
 ```
 
 ### Number of signals
 ```{r}
 # signals across all strata
-n_signals_week <- sum(results_analysis$alarms)
+n_signals_time_unit <- sum(results_analysis$alarms)
 
 # max possible signals in assessment period
-possible_signals <- sum(dplyr::count(s_agg, category) %>% dplyr::pull(n)) * params$number_of_weeks
+possible_signals <- sum(dplyr::count(s_agg, category) %>% dplyr::pull(n)) * params$number_of_time_units
 
-n_signals_week_col <- ifelse(
-  n_signals_week < 0.10 * possible_signals, brand_colors["success"],
-  ifelse(n_signals_week < 0.50 * possible_signals, 
+n_signals_time_unit_col <- ifelse(
+  n_signals_time_unit < 0.10 * possible_signals, brand_colors["success"],
+  ifelse(n_signals_time_unit < 0.50 * possible_signals, 
          brand_colors["warning"], brand_colors["danger"])
   )
 
-flexdashboard::valueBox(value = n_signals_week,
-  caption = paste("Number of signals for", params$disease, "in the last",
-    params$number_of_weeks, 
-    "weeks"),
-  color = n_signals_week_col
+flexdashboard::valueBox(value = n_signals_time_unit,
+  caption = paste0("Number of signals for ", params$disease, " in the last ",
+    params$number_of_time_units, 
+    " time units. The time unit is ", params$time_unit, "."),
+  color = n_signals_time_unit_col
 )
 ```
 
@@ -149,7 +150,7 @@ SignalDetectionTool::plot_time_series(
 )
 ```
 
-> `r paste("Number of", params$disease, "cases by week and signals,", params$country)`
+> `r paste("Number of", params$disease, "cases by time unit and signals,", params$country)`
 
 Row 
 -------------------------------------

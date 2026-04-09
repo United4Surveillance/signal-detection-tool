@@ -117,12 +117,12 @@ mod_tabpanel_report_server <- function(id,
 
     # Download generated report
     output$report_text <- shiny::renderText({
-      paste(
-        "Generates report for", pathogen_vars(), " stratified ",
-        "by ", paste0(strat_vars(), collapse = ", "), "for the last",
+      paste0(
+        "Generates report for ", pathogen_vars(), " stratified ",
+        "by ", paste0(strat_vars(), collapse = ", "), " for the last ",
         number_of_time_units(), " selected time units using ",
         names(available_algorithms())[available_algorithms() == method()],
-        " as outbreak detection algorithm."
+        " as outbreak detection algorithm. The time unit selected is ", time_unit(), "."
       )
     })
 
@@ -142,6 +142,7 @@ mod_tabpanel_report_server <- function(id,
           data = filtered_data(),
           method = names(available_algorithms()[which(available_algorithms() == method())]),
           number_of_time_units = number_of_time_units(),
+          time_unit = time_unit(),
           pathogens = pathogen_vars(),
           strata = strat_vars(),
           tables = tables(),

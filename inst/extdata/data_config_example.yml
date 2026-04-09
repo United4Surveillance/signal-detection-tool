@@ -12,6 +12,7 @@ default:
       - age_group
       - community
     signal_detection_period: 6
+    time_unit: weekly
     signal_detection_algorithm: ears
   shapefile_path: ~
   post-processing:

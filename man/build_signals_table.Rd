@@ -2,7 +2,7 @@
 % Please edit documentation in R/results_table.R
 \name{build_signals_table}
 \alias{build_signals_table}
-\title{Builds the signal detection results table with different formating options. To get the raw data.frame containing method ald number_of_weeks as well use format = "data.frame", to obtain nicely formated tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".}
+\title{Builds the signal detection results table with different formating options. To get the raw data.frame containing method ald number_of_time_units as well use format = "data.frame", to obtain nicely formated tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".}
 \usage{
 build_signals_table(
   signal_results,
@@ -14,7 +14,7 @@ build_signals_table(
 \arguments{
 \item{signal_results}{data.frame containing signals from \link{get_signals}}
 
-\item{signals_only}{Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.}
+\item{signals_only}{Logical indicating whether to filter the signal results to include only the time units when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the time units with and without alarms.}
 
 \item{format}{Character specifying the output format. Must be one of:
  - `"data.frame"`: A standard R data frame.
@@ -36,7 +36,7 @@ columns to integers for styling purposes. This table is used to show all signal 
 \dontrun{
 signal_results <- input_example \%>\%
   preprocess_data() \%>\%
-  get_signals(stratification = c("age_group"), number_of_weeks = 6)
+  get_signals(stratification = c("age_group"), number_of_time_units = 6)
 build_signals_table(signal_results)
 build_signals_table(signal_results, format = "data.frame")
 }

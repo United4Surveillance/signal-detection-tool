@@ -191,14 +191,15 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       if (input$time_unit=="weekly"){
       date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(input$n_time_units - 1),
         week_start = 1, unit = "week")
+      date_ceil <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 7)
       } else if (input$time_unit == "biweekly"){
         date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(2*input$n_time_units) + lubridate::weeks(1),
                                             week_start = 1, unit = "week")
+        date_ceil <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 7)
       } else if (input$time_unit == "monthly"){
-        date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - months(input$n_time_units - 1),
-                                            unit = "month")
-      }
-      date_ceil <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 7)
+        date_floor <- as.Date(lubridate::add_with_rollback(lubridate::floor_date(max(filtered_data()$date_report), unit = "month"), -months(input$n_time_units-1), roll_to_first = TRUE))
+        date_ceil <- as.Date(lubridate::ceiling_date(max(filtered_data()$date_report), unit = "month")-lubridate::days(1))
+        }
 
       paste("Chosen signal detection period from", date_floor, "to", date_ceil)
     })
@@ -420,6 +421,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     # this is checking whether there is enough training data for the algorithm to compute a baseline
     algorithms_possible <- shiny::reactive({
       shiny::req(filtered_data)
+      shiny::req(input$time_unit)
       shiny::req(input$n_time_units)
       shiny::req(iv_time_units$is_valid())
 
@@ -429,7 +431,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }
       # compute based on the data when which algorithms are possible
       min_max_date <- get_min_max_date(filtered_data())
-      algorithms_working <- get_possible_methods(min_max_date[["min_date"]], min_max_date[["max_date"]], number_of_time_units = input$n_time_units)
+      algorithms_working <- get_possible_methods(min_max_date[["min_date"]], min_max_date[["max_date"]], number_of_time_units = input$n_time_units, time_unit = input$time_unit)
 
       algorithms_working_named <- available_algorithms()[unlist(available_algorithms()) %in% algorithms_working]
 

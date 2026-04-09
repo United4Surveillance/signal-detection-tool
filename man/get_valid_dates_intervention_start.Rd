@@ -7,11 +7,12 @@
 get_valid_dates_intervention_start(
   data,
   date_var = "date_report",
-  number_of_weeks = 6,
+  number_of_time_units = 6,
+  time_unit = "weekly",
   time_trend = TRUE,
   min_timepoints_baseline = 12,
   min_timepoints_trend = 12,
-  past_weeks_not_included = 4
+  past_time_units_not_included = 4
 )
 }
 \arguments{
@@ -19,7 +20,9 @@ get_valid_dates_intervention_start(
 
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 
-\item{number_of_weeks}{integer, specifying number of weeks to generate signals for}
+\item{number_of_time_units}{integer, specifying number of time units to generate signals for}
+
+\item{time_unit}{character, specifying the time units to aggreagte case data on}
 
 \item{time_trend}{boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases}
 
@@ -27,7 +30,7 @@ get_valid_dates_intervention_start(
 
 \item{min_timepoints_trend}{integer, default 12, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.}
 
-\item{past_weeks_not_included}{An integer specifying the number of past weeks to exclude from
+\item{past_time_units_not_included}{An integer specifying the number of past time units to exclude from
 the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 Default is `4`.}
 }

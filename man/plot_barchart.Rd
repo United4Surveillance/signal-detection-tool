@@ -7,7 +7,7 @@
 plot_barchart(signals_agg, interactive = TRUE, toggle_alarms = FALSE)
 }
 \arguments{
-\item{signals_agg}{tibble, aggregated signals which can be obtained from using the function \code{\link{aggregate_signals}}. It contains the number of cases, any_alarms and n_alarms for one category, i.e. age group summed over the number of weeks used in \code{\link{aggregate_signals}}.}
+\item{signals_agg}{tibble, aggregated signals which can be obtained from using the function \code{\link{aggregate_signals}}. It contains the number of cases, any_alarms and n_alarms for one category, i.e. age group summed over the number of time units used in \code{\link{aggregate_signals}}.}
 
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
 
@@ -17,14 +17,14 @@ plot_barchart(signals_agg, interactive = TRUE, toggle_alarms = FALSE)
 either a gg or plotly object
 }
 \description{
-Bars showing number of cases and coloring around the bar showing whether any signal was generated in the last n weeks for this stratum
+Bars showing number of cases and coloring around the bar showing whether any signal was generated in the last n time units for this stratum
 }
 \examples{
 \dontrun{
 signals_agg_sex <- input_example \%>\%
   preprocess_data() \%>\%
   get_signals(stratification = c("sex")) \%>\%
-  aggregate_signals(number_of_weeks = 12)
+  aggregate_signals(number_of_time_units = 12)
 plot_barchart(signals_agg_sex)
 }
 }

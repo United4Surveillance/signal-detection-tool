@@ -220,7 +220,7 @@ mod_tabpanel_signals_server <- function(
 
     signals_agg <- shiny::reactive({
       shiny::req(signal_results)
-      aggregate_signals(signal_results(), number_of_time_units = number_of_time_units())
+      aggregate_signals(signal_results(), number_of_time_units = number_of_time_units(), time_unit = time_unit())
     })
 
     signal_time_units <- shiny::reactive({
@@ -235,7 +235,7 @@ mod_tabpanel_signals_server <- function(
         head(number_of_time_units())
       } else if (time_unit() %in% "monthly"){
         signal_results() %>%
-          dplyr::mutate(date_month = as.Date(paste0(year, "-", momth, "-1"), "%Y-%m-%d")) %>%
+          dplyr::mutate(date_month = as.Date(paste0(year, "-", month, "-1"), "%Y-%m-%d")) %>%
           dplyr::distinct(date_month, .keep_all = T) %>%
           dplyr::arrange(desc(date_month)) %>%
           head(number_of_time_units())

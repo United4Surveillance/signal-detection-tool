@@ -7,7 +7,7 @@
 build_signals_agg_table(signals_agg, format = "DataTable")
 }
 \arguments{
-\item{signals_agg}{A tibble or data.frame containing aggregated signals produced from \link{aggregate_signals}(signals,number_of_weeks = 6).}
+\item{signals_agg}{A tibble or data.frame containing aggregated signals produced from \link{aggregate_signals}(signals,number_of_time_units = 6).}
 
 \item{format}{Character specifying the output format. Must be one of:
 - `"data.frame"`: A standard R data frame.
@@ -27,7 +27,7 @@ This function combines the preparation of the aggregated signals data.frame with
 signals_agg <- input_example \%>\%
   preprocess_data() \%>\%
   get_signals(stratification = c("age_group", "sex")) \%>\%
-  aggregate_signals(number_of_weeks = 6) \%>\%
+  aggregate_signals(number_of_time_units = 6) \%>\%
   filter(category == "age_group")
 
 build_signals_agg_table(signals_agg)

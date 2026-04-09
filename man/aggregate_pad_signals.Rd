@@ -4,7 +4,13 @@
 \alias{aggregate_pad_signals}
 \title{Aggregate and Pad Signals for Reporting}
 \usage{
-aggregate_pad_signals(signal_results, preprocessed, number_of_weeks, method)
+aggregate_pad_signals(
+  signal_results,
+  preprocessed,
+  number_of_time_units,
+  time_unit,
+  method
+)
 }
 \arguments{
 \item{signal_results}{A tibble returned by [get_signals()], containing weekly
@@ -12,7 +18,9 @@ signal detection results (cases, alarms, upperbound, expected, etc.).}
 
 \item{preprocessed}{A data frame containing the surveillance data preprocessed with [preprocess_data()].}
 
-\item{number_of_weeks}{Integer specifying how many weeks to include in the aggregation.}
+\item{number_of_time_units}{Integer specifying how many time units to include in the aggregation.}
+
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "week".}
 
 \item{method}{A character string specifying the method used to generate the signals.
 Determines whether padding is necessary. For `"glm"` methods, padding is skipped
@@ -22,7 +30,7 @@ as it is assumed to be already included.}
 A named list with two elements:
 \describe{
   \item{signals_agg}{A tibble with aggregated results per stratum, including total cases,
-    whether any alarms occurred, and the number of alarms in the last `number_of_weeks`.}
+    whether any alarms occurred, and the number of alarms in the last `number_of_time_units`.}
   \item{signals_padded}{A tibble with the original `signal_results` augmented with additional
     rows containing historical `expected` and `upperbound` values (if padding was applied).}
 }
@@ -40,7 +48,7 @@ before the signal detection window, which is useful for plotting full time serie
 \examples{
 \dontrun{
 results <- get_signals(preprocessed_data, method = "farrington")
-output <- aggregate_pad_signals(results, number_of_weeks = 6, method = "farrington")
+output <- aggregate_pad_signals(results, number_of_time_units = 6, time_unit == "weekly", method = "farrington")
 output$signals_agg
 output$signals_padded
 }

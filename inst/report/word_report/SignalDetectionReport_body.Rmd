@@ -15,7 +15,7 @@ if (is.null(params$data)) {
 # Data and Methods 
 
 - Method used: `r names(available_algorithms()[which(available_algorithms() == params$method)])`
-- Length of signal detection period: `r params$number_of_weeks` weeks
+- Length of signal detection period: `r params$number_of_time_units` time units
 - Strata selected: `r paste(params$strata, collapse = ", ")`
 - Intervention date: `r params$intervention_date`
 
@@ -29,7 +29,8 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
   signal_results <- SignalDetectionTool::get_signals(data_preprocessed,
     stratification = NULL,
     method = params$method,
-    number_of_weeks = params$number_of_weeks,
+    number_of_time_units = params$number_of_time_units,
+    time_unit = params$time_unit,
     intervention_date = params$intervention_date
   )
 
@@ -38,7 +39,8 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
       data_preprocessed,
       stratification = params$strata,
       method = params$method,
-      number_of_weeks = params$number_of_weeks,
+      number_of_time_units = params$number_of_time_units,
+      time_unit = params$time_unit,
       intervention_date = params$intervention_date
     )
 
@@ -46,7 +48,8 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
       dplyr::bind_rows(signal_results_stratified)
 
     signals_agg <- SignalDetectionTool::aggregate_signals(signal_results_stratified,
-      number_of_weeks = params$number_of_weeks
+      number_of_time_units = params$number_of_time_units,
+      time_unit = params$time_unit,
     )
   }
 
@@ -73,7 +76,7 @@ results_analysis <- signals_padded %>%
 
 
 stringr::str_glue(
-  "In the signal detection period - last {params$number_of_weeks} weeks available in the data - ",
+  "In the signal detection period - last {params$number_of_time_units} time units available in the data - ",
   "there were {sum(results_analysis$cases)} cases of {params$disease} in {params$country}. ",
   "Using the {names(params$method)} algorithm {sum(results_analysis$alarms)} signal{ifelse(sum(results_analysis$n_alarms) == 1, '', 's')} {ifelse(sum(results_analysis$n_alarms) == 1, ' was', ' were')} detected."
 )
@@ -81,7 +84,7 @@ stringr::str_glue(
 
 
 ```{r}
-#| fig.cap=paste0("Number of ", params$disease, " cases by week and signals, ", params$country),
+#| fig.cap=paste0("Number of ", params$disease, " cases by time unit and signals, ", params$country),
 #| out.width="100%"
 SignalDetectionTool::plot_time_series(
   signals_padded %>%

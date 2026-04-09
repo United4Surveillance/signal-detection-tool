@@ -4,12 +4,12 @@
 \alias{get_signals_cusum}
 \title{Get signals of CUSUM algorithm with reset}
 \usage{
-get_signals_cusum(data_aggregated, number_of_weeks = 52)
+get_signals_cusum(data_aggregated, number_of_time_units = 52)
 }
 \arguments{
 \item{data_aggregated}{data.frame, aggregated data with case counts}
 
-\item{number_of_weeks}{integer, specifying number of weeks to generate signals for}
+\item{number_of_time_units}{integer, specifying number of time units to generate signals for. The default is weeks}
 }
 \description{
 Get signals of CUSUM algorithm with reset

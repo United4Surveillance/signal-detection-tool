@@ -14,7 +14,7 @@ create_barplot_or_table(
 )
 }
 \arguments{
-\item{signals_agg}{tibble, aggregated signals over n weeks with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. age_group and county.}
+\item{signals_agg}{tibble, aggregated signals over n time units with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. age_group and county.}
 
 \item{category_selected}{the category from the signals_agg we want to visualise}
 
@@ -36,7 +36,7 @@ Depending on the number of unique levels to visualise it is decided whether a ba
 signals <- input_example \%>\%
   preprocess_data() \%>\%
   get_signals(stratification = c("sex", "age_group"))
-signals_agg <- signals \%>\% aggregate_signals(number_of_weeks = 6)
+signals_agg <- signals \%>\% aggregate_signals(number_of_time_units = 6)
 create_barplot_or_table(signals_agg, "age_group")
 }
 }

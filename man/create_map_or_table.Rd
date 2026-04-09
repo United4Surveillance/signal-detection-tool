@@ -14,7 +14,7 @@ create_map_or_table(
 )
 }
 \arguments{
-\item{signals_agg}{tibble, aggregated signals over n weeks with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. state and county.}
+\item{signals_agg}{tibble, aggregated signals over n time units with columns number of cases, any_alarms and n_alarms \code{\link{aggregate_signals}}. This tibble can contain the aggregated signals for multiple categories i.e. state and county.}
 
 \item{data_surveillance}{data.frame, surveillance linelist}
 
@@ -41,7 +41,7 @@ Decider for creating a map or a table based on whether all NUTS_ids are found in
 signals <- input_example \%>\%
   preprocess_data() \%>\%
   get_signals(stratification = c("sex", "county"))
-signals_agg <- signals \%>\% aggregate_signals(number_of_weeks = 6)
+signals_agg <- signals \%>\% aggregate_signals(number_of_time_units = 6)
 create_map_or_table(signals_agg, input_example, "county", nuts_shp)
 }
 }

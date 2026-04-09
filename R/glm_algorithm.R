@@ -46,10 +46,11 @@ create_sincos_data <- function(ts_len, freq = 52, S = 1) {
 #' @param ts_len integer, specifying the length of the aggregated timeseries of case counts
 #' @param model character, default "mean" one of c("mean", "sincos", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.
 #' @param time_trend boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.
+#' @param time_unit character, specifying the time units to aggreagte case data on
 #' @param intervention_start integer, specifying the rownumber in the aggregated timeseries which corresponds to the intervention date.
 #' @param min_timepoints_baseline integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.
 #' @param min_timepoints_trend integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.
-#' @param past_weeks_not_included An integer specifying the number of past weeks to exclude from
+#' @param past_time_units_not_included An integer specifying the number of past time units to exclude from
 #' the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 #' Default is `4`.
 #' @return data.frame containing all columns needed for the glm model. These are columns for the seasonality, time_trend and intercepts. This model data is used to fit the parameters for these coviariates. If model = "mean", time_trend = FALSE and intervention_start = NULL create_model_data() returns and empty tibble.
@@ -60,18 +61,27 @@ create_sincos_data <- function(ts_len, freq = 52, S = 1) {
 create_model_data <- function(ts_len,
                               model = "mean",
                               time_trend = TRUE,
+                              time_unit = "weekly",
                               intervention_start = NULL,
                               min_timepoints_baseline = 12,
                               min_timepoints_trend = 12,
-                              past_weeks_not_included = 4) {
+                              past_time_units_not_included = 4) {
   # check that input method and stratification are correct
   checkmate::assert(
     checkmate::check_choice(model, choices = c("mean", "sincos", "FN"))
   )
 
+  if (time_unit %in% "monthly"){
+    freq <- 12
+  } else if (time_unit %in% "biweekly"){
+    freq <- 26
+  } else {
+    freq <- 52
+  }
+
   data_season <- NULL
   if (model == "sincos") {
-    data_season <- create_sincos_data(ts_len)
+    data_season <- create_sincos_data(ts_len, freq = freq)
   } else if (model == "FN") {
     data_season <- create_fn_data(ts_len)
   }
@@ -81,7 +91,7 @@ create_model_data <- function(ts_len,
       ts_len,
       intervention_start,
       min_timepoints_trend,
-      past_weeks_not_included
+      past_time_units_not_included
     )
   }
 
@@ -89,7 +99,7 @@ create_model_data <- function(ts_len,
     ts_len,
     intervention_start,
     min_timepoints_baseline,
-    past_weeks_not_included
+    past_time_units_not_included
   )
 
   dplyr::bind_cols(
@@ -106,7 +116,7 @@ create_model_data <- function(ts_len,
 #' @param ts_len integer, specifying the length of the time series.
 #' @param intervention_start integer, default NULL, specifying the row number in the time series corresponding to an intervention date. If NULL no intervention is modeled.
 #' @param min_timepoints_trend integer, default 12, specifying the minimum number of time points required after the intervention to fit a new time trend.
-#' @param past_weeks_not_included An integer specifying the number of past weeks to exclude from
+#' @param past_time_units_not_included An integer specifying the number of past time units to exclude from
 #' the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 #' Default is `4`.
 #' @return A data frame with columns representing the time trend before and after the intervention (if applicable).
@@ -118,10 +128,10 @@ create_model_data <- function(ts_len,
 create_time_trend <- function(ts_len,
                               intervention_start = NULL,
                               min_timepoints_trend = 12,
-                              past_weeks_not_included = 4) {
+                              past_time_units_not_included = 4) {
   modelData <- data.frame(wtime = 0:(ts_len - 1))
 
-  if (!is.null(intervention_start) && intervention_start + min_timepoints_trend + past_weeks_not_included < ts_len) {
+  if (!is.null(intervention_start) && intervention_start + min_timepoints_trend + past_time_units_not_included < ts_len) {
     modelData <- data.frame(
       wtime1 = c(
         0:(intervention_start - 1),
@@ -146,7 +156,7 @@ create_time_trend <- function(ts_len,
 #' @param ts_len integer, specifying the length of the time series.
 #' @param intervention_start integer, default NULL, specifying the row number in the time series corresponding to an intervention date. When NULL no intervention is modeled.
 #' @param min_timepoints_baseline integer, default 12, specifying the minimum number of time points required after the intervention to fit a new baseline.
-#' @param past_weeks_not_included An integer specifying the number of past weeks to exclude from
+#' @param past_time_units_not_included An integer specifying the number of past time units to exclude from
 #' the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 #' Default is `4`.
 #' @return NULL when intervention_start = NULL, otherwise a data frame with a column representing the baseline before and after the intervention (if applicable).
@@ -159,9 +169,9 @@ create_time_trend <- function(ts_len,
 create_baseline <- function(ts_len,
                             intervention_start = NULL,
                             min_timepoints_baseline = 12,
-                            past_weeks_not_included = 4) {
+                            past_time_units_not_included = 4) {
   modelData <- NULL
-  if (!is.null(intervention_start) && intervention_start + min_timepoints_baseline + past_weeks_not_included < ts_len) {
+  if (!is.null(intervention_start) && intervention_start + min_timepoints_baseline + past_time_units_not_included < ts_len) {
     modelData <- data.frame(baseline = c(
       rep(0, intervention_start),
       rep(1, length(((intervention_start + 1):(ts_len))))
@@ -208,7 +218,7 @@ create_formula <- function(model_data) {
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done, i.e. no additional intercept and possibly new time trend is fitted. When a date is given a new intercept and possibly time_trend (if time_trend == TRUE) is fitted.
 #' @param min_timepoints_baseline integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.
 #' @param min_timepoints_trend integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.
-#' @param past_weeks_not_included An integer specifying the number of past weeks to exclude from
+#' @param past_time_units_not_included An integer specifying the number of past time units to exclude from
 #' the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 #' Default is `4`.
 #' @return data.frame aggregated data with case counts and additional columns alarms, upperbound and expected obtained from the signal detection algorithm. If return_full_model == TRUE then expected_pad is also added as a column to data_aggregated.
@@ -230,7 +240,7 @@ get_signals_glm <- function(data_aggregated,
                             intervention_date = NULL,
                             min_timepoints_baseline = 12,
                             min_timepoints_trend = 12,
-                            past_weeks_not_included = 4) {
+                            past_time_units_not_included = 4) {
   checkmate::assert(
     checkmate::check_choice(model, choices = c("mean", "sincos", "FN"))
   )
@@ -242,7 +252,7 @@ get_signals_glm <- function(data_aggregated,
     intervention_start <- NULL
   }
 
-  # rev_number_weeks <- rev(seq(0, number_of_time_units - 1, 1))
+  # rev_number_time_units <- rev(seq(0, number_of_time_units - 1, 1))
   first_signal_detection_time_unit <- ts_len - number_of_time_units + 1
   bound_results <- data.frame(
     cases = integer(),
@@ -277,10 +287,10 @@ get_signals_glm <- function(data_aggregated,
   }
 
   # seperate the data into fitting and prediction
-  # we fit based on the data without the signal detection period and also removing the first past_weeks_not_included to not have the influence of outbreaks shortly before
+  # we fit based on the data without the signal detection period and also removing the first past_time_units_not_included to not have the influence of outbreaks shortly before
   # we use the fitted model to predict the values for the whole signal detection period
   # we do not iterate over the signal detection period to refit models including more past data points to save computation time
-  fit_data <- model_data %>% head(first_signal_detection_time_unit - (past_weeks_not_included + 1))
+  fit_data <- model_data %>% head(first_signal_detection_time_unit - (past_time_units_not_included + 1))
   pred_data <- model_data %>% tail(number_of_time_units)
 
   # fit a glm based on formula and data provided
@@ -326,8 +336,8 @@ get_signals_glm <- function(data_aggregated,
 
   bound_results <- rbind(bound_results, bounds)
   # drop = FALSE ensures that we still get a dataframe back even when using the mean method and thus data consisting only of one column
-  # add the expectation for the past_weeks_not_included which are not part of the fitted model
-  data_past_time_units_not_included <- model_data[(first_signal_detection_time_unit - past_weeks_not_included):(first_signal_detection_time_unit - 1), , drop = FALSE]
+  # add the expectation for the past_time_units_not_included which are not part of the fitted model
+  data_past_time_units_not_included <- model_data[(first_signal_detection_time_unit - past_time_units_not_included):(first_signal_detection_time_unit - 1), , drop = FALSE]
   pred_past_time_units_not_included <- predict.glm(fit_glm,
     newdata = data_past_time_units_not_included,
     se.fit = TRUE
@@ -370,7 +380,7 @@ get_signals_glm <- function(data_aggregated,
 #' @param time_trend boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases
 #' @param min_timepoints_baseline integer, default 12, specifying the number of weeks at least needed for fitting a new baseline after the intervention.
 #' @param min_timepoints_trend integer, default 12, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.
-#' @param past_weeks_not_included An integer specifying the number of past weeks to exclude from
+#' @param past_time_units_not_included An integer specifying the number of past time units to exclude from
 #' the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 #' Default is `4`.
 #' @return list with three dates or NULL values. valid_start_date is the first date which is valid to chose as intervention_date, valid_end_date is the last date which is valid to chose to chose as intervention_date, default_intervention is a default date which is used for the intervention_date and usually set to "2020-03-15" but checked whether this is possible with the data we have
@@ -387,7 +397,7 @@ get_valid_dates_intervention_start <- function(data,
                                                time_trend = TRUE,
                                                min_timepoints_baseline = 12,
                                                min_timepoints_trend = 12,
-                                               past_weeks_not_included = 4) {
+                                               past_time_units_not_included = 4) {
   if (time_trend) {
     delay <- max(min_timepoints_baseline, min_timepoints_trend)
   } else {
@@ -399,8 +409,16 @@ get_valid_dates_intervention_start <- function(data,
 
   # start after the delay to still have enough time points to fit the non intervention model
   # reality would be that the intervention is rather later in the timeseries but let's not be strict and the user decide
-  min_date_plus_delay <- min_date + lubridate::weeks(delay)
-  max_date_minus_delay <- max_date - lubridate::weeks(number_of_time_units + delay + past_weeks_not_included)
+  if (time_unit == "weekly"){
+    min_date_plus_delay <- min_date + lubridate::weeks(delay)
+    max_date_minus_delay <- max_date - lubridate::weeks(number_of_time_units + delay + past_time_units_not_included)
+  } else if (time_unit == "biweekly"){
+    min_date_plus_delay <- min_date + lubridate::weeks(2*delay)
+    max_date_minus_delay <- max_date - lubridate::weeks(2*(number_of_time_units + delay + past_time_units_not_included))
+  } else if (time_unit == "monthly"){
+    min_date_plus_delay <- lubridate::add_with_rollback(min_date, months(delay))
+    max_date_minus_delay <- lubridate::add_with_rollback(max_date, -months(number_of_time_units + delay + past_time_units_not_included))
+  }
 
   if (min_date_plus_delay > max_date_minus_delay) {
     min_date_plus_delay <- NULL

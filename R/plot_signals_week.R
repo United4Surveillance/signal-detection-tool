@@ -1,6 +1,6 @@
 #' Plot in how many strata an signal was detected under the detection period
 #'
-#' Using the results of signal detection, plot a week-to-week representation of
+#' Using the results of signal detection, plot a time unit-to-time unit representation of
 #' strata had higher than expected case numbers
 #'
 #' @param results dataframe of a single-pathogen signal detection results for a strata category
@@ -32,15 +32,23 @@ plot_signals_per_time_unit <- function(results, n_strata, interactive = FALSE, b
   results <- results %>% dplyr::filter(!is.na(.data$alarms))
 
   # add date
+  if ("week" %in% names(results)){
   results <- results %>%
     dplyr::mutate(
-      isoweek = sprintf("%d-W%02d", .data$year, .data$week),
-      date = ISOweek::ISOweek2date(paste0(.data$isoweek, "-1"))
+      year_time_unit = sprintf("%d-W%02d", .data$year, .data$week),
+      date = ISOweek::ISOweek2date(paste0(.data$year_time_unit, "-1"))
     )
+  } else if ("month" %in% names(results)){
+  results <- results %>%
+    dplyr::mutate(
+      year_time_unit = sprintf("%d-%02d", .data$year, .data$month),
+      date = as.Date(paste0(.data$year_time_unit, "-01"))
+    )
+  }
 
   # count strata with signals for each time unit
   signals_time_units <- results %>% # to do
-    dplyr::group_by(.data$isoweek) %>%
+    dplyr::group_by(.data$year_time_unit) %>%
     dplyr::summarise(
       n.signals = sum(.data$alarms),
       n.rest = n_strata - .data$n.signals,
@@ -50,7 +58,7 @@ plot_signals_per_time_unit <- function(results, n_strata, interactive = FALSE, b
     dplyr::ungroup()
 
   if (!interactive) {
-    signals_week <- signals_week %>%
+    signals_time_units <- signals_time_units %>%
       tidyr::pivot_longer(
         cols = c("p.signals", "p.rest"),
         names_to = "type",
@@ -63,14 +71,14 @@ plot_signals_per_time_unit <- function(results, n_strata, interactive = FALSE, b
         )
       )
 
-    p <- signals_week %>%
+    p <- signals_time_units %>%
       ggplot2::ggplot() +
       ggplot2::geom_col(
         ggplot2::aes(
-          x = .data$isoweek, y = .data$p.strata, fill = .data$type
+          x = .data$year_time_unit, y = .data$p.strata, fill = .data$type
         )
       ) +
-      ggplot2::labs(x = "Week", y = "Strata with signals (%)") +
+      ggplot2::labs(x = "Time unit", y = "Strata with signals (%)") +
       ggplot2::scale_fill_manual(
         values = stats::setNames(c(branding["primary"], branding["danger"]), NULL)
       ) +
@@ -97,9 +105,9 @@ plot_signals_per_time_unit <- function(results, n_strata, interactive = FALSE, b
       plotly::add_trace(
         type = "bar",
         name = "with signals",
-        x = signals_week$isoweek,
-        y = signals_week$p.signals,
-        text = signals_week$n.signals,
+        x = signals_time_units$year_time_unit,
+        y = signals_time_units$p.signals,
+        text = signals_time_units$n.signals,
         textposition = "none",
         marker = list(color = branding["danger"]),
         hovertemplate = "%{text} (%{y:.1f}%) strata<extra></extra>"
@@ -107,15 +115,15 @@ plot_signals_per_time_unit <- function(results, n_strata, interactive = FALSE, b
       plotly::add_trace(
         type = "bar",
         name = "without signals",
-        x = signals_week$isoweek,
-        y = signals_week$p.rest,
-        text = signals_week$n.rest,
+        x = signals_time_units$year_time_unit,
+        y = signals_time_units$p.rest,
+        text = signals_time_units$n.rest,
         textposition = "none",
         marker = list(color = branding["primary"]),
         hovertemplate = "%{text} (%{y:.1f}%) strata<extra></extra>"
       ) %>%
       plotly::layout(
-        xaxis = list(title = "Week"),
+        xaxis = list(title = "Time unit"),
         yaxis = list(
           title = "Strata with signals (%)"
         ),

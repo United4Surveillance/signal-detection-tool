@@ -2,12 +2,13 @@
 % Please edit documentation in R/data_processing.R
 \name{aggregate_data}
 \alias{aggregate_data}
-\title{Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek and adds missing isoweeks to the aggregated dataset.
+\title{Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek or the month and adds missing isoweeks or months to the aggregated dataset.
 Additionally number of cases part of a known outbreak is added if the variable outbreak_status exists in the data.}
 \usage{
 aggregate_data(
   data,
   date_var = "date_report",
+  time_unit = "weekly",
   date_start = NULL,
   date_end = NULL,
   group = NULL
@@ -18,14 +19,16 @@ aggregate_data(
 
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 
-\item{date_start}{A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the minimum date of the dataset. This parameter can be used when the dataset should be extended further than the minimum date of the dataset.}
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "week".}
 
-\item{date_end}{A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.}
+\item{date_start}{A date object or character of format yyyy-mm-dd. Default is NULL which means that missing time units are added until the minimum date of the dataset. This parameter can be used when the dataset should be extended further than the minimum date of the dataset.}
+
+\item{date_end}{A date object or character of format yyyy-mm-dd. Default is NULL which means that missing time units are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.}
 
 \item{group}{A character specifying another grouping variable. Usually used for stratification.}
 }
 \description{
-Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek and adds missing isoweeks to the aggregated dataset.
+Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek or the month and adds missing isoweeks or months to the aggregated dataset.
 Additionally number of cases part of a known outbreak is added if the variable outbreak_status exists in the data.
 }
 \examples{
