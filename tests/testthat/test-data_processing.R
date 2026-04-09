@@ -154,7 +154,7 @@ test_that("test aggregation with filling extending with zeros and adding missing
     preprocess_data() %>%
     add_cw_iso(
       date_start = as.Date("2020-12-17"), #
-      date_end = NULL, #Date extension is done by parameter `date_ext` from aggregate data
+      date_end = NULL, # Date extension is done by parameter `date_ext` from aggregate data
       date_var = "date_report"
     ) %>%
     aggregate_data(
