@@ -155,8 +155,8 @@ plot_regional <- function(shape_with_signals,
         dplyr::filter(!sf::st_is_empty(geometry)) # remove empty ones
 
       stars_sf <- stars_sf %>%
-        rowwise() %>%
-        mutate(
+        dplyr::rowwise() %>%
+        dplyr::mutate(
           geometry = {
             pt <- geometry
             self <- shape_areas_sf[shape_areas_sf$NUTS_ID == NUTS_ID, ]
@@ -177,7 +177,7 @@ plot_regional <- function(shape_with_signals,
             }
           }
         ) %>%
-        ungroup()
+        dplyr::ungroup()
 
       sf::sf_use_s2(old_s2)
 
