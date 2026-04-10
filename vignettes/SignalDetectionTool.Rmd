@@ -123,10 +123,14 @@ To create an interactive or a non-interactive map you have to use aggregated sig
 data_prepro <- input_example %>% preprocess_data()
 signals <- data_prepro %>% get_signals(stratification = c("county"))
 signals_agg <- signals %>% aggregate_signals(number_of_weeks = 6)
-nuts_shp <- nuts_shp %>% sf::st_as_sf() %>% dplyr::filter(LEVL_CODE == 2 & CNTR_CODE == "AT") %>% dplyr::select(NUTS_NAME, geometry)
-shape_with_signals <- nuts_shp %>% inner_join(
-  signals_agg, 
-  by = c("NUTS_NAME" = "stratum")
+nuts_shp <- nuts_shp %>%
+  sf::st_as_sf() %>%
+  dplyr::filter(LEVL_CODE == 2 & CNTR_CODE == "AT") %>%
+  dplyr::select(NUTS_NAME, geometry)
+shape_with_signals <- nuts_shp %>%
+  inner_join(
+    signals_agg,
+    by = c("NUTS_NAME" = "stratum")
   ) %>%
   sf::st_as_sf()
 signals_map <- plot_regional(
@@ -134,7 +138,7 @@ signals_map <- plot_regional(
   signals_agg_unknown_region = data.frame(),
   interactive = FALSE,
   toggle_alarms = FALSE
-  )
+)
 signals_map
 ```
 
@@ -143,13 +147,13 @@ In the non-interactive map visualisation, the number of cases per region is repr
 To create an interactive or a non-interactive barplot you have to use aggregated signals in `plot_barchart()`. This is an example for visualising the specified data using "age group" as `stratum` and for the non-interactive plot using `plot_barchart()`:
 
 ```{r, warning=FALSE, fig.height=4, fig.width=12}
-data_prepro <- input_example %>% preprocess_data() 
+data_prepro <- input_example %>% preprocess_data()
 signals <- data_prepro %>% get_signals(stratification = c("age_group"))
 signals_agg <- signals %>% aggregate_signals(number_of_weeks = 6)
 signals_barchart <- plot_barchart(
-  signals_agg, 
+  signals_agg,
   interactive = FALSE
-  )
+)
 signals_barchart
 ```
 
@@ -160,14 +164,14 @@ To create an interactive or a non-interactive 100% stacked barplot showing a wee
 ```{r, warning=FALSE, fig.height=4, fig.width=12}
 data_prepro <- preprocess_data(input_example)
 signals <- get_signals(
-  data_prepro, 
+  data_prepro,
   stratification = "county"
-  )
+)
 n.strata <- 9
 signals_week_barchart <- plot_signals_per_week(
-  signals, 
+  signals,
   n_strata = n.strata
-  )
+)
 signals_week_barchart
 ```
 
