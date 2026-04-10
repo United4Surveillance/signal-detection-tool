@@ -14,6 +14,7 @@ get_signals_stratified(
   stratification_columns,
   date_start = NULL,
   date_end = NULL,
+  date_ext = NULL,
   date_var = "date_report",
   number_of_weeks = 6
 )
@@ -38,6 +39,8 @@ stratify the data by.}
 \item{date_start}{A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.}
 
 \item{date_end}{A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.}
+
+\item{date_ext}{A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL.}
 
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 

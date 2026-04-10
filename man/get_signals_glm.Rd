@@ -3,7 +3,7 @@
 \name{get_signals_glm}
 \alias{get_signals_glm}
 \title{Get signals based on a weigthed GLM quasipoisson regression model for the expected case counts
-The GLM is flexible being able to just fit a mean, add a time trend, fit a harmonic sin/cos model or the seasons from the farringtonflexible.}
+The GLM is flexible being able to just fit a mean, add a time trend, fit a harmonic sin/cos model (one or two seasonal components) or the seasons from the farringtonflexible.}
 \usage{
 get_signals_glm(
   data_aggregated,
@@ -23,7 +23,7 @@ get_signals_glm(
 
 \item{number_of_weeks}{integer, specifying number of weeks to generate signals for.}
 
-\item{model}{character, default "mean" one of c("mean", "sincos", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.}
+\item{model}{character, default "mean" one of c("mean", "sincos", "sincos_multiS", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.}
 
 \item{time_trend}{boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.}
 
@@ -47,7 +47,7 @@ data.frame aggregated data with case counts and additional columns alarms, upper
 }
 \description{
 Get signals based on a weigthed GLM quasipoisson regression model for the expected case counts
-The GLM is flexible being able to just fit a mean, add a time trend, fit a harmonic sin/cos model or the seasons from the farringtonflexible.
+The GLM is flexible being able to just fit a mean, add a time trend, fit a harmonic sin/cos model (one or two seasonal components) or the seasons from the farringtonflexible.
 }
 \examples{
 \dontrun{

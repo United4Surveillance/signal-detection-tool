@@ -12,6 +12,7 @@ get_signals(
   stratification = NULL,
   date_start = NULL,
   date_end = NULL,
+  date_ext = NULL,
   date_var = "date_report",
   number_of_weeks = 6
 )
@@ -22,7 +23,7 @@ get_signals(
 \item{method}{A character string specifying the signal detection method to use.
 Available options include:
 `"farrington"`, `"ears"`, `"cusum"`, `"glm mean"`, `"glm timetrend"`,
-`"glm harmonic"`, `"glm harmonic with timetrend"`,
+`"glm harmonic"`, `"glm harmonic with timetrend"`, `"glm harmonic multi"`,
 `"glm farrington"`, `"glm farrington with timetrend"`.
 You can retrieve the full list using [available_algorithms()].}
 
@@ -37,6 +38,8 @@ the analysis. Default is NULL.}
 \item{date_start}{A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.}
 
 \item{date_end}{A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.}
+
+\item{date_ext}{A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL}
 
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 

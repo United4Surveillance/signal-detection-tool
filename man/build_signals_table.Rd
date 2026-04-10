@@ -8,7 +8,8 @@ build_signals_table(
   signal_results,
   signals_only = TRUE,
   format = "DataTable",
-  dt_selection_type = "single"
+  dt_selection_type = "single",
+  page_length = 10
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ build_signals_table(
 Default is "DataTable".}
 
 \item{dt_selection_type}{String controlling the DataTable selection argument. Expected values are "multiple", "single", "none" (default is 'single').}
+
+\item{page_length}{integer indicating number of elements per DataTable page. Default is 10}
 }
 \value{
 data.frame or DataTable or Flextable depending on `format`
