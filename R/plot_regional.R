@@ -138,7 +138,7 @@ plot_regional <- function(shape_with_signals,
         inherit = FALSE
       )
 
-    stars_sf <- shape_with_signals |>
+    stars_sf <- shape_with_signals %>%
       dplyr::filter(any_alarms == "At least 1 signal")
     nrow_stars_before <- nrow(stars_sf)
 
@@ -148,14 +148,14 @@ plot_regional <- function(shape_with_signals,
       sf::sf_use_s2(FALSE)
 
       # calculate centre robustly
-      stars_sf <- stars_sf |>
-        sf::st_make_valid() |>
-        sf::st_centroid(of_largest_polygon = TRUE) |>
-        sf::st_collection_extract("POINT") |> # only keep points
+      stars_sf <- stars_sf %>%
+        sf::st_make_valid() %>%
+        sf::st_centroid(of_largest_polygon = TRUE) %>%
+        sf::st_collection_extract("POINT") %>% # only keep points
         dplyr::filter(!sf::st_is_empty(geometry)) # remove empty ones
 
-      stars_sf <- stars_sf |>
-        rowwise() |>
+      stars_sf <- stars_sf %>%
+        rowwise() %>%
         mutate(
           geometry = {
             pt <- geometry
@@ -176,7 +176,7 @@ plot_regional <- function(shape_with_signals,
               }
             }
           }
-        ) |>
+        ) %>%
         ungroup()
 
       sf::sf_use_s2(old_s2)

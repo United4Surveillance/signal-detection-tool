@@ -11,6 +11,7 @@
 #'   - Otherwise, the function defaults to the internal European shapefile (`nuts_shp`).
 #'   - By default, this parameter is set to `get_shp_config_or_internal()`, which handles this logic dynamically.
 #' @param interactive boolean identifying whether the plot should be static or interactive
+#' @param page_length integer indicating number of elements per DataTable page. Default is 10
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @returns a table or a plot depending on whether the matching of the NUTS IDs was fully possible, the table and plots can be interactive or not depending on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 #' @examples
@@ -26,6 +27,7 @@ create_map_or_table <- function(signals_agg,
                                 region,
                                 shape = get_shp_config_or_internal(),
                                 interactive = TRUE,
+                                page_length = 10,
                                 toggle_alarms = FALSE) {
   checkmate::assertChoice(region, region_variable_names())
 
@@ -127,7 +129,8 @@ create_map_or_table <- function(signals_agg,
     format <- ifelse(interactive, "DataTable", "Flextable")
     output <- build_signals_agg_table(
       signals_agg,
-      format = format
+      format = format,
+      page_length = page_length
     )
   }
 
@@ -141,6 +144,7 @@ create_map_or_table <- function(signals_agg,
 #' @param category_selected the category from the signals_agg we want to visualise
 #' @param n_levels the threshold for the number of levels from which we decide when a table is generated instead of a barchart visualisation
 #' @param interactive boolean identifying whether the plot should be static or interactive
+#' @param page_length integer indicating number of elements per DataTable page. Default is 10
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @returns a table or a plot depending on whether number of unique levels for the category to visualise, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 #' @examples
@@ -155,6 +159,7 @@ create_barplot_or_table <- function(signals_agg,
                                     category_selected,
                                     n_levels = 25,
                                     interactive = TRUE,
+                                    page_length = 10,
                                     toggle_alarms = FALSE) {
   signals_agg <- signals_agg %>%
     dplyr::filter(category == category_selected)
@@ -169,7 +174,8 @@ create_barplot_or_table <- function(signals_agg,
     format <- ifelse(interactive, "DataTable", "Flextable")
     build_signals_agg_table(
       signals_agg,
-      format = format
+      format = format,
+      page_length = page_length
     )
   }
 }
@@ -182,12 +188,14 @@ create_barplot_or_table <- function(signals_agg,
 #' @param data_surveillance data.frame, surveillance linelist
 #' @param signal_category character, naming the category which should be visualised, i.e. "state","age_group","sex"
 #' @param interactive boolean identifying whether the plot should be static or interactive
+#' @param page_length integer indicating number of elements per DataTable page. Default is 10
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @return a table or a plot depending on signal_category, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 decider_barplot_map_table <- function(signals_agg,
                                       data_surveillance,
                                       signal_category,
                                       interactive = TRUE,
+                                      page_length = 10,
                                       toggle_alarms = FALSE) {
   if (signal_category %in% region_variable_names()) {
     plot_or_table <- create_map_or_table(
@@ -195,6 +203,7 @@ decider_barplot_map_table <- function(signals_agg,
       data_surveillance,
       signal_category,
       interactive = interactive,
+      page_length = page_length,
       toggle_alarms = toggle_alarms
     )
   } else {
@@ -202,6 +211,7 @@ decider_barplot_map_table <- function(signals_agg,
       signals_agg,
       signal_category,
       interactive = interactive,
+      page_length = page_length,
       toggle_alarms = toggle_alarms
     )
   }
