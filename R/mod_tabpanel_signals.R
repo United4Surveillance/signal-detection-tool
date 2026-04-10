@@ -40,6 +40,7 @@ mod_tabpanel_signals_server <- function(
   filtered_data,
   errors_detected,
   number_of_weeks,
+  date_ext,
   number_of_weeks_input_valid,
   strat_vars,
   method,
@@ -207,7 +208,8 @@ mod_tabpanel_signals_server <- function(
         intervention_date = intervention_date(),
         stratification = strat_vars_tidy(),
         date_var = "date_report",
-        number_of_weeks = number_of_weeks()
+        number_of_weeks = number_of_weeks(),
+        date_ext = date_ext()
       )
       results %>% dplyr::mutate(
         alarms = dplyr::if_else(alarms & cases < min_cases_signals(),

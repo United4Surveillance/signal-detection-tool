@@ -11,6 +11,7 @@ get_signals_all(
   stratification = NULL,
   date_start = NULL,
   date_end = NULL,
+  date_ext = NULL,
   date_var = "date_report",
   number_of_weeks = 6
 )
@@ -31,6 +32,8 @@ the beginning of the analysis period.}
 
 \item{date_end}{Optional. A date or character string in yyyy-mm-dd format indicating
 the end of the analysis period.}
+
+\item{date_ext}{A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL}
 
 \item{date_var}{A character string specifying the column name of the date variable to use.
 Default is "date_report".}
