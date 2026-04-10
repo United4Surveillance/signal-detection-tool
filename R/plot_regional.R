@@ -4,6 +4,7 @@
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @returns either a ggplot object if static plot is chosen or a plotly object for the interactive plot
+#' @export
 plot_regional <- function(shape_with_signals,
                           signals_agg_unknown_region = NULL,
                           interactive = FALSE,
