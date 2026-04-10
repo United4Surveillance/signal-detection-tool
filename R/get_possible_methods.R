@@ -19,8 +19,9 @@
 #'         \code{"glm farrington with timetrend"} are possible.
 #'   \item If 2 to <3 years (about 104 to <156 weeks) of historic data are
 #'         available: all methods except \code{"glm farrington"},
-#'         \code{"glm farrington with timetrend"} and
-#'         \code{"glm harmonic with timetrend"} are possible.
+#'         \code{"glm farrington with timetrend"}.
+#'         \code{"glm harmonic with timetrend"} and
+#'         \code{"glm harmonic multi"} are possible.
 #'   \item If 26 to <104 weeks of historic data are available:
 #'         \code{"Mean"}, \code{"CUSUM"} and \code{"EARS"} are possible.
 #'   \item If 7 to <26 weeks of historic data are available:
@@ -88,10 +89,10 @@ get_possible_methods <- function(min_date,
     not_possible <- c("glm farrington with timetrend", "glm farrington")
     methods_possible <- algos[!algos %in% not_possible]
   } else if (number_of_weeks_available_fitting >= 2 * 52) {
-    # All possible except FN and Harmonic with timetrend
+    # All possible except FN, Harmonic with timetrend and Harmonic multi
     not_possible <- c(
       "glm farrington with timetrend", "glm farrington",
-      "glm harmonic with timetrend"
+      "glm harmonic with timetrend", "glm harmonic multi"
     )
     methods_possible <- algos[!algos %in% not_possible]
   } else if (number_of_weeks_available_fitting >= 26) {

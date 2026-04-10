@@ -10,6 +10,7 @@ create_map_or_table(
   region,
   shape = get_shp_config_or_internal(),
   interactive = TRUE,
+  page_length = 10,
   toggle_alarms = FALSE
 )
 }
@@ -27,6 +28,8 @@ create_map_or_table(
 - By default, this parameter is set to `get_shp_config_or_internal()`, which handles this logic dynamically.}
 
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
+
+\item{page_length}{integer indicating number of elements per DataTable page. Default is 10}
 
 \item{toggle_alarms}{boolean identifying whether the plot should showing number of signals explicitly or only when hovering}
 }

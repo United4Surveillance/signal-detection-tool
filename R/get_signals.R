@@ -122,7 +122,7 @@ get_signals_stratified <- function(data,
     )
   }
 
-  checkmate::check_choice(model, choices = c("", "mean", "sincos", "FN"))
+  checkmate::check_choice(model, choices = c("", "mean", "sincos", "sincos_multiS", "FN"))
 
   checkmate::assert(
     checkmate::check_null(intervention_date),
@@ -185,12 +185,12 @@ get_signals_stratified <- function(data,
 
     # adding the NAs to also calculate signals for them
     if (any(is.na(data[, category]))) {
-      sub_data <- sub_data |>
+      sub_data <- sub_data %>%
         dplyr::mutate(
           !!rlang::sym(category) := forcats::fct_na_value_to_level(!!rlang::sym(category), level = "NA")
         )
     }
-    sub_data <- sub_data |>
+    sub_data <- sub_data %>%
       # filter the data
       filter_by_date(date_var = date_var, date_start = date_start, date_end = date_end) %>%
       # aggregate data
@@ -258,7 +258,7 @@ get_signals_stratified <- function(data,
 #' @param method A character string specifying the signal detection method to use.
 #'   Available options include:
 #'   `"farrington"`, `"ears"`, `"cusum"`, `"glm mean"`, `"glm timetrend"`,
-#'   `"glm harmonic"`, `"glm harmonic with timetrend"`,
+#'   `"glm harmonic"`, `"glm harmonic with timetrend"`, `"glm harmonic multi"`,
 #'   `"glm farrington"`, `"glm farrington with timetrend"`.
 #'   You can retrieve the full list using [available_algorithms()].
 #'
@@ -352,6 +352,9 @@ get_signals <- function(data,
     } else if (method == "glm harmonic with timetrend") {
       model <- "sincos"
       time_trend <- TRUE
+    } else if (method == "glm harmonic multi") {
+      model <- "sincos_multiS"
+      time_trend <- TRUE
     } else if (method == "glm farrington") {
       model <- "FN"
       time_trend <- FALSE
@@ -361,7 +364,7 @@ get_signals <- function(data,
     }
   }
 
-  data <- data |>
+  data <- data %>%
     add_cw_iso(date_start = date_start, date_end = date_end, date_var = date_var)
 
 
@@ -524,8 +527,8 @@ pad_signals <- function(data,
     unique(signals$category)[!is.na(unique(signals$category))]
   }
 
-  # data_signals <- signals |>
-  #   dplyr::filter(!is.na(alarms)) |>
+  # data_signals <- signals %>%
+  #   dplyr::filter(!is.na(alarms)) %>%
   #   dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
 
 
@@ -537,7 +540,7 @@ pad_signals <- function(data,
 
   cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(number_of_weeks)
 
-  data_no_signals <- data |>
+  data_no_signals <- data %>%
     dplyr::filter(date_report <= cutoff_date)
 
   available_thresholds <- c(26, 20, 14, 8, 2)

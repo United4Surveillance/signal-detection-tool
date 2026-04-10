@@ -90,6 +90,7 @@ available_algorithms <- function() {
     "Timetrend" = "glm timetrend",
     "Harmonic" = "glm harmonic",
     "Harmonic with timetrend" = "glm harmonic with timetrend",
+    "Multi-seasonal harmonic" = "glm harmonic multi",
     "Step harmonic" = "glm farrington",
     "Step harmonic with timetrend" = "glm farrington with timetrend"
   )
@@ -108,7 +109,7 @@ pretty_variable_names <- function() {
   )
 }
 
-#' Varible names which should be checked for missing values
+#' Variable names which should be checked for missing values
 check_for_missing_values <- function() {
   c("date_report")
 }

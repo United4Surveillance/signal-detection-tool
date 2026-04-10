@@ -90,6 +90,8 @@ preprocess_data <- function(data) {
 
   # sex is not mandatory
   if ("sex" %in% colnames(data)) {
+    # reset sex_levels
+    app_cache_env$sex_levels <- c("male", "female", "diverse", NA_character_)
     data <- data %>%
       dplyr::mutate(sex = factor(sex, levels = sex_levels()))
   }
@@ -182,13 +184,13 @@ aggregate_data <- function(data,
       dplyr::left_join(data_outbreak_agg, by = c("cw_iso", group)) %>%
       dplyr::mutate(cases_in_outbreak = dplyr::if_else(is.na(cases_in_outbreak), 0, cases_in_outbreak))
   }
-  data_agg |>
-    tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "week")) |>
+  data_agg %>%
+    tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "week")) %>%
     dplyr::mutate(
       year = as.numeric(year),
       week = as.numeric(week)
-    ) |>
-    dplyr::arrange(year, week) |>
+    ) %>%
+    dplyr::arrange(year, week) %>%
     as.data.frame()
 }
 
@@ -316,7 +318,7 @@ add_cw_iso <- function(data,
 
   # add cw_iso (isoweeks) as factor levels
   all_cw_iso <- get_all_cw_iso(date_start = date_start, date_end = date_end)
-  data <- data |>
+  data <- data %>%
     dplyr::mutate(
       cw_iso = paste0(
         lubridate::isoyear(!!rlang::sym(date_var)), "-",

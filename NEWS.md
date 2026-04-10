@@ -4,9 +4,12 @@
   * fix bug in tooltip not showing the week correctly in unstratified time series in report
   * fix wrong number of total cases in html report landing page
   * fix signals tables being scrollable again 
+  * fix stratification by sex after reloading the app in some configurations
+  * fix positions of signals not appearing outside other regions 
 * Shortening of long x axis labels in barcharts and adding complete axis text to tooltip
 * Added option to extend the dataset up to the current day
 
+* Added new multi-seasonal harmonic method with annual and semiannual components and optional timetrend
 
 # SignalDetectionTool 0.9.0
 
