@@ -20,7 +20,7 @@ either a ggplot or plotly object
 }
 \description{
 Using the results of signal detection, plot a week-to-week representation of
-strata had higher than expected case numbers
+strata that had alarms
 }
 \examples{
 \dontrun{

@@ -24,10 +24,6 @@ results <- get_signals_farringtonflexible(data)
 plot_time_series(results, interactive = T)
 plot_time_series(results, number_of_weeks = 10)
 
-# plot age group
-plot_agegroup_by(data)
-plot_agegroup_by(data, interactive = TRUE)
-
 # run signal detection on data
 # results <- get_signals(data)  # no stratification
 results <- get_signals(data, stratification = c("county", "sex", "age_group"))
