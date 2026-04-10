@@ -4,7 +4,7 @@
 \alias{build_signals_agg_table}
 \title{Builds the aggregated signal detection results table with different formating options.}
 \usage{
-build_signals_agg_table(signals_agg, format = "DataTable")
+build_signals_agg_table(signals_agg, format = "DataTable", page_length = 10)
 }
 \arguments{
 \item{signals_agg}{A tibble or data.frame containing aggregated signals produced from \link{aggregate_signals}(signals,number_of_weeks = 6).}
@@ -14,6 +14,8 @@ build_signals_agg_table(signals_agg, format = "DataTable")
 - `"DataTable"`: An interactive table using the DataTable library.
 - `"Flextable"`: A formatted table suitable for reporting,i.e. word documents.
 Default is "DataTable".}
+
+\item{page_length}{integer indicating number of elements per DataTable page. Default is 10 description}
 }
 \value{
 data.frame or DataTable or Flextable depending on `format`
