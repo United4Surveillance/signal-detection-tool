@@ -12,7 +12,7 @@ params:
   country: "Austria"
   number_of_weeks: 6
   method: "farrington"
-  strata: !r c("county_id", "community_id", "sex", "age_group") 
+  strata: NULL
   tables: true
   signals_padded: NULL
   signals_agg: NULL

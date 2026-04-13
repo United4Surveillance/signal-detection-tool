@@ -325,6 +325,7 @@ run_report <- function(
 
   if (report_format == "DOCX") {
     report_params$tables <- tables
+    report_params$strata <- get_strata_for_path(strata, NULL)
   }
 
   if (report_format == "HTML") {
