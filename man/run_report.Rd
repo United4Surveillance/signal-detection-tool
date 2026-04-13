@@ -8,6 +8,7 @@ run_report(
   data,
   report_format = "HTML",
   method = "FarringtonFlexible",
+  alpha_upper = 0.05,
   number_of_weeks = 6,
   pathogens = NULL,
   strata = c("county", "age_group"),
@@ -30,6 +31,9 @@ run_report(
 
 \item{method}{a character string, signal detection method to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend".
 You can retrieve the full list using [names(available_algorithms())].}
+
+\item{alpha_upper}{Numeric between 0.001 and 0.2. Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to
+using the 0.95 quantile. `alpha_upper` is only used for methods that require it (currently "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend"), for which a default value of 0.05 is applied.}
 
 \item{number_of_weeks}{integer, number of weeks for which signals are generated}
 

@@ -24,7 +24,7 @@ get_signals_all(
 See [available_algorithms()] for options.}
 
 \item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05).
-Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
+Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile. Ears and cusum do not use the value.}
 
 \item{intervention_date}{A date or character string in yyyy-mm-dd format indicating the
 start of a post-intervention period for time series correction (only relevant for certain models).}

@@ -118,7 +118,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 shiny::conditionalPanel(
                   condition = sprintf("output['%s'] == 'TRUE' || output['%s'] == 'TRUE'", ns("algorithm_glm"), ns("algorithm_farrington_chosen")),
                   shiny::span("Set a p-value cutoff used for computing the threshold"),
-                  shiny::uiOutput(ns("alpha_upper"))
+                  shiny::uiOutput(ns("alpha_upper_ui"))
                 )
               ),
               shiny::column(
@@ -178,7 +178,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       ) # TODO: make this dynamic
     })
 
-    output$alpha_upper <- shiny::renderUI({
+    output$alpha_upper_ui <- shiny::renderUI({
       shiny::req(!errors_detected())
       shiny::numericInput(
         inputId = ns("alpha_upper"),

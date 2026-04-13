@@ -44,6 +44,7 @@ app_server <- function(input, output, session) {
     pathogen_vars = datinput$pathogen_vars,
     errors_detected = data_load_check_result$errors_detected,
     datinput$no_algorithm_possible,
+    alpha_upper = datinput$alpha_upper,
     number_of_weeks_input_valid = datinput$weeks_input_valid,
     signals_padded = signals_output$signals_padded,
     signals_agg = signals_output$signals_agg,

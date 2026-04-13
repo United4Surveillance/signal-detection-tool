@@ -38,6 +38,7 @@ mod_tabpanel_report_server <- function(id,
                                        filtered_data,
                                        strat_vars,
                                        pathogen_vars,
+                                       alpha_upper,
                                        errors_detected,
                                        no_algorithm_possible,
                                        number_of_weeks_input_valid,
@@ -121,8 +122,7 @@ mod_tabpanel_report_server <- function(id,
         "by ", paste0(strat_vars(), collapse = ", "), "for the last",
         number_of_weeks(), " weeks using ",
         names(available_algorithms())[available_algorithms() == method()],
-        " as outbreak detection algorithm."
-      )
+        " as outbreak detection algorithm.", ifelse(grepl("glm|farrington", method()) && !is.null(alpha_upper()), paste("A p-value cutoff of", alpha_upper(), "is used."), ""))
     })
 
     output$downloadReport <- shiny::downloadHandler(
@@ -142,6 +142,7 @@ mod_tabpanel_report_server <- function(id,
           method = names(available_algorithms()[which(available_algorithms() == method())]),
           number_of_weeks = number_of_weeks(),
           pathogens = pathogen_vars(),
+          alpha_upper = alpha_upper(),
           strata = strat_vars(),
           tables = tables(),
           output_file = con,

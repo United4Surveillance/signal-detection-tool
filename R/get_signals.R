@@ -9,7 +9,7 @@
 #' @param method A character string specifying the signal detection method to use.
 #'   See [available_algorithms()] for options.
 #' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05).
-#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
+#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile. Ears and cusum do not use the value.
 #' @param intervention_date A date or character string in yyyy-mm-dd format indicating the
 #'   start of a post-intervention period for time series correction (only relevant for certain models).
 #' @param stratification A character vector specifying the variables to stratify the analysis on.
@@ -86,7 +86,7 @@ get_signals_all <- function(preprocessed_data,
 #' @param data A data frame containing the surveillance data.
 #' @param fun The signal detection function to apply to each stratum.
 #' @param model character, default empty string which is the choice if farrington, ears or cusum are used and if a glm method was chosen as outbreak detection method then one of c("mean","sincos", "FN")
-#' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05).
+#' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value.
 #'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
 #' @param intervention_date A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.
 #' @param time_trend boolean default TRUE setting time_trend in the get_signals_glm(). This parameter is only used when an the glm based outbreak detection models are used, i.e. for the models c("mean","sincos", "FN")
@@ -286,7 +286,7 @@ get_signals_stratified <- function(data,
 #'
 #' @seealso [available_algorithms()]
 #' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05).
-#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
+#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile. Ears and cusum do not use the value.
 #' @param intervention_date A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.
 #' @param stratification A character vector specifying the columns to stratify
 #'   the analysis. Default is NULL.

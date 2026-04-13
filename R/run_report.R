@@ -13,6 +13,8 @@
 #'   You can retrieve the full list using [names(available_algorithms())].
 #'
 #' @seealso [names(available_algorithms())]
+#' @param alpha_upper Numeric between 0.001 and 0.2. Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to
+#'   using the 0.95 quantile. `alpha_upper` is only used for methods that require it (currently "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend"), for which a default value of 0.05 is applied.
 #' @param number_of_weeks integer, number of weeks for which signals are generated
 #' @param pathogens A character vector specifying which pathogens to include in the report.
 #'   If `NULL` (default), all pathogens present in `data`, `signals_padded`, or `signals_agg` are used.
@@ -91,6 +93,7 @@ run_report <- function(
     data,
     report_format = "HTML",
     method = "FarringtonFlexible",
+    alpha_upper = 0.05,
     number_of_weeks = 6,
     pathogens = NULL,
     strata = c("county", "age_group"),
@@ -119,6 +122,15 @@ run_report <- function(
   checkmate::assert(
     checkmate::check_choice(method, choices = names(available_algorithms()))
   )
+
+  if (grepl("glm", method) || grepl("farrington", method)) {
+    checkmate::assert(
+      checkmate::check_number(alpha_upper, lower = 0.001, upper = 0.2)
+    )
+  } else {
+    NULL
+  }
+
   checkmate::assert(
     checkmate::check_integerish(number_of_weeks, lower = 1)
   )
@@ -233,6 +245,7 @@ run_report <- function(
 
       signals <- get_signals_all(preprocessed_data_pat,
         method = method,
+        alpha_upper = alpha_upper,
         intervention_date = intervention_date,
         stratification = strata,
         date_start = NULL,
@@ -275,6 +288,7 @@ run_report <- function(
     disease = pathogens,
     number_of_weeks = number_of_weeks,
     method = method,
+    alpha_upper = alpha_upper,
     strata = strata,
     signals_padded = signals_padded,
     signals_agg = signals_agg,
