@@ -410,12 +410,17 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
         if (var == "None" || is.null(val)) next
 
-        vars <- c(vars, var)
+        if (length(val) > 1) {
+          val_str <- paste0('"', val, '"', collapse = " - ")
+        } else {
+          val_str <- paste0('"', val, '"')
+        }
+
+        vars <- c(vars, paste0(var, ": ", val_str))
       }
 
       vars
     })
-
 
     output$strat_choices <- shiny::renderUI({
       shiny::req(!errors_detected())

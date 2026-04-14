@@ -2,10 +2,10 @@
 % Please edit documentation in R/levels.R
 \name{check_for_missing_values}
 \alias{check_for_missing_values}
-\title{Varible names which should be checked for missing values}
+\title{Variable names which should be checked for missing values}
 \usage{
 check_for_missing_values()
 }
 \description{
-Varible names which should be checked for missing values
+Variable names which should be checked for missing values
 }
