@@ -1,50 +1,86 @@
-#' Renders signal detection report
+#' Renders a signal detection report
 #'
-#' The function supports the generation of a single-pathogen and multi-pathogen report when `report_format = "HTML"`.
-#' For Word (DOCX) output, only single-pathogen reports are currently supported.
+#' Generates signal detection reports from surveillance linelist data.
+#' HTML output supports both single-pathogen and multi-pathogen reports,
+#' including pathogen-specific stratification defined via `strata`.
+#' DOCX output currently supports single-pathogen reports only.
 #'
-#' If executed as a standalone function, all filtering must
-#' be performed beforehand.
-#' This function is also invoked within the app.
+#' If executed as a standalone function, all filtering of `data` must be
+#' performed beforehand. This function is also invoked within the app.
 #'
-#' @param data data.frame containing surveillance data in linelist format following the format specified in `input_metadata`
-#' @param report_format character, format of the report: "HTML" or "DOCX"
-#' @param method a character string, signal detection method to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend".
-#'   You can retrieve the full list using [names(available_algorithms())].
+#' @param data A data.frame containing surveillance data in linelist format
+#'   following the structure specified in `input_metadata`.
+#' @param report_format Character scalar specifying the report format.
+#'   Supported values are `"HTML"` and `"DOCX"`.
+#' @param method Character scalar specifying the signal detection method.
+#'   Must be one of `"FarringtonFlexible"`, `"EARS"`, `"CUSUM"`, `"Mean"`,
+#'   `"Timetrend"`, `"Harmonic"`, `"Harmonic with timetrend"`,
+#'   `"Step harmonic"`, or `"Step harmonic with timetrend"`.
+#'   Use [names(available_algorithms())] to retrieve the full list.
+#' @param number_of_weeks Integer scalar giving the number of weeks for which
+#'   signals are generated.
+#' @param pathogens Character vector specifying which pathogens to include in
+#'   the report. If `NULL`, all pathogens present in `data` are used when
+#'   signals are recomputed; otherwise the pathogens in `signals_padded` are
+#'   used. Multi-pathogen reports are supported only for HTML output.
+#' @param strata Stratification specification. Supported values are `NULL`,
+#'   `"None"`, a character vector of column names in `data`, or a data
+#'   frame/tibble with columns `pathogen` and `strata`, where `strata` is a
+#'   list-column of character vectors. Character input applies the same strata
+#'   to all pathogens. Data-frame input allows pathogen-specific strata and must
+#'   contain one entry for each pathogen included in the report; all referenced
+#'   columns must exist in `data`. Pathogen-specific strata are supported only
+#'   for HTML output. When precomputed signals are supplied, `strata` is not
+#'   inferred from them and is still used to control report rendering.
+#' @param tables Logical scalar; if `TRUE`, include signal detection tables in
+#'   the report. Used only for DOCX output and ignored for HTML output.
+#' @param output_file Character scalar specifying the output file name without a
+#'   directory path. If `NULL`, a default file name is generated.
+#' @param output_dir Character scalar specifying the output directory. Defaults
+#'   to `"."`, i.e. the current working directory. In the Shiny app, `NULL`
+#'   uses the default download location.
+#' @param signals_padded Tibble of precomputed padded signals containing a
+#'   `pathogen` column. If multiple pathogens are included, rows for all
+#'   pathogens should be stacked in a single object, for example with
+#'   `dplyr::bind_rows()`. To reuse precomputed signals and skip recomputation,
+#'   `signals_padded` and `signals_agg` must both be supplied. If either object
+#'   is `NULL`, both are recomputed from `data`.
+#' @param signals_agg Tibble of precomputed aggregated signals containing a
+#'   `pathogen` column. If multiple pathogens are included, rows for all
+#'   pathogens should be stacked in a single object, for example with
+#'   `dplyr::bind_rows()`. To reuse precomputed signals and skip recomputation,
+#'   `signals_agg` and `signals_padded` must both be supplied. If either object
+#'   is `NULL`, both are recomputed from `data`.
+#' @param intervention_date Date object, character string in `"yyyy-mm-dd"`
+#'   format, or `NULL` specifying the intervention date for interrupted time
+#'   series analysis. Supported only by the methods `"Mean"`, `"Timetrend"`,
+#'   `"Harmonic"`, `"Harmonic with timetrend"`, `"Step harmonic"`, and
+#'   `"Step harmonic with timetrend"`. The default `NULL` disables the
+#'   intervention analysis.
+#' @param custom_logo Character scalar giving the path to a PNG or SVG logo
+#'   that replaces the default United4Surveillance logo. Used only for HTML
+#'   output.
+#' @param custom_theme A [bslib::bs_theme()] object that replaces the default
+#'   United4Surveillance theme. This is mainly used to change colors. Use
+#'   `version = "3"` to keep the navbar intact. Used only for HTML output.
+#' @param min_cases_signals Integer scalar giving the minimum number of cases an
+#'   alarm must have to remain flagged. For observations with fewer than this
+#'   number of cases, `alarms` is set to `FALSE` in a post-processing step.
+#'   This is applied only when signals are recomputed inside `run_report()`,
+#'   i.e. when `signals_agg` or `signals_padded` is `NULL`.
+#' @param title `NULL` or a character scalar specifying the report title. If
+#'   `NULL` or an empty string, a default title of the form
+#'   `"Signal Detection Report - <country>"` is used.
 #'
+#' @return Returns the path to the rendered output written to disk. For DOCX
+#'   output this is the Word document; for HTML output this is the ZIP archive
+#'   containing the landing page and generated report pages.
 #' @seealso [names(available_algorithms())]
-#' @param number_of_weeks integer, number of weeks for which signals are generated
-#' @param pathogens A character vector specifying which pathogens to include in the report.
-#'   If `NULL` (default), all pathogens present in `data`, `signals_padded`, or `signals_agg` are used.
-#'   Multi-pathogen reports are supported only for HTML output.
-#' @param strata A character vector specifying the columns to stratify. If `NULL` no strata are used. If precomputed signals are provided  this argument is ignored and strata are inferred from the provided signals. Defaults to c("county", "age_group") when no precomputed signals were provided.
-#' @param tables Logical, default TRUE. True if Signal Detection Tables should be included in report. Only used for DOCX reports, the parameter is ignored for HTML reports.
-#' @param output_file A character string specifying the name of the output file (without directory path). If `NULL` (default), the file name is automatically generated to be SignalDetectionReport. See \link[rmarkdown]{render} for more details.
-#' @param output_dir A character string specifying the output directory for the rendered output file (default is ".", which means the rendered file will be saved in the current working directory. See \link[rmarkdown]{render} for more details. `NULL` is used when running the report from shiny app which will take the Downloads folder as default option for saving.
-#' @param signals_padded A tibble of precomputed and padded signals containing a `pathogen` column.
-#'   If multiple pathogens are present, the tibble should represent all of them stacked together
-#'   (e.g., using `dplyr::bind_rows()`).
-#'   Defaults to `NULL`, in which case the signal data will be computed from the linelist
-#'   within the `run_report()` function.
-#'   If not `NULL`, the provided `signals_padded` is used as-is, and signals are not recomputed.
-#' @param signals_agg A tibble of aggregated signals containing a `pathogen` column.
-#'   If multiple pathogens are included, the tibble should represent all of them stacked together
-#'   (e.g., using `dplyr::bind_rows()`).
-#'   Defaults to `NULL`, in which case the aggregated signals are computed from the linelist
-#'   within the `run_report()` function.
-#'   If not `NULL`, the provided `signals_agg` is used directly and signals are not recomputed.
-#' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.
-#' @param custom_logo A character string with a path to a png or svg logo, to replace the default United4Surveillance logo. Only used when `report_format` is `"HTML"`.
-#' @param custom_theme A bslib::bs_theme() to replace the default United4Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact. Only used when `report_format` is `"HTML"`.
-#' @param min_cases_signals integer, minimum number of cases a signal must have. All signals with case counts smaller than this will be filtered in a post-processing step. This parameter is only applied when precomputed signals_agg and signals_padded are not given. If you want to post-process your precomputed signals you need to do that before generating the report.
-#' @param title NULL or a character string. Specifies the title of the report that is to be created
-#'
-#' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' # Example 1: Run report with specified parameters and HTML format output
+#' # Example 1: Run a report with specified parameters and HTML output
 #' run_report(
 #'   report_format = "HTML",
 #'   data = SignalDetectionTool::input_example,
@@ -52,18 +88,20 @@
 #'   strata = c("county", "sex"),
 #'   number_of_weeks = 6
 #' )
-#' # Example 2: An example output directory specified
+#'
+#' # Example 2: Specify an output directory
 #' run_report(
 #'   method = "EARS",
 #'   output_dir = "C:/Users/SmithJ/Documents"
 #' )
-#' # Example 3: An example output file name is specified
+#'
+#' # Example 3: Specify an output file name
 #' run_report(
 #'   method = "EARS",
 #'   output_file = "My Signal Report"
 #' )
 #'
-#' # Example 4: No strata are used
+#' # Example 4: Do not use stratification
 #' run_report(
 #'   report_format = "HTML",
 #'   data = SignalDetectionTool::input_example,
@@ -71,42 +109,54 @@
 #'   strata = NULL
 #' )
 #'
-#' # Example 5: HTML report for multiple pathogens
+#' # Example 5: Create an HTML report for multiple pathogens
 #' run_report(
 #'   report_format = "HTML",
 #'   data = SignalDetectionTool::input_example_multipathogen,
 #'   method = "Harmonic"
 #' )
 #'
-#' Example 6: HTML report for a subset of pathogens in a multi-pathogen dataset
+#' # Example 6: Restrict a multi-pathogen HTML report to a subset of pathogens
 #' run_report(
 #'   report_format = "HTML",
 #'   data = SignalDetectionTool::input_example_multipathogen,
-#'   pathogens = c("Enterobacter","Salmonella"),
+#'   pathogens = c("Enterobacter", "Salmonella"),
 #'   method = "Harmonic"
 #' )
 #'
+#' # Example 7: Use pathogen-specific strata in an HTML report
+#' pathogen_strata <- tibble::tibble(
+#'   pathogen = c("Enterobacter", "Salmonella"),
+#'   strata = list(c("county", "age_group"), c("sex"))
+#' )
+#' run_report(
+#'   report_format = "HTML",
+#'   data = SignalDetectionTool::input_example_multipathogen,
+#'   pathogens = c("Enterobacter", "Salmonella"),
+#'   strata = pathogen_strata,
+#'   method = "Harmonic"
+#' )
 #' }
 run_report <- function(
-    data,
-    report_format = "HTML",
-    method = "FarringtonFlexible",
-    number_of_weeks = 6,
-    pathogens = NULL,
-    strata = c("county", "age_group"),
-    tables = TRUE,
-    output_file = NULL,
-    output_dir = ".",
-    signals_padded = NULL,
-    signals_agg = NULL,
-    intervention_date = NULL,
-    custom_logo = NULL,
-    custom_theme = NULL,
-    min_cases_signals = 1,
-    title = NULL) {
-
+  data,
+  report_format = "HTML",
+  method = "FarringtonFlexible",
+  number_of_weeks = 6,
+  pathogens = NULL,
+  strata = NULL,
+  tables = TRUE,
+  output_file = NULL,
+  output_dir = ".",
+  signals_padded = NULL,
+  signals_agg = NULL,
+  intervention_date = NULL,
+  custom_logo = NULL,
+  custom_theme = NULL,
+  min_cases_signals = 1,
+  title = NULL
+) {
   # Currently multi pathogen report is only supported for HTML
-  if (report_format == "DOCX" & length(unique(data$pathogen)) > 1) {
+  if ((report_format == "DOCX" & length(unique(data$pathogen)) > 1) | report_format == "DOCX" & is.data.frame(strata)) {
     stop("Currently the Multi-Pathogen Report functionality is only supported for HTML Reports. In case you want to get a Word report, please generate reports seperately for each pathogen by using a dataset containing only one pathogen.")
   }
 
@@ -129,26 +179,19 @@ run_report <- function(
     checkmate::check_subset(pathogens, choices = unique(signals_padded$pathogen)),
     combine = "or"
   )
-  # Validate strata
-  checkmate::assert_character(strata, null.ok = TRUE, min.len = 1)
-  # check that all columns are present in the data
-  if ("None" %in% strata) {
-    strata <- NULL
-  }
-  for (col in strata) {
-    checkmate::assert(
-      checkmate::check_choice(col, choices = names(data))
-    )
-  }
+
   checkmate::assert_logical(tables)
   checkmate::assert_character(output_file, null.ok = TRUE, len = 1)
   checkmate::assert_string(output_dir, null.ok = TRUE)
 
   # give default name if none is supplied
-  if(is.null(output_file)){
+  if (is.null(output_file)) {
     output_file <- paste0(
       "SignalDetectionReport.",
-      switch(report_format, HTML = "html", DOCX = "docx")
+      switch(report_format,
+        HTML = "html",
+        DOCX = "docx"
+      )
     )
   }
 
@@ -164,7 +207,7 @@ run_report <- function(
   )
   # additional checks specific to the data frame
   # pathogen needs to be a column of signals_agg
-  if(!is.null(signals_agg)){
+  if (!is.null(signals_agg)) {
     checkmate::assert_true("pathogen" %in% names(signals_agg))
   }
   checkmate::assert(
@@ -174,7 +217,7 @@ run_report <- function(
   )
   # additional checks specific to the data frame
   # pathogen needs to be added to signals_padded
-  if(!is.null(signals_padded)){
+  if (!is.null(signals_padded)) {
     checkmate::assert_true("pathogen" %in% names(signals_padded))
   }
   checkmate::assert(
@@ -188,7 +231,7 @@ run_report <- function(
     combine = "or"
   )
   checkmate::assert(
-    checkmate::check_integerish(min_cases_signals, lower=1)
+    checkmate::check_integerish(min_cases_signals, lower = 1)
   )
   checkmate::assert(
     checkmate::check_string(title, null.ok = TRUE)
@@ -213,15 +256,17 @@ run_report <- function(
     }
   }
 
-  # when signals_agg provided then use strata inside this dataset
-  # only need to check signals_agg as when signals_padded is NULL signals are anyways recomputed
-  # prevents errors when user did not specify strata and used signals_agg, signals_padded
-  if(!is.null(signals_agg)){
-    strata <- get_strata_from_signals_agg(signals_agg)
+  # Validate strata
+  if ("None" %in% strata) {
+    strata <- NULL
   }
+  # validate it here because now pathogens always have a non NULL value
+  check_strata(strata, pathogens, data)
 
   # compute signals if not provided to run_report by the user
   if (is.null(signals_agg) | is.null(signals_padded)) {
+    precomputed <- FALSE
+
     preprocessed_data <- data %>% preprocess_data()
 
     signals_agg_list <- list()
@@ -231,19 +276,23 @@ run_report <- function(
       preprocessed_data_pat <- preprocessed_data %>%
         dplyr::filter(pathogen == pat)
 
+      strata_per_path <- get_strata_for_path(strata, pat)
+
       signals <- get_signals_all(preprocessed_data_pat,
         method = method,
         intervention_date = intervention_date,
-        stratification = strata,
+        stratification = strata_per_path, # hier auch Erregerspezifisches Stratum verwenden
         date_start = NULL,
         date_end = NULL,
         date_var = "date_report",
         number_of_weeks = number_of_weeks
       ) %>%
-        dplyr::mutate(pathogen = pat,
-                      alarms = dplyr::if_else(alarms & cases < min_cases_signals,
-                                       FALSE, alarms, missing=alarms)
-                      )
+        dplyr::mutate(
+          pathogen = pat,
+          alarms = dplyr::if_else(alarms & cases < min_cases_signals,
+            FALSE, alarms, missing = alarms
+          )
+        )
 
       signals_agg_pad <- aggregate_pad_signals(
         signals,
@@ -265,9 +314,11 @@ run_report <- function(
     # Clean up as these can be large
     rm(signals_agg_list, signals_padded_list)
     gc()
+  } else {
+    precomputed <- TRUE
   }
 
-  title <- if(is.null(title) || trimws(title) == "") paste0("Signal Detection Report - ", unique(data$country)) else title
+  title <- if (is.null(title) || trimws(title) == "") paste0("Signal Detection Report - ", unique(data$country)) else title
 
   report_params <- list(
     data = data,
@@ -275,7 +326,6 @@ run_report <- function(
     disease = pathogens,
     number_of_weeks = number_of_weeks,
     method = method,
-    strata = strata,
     signals_padded = signals_padded,
     signals_agg = signals_agg,
     intervention_date = intervention_date,
@@ -284,6 +334,7 @@ run_report <- function(
 
   if (report_format == "DOCX") {
     report_params$tables <- tables
+    report_params$strata <- get_strata_for_path(strata, NULL)
   }
 
   if (report_format == "HTML") {
@@ -374,31 +425,39 @@ run_report <- function(
 
     # rmd paths for pathogen and strata pages
     rmd_pathogen_path <- system.file("report/html_report/SignalDetectionReport_body.Rmd",
-       package = "SignalDetectionTool")
+      package = "SignalDetectionTool"
+    )
     rmd_strata_path <- system.file("report/html_report/SignalDetectionReport_strata.Rmd",
-       package = "SignalDetectionTool")
+      package = "SignalDetectionTool"
+    )
 
 
-
-    for(patho in pathogens){
+    for (patho in pathogens) {
       # formatted pathogen name (used for links)
       patho_f <- tolower(patho)
-      patho_f <- gsub("[~(),./?&!#<>\\]", "", patho_f) #remove special characters
+      patho_f <- gsub("[~(),./?&!#<>\\]", "", patho_f) # remove special characters
       patho_f <- gsub("\\s", "-", patho_f) # replace space with score
 
       # pathogen pages parameters
       signals_pad_p <- signals_padded %>%
         dplyr::filter(.data$pathogen == patho)
 
-      signals_agg_p <-  signals_agg %>%
+      signals_agg_p <- signals_agg %>%
         dplyr::filter(.data$pathogen == patho)
+
+      # pathogen specific strata are obtained if given
+      if (precomputed) {
+        strata_per_path <- get_strata_from_signals_agg(signals_agg)
+      } else {
+        strata_per_path <- get_strata_for_path(strata, patho)
+      }
 
       pathogen_report_params <- list(
         data = data,
         disease = patho,
         country = unique(data$country),
         number_of_weeks = number_of_weeks,
-        strata = strata,
+        strata = strata_per_path,
         signals_padded = signals_pad_p,
         signals_agg = signals_agg_p,
         intervention_date = intervention_date,
@@ -413,10 +472,9 @@ run_report <- function(
         output_dir = file.path(temp_dir, "report_pages")
       )
 
-      for(ctg in strata){
-
+      for (ctg in strata_per_path) {
         # strata pages parameters
-        signals_pad_c <-  signals_padded %>%
+        signals_pad_c <- signals_padded %>%
           dplyr::filter(.data$pathogen == patho, .data$category == ctg)
         signals_agg_c <- signals_agg_p %>%
           dplyr::filter(.data$category == ctg)
@@ -436,13 +494,13 @@ run_report <- function(
         rmarkdown::render(rmd_strata_path,
           output_format = output_format_s,
           params = strata_report_params,
-          output_file = paste(patho_f, ctg, sep  = "-"),
+          output_file = paste(patho_f, ctg, sep = "-"),
           output_dir = file.path(temp_dir, "report_pages")
         )
       }
     }
 
-    # Render Pathogen page
+    # Render Landing Page
     rmarkdown::render(rmd_path,
       output_format = output_format,
       params = report_params,
@@ -451,7 +509,7 @@ run_report <- function(
     )
 
     # name for zip file
-    if(output_file == normalizePath(file.path(dirname(output_file), basename(output_file)))){
+    if (output_file == normalizePath(file.path(dirname(output_file), basename(output_file)))) {
       z_file <- gsub(".html", ".zip", output_file) # case when complete path is given in output_file
     } else {
       z_file <- file.path(output_dir, gsub(".html", ".zip", output_file)) # case when output_dir and output_file are given separately
@@ -459,11 +517,11 @@ run_report <- function(
 
     zip::zipr(
       zipfile = z_file,
-      files = c(file.path(temp_dir, "SignalDetectionReport.html"),
-                file.path(temp_dir, "report_pages/"))
+      files = c(
+        file.path(temp_dir, "SignalDetectionReport.html"),
+        file.path(temp_dir, "report_pages/")
+      )
     )
-
-
   } else {
     rmd_path <- system.file("report/word_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
     output_format <- "word_document"
@@ -475,4 +533,136 @@ run_report <- function(
       output_dir = output_dir
     )
   }
+}
+
+#' Resolve the strata specification for a single pathogen
+#'
+#' Normalizes the `strata` argument used by [run_report()] to the character
+#' vector required for one pathogen. `NULL` remains `NULL`, character input is
+#' returned unchanged (except for `"None"`, which is converted to `NULL`), and
+#' data-frame input is matched against `pat`.
+#'
+#' @param strata Stratification specification as accepted by [run_report()].
+#' @param pat Optional character scalar giving the pathogen for which strata
+#'   should be returned. Required when `strata` is a data frame/tibble with
+#'   pathogen-specific definitions.
+#'
+#' @return `NULL` or a character vector of column names to use for
+#'   stratification for the selected pathogen.
+#' @noRd
+get_strata_for_path <- function(strata, pat = NULL) {
+  if (is.null(strata)) {
+    return(NULL)
+  }
+
+  # usage from the app and previous usage of strata
+  if (is.character(strata)) {
+    if ("None" %in% strata) {
+      return(NULL)
+    }
+    return(strata)
+  }
+
+  if (is.data.frame(strata)) {
+    # check that pat is given to match strata to given pathogen, before pat is not needed
+    checkmate::assert_string(pat)
+
+    i <- match(pat, strata$pathogen)
+    return(strata$strata[[i]])
+  }
+}
+
+#' Validate a stratification specification
+#'
+#' Validates the `strata` argument accepted by [run_report()]. Allowed inputs
+#' are `NULL`, a character vector of column names in `data`, or a data
+#' frame/tibble with columns `pathogen` and `strata`, where `strata` is a
+#' list-column of character vectors. For data-frame input, all pathogens in
+#' `pathogens` must be covered, no unknown pathogens may be present, and every
+#' referenced stratum must exist as a column in `data`.
+#'
+#' @param strata Stratification specification to validate.
+#' @param pathogens Character vector of pathogens that will be included in the
+#'   report.
+#' @param data Data frame containing the source linelist data.
+#'
+#' @return Invisibly returns `TRUE`. An error is thrown if `strata` is invalid.
+#' @noRd
+check_strata <- function(strata, pathogens, data) {
+  # NULL is allowed
+  if (is.null(strata)) {
+    return(invisible(TRUE))
+  }
+
+  # character vector erlaubt
+  if (is.character(strata)) {
+    checkmate::assert_character(strata, min.len = 1, any.missing = FALSE)
+    for (col in strata) {
+      checkmate::assert(
+        checkmate::check_choice(col, choices = names(data))
+      )
+    }
+    return(invisible(TRUE))
+  }
+
+  # 3. Must be a tibble / data frame
+  if (!inherits(strata, "data.frame")) {
+    stop(
+      "`strata` must be NULL, \"None\", a character vector or a tibble.",
+      call. = FALSE
+    )
+  }
+
+  # Required columns
+  required_cols <- c("pathogen", "strata")
+  missing_cols <- setdiff(required_cols, names(strata))
+
+  if (length(missing_cols) > 0) {
+    stop(
+      "The following columns are missing from the `strata` dataframe: ",
+      paste(missing_cols, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  # pathogen column must be character
+  if (!is.character(strata$pathogen)) {
+    stop("`strata$pathogen` must be a character vector.", call. = FALSE)
+  }
+
+  # strata column must be a list of character vectors
+  if (!is.list(strata$strata)) {
+    stop(
+      "`strata$strata` must be a list-column of character vectors.",
+      call. = FALSE
+    )
+  }
+
+  # Pathogen coverage checks
+  unknown_pathogens <- setdiff(strata$pathogen, pathogens)
+  if (length(unknown_pathogens) > 0) {
+    stop(
+      "There are pathogens in the stratification that were not specified in the parameter pathogens: ",
+      paste(unknown_pathogens, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  missing_pathogens <- setdiff(pathogens, strata$pathogen)
+  if (length(missing_pathogens) > 0) {
+    stop(
+      "Missing strata definitions for pathogens: ",
+      paste(missing_pathogens, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  all_strata <- unique(unlist(strata$strata, use.names = FALSE))
+  for (col in all_strata) {
+    checkmate::assert(
+      checkmate::check_choice(col, choices = names(data))
+    )
+  }
+
+  invisible(TRUE)
 }
