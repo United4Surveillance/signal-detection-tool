@@ -153,10 +153,14 @@ test_that("test aggregation with filling extending with zeros and adding missing
   data_agg <- data %>%
     preprocess_data() %>%
     add_cw_iso(
-      date_start = as.Date("2020-12-17"),
-      date_end = as.Date("2021-11-02"), date_var = "date_report"
+      date_start = as.Date("2020-12-17"), #
+      date_end = NULL, # Date extension is done by parameter `date_ext` from aggregate data
+      date_var = "date_report"
     ) %>%
-    aggregate_data()
+    aggregate_data(
+      date_start = as.Date("2020-12-17"),
+      date_ext = as.Date("2021-11-02")
+    )
 
   solution <- data.frame(
     year = c(rep(2020, 3), rep(2021, 44)),
@@ -194,8 +198,14 @@ test_that("test that after aggregation week and years are in the correct order",
 
   data_agg <- data %>%
     preprocess_data() %>%
-    add_cw_iso(date_start = as.Date("2020-12-17"), date_end = as.Date("2021-11-02"), date_var = "date_report") %>%
-    aggregate_data()
+    add_cw_iso(
+      date_start = as.Date("2020-12-17"),
+      date_var = "date_report"
+    ) %>%
+    aggregate_data(
+      date_start = as.Date("2020-12-17"),
+      date_ext = as.Date("2021-11-02")
+    )
 
   solution <- data.frame(
     year = c(rep(2020, 3), rep(2021, 44)),

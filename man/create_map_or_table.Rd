@@ -10,6 +10,7 @@ create_map_or_table(
   region,
   shape = get_shp_config_or_internal(),
   interactive = TRUE,
+  page_length = 10,
   toggle_alarms = FALSE
 )
 }
@@ -28,10 +29,12 @@ create_map_or_table(
 
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
 
+\item{page_length}{integer indicating number of elements per DataTable page. Default is 10}
+
 \item{toggle_alarms}{boolean identifying whether the plot should showing number of signals explicitly or only when hovering}
 }
 \value{
-a table or a plot depending on whether the matching of the NUTS IDs was fully possible, the table and plots can be interactive or not depening on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
+a table or a plot depending on whether the matching of the NUTS IDs was fully possible, the table and plots can be interactive or not depending on the interactive parameter, can be class "ggplot" or "plotly" for plot and class "gt_tbl" or "datatables" for table
 }
 \description{
 Decider for creating a map or a table based on whether all NUTS_ids are found in the shapefile

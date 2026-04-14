@@ -4,6 +4,7 @@
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @returns either a ggplot object if static plot is chosen or a plotly object for the interactive plot
+#' @export
 plot_regional <- function(shape_with_signals,
                           signals_agg_unknown_region = NULL,
                           interactive = FALSE,
@@ -154,8 +155,8 @@ plot_regional <- function(shape_with_signals,
         dplyr::filter(!sf::st_is_empty(geometry)) # remove empty ones
 
       stars_sf <- stars_sf %>%
-        rowwise() %>%
-        mutate(
+        dplyr::rowwise() %>%
+        dplyr::mutate(
           geometry = {
             pt <- geometry
             self <- shape_areas_sf[shape_areas_sf$NUTS_ID == NUTS_ID, ]
@@ -176,7 +177,7 @@ plot_regional <- function(shape_with_signals,
             }
           }
         ) %>%
-        ungroup()
+        dplyr::ungroup()
 
       sf::sf_use_s2(old_s2)
 

@@ -90,6 +90,8 @@ preprocess_data <- function(data) {
 
   # sex is not mandatory
   if ("sex" %in% colnames(data)) {
+    # reset sex_levels
+    app_cache_env$sex_levels <- c("male", "female", "diverse", NA_character_)
     data <- data %>%
       dplyr::mutate(sex = factor(sex, levels = sex_levels()))
   }
@@ -105,6 +107,7 @@ preprocess_data <- function(data) {
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @param date_start A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the minimum date of the dataset. This parameter can be used when the dataset should be extended further than the minimum date of the dataset.
 #' @param date_end A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.
+#' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL
 #' @param group A character specifying another grouping variable. Usually used for stratification.
 #' @examples
 #' \dontrun{
@@ -115,6 +118,7 @@ aggregate_data <- function(data,
                            date_var = "date_report",
                            date_start = NULL,
                            date_end = NULL,
+                           date_ext = NULL,
                            group = NULL) {
   checkmate::check_subset(c(group, date_var), names(data), empty.ok = TRUE)
 
@@ -128,6 +132,19 @@ aggregate_data <- function(data,
     checkmate::check_date(lubridate::date(date_end)),
     combine = "or"
   )
+  checkmate::assert(
+    checkmate::check_null(date_ext),
+    checkmate::check_date(lubridate::date(date_ext)),
+    combine = "or"
+  )
+
+  if (!is.null(date_ext)) {
+    if (is.null(date_start)) { # TODO check when is this really NULL
+      date_start <- min(data[[date_var]], na.rm = TRUE)
+    }
+    extended_data_range <- get_all_cw_iso(date_start = date_start, date_end = date_ext)
+    data$cw_iso <- factor(data$cw_iso, levels = extended_data_range)
+  }
 
   if (is.null(group)) {
     data_agg <- data %>%
@@ -299,12 +316,6 @@ add_cw_iso <- function(data,
     date_end <- max(data[[date_var]], na.rm = TRUE)
   }
 
-  # function to get all iso weeks between date_start and date_end
-  get_all_cw_iso <- function(date_start, date_end) {
-    all_weeks_as_dates <- c(seq.Date(from = date_start, to = date_end, by = "week"), date_end)
-    unique(paste0(lubridate::isoyear(all_weeks_as_dates), "-", lubridate::isoweek(all_weeks_as_dates)))
-  }
-
   # add cw_iso (isoweeks) as factor levels
   all_cw_iso <- get_all_cw_iso(date_start = date_start, date_end = date_end)
   data <- data %>%
@@ -316,4 +327,13 @@ add_cw_iso <- function(data,
       cw_iso = factor(cw_iso, levels = all_cw_iso)
     )
   data
+}
+
+
+#' function to get all iso weeks between `date_start` and `date_end`
+#' @param date_start date object, starting date of sequence
+#' @param date_end date object, endind date of sequence
+get_all_cw_iso <- function(date_start, date_end) {
+  all_weeks_as_dates <- c(seq.Date(from = date_start, to = date_end, by = "week"), date_end)
+  unique(paste0(lubridate::isoyear(all_weeks_as_dates), "-", lubridate::isoweek(all_weeks_as_dates)))
 }
