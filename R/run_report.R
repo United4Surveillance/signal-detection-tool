@@ -143,7 +143,7 @@ run_report <- function(
     method = "FarringtonFlexible",
     number_of_weeks = 6,
     pathogens = NULL,
-    strata = c("county","age_group"),
+    strata = NULL,
     tables = TRUE,
     output_file = NULL,
     output_dir = ".",
@@ -262,6 +262,8 @@ run_report <- function(
 
   # compute signals if not provided to run_report by the user
   if (is.null(signals_agg) | is.null(signals_padded)) {
+    precomputed <- FALSE
+
     preprocessed_data <- data %>% preprocess_data()
 
     signals_agg_list <- list()
@@ -307,6 +309,9 @@ run_report <- function(
     # Clean up as these can be large
     rm(signals_agg_list, signals_padded_list)
     gc()
+  }
+  else{
+    precomputed <- TRUE
   }
 
   title <- if(is.null(title) || trimws(title) == "") paste0("Signal Detection Report - ", unique(data$country)) else title
@@ -421,7 +426,6 @@ run_report <- function(
        package = "SignalDetectionTool")
 
 
-
     for(patho in pathogens){
       # formatted pathogen name (used for links)
       patho_f <- tolower(patho)
@@ -436,7 +440,11 @@ run_report <- function(
         dplyr::filter(.data$pathogen == patho)
 
       # pathogen specific strata are obtained if given
-      strata_per_path <- get_strata_for_path(strata,patho)
+      if(precomputed){
+        strata_per_path <- get_strata_from_signals_agg(signals_agg)
+      }else{
+        strata_per_path <- get_strata_for_path(strata,patho)
+      }
 
       pathogen_report_params <- list(
         data = data,
