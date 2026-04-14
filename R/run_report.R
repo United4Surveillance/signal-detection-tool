@@ -138,23 +138,23 @@
 #' )
 #' }
 run_report <- function(
-    data,
-    report_format = "HTML",
-    method = "FarringtonFlexible",
-    number_of_weeks = 6,
-    pathogens = NULL,
-    strata = NULL,
-    tables = TRUE,
-    output_file = NULL,
-    output_dir = ".",
-    signals_padded = NULL,
-    signals_agg = NULL,
-    intervention_date = NULL,
-    custom_logo = NULL,
-    custom_theme = NULL,
-    min_cases_signals = 1,
-    title = NULL) {
-
+  data,
+  report_format = "HTML",
+  method = "FarringtonFlexible",
+  number_of_weeks = 6,
+  pathogens = NULL,
+  strata = NULL,
+  tables = TRUE,
+  output_file = NULL,
+  output_dir = ".",
+  signals_padded = NULL,
+  signals_agg = NULL,
+  intervention_date = NULL,
+  custom_logo = NULL,
+  custom_theme = NULL,
+  min_cases_signals = 1,
+  title = NULL
+) {
   # Currently multi pathogen report is only supported for HTML
   if ((report_format == "DOCX" & length(unique(data$pathogen)) > 1) | report_format == "DOCX" & is.data.frame(strata)) {
     stop("Currently the Multi-Pathogen Report functionality is only supported for HTML Reports. In case you want to get a Word report, please generate reports seperately for each pathogen by using a dataset containing only one pathogen.")
@@ -314,8 +314,7 @@ run_report <- function(
     # Clean up as these can be large
     rm(signals_agg_list, signals_padded_list)
     gc()
-  }
-  else{
+  } else {
     precomputed <- TRUE
   }
 
@@ -433,8 +432,7 @@ run_report <- function(
     )
 
 
-    for(patho in pathogens){
-
+    for (patho in pathogens) {
       # formatted pathogen name (used for links)
       patho_f <- tolower(patho)
       patho_f <- gsub("[~(),./?&!#<>\\]", "", patho_f) # remove special characters
@@ -448,10 +446,10 @@ run_report <- function(
         dplyr::filter(.data$pathogen == patho)
 
       # pathogen specific strata are obtained if given
-      if(precomputed){
+      if (precomputed) {
         strata_per_path <- get_strata_from_signals_agg(signals_agg)
-      }else{
-        strata_per_path <- get_strata_for_path(strata,patho)
+      } else {
+        strata_per_path <- get_strata_for_path(strata, patho)
       }
 
       pathogen_report_params <- list(
