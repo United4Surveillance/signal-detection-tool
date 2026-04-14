@@ -21,7 +21,7 @@ get_signals(
 \item{method}{A character string specifying the signal detection method to use.
 Available options include:
 `"farrington"`, `"ears"`, `"cusum"`, `"glm mean"`, `"glm timetrend"`,
-`"glm harmonic"`, `"glm harmonic with timetrend"`,
+`"glm harmonic"`, `"glm harmonic with timetrend"`, `"glm harmonic multi"`,
 `"glm farrington"`, `"glm farrington with timetrend"`.
 You can retrieve the full list using [available_algorithms()].}
 

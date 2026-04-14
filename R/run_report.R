@@ -185,10 +185,13 @@ run_report <- function(
   checkmate::assert_string(output_dir, null.ok = TRUE)
 
   # give default name if none is supplied
-  if(is.null(output_file)){
+  if (is.null(output_file)) {
     output_file <- paste0(
       "SignalDetectionReport.",
-      switch(report_format, HTML = "html", DOCX = "docx")
+      switch(report_format,
+        HTML = "html",
+        DOCX = "docx"
+      )
     )
   }
 
@@ -204,7 +207,7 @@ run_report <- function(
   )
   # additional checks specific to the data frame
   # pathogen needs to be a column of signals_agg
-  if(!is.null(signals_agg)){
+  if (!is.null(signals_agg)) {
     checkmate::assert_true("pathogen" %in% names(signals_agg))
   }
   checkmate::assert(
@@ -214,7 +217,7 @@ run_report <- function(
   )
   # additional checks specific to the data frame
   # pathogen needs to be added to signals_padded
-  if(!is.null(signals_padded)){
+  if (!is.null(signals_padded)) {
     checkmate::assert_true("pathogen" %in% names(signals_padded))
   }
   checkmate::assert(
@@ -228,7 +231,7 @@ run_report <- function(
     combine = "or"
   )
   checkmate::assert(
-    checkmate::check_integerish(min_cases_signals, lower=1)
+    checkmate::check_integerish(min_cases_signals, lower = 1)
   )
   checkmate::assert(
     checkmate::check_string(title, null.ok = TRUE)
@@ -258,7 +261,7 @@ run_report <- function(
     strata <- NULL
   }
   # validate it here because now pathogens always have a non NULL value
-  check_strata(strata,pathogens,data)
+  check_strata(strata, pathogens, data)
 
   # compute signals if not provided to run_report by the user
   if (is.null(signals_agg) | is.null(signals_padded)) {
@@ -273,7 +276,7 @@ run_report <- function(
       preprocessed_data_pat <- preprocessed_data %>%
         dplyr::filter(pathogen == pat)
 
-      strata_per_path <- get_strata_for_path(strata,pat)
+      strata_per_path <- get_strata_for_path(strata, pat)
 
       signals <- get_signals_all(preprocessed_data_pat,
         method = method,
@@ -284,10 +287,12 @@ run_report <- function(
         date_var = "date_report",
         number_of_weeks = number_of_weeks
       ) %>%
-        dplyr::mutate(pathogen = pat,
-                      alarms = dplyr::if_else(alarms & cases < min_cases_signals,
-                                       FALSE, alarms, missing=alarms)
-                      )
+        dplyr::mutate(
+          pathogen = pat,
+          alarms = dplyr::if_else(alarms & cases < min_cases_signals,
+            FALSE, alarms, missing = alarms
+          )
+        )
 
       signals_agg_pad <- aggregate_pad_signals(
         signals,
@@ -314,7 +319,7 @@ run_report <- function(
     precomputed <- TRUE
   }
 
-  title <- if(is.null(title) || trimws(title) == "") paste0("Signal Detection Report - ", unique(data$country)) else title
+  title <- if (is.null(title) || trimws(title) == "") paste0("Signal Detection Report - ", unique(data$country)) else title
 
   report_params <- list(
     data = data,
@@ -421,22 +426,25 @@ run_report <- function(
 
     # rmd paths for pathogen and strata pages
     rmd_pathogen_path <- system.file("report/html_report/SignalDetectionReport_body.Rmd",
-       package = "SignalDetectionTool")
+      package = "SignalDetectionTool"
+    )
     rmd_strata_path <- system.file("report/html_report/SignalDetectionReport_strata.Rmd",
-       package = "SignalDetectionTool")
+      package = "SignalDetectionTool"
+    )
 
 
     for(patho in pathogens){
+
       # formatted pathogen name (used for links)
       patho_f <- tolower(patho)
-      patho_f <- gsub("[~(),./?&!#<>\\]", "", patho_f) #remove special characters
+      patho_f <- gsub("[~(),./?&!#<>\\]", "", patho_f) # remove special characters
       patho_f <- gsub("\\s", "-", patho_f) # replace space with score
 
       # pathogen pages parameters
       signals_pad_p <- signals_padded %>%
         dplyr::filter(.data$pathogen == patho)
 
-      signals_agg_p <-  signals_agg %>%
+      signals_agg_p <- signals_agg %>%
         dplyr::filter(.data$pathogen == patho)
 
       # pathogen specific strata are obtained if given
@@ -466,10 +474,9 @@ run_report <- function(
         output_dir = file.path(temp_dir, "report_pages")
       )
 
-      for(ctg in strata_per_path){
-
+      for (ctg in strata_per_path) {
         # strata pages parameters
-        signals_pad_c <-  signals_padded %>%
+        signals_pad_c <- signals_padded %>%
           dplyr::filter(.data$pathogen == patho, .data$category == ctg)
         signals_agg_c <- signals_agg_p %>%
           dplyr::filter(.data$category == ctg)
@@ -489,7 +496,7 @@ run_report <- function(
         rmarkdown::render(rmd_strata_path,
           output_format = output_format_s,
           params = strata_report_params,
-          output_file = paste(patho_f, ctg, sep  = "-"),
+          output_file = paste(patho_f, ctg, sep = "-"),
           output_dir = file.path(temp_dir, "report_pages")
         )
       }
@@ -504,7 +511,7 @@ run_report <- function(
     )
 
     # name for zip file
-    if(output_file == normalizePath(file.path(dirname(output_file), basename(output_file)))){
+    if (output_file == normalizePath(file.path(dirname(output_file), basename(output_file)))) {
       z_file <- gsub(".html", ".zip", output_file) # case when complete path is given in output_file
     } else {
       z_file <- file.path(output_dir, gsub(".html", ".zip", output_file)) # case when output_dir and output_file are given separately
@@ -512,11 +519,11 @@ run_report <- function(
 
     zip::zipr(
       zipfile = z_file,
-      files = c(file.path(temp_dir, "SignalDetectionReport.html"),
-                file.path(temp_dir, "report_pages/"))
+      files = c(
+        file.path(temp_dir, "SignalDetectionReport.html"),
+        file.path(temp_dir, "report_pages/")
+      )
     )
-
-
   } else {
     rmd_path <- system.file("report/word_report/SignalDetectionReport.Rmd", package = "SignalDetectionTool")
     output_format <- "word_document"
@@ -545,17 +552,20 @@ run_report <- function(
 #' @return `NULL` or a character vector of column names to use for
 #'   stratification for the selected pathogen.
 #' @noRd
-get_strata_for_path <- function(strata,pat = NULL){
-
-  if(is.null(strata)) return(NULL)
+get_strata_for_path <- function(strata, pat = NULL) {
+  if (is.null(strata)) {
+    return(NULL)
+  }
 
   # usage from the app and previous usage of strata
-  if(is.character(strata)){
-    if("None" %in% strata) return(NULL)
+  if (is.character(strata)) {
+    if ("None" %in% strata) {
+      return(NULL)
+    }
     return(strata)
   }
 
-  if(is.data.frame(strata)){
+  if (is.data.frame(strata)) {
     # check that pat is given to match strata to given pathogen, before pat is not needed
     checkmate::assert_string(pat)
 
@@ -581,7 +591,6 @@ get_strata_for_path <- function(strata,pat = NULL){
 #' @return Invisibly returns `TRUE`. An error is thrown if `strata` is invalid.
 #' @noRd
 check_strata <- function(strata, pathogens, data) {
-
   # NULL is allowed
   if (is.null(strata)) {
     return(invisible(TRUE))
@@ -591,9 +600,9 @@ check_strata <- function(strata, pathogens, data) {
   if (is.character(strata)) {
     checkmate::assert_character(strata, min.len = 1, any.missing = FALSE)
     for (col in strata) {
-       checkmate::assert(
-       checkmate::check_choice(col, choices = names(data))
-       )
+      checkmate::assert(
+        checkmate::check_choice(col, choices = names(data))
+      )
     }
     return(invisible(TRUE))
   }
@@ -655,7 +664,7 @@ check_strata <- function(strata, pathogens, data) {
     checkmate::assert(
       checkmate::check_choice(col, choices = names(data))
     )
-   }
+  }
 
   invisible(TRUE)
 }
