@@ -44,7 +44,7 @@ score_seasonal <- function(signals_pad){
       )
     )
 
-  return(signals_pad %>% select(c(.row_id, score)))
+  return(signals_pad %>% dplyr::select(c(.row_id, score)))
 }
 
 
