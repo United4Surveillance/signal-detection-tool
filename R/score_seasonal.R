@@ -19,7 +19,7 @@ score_seasonal <- function(signals_pad){
 
   # select years that are complete (52, 53 weeks)
   sel_years <- ts_pathogen %>%
-    dplyr::count(pathogen, year) %>%
+    dplyr::count(year) %>%
     dplyr::filter(n >= 52) %>%
     dplyr::pull(year)
 
@@ -35,16 +35,16 @@ score_seasonal <- function(signals_pad){
         levels = 1:12
       )
     ) %>%
-    dplyr::left_join(scores_per_month, by = c("pathogen", "month")) %>%
+    dplyr::left_join(scores_per_month, by = c("month")) %>%
     dplyr::mutate(
-      score.seas = dplyr::case_when(
+      score = dplyr::case_when(
         is.na(.data$alarms) ~ NA,
         !alarms ~ NA,
-        .default = .data$score.seas
+        .default = .data$score
       )
     )
 
-  return(signals_pad)
+  return(signals_pad %>% select(c(.row_id, score)))
 }
 
 
@@ -72,18 +72,18 @@ case_yearly_dist <- function(dat_ts, selected_years){
         levels = 1:12
       )
     ) %>%
-    dplyr::group_by(.data$pathogen, .data$year, .data$month) %>%
+    dplyr::group_by(.data$year, .data$month) %>%
     dplyr::summarise(
       cases = sum(.data$cases),
       .groups = "drop"
     ) %>%
     tidyr::complete(.data$month, fill = list(cases = 0, cases_in_outbreak = 0)) %>%
-    dplyr::group_by(.data$pathogen, .data$year) %>%
+    dplyr::group_by(.data$year) %>%
     dplyr::mutate(cases_perc = .data$cases/sum(.data$cases)) %>%
-    dplyr::group_by(.data$pathogen, .data$month) %>%
+    dplyr::group_by(.data$month) %>%
     dplyr::summarise(
       cases.dist = mean(.data$cases_perc),
-      score.seas = 1 - .data$cases.dist,
+      score = 1 - .data$cases.dist,
       .groups = "drop")
 
   return(cases_dist)

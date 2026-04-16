@@ -2,11 +2,15 @@
 #'
 #' Ensures that a scorer returns a data frame with exactly two columns:
 #' `.row_id` and `score`. Also checks that the output has the correct number
-#' of rows, contains the same row identifiers as the input, and that `score`
-#' is numeric, non-missing, and bounded in the interval `[0, 1]`.
+#' of rows and contains the same row identifiers as the input.
+#'
+#' Scorers must return numeric scores in the interval `[0, 1]` only for rows
+#' where `signal_results$alarms == TRUE`. For all other rows, `score` must be
+#' `NA`.
 #'
 #' @param score_tbl A data frame returned by a scorer function.
-#' @param signal_results The input data frame passed to the scorer, including `.row_id`.
+#' @param signal_results The input data frame passed to the scorer, including
+#'   `.row_id` and `alarms`.
 #' @param scorer_name A character string used for informative error messages.
 #'
 #' @return The scorer output invisibly.
@@ -54,17 +58,44 @@ validate_scorer_output <- function(score_tbl, signal_results, scorer_name = "<un
     )
   }
 
+  if (!"alarms" %in% names(signal_results)) {
+    stop(
+      sprintf(
+        "Scorer '%s': `signal_results` must contain an `alarms` column.",
+        scorer_name
+      ),
+      call. = FALSE
+    )
+  }
+
   if (!is.numeric(score_tbl$score)) {
     stop(sprintf("Scorer '%s': `score` must be numeric.", scorer_name),
          call. = FALSE)
   }
 
-  if (anyNA(score_tbl$score)) {
-    stop(sprintf("Scorer '%s': `score` must not contain missing values.", scorer_name),
-         call. = FALSE)
+  is_alarm <- signal_results$alarms[match(score_tbl$.row_id, signal_results$.row_id)] %in% TRUE
+
+  if (any(!is.na(score_tbl$score[!is_alarm]))) {
+    stop(
+      sprintf(
+        "Scorer '%s': `score` must be `NA` when `alarms` is not TRUE.",
+        scorer_name
+      ),
+      call. = FALSE
+    )
   }
 
-  if (any(score_tbl$score < 0 | score_tbl$score > 1)) {
+  if (anyNA(score_tbl$score[is_alarm])) {
+    stop(
+      sprintf(
+        "Scorer '%s': `score` must not be missing when `alarms` is TRUE.",
+        scorer_name
+      ),
+      call. = FALSE
+    )
+  }
+
+  if (any(score_tbl$score[is_alarm] < 0 | score_tbl$score[is_alarm] > 1)) {
     stop(sprintf("Scorer '%s': `score` must be in the interval [0, 1].", scorer_name),
          call. = FALSE)
   }
@@ -76,6 +107,10 @@ validate_scorer_output <- function(score_tbl, signal_results, scorer_name = "<un
 #'
 #' Aggregates individual scorer outputs into one final score per row.
 #' Supported aggregation methods are `"mean"` and `"sum"`.
+#'
+#' Rows for which all individual scorer outputs are `NA` remain `NA` in the
+#' aggregated result. This is the expected behaviour for rows where
+#' `alarms != TRUE`.
 #'
 #' @param score_df A data frame containing `.row_id` and one or more numeric
 #'   score columns.
@@ -111,25 +146,32 @@ aggregate_scores <- function(score_df, aggregation = c("mean", "sum")) {
 #' scores by `.row_id`, and returns the original input data with one final
 #' aggregated `score` column.
 #'
-#' Each scorer must accept `signal_results` including the `.row_id` column and
-#' must return a tibble or data frame with exactly two columns:
-#' `.row_id` and `score`.
+#' Each scorer must accept `signal_results` including the `.row_id` and
+#' `alarms` columns and must return a tibble or data frame with exactly two
+#' columns: `.row_id` and `score`.
 #'
-#' @param signal_results A data frame or tibble containing the input signals.
+#' Scores must be numeric in `[0, 1]` only for rows where `alarms == TRUE`.
+#' For all other rows, scorers must return `NA`.
+#'
+#' @param signal_results A data frame or tibble containing the input signals,
+#'   including an `alarms` column.
 #' @param scorers A named list of scorer functions.
 #' @param aggregation A character string specifying how individual scores should
 #'   be aggregated. Must be either `"mean"` or `"sum"`.
 #'
 #' @return A tibble containing the original `signal_results` columns plus one
-#'   additional aggregated `score` column.
+#'   additional aggregated `score` column. Rows with `alarms != TRUE` receive
+#'   `NA`.
 #'
 #' @examples
 #' signal_results <- tibble::tibble(
 #'   signal_id = 1:5,
+#'   alarms = c(FALSE, TRUE, TRUE, FALSE, TRUE),
 #'   cases = c(5, 20, 50, 10, 100),
 #'   p_value = c(0.80, 0.30, 0.01, 0.60, 0.05)
 #' )
 #'
+#' set.seed(123)
 #' scorers <- list(
 #'   random = score_randomly
 #' )
@@ -150,6 +192,10 @@ get_scores <- function(signal_results, scorers, aggregation = c("mean", "sum")) 
 
   if (!all(purrr::map_lgl(scorers, is.function))) {
     stop("All elements in `scorers` must be functions.", call. = FALSE)
+  }
+
+  if (!"alarms" %in% names(signal_results)) {
+    stop("`signal_results` must contain an `alarms` column.", call. = FALSE)
   }
 
   if (is.null(names(scorers)) || any(names(scorers) == "")) {
@@ -175,7 +221,8 @@ get_scores <- function(signal_results, scorers, aggregation = c("mean", "sum")) 
     }
   )
 
-  all_scores <- purrr::reduce(score_tables, dplyr::full_join, by = ".row_id")
+  all_scores <- purrr::reduce(score_tables, dplyr::full_join, by = ".row_id") %>%
+    dplyr::arrange(.row_id)
 
   aggregated_score <- aggregate_scores(
     score_df = all_scores,

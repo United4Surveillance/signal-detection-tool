@@ -216,7 +216,7 @@ mod_tabpanel_signals_server <- function(
       results <- results %>%
         get_scores(
           scorers = list(
-            random = score_randomly
+            seasonal = score_seasonal
             ),
           aggregation = "mean"
           )
@@ -226,7 +226,7 @@ mod_tabpanel_signals_server <- function(
           FALSE, alarms, missing = alarms
         )) %>%
           dplyr::mutate(
-            alarms = dplyr::if_else(score >= min_score_signals(), alarms, FALSE, missing = alarms)
+            alarms = dplyr::if_else(score < min_score_signals(), FALSE, alarms, missing = alarms)
           )
     })
 
