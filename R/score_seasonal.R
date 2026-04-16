@@ -58,7 +58,6 @@ score_seasonal <- function(signals_pad){
 #' @returns dataframe with the empirical distribution of cases in the year and its corresponding score
 #' @export
 #'
-#' @examples
 case_yearly_dist <- function(dat_ts, selected_years){
   # per year, group total cases in month, normalize against total cases in year,
   # calculate mean cases across years for every month

@@ -2,21 +2,29 @@
 % Please edit documentation in R/scorer_random.R
 \name{score_randomly}
 \alias{score_randomly}
-\title{Generate a random score}
+\title{Generate random scores for alarm rows}
 \usage{
 score_randomly(signal_results)
 }
 \arguments{
-\item{signal_results}{A data frame or tibble containing `.row_id`.}
+\item{signal_results}{A data frame or tibble containing `.row_id` and
+`alarms`.}
 }
 \value{
 A tibble with columns `.row_id` and `score`.
 }
 \description{
-Returns a random score between 0 and 1 for each row in `signal_results`.
+Returns a random score between 0 and 1 only for rows where
+`signal_results$alarms == TRUE`. For all other rows, `score` is `NA_real_`.
 This function is intended as a minimal example scorer.
 }
 \examples{
-score_randomly(tibble::tibble(.row_id = 1:3))
+signal_results <- tibble::tibble(
+  .row_id = 1:4,
+  alarms = c(TRUE, FALSE, NA, TRUE)
+)
+
+set.seed(123)
+score_randomly(signal_results)
 
 }

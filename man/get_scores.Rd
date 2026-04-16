@@ -7,7 +7,8 @@
 get_scores(signal_results, scorers, aggregation = c("mean", "sum"))
 }
 \arguments{
-\item{signal_results}{A data frame or tibble containing the input signals.}
+\item{signal_results}{A data frame or tibble containing the input signals,
+including an `alarms` column.}
 
 \item{scorers}{A named list of scorer functions.}
 
@@ -16,7 +17,8 @@ be aggregated. Must be either `"mean"` or `"sum"`.}
 }
 \value{
 A tibble containing the original `signal_results` columns plus one
-  additional aggregated `score` column.
+  additional aggregated `score` column. Rows with `alarms != TRUE` receive
+  `NA`.
 }
 \description{
 Adds an internal row identifier, applies multiple scorer functions to the
@@ -25,17 +27,22 @@ scores by `.row_id`, and returns the original input data with one final
 aggregated `score` column.
 }
 \details{
-Each scorer must accept `signal_results` including the `.row_id` column and
-must return a tibble or data frame with exactly two columns:
-`.row_id` and `score`.
+Each scorer must accept `signal_results` including the `.row_id` and
+`alarms` columns and must return a tibble or data frame with exactly two
+columns: `.row_id` and `score`.
+
+Scores must be numeric in `[0, 1]` only for rows where `alarms == TRUE`.
+For all other rows, scorers must return `NA`.
 }
 \examples{
 signal_results <- tibble::tibble(
   signal_id = 1:5,
+  alarms = c(FALSE, TRUE, TRUE, FALSE, TRUE),
   cases = c(5, 20, 50, 10, 100),
   p_value = c(0.80, 0.30, 0.01, 0.60, 0.05)
 )
 
+set.seed(123)
 scorers <- list(
   random = score_randomly
 )
