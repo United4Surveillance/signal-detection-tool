@@ -300,8 +300,6 @@ build_signals_table <- function(signal_results,
     )
   )
 
-  print(colnames(signal_results))
-
   table <- signal_results %>%
     prepare_signals_table(signals_only = signals_only)
 
