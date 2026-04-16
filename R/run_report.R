@@ -297,7 +297,9 @@ run_report <- function(
         number_of_weeks = number_of_weeks
       ) %>%
         get_scores(
-          scorers = list(random = score_randomly),
+          seasonal = score_seasonal,
+          specificity = score_specificity_alarm,
+          #specificity_2 = score_specificity_stronger,
           aggregation = "mean"
         ) %>%
         dplyr::mutate(

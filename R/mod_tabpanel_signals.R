@@ -216,7 +216,9 @@ mod_tabpanel_signals_server <- function(
       results <- results %>%
         get_scores(
           scorers = list(
-            seasonal = score_seasonal
+            seasonal = score_seasonal,
+            specificity = score_specificity_alarm#,
+            #specificity_2 = score_specificity_stronger
             ),
           aggregation = "mean"
           )

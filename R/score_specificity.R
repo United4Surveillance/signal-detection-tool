@@ -12,14 +12,14 @@
 #'
 #' score_specififcity_stronger(signals)
 #' }
-score_specififcity_stronger <- function(signal_results){
+score_specificity_stronger <- function(signal_results){
   signal_scores <- signal_results %>%
     filter(!is.na(expected)) %>%
     group_by(category, year, week) %>%
     mutate(
       num_other_cat = n() - 1,
       num_stronger_cat = sapply(score, function(x) sum(score > x, na.rm = TRUE)),
-      score_specificity_stronger = ifelse(
+      score = ifelse(
         num_other_cat == 0,
         1,
         1 - (num_stronger_cat / num_other_cat)
@@ -27,9 +27,9 @@ score_specififcity_stronger <- function(signal_results){
     ) %>%
     ungroup()
 
-  signal_results <- left_join(signal_results, signal_scores)
+  signal_results <- left_join(signal_results, signal_scores) %>% mutate(score = if_else(alarms, score, NA))
 
-  signal_results %>% dplyr::select(.row_id, score_specificity_alarm)
+  signal_results %>% dplyr::select(.row_id, score)
 }
 
 #' @title Score signals according to specificity of signal within category
@@ -46,7 +46,7 @@ score_specififcity_stronger <- function(signal_results){
 #'
 #' score_specififcity_alarm(signals)
 #' }
-score_specififcity_alarm <- function(signal_results){
+score_specificity_alarm <- function(signal_results){
   signal_scores <- signal_results %>%
     filter(!is.na(expected)) %>%
     # innerhalb category
@@ -59,14 +59,14 @@ score_specififcity_alarm <- function(signal_results){
     mutate(
       num_other_strata_cat = n_strata_cat - 1,
       num_other_alarms_cat = pmax(n_alarms_cat - alarms, 0),
-      score_specificity_alarm = if_else(
+      score = if_else(
         num_other_strata_cat == 0,
         1,
         1 - (num_other_alarms_cat / num_other_strata_cat)
       )
     )
 
-  signal_results <- left_join(signal_results, signal_scores)
+  signal_results <- left_join(signal_results, signal_scores) %>% mutate(score = if_else(alarms, score, NA))
 
-  signal_results %>% dplyr::select(.row_id, score_specificity_alarm)
+  signal_results %>% dplyr::select(.row_id, score)
 }
