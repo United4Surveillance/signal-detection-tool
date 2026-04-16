@@ -215,11 +215,10 @@ mod_tabpanel_signals_server <- function(
       results %>% dplyr::mutate(
         alarms = dplyr::if_else(alarms & cases < min_cases_signals(),
           FALSE, alarms, missing = alarms
-        ) %>%
+        )) %>%
           dplyr::mutate(
             alarms = dplyr::if_else(score >= min_score_signals(), alarms, FALSE, missing = alarms)
           )
-      )
     })
 
     signals_agg <- shiny::reactive({
