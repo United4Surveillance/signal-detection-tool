@@ -212,6 +212,15 @@ mod_tabpanel_signals_server <- function(
         number_of_weeks = number_of_weeks(),
         date_ext = date_ext()
       )
+
+      results <- results %>%
+        get_scores(
+          scorers = list(
+            random = score_randomly
+            ),
+          aggregation = "mean"
+          )
+
       results %>% dplyr::mutate(
         alarms = dplyr::if_else(alarms & cases < min_cases_signals(),
           FALSE, alarms, missing = alarms

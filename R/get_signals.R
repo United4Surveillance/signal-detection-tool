@@ -69,8 +69,7 @@ get_signals_all <- function(preprocessed_data,
     )
     results <- dplyr::bind_rows(results, results_unstratified)
   }
-  results %>%
-    dplyr::mutate(score = runif(dplyr::n(), min=0, max=1))
+  results
 }
 
 

@@ -296,6 +296,10 @@ run_report <- function(
         date_var = "date_report",
         number_of_weeks = number_of_weeks
       ) %>%
+        get_scores(
+          scorers = list(random = score_randomly),
+          aggregation = "mean"
+        ) %>%
         dplyr::mutate(
           pathogen = pat,
           alarms = dplyr::if_else(alarms & cases < min_cases_signals,
