@@ -240,7 +240,7 @@ run_report <- function(
     checkmate::check_integerish(min_cases_signals, lower = 1)
   )
   checkmate::assert(
-    checkmate::check_numeric(min_score_signals, lower = 1, upper = 1)
+    checkmate::check_numeric(min_score_signals, lower = 0, upper = 1)
   )
   checkmate::assert(
     checkmate::check_string(title, null.ok = TRUE)
