@@ -34,7 +34,8 @@ app_server <- function(input, output, session) {
     intervention_date = datinput$intervention_date,
     date_ext = datinput$date_ext,
     pad_signals_choice = datinput$pad_signals_choice,
-    min_cases_signals = datinput$min_cases_signals
+    min_cases_signals = datinput$min_cases_signals,
+    min_score_signals = datinput$min_score_signals
   )
 
   mod_tabpanel_report_server("report",
