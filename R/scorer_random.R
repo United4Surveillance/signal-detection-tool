@@ -1,17 +1,19 @@
-# returns vector of length nrow(signal_results)
-score_randomly_vec <- function(signal_results) {
-  runif(nrow(signal_results), min = 0, max = 1)
-}
-# returns tibble of shape nrow(signal_results),2 with columns .row_id, score
-score_randomly <- function(signal_results){
-  if (!".row_id" %in% colnames(signal_results)) {
-    stop(sprintf(
-      "Die Spalte `.row_id` existiert nicht."
-    ), call. = FALSE)
-  }
-
-  signal_results %>%
-    dplyr::mutate(score = runif(nrow(signal_results), min = 0, max = 1)) %>%
-    dplyr::select(c(.row_id, score))
-
+#' Generate a random score
+#'
+#' Returns a random score between 0 and 1 for each row in `signal_results`.
+#' This function is intended as a minimal example scorer.
+#'
+#' @param signal_results A data frame or tibble containing `.row_id`.
+#'
+#' @return A tibble with columns `.row_id` and `score`.
+#'
+#' @examples
+#' score_randomly(tibble::tibble(.row_id = 1:3))
+#'
+#' @export
+score_randomly <- function(signal_results) {
+  tibble::tibble(
+    .row_id = signal_results$.row_id,
+    score = runif(nrow(signal_results), min = 0, max = 1)
+  )
 }
