@@ -195,12 +195,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     output$filter_min_score_signals <- shiny::renderUI({
       shiny::req(!errors_detected())
-      shiny::numericInput(
+      shiny::sliderInput(
         inputId = ns("min_score_signals"),
         label = NULL,
         value = get_data_config_value("post-processing:min_score_signals", 0),
         min = 0,
         max = 1,
+        ticks = TRUE,
         step = 0.01,
         width = "40%"
       )
