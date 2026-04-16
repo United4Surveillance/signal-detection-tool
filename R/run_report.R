@@ -68,6 +68,11 @@
 #'   number of cases, `alarms` is set to `FALSE` in a post-processing step.
 #'   This is applied only when signals are recomputed inside `run_report()`,
 #'   i.e. when `signals_agg` or `signals_padded` is `NULL`.
+#' @param min_score_signals Integer scalar giving the minimum score an
+#'   alarm must have to remain flagged. For signals below this score,
+#'   `alarms` is set to `FALSE` in a post-processing step.
+#'   This is applied only when signals are recomputed inside `run_report()`,
+#'   i.e. when `signals_agg` or `signals_padded` is `NULL`.
 #' @param title `NULL` or a character scalar specifying the report title. If
 #'   `NULL` or an empty string, a default title of the form
 #'   `"Signal Detection Report - <country>"` is used.
@@ -153,6 +158,7 @@ run_report <- function(
   custom_logo = NULL,
   custom_theme = NULL,
   min_cases_signals = 1,
+  min_score_signals = 0,
   title = NULL
 ) {
   # Currently multi pathogen report is only supported for HTML
@@ -234,6 +240,9 @@ run_report <- function(
     checkmate::check_integerish(min_cases_signals, lower = 1)
   )
   checkmate::assert(
+    checkmate::check_numeric(min_score_signals, lower = 1, upper = 1)
+  )
+  checkmate::assert(
     checkmate::check_string(title, null.ok = TRUE)
   )
 
@@ -291,8 +300,11 @@ run_report <- function(
           pathogen = pat,
           alarms = dplyr::if_else(alarms & cases < min_cases_signals,
             FALSE, alarms, missing = alarms
-          )
-        )
+          )) %>%
+            dplyr::mutate(
+              alarms = dplyr::if_else(score >= min_score_signals(), alarms, FALSE, missing = alarms)
+            )
+
 
       signals_agg_pad <- aggregate_pad_signals(
         signals,
