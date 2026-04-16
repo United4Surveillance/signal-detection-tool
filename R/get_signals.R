@@ -88,7 +88,7 @@ get_signals_all <- function(preprocessed_data,
 #' @param date_start A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.
 #' @param date_end A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
-#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #' @param number_of_time_units integer, specifying number of time units to generate signals for.
 #' @return A tibble containing the results of the signal detection analysis
 #'   stratified by the specified columns.
@@ -145,6 +145,12 @@ get_signals_stratified <- function(data,
 
   checkmate::assert(
     checkmate::check_character(date_var, len = 1, pattern = "date")
+  )
+
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
   )
 
   checkmate::assert(
@@ -316,6 +322,16 @@ get_signals <- function(data,
   checkmate::assert(
     checkmate::check_character(date_var, len = 1, pattern = "date")
   )
+
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
+  )
+
+  # if (grepl("farrington", method, ignore.case = TRUE)) {
+  #   checkmate::assert_choice(time_unit, choices = "weekly")
+  # }
 
   checkmate::assert(
     checkmate::check_integerish(number_of_time_units)
@@ -541,8 +557,7 @@ pad_signals <- function(data,
   } else if (time_unit %in% "biweekly"){
     cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(2*number_of_time_units)
   } else if (time_unit %in% "monthly"){
-    #cutoff_date <- max(data$date_report, na.rm = TRUE) - months(number_of_time_units)
-    cutoff_date <- as.Date(lubridate::add_with_rollback(max(data$date_report, na.rm = TRUE, unit = "month"), -months(number_of_time_units), roll_to_first = TRUE))
+    cutoff_date <- as.Date(lubridate::add_with_rollback(max(data$date_report, na.rm = TRUE), -months(number_of_time_units), roll_to_first = TRUE))
     }
 
   data_no_signals <- data %>%

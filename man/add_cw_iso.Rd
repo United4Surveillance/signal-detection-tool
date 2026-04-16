@@ -21,7 +21,7 @@ add_cw_iso(
 
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 
-\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "week".}
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 }
 \description{
 Uses `date_var`to create a factor column of time units. Factor levels are all

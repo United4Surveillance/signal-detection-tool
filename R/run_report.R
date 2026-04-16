@@ -14,7 +14,7 @@
 #'
 #' @seealso [names(available_algorithms())]
 #' @param number_of_time_units integer, number of weeks for which signals are generated
-#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #' @param pathogens A character vector specifying which pathogens to include in the report.
 #'   If `NULL` (default), all pathogens present in `data`, `signals_padded`, or `signals_agg` are used.
 #'   Multi-pathogen reports are supported only for HTML output.
@@ -130,6 +130,10 @@ run_report <- function(
     choices = c("weekly", "biweekly", "monthly"),
     null.ok = FALSE
   )
+#
+#   if (grepl("farrington", method, ignore.case = TRUE) | grepl("^step harmonic$", method, ignore.case = TRUE)) {
+#     checkmate::assert_choice(time_unit, choices = "weekly")
+#   }
 
   # assert pathogens is NULL (default includes all pathogens) or exist in dataframe or padded signals
   checkmate::assert(

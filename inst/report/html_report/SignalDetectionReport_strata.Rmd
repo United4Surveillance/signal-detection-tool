@@ -8,6 +8,7 @@ params:
   disease: "Pertussis"
   country: "Austria"
   number_of_time_units: 6
+  time_unit: "weekly"
   category: "age_group"
   signals_agg: NULL 
   signals_padded: NULL

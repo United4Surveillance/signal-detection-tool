@@ -1,9 +1,10 @@
-#' Determine Possible Outbreak Detection Methods Based on Available Historic Data
+#' Determine Possible Outbreak Detection Methods Based on Available Historic Data and Selected Time Unit
 #'
 #' This function identifies which algorithms can be applied for outbreak detection
 #' depending on the amount of historic data available for model fitting. The
 #' decision is based on the minimum and maximum dates of the time series and the
-#' number of time units reserved at the end of the series (e.g. for current detection).
+#' number of time units reserved at the end of the series (e.g. for current detection). Furthermore
+#' algorithms using the farrington framework can only be used with weekly aggregated data.
 #'
 #' Historic data is defined as the period from \code{min_date} to
 #' \code{max_date - number_of_time_units}. The number of available time units is computed
@@ -35,7 +36,7 @@
 #'   used for fitting a model.
 #' @param max_date A \code{Date} object, the maximum date in the time series
 #'   used for fitting a model.
-#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #' @param number_of_time_units Integer. Number of time units at the end of the time series
 #'   that are reserved for detection / monitoring and therefore not counted as
 #'   historic data for model fitting. Default is \code{6}.
@@ -74,6 +75,11 @@ get_possible_methods <- function(min_date,
                                  number_of_time_units = 6) {
   checkmate::check_date(min_date)
   checkmate::check_date(max_date)
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
+  )
 
   if (time_unit == "weekly"){
     time_units_test <- lubridate::weeks(number_of_time_units)

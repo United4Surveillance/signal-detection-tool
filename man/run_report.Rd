@@ -34,7 +34,7 @@ You can retrieve the full list using [names(available_algorithms())].}
 
 \item{number_of_time_units}{integer, number of weeks for which signals are generated}
 
-\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "week".}
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 
 \item{pathogens}{A character vector specifying which pathogens to include in the report.
 If `NULL` (default), all pathogens present in `data`, `signals_padded`, or `signals_agg` are used.

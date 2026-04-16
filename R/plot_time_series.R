@@ -163,13 +163,13 @@ plot_time_series <- function(results, interactive = FALSE,
   }
 
   # Periods - ends on the first date in the following week, [start; end)
-  # Dates for the latest ~year (`number_of_time_units` period).
+  # Dates for the latest ~year (for weeks as time_unit) (`number_of_time_units` period).
   if (time_unit %in% "weekly"){
     range_dates_year <- max(results$date) - lubridate::weeks(c(number_of_time_units, 0) - 1)
   } else if (time_unit %in% "biweekly"){
-    range_dates_year <- max(results$date) - lubridate::weeks(c(2*number_of_time_units, 0) - 1)
+    range_dates_year <- max(results$date) - lubridate::weeks(c(2*number_of_time_units, 0) - 2)
   } else if (time_unit %in% "monthly"){
-    range_dates_year <- lubridate::add_with_rollback(max(results$date), -months(c(number_of_time_units, 0)))
+    range_dates_year <- lubridate::add_with_rollback(max(results$date), -months(c(number_of_time_units  - 1, - 1)))
   }
 
   # Static plots should be based only on the latest `number_of_time_units` time units
@@ -182,8 +182,18 @@ plot_time_series <- function(results, interactive = FALSE,
   period_dates_df <- results %>%
     dplyr::group_by(.data$set_status) %>%
     dplyr::summarise(
-      start = min(.data$date),
-      end = max(.data$date) + ifelse(time_unit == "monthly", 0, lubridate::days(7))
+      start = if (time_unit[1] == "monthly") {
+        lubridate::floor_date(min(.data$date), "month")
+      }  else {
+        min(.data$date)
+      },
+      end = if (time_unit[1] == "monthly") {
+        lubridate::ceiling_date(max(.data$date), "month") - 1
+      } else if (time_unit[1] == "biweekly"){
+        max(.data$date) + 13
+      } else {
+        max(.data$date) + 6
+      }
     )
   # number of days in _signal _detection _period
   ndays_sdp <- dplyr::filter(
@@ -197,10 +207,16 @@ plot_time_series <- function(results, interactive = FALSE,
   # Add dummy week to `results` to end the threshold line by a
   #   horizontal segment (geom_step) in the final week if weekly or biweekly data is selected
   results <- results %>%
-    dplyr::filter(date == max(.data$date)) %>% # final week-date
+    dplyr::filter(date == max(.data$date)) %>% # final time_unit-date
     dplyr::mutate(
       cases = NA, alarms = NA,
-      date = .data$date + ifelse(time_unit == "monthly", 0, lubridate::days(7)),
+     end = if (time_unit[1] == "monthly") {
+       lubridate::ceiling_date(.data$date, "month") - 1
+     } else if (time_unit[1] == "biweekly"){
+       .data$date + 13
+     } else {
+       .data$date + 6
+     },
       hover_text = "" # don't show misleading hover at dummy data
     ) %>%
     dplyr::bind_rows(results, .)
@@ -243,13 +259,29 @@ plot_time_series <- function(results, interactive = FALSE,
     "Threshold" = col.threshold
   )
 
-  half_week <- lubridate::days(3)
+  hover_fmt <- switch(
+    time_unit,
+    "weekly"   = "Week: %G-W%V",
+    "biweekly" = "Start period: %Y-%m-%d",
+    "monthly"  = "Month: %Y-%m",
+    "%Y-%m-%d"  # fallback
+  )
+
+  offset_test_period <- switch(
+    time_unit,
+    "weekly"   = 3,
+    "biweekly" = 3,
+    "monthly"  = 14,
+    3  # fallback
+  )
+
+  half_point <- ifelse(time_unit %in% c("weekly", "biweekly"), lubridate::days(3), 0)
 
   if (interactive) {
     # threshold and expected lines extended
     dt <- c(
-      head(results$date[!is.na(results$alarms)], 1) - 3,
-      tail(results$date[!is.na(results$alarms)], 1) + 3
+      head(results$date[!is.na(results$alarms)], 1) - offset_test_period,
+      tail(results$date[!is.na(results$alarms)], 1) + offset_test_period
     )
     th <- c(
       head(results$upperbound[!is.na(results$alarms)], 1),
@@ -296,13 +328,13 @@ plot_time_series <- function(results, interactive = FALSE,
         shapes = list( # Shaded area Test period
           list(
             type = "rect", fillcolor = col.test, opacity = 0.2, line = list(width = 0),
-            x0 = period_dates_df$start[period_dates_df$set_status == "Test data"] - 3,
-            x1 = period_dates_df$end[period_dates_df$set_status == "Test data"] - 3, xref = "x",
+            x0 = period_dates_df$start[period_dates_df$set_status == "Test data"][1] - offset_test_period,
+            x1 = period_dates_df$end[period_dates_df$set_status == "Test data"][1] - offset_test_period, xref = "x",
             y0 = 0, y1 = 1, yref = "paper"
           )
         ),
         hovermode = "x unified",
-        xaxis = list(hoverformat = "Week: %G-W%V")
+        xaxis = list(hoverformat = hover_fmt)
       )
 
     if (padding_upperbound && any(!is.na(results$upperbound_pad))) {
@@ -476,7 +508,16 @@ plot_time_series <- function(results, interactive = FALSE,
         data = period_dates_df, inherit.aes = FALSE,
         ggplot2::aes(
           x = NULL, y = NULL,
-          xmin = start, xmax = end,
+          xmin = start - case_when(
+            time_unit == "monthly" ~ 14,
+            time_unit == "biweekly" ~ 7,
+            TRUE ~ 3
+          ),
+          xmax = end - case_when(
+            time_unit == "monthly" ~ 14,
+            time_unit == "biweekly" ~ 7,
+            TRUE ~ 3
+          ),
           fill = paste0("bg_", set_status)
         ),
         ymin = 0, ymax = ymax_data,
@@ -484,7 +525,7 @@ plot_time_series <- function(results, interactive = FALSE,
       ) +
       ggplot2::geom_col(
         ggplot2::aes(
-          x = date + half_week, # center bars around mid-week
+          x = date + half_point, # center bars around mid of time-unit
           y = cases, fill = set_status
         )
       ) +
@@ -526,15 +567,11 @@ plot_time_series <- function(results, interactive = FALSE,
     plt <- plt +
       ggplot2::geom_point(
         data = dplyr::filter(results, alarms == TRUE),
-        ggplot2::aes(x = date + half_week, y = cases, shape = alarms, stroke = 1),
+        ggplot2::aes(x = date + half_point, y = cases, shape = alarms, stroke = 1),
         color = col.alarm, size = 6
       )
 
     plt <- plt +
-      # ggplot2::scale_x_date(
-      #   date_breaks = "month", date_labels = "%Y-%m-%d",
-      #   expand = c(0, 0)
-      # ) +
       ggplot2::scale_x_date(
         date_breaks = ifelse(
           time_unit == "monthly", "4 months", "month"

@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_possible_methods.R
 \name{get_possible_methods}
 \alias{get_possible_methods}
-\title{Determine Possible Outbreak Detection Methods Based on Available Historic Data}
+\title{Determine Possible Outbreak Detection Methods Based on Available Historic Data and Selected Time Unit}
 \usage{
 get_possible_methods(
   min_date,
@@ -18,7 +18,7 @@ used for fitting a model.}
 \item{max_date}{A \code{Date} object, the maximum date in the time series
 used for fitting a model.}
 
-\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "week".}
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 
 \item{number_of_time_units}{Integer. Number of time units at the end of the time series
 that are reserved for detection / monitoring and therefore not counted as
@@ -32,7 +32,8 @@ A character vector of possible algorithm names. Returns \code{NULL}
 This function identifies which algorithms can be applied for outbreak detection
 depending on the amount of historic data available for model fitting. The
 decision is based on the minimum and maximum dates of the time series and the
-number of time units reserved at the end of the series (e.g. for current detection).
+number of time units reserved at the end of the series (e.g. for current detection). Furthermore
+algorithms using the farrington framework can only be used with weekly aggregated data.
 }
 \details{
 Historic data is defined as the period from \code{min_date} to
