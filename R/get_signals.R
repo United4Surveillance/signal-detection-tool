@@ -69,7 +69,8 @@ get_signals_all <- function(preprocessed_data,
     )
     results <- dplyr::bind_rows(results, results_unstratified)
   }
-  results
+  results %>%
+    dplyr::mutate(score = runif(dplyr::n(), min=0, max=1))
 }
 
 
@@ -467,8 +468,7 @@ aggregate_pad_signals <- function(signal_results,
     pad_signals(preprocessed, signal_results)
   }
 
-  signals_padded <- logic_apply_padding() %>%
-    dplyr::mutate(score = runif(dplyr::n(), min=0, max=1))
+  signals_padded <- logic_apply_padding()
 
   list(
     signals_agg = signals_agg,

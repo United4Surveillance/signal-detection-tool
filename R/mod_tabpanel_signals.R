@@ -47,7 +47,8 @@ mod_tabpanel_signals_server <- function(
   no_algorithm_possible,
   intervention_date,
   pad_signals_choice,
-  min_cases_signals
+  min_cases_signals,
+  min_score_signals
 ) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -214,7 +215,10 @@ mod_tabpanel_signals_server <- function(
       results %>% dplyr::mutate(
         alarms = dplyr::if_else(alarms & cases < min_cases_signals(),
           FALSE, alarms, missing = alarms
-        )
+        ) %>%
+          dplyr::mutate(
+            alarms = dplyr::if_else(score >= min_score_signals(), alarms, FALSE, missing = alarms)
+          )
       )
     })
 
