@@ -104,7 +104,7 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE,
   data <- data %>% dplyr::select(-dplyr::one_of("expected_pad", "upperbound_pad", "first_alarm_nonNA"))
 
   # TODO: Remove if there i an actual scoring function and column for score
-  data <- data %>% mutate(Score = runif(nrow(data)))
+  data <- data %>% dplyr::rename("Score", dplyr::any_of("score"))
 
   # when it is already a factor we do care about NA to unknown before
   if (!is.factor(data$stratum)) {
@@ -302,6 +302,8 @@ build_signals_table <- function(signal_results,
       choices = c("multiple", "single", "none")
     )
   )
+
+  print(colnames(signal_results))
 
   table <- signal_results %>%
     prepare_signals_table(signals_only = signals_only)
