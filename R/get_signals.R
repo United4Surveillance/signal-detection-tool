@@ -467,7 +467,8 @@ aggregate_pad_signals <- function(signal_results,
     pad_signals(preprocessed, signal_results)
   }
 
-  signals_padded <- logic_apply_padding()
+  signals_padded <- logic_apply_padding() %>%
+    dplyr::mutate(score = runif(dplyr::n(), min=0, max=1))
 
   list(
     signals_agg = signals_agg,
