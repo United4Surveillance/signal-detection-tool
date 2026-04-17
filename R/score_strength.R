@@ -1,6 +1,6 @@
 #' @title Score signals according to size strength
 #' @description Scores each signal in the signals_res object using the signal size,
-#' defined by the distance from expected value and upperbound threhold value
+#' defined by the distance from expected value and upperbound threshold value
 #' the score follows the formula (1-size)/size
 #'
 #' @param signals_res

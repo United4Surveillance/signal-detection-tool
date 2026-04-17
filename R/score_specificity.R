@@ -49,7 +49,7 @@ score_specificity_stronger <- function(signal_results){
 score_specificity_alarm <- function(signal_results){
   signal_scores <- signal_results %>%
     filter(!is.na(expected)) %>%
-    # innerhalb category
+    # in category
     group_by(category, year, week) %>%
     mutate(
       n_strata_cat = n(),

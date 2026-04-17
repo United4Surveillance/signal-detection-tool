@@ -298,6 +298,7 @@ run_report <- function(
       ) %>%
         get_scores(
           seasonal = score_seasonal,
+          rarity = score_rarity,
           specificity = score_specificity_alarm,
           #specificity_2 = score_specificity_stronger,
           aggregation = "mean"
