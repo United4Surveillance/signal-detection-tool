@@ -7,14 +7,14 @@
 get_signals(
   data,
   method = "farrington",
-  alpha_upper = 0.05,
   intervention_date = NULL,
   stratification = NULL,
   date_start = NULL,
   date_end = NULL,
   date_ext = NULL,
   date_var = "date_report",
-  number_of_weeks = 6
+  number_of_weeks = 6,
+  alpha_upper = 0.05
 )
 }
 \arguments{
@@ -26,9 +26,6 @@ Available options include:
 `"glm harmonic"`, `"glm harmonic with timetrend"`, `"glm harmonic multi"`,
 `"glm farrington"`, `"glm farrington with timetrend"`.
 You can retrieve the full list using [available_algorithms()].}
-
-\item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05).
-Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile. Ears and cusum do not use the value.}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.}
 
@@ -44,6 +41,10 @@ the analysis. Default is NULL.}
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 
 \item{number_of_weeks}{integer, specifying number of weeks to generate signals for.}
+
+\item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
+and internally set to NULL.
+Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
 }
 \value{
 A tibble containing the results of the signal detection analysis.

@@ -44,11 +44,11 @@ mod_tabpanel_signals_server <- function(
   number_of_weeks_input_valid,
   strat_vars,
   method,
-  alpha_upper,
   no_algorithm_possible,
   intervention_date,
   pad_signals_choice,
-  min_cases_signals
+  min_cases_signals,
+  alpha_upper
 ) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -206,12 +206,12 @@ mod_tabpanel_signals_server <- function(
       results <- get_signals_all(
         preprocessed_data = filtered_data(),
         method = method(),
-        alpha_upper = alpha_upper(),
         intervention_date = intervention_date(),
         stratification = strat_vars_tidy(),
         date_var = "date_report",
         number_of_weeks = number_of_weeks(),
-        date_ext = date_ext()
+        date_ext = date_ext(),
+        alpha_upper = alpha_upper()
       )
       results %>% dplyr::mutate(
         alarms = dplyr::if_else(alarms & cases < min_cases_signals(),

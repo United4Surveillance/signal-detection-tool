@@ -8,7 +8,6 @@ get_signals_stratified(
   data,
   fun,
   model = "",
-  alpha_upper = 0.05,
   intervention_date = NULL,
   time_trend = FALSE,
   stratification_columns,
@@ -16,7 +15,8 @@ get_signals_stratified(
   date_end = NULL,
   date_ext = NULL,
   date_var = "date_report",
-  number_of_weeks = 6
+  number_of_weeks = 6,
+  alpha_upper = 0.05
 )
 }
 \arguments{
@@ -25,9 +25,6 @@ get_signals_stratified(
 \item{fun}{The signal detection function to apply to each stratum.}
 
 \item{model}{character, default empty string which is the choice if farrington, ears or cusum are used and if a glm method was chosen as outbreak detection method then one of c("mean","sincos", "FN")}
-
-\item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value.
-Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.}
 
@@ -45,6 +42,10 @@ stratify the data by.}
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 
 \item{number_of_weeks}{integer, specifying number of weeks to generate signals for.}
+
+\item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
+and internally set to NULL.
+Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
 }
 \value{
 A tibble containing the results of the signal detection analysis

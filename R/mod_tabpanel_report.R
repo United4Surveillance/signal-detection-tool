@@ -38,13 +38,13 @@ mod_tabpanel_report_server <- function(id,
                                        filtered_data,
                                        strat_vars,
                                        pathogen_vars,
-                                       alpha_upper,
                                        errors_detected,
                                        no_algorithm_possible,
                                        number_of_weeks_input_valid,
                                        signals_padded,
                                        signals_agg,
-                                       intervention_date) {
+                                       intervention_date,
+                                       alpha_upper) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -143,7 +143,6 @@ mod_tabpanel_report_server <- function(id,
           method = names(available_algorithms()[which(available_algorithms() == method())]),
           number_of_weeks = number_of_weeks(),
           pathogens = pathogen_vars(),
-          alpha_upper = alpha_upper(),
           strata = strat_vars(),
           tables = tables(),
           output_file = con,
@@ -151,7 +150,8 @@ mod_tabpanel_report_server <- function(id,
           signals_padded = signals_padded() %>% dplyr::mutate(pathogen = pathogen_vars()),
           signals_agg = signals_agg() %>% dplyr::mutate(pathogen = pathogen_vars()),
           intervention_date = intervention_date(),
-          title = input$report_title
+          title = input$report_title,
+          alpha_upper = alpha_upper()
         )
       }
     )

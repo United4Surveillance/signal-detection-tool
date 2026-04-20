@@ -13,8 +13,6 @@
 #'   You can retrieve the full list using [names(available_algorithms())].
 #'
 #' @seealso [names(available_algorithms())]
-#' @param alpha_upper Numeric between 0.001 and 0.2. Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to
-#'   using the 0.95 quantile. `alpha_upper` is only used for methods that require it (currently "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend"), for which a default value of 0.05 is applied.
 #' @param number_of_weeks integer, number of weeks for which signals are generated
 #' @param pathogens A character vector specifying which pathogens to include in the report.
 #'   If `NULL` (default), all pathogens present in `data`, `signals_padded`, or `signals_agg` are used.
@@ -40,6 +38,9 @@
 #' @param custom_theme A bslib::bs_theme() to replace the default United4Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact. Only used when `report_format` is `"HTML"`.
 #' @param min_cases_signals integer, minimum number of cases a signal must have. All signals with case counts smaller than this will be filtered in a post-processing step. This parameter is only applied when precomputed signals_agg and signals_padded are not given. If you want to post-process your precomputed signals you need to do that before generating the report.
 #' @param title NULL or a character string. Specifies the title of the report that is to be created
+#' @param alpha_upper Numeric between 0.001 and 0.2. Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to
+#'   using the 0.95 quantile. `alpha_upper` is only used for methods that require it (currently "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend"), for which a default value of 0.05 is applied.
+#'   Ears and cusum do not use the value; for these, the argument is ignored and internally set to NULL.
 #'
 #' @return the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
 #' @export
@@ -93,7 +94,6 @@ run_report <- function(
     data,
     report_format = "HTML",
     method = "FarringtonFlexible",
-    alpha_upper = 0.05,
     number_of_weeks = 6,
     pathogens = NULL,
     strata = c("county", "age_group"),
@@ -106,7 +106,8 @@ run_report <- function(
     custom_logo = NULL,
     custom_theme = NULL,
     min_cases_signals = 1,
-    title = NULL) {
+    title = NULL,
+    alpha_upper = 0.05) {
 
   # Currently multi pathogen report is only supported for HTML
   if (report_format == "DOCX" & length(unique(data$pathogen)) > 1) {
@@ -128,7 +129,7 @@ run_report <- function(
       checkmate::check_number(alpha_upper, lower = 0.001, upper = 0.2)
     )
   } else {
-    NULL
+    alpha_upper <- NULL
   }
 
   checkmate::assert(
@@ -245,13 +246,13 @@ run_report <- function(
 
       signals <- get_signals_all(preprocessed_data_pat,
         method = method,
-        alpha_upper = alpha_upper,
         intervention_date = intervention_date,
         stratification = strata,
         date_start = NULL,
         date_end = NULL,
         date_var = "date_report",
-        number_of_weeks = number_of_weeks
+        number_of_weeks = number_of_weeks,
+        alpha_upper = alpha_upper
       ) %>%
         dplyr::mutate(pathogen = pat,
                       alarms = dplyr::if_else(alarms & cases < min_cases_signals,
@@ -288,12 +289,12 @@ run_report <- function(
     disease = pathogens,
     number_of_weeks = number_of_weeks,
     method = method,
-    alpha_upper = alpha_upper,
     strata = strata,
     signals_padded = signals_padded,
     signals_agg = signals_agg,
     intervention_date = intervention_date,
-    title = title
+    title = title,
+    alpha_upper = alpha_upper
   )
 
   if (report_format == "DOCX") {

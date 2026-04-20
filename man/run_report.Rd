@@ -8,7 +8,6 @@ run_report(
   data,
   report_format = "HTML",
   method = "FarringtonFlexible",
-  alpha_upper = 0.05,
   number_of_weeks = 6,
   pathogens = NULL,
   strata = c("county", "age_group"),
@@ -21,7 +20,8 @@ run_report(
   custom_logo = NULL,
   custom_theme = NULL,
   min_cases_signals = 1,
-  title = NULL
+  title = NULL,
+  alpha_upper = 0.05
 )
 }
 \arguments{
@@ -31,9 +31,6 @@ run_report(
 
 \item{method}{a character string, signal detection method to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend".
 You can retrieve the full list using [names(available_algorithms())].}
-
-\item{alpha_upper}{Numeric between 0.001 and 0.2. Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to
-using the 0.95 quantile. `alpha_upper` is only used for methods that require it (currently "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend"), for which a default value of 0.05 is applied.}
 
 \item{number_of_weeks}{integer, number of weeks for which signals are generated}
 
@@ -72,6 +69,10 @@ If not `NULL`, the provided `signals_agg` is used directly and signals are not r
 \item{min_cases_signals}{integer, minimum number of cases a signal must have. All signals with case counts smaller than this will be filtered in a post-processing step. This parameter is only applied when precomputed signals_agg and signals_padded are not given. If you want to post-process your precomputed signals you need to do that before generating the report.}
 
 \item{title}{NULL or a character string. Specifies the title of the report that is to be created}
+
+\item{alpha_upper}{Numeric between 0.001 and 0.2. Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to
+using the 0.95 quantile. `alpha_upper` is only used for methods that require it (currently "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend"), for which a default value of 0.05 is applied.
+Ears and cusum do not use the value; for these, the argument is ignored and internally set to NULL.}
 }
 \value{
 the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
