@@ -139,24 +139,24 @@
 #' )
 #' }
 run_report <- function(
-    data,
-    report_format = "HTML",
-    method = "FarringtonFlexible",
-    number_of_weeks = 6,
-    pathogens = NULL,
-    strata = NULL,
-    selected_filter_vars = NULL,
-    tables = TRUE,
-    output_file = NULL,
-    output_dir = ".",
-    signals_padded = NULL,
-    signals_agg = NULL,
-    intervention_date = NULL,
-    custom_logo = NULL,
-    custom_theme = NULL,
-    min_cases_signals = 1,
-    title = NULL) {
-
+  data,
+  report_format = "HTML",
+  method = "FarringtonFlexible",
+  number_of_weeks = 6,
+  pathogens = NULL,
+  strata = NULL,
+  selected_filter_vars = NULL,
+  tables = TRUE,
+  output_file = NULL,
+  output_dir = ".",
+  signals_padded = NULL,
+  signals_agg = NULL,
+  intervention_date = NULL,
+  custom_logo = NULL,
+  custom_theme = NULL,
+  min_cases_signals = 1,
+  title = NULL
+) {
   # Currently multi pathogen report is only supported for HTML
   if ((report_format == "DOCX" & length(unique(data$pathogen)) > 1) | report_format == "DOCX" & is.data.frame(strata)) {
     stop("Currently the Multi-Pathogen Report functionality is only supported for HTML Reports. In case you want to get a Word report, please generate reports seperately for each pathogen by using a dataset containing only one pathogen.")
