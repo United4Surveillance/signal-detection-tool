@@ -11,6 +11,7 @@ params:
   number_of_weeks: 6
   method: "farrington"
   strata: !r c("county_id", "community_id", "sex", "age_group") 
+  selected_filter_vars: NULL
   signals_padded: NULL
   signals_agg: NULL
   intervention_date: NULL
@@ -84,7 +85,7 @@ text_diseases <- ifelse(
 
 ```
 
-This report contains an overview of signals observed for the period `r head(records$yearweek, 1)` to `r tail(records$yearweek, 1)` for `r text_diseases` in `r params$country`. The signals were calculated using the `r params$method` algorithm.
+This report contains an overview of signals observed for the period `r head(records$yearweek, 1)` to `r tail(records$yearweek, 1)` for `r text_diseases` in `r params$country`. The signals were calculated using the `r params$method` algorithm. The following filters were applied in the application: `r paste0(ifelse(length(params$selected_filter_vars) != 0, paste(params$selected_filter_vars, collapse = ", "), "None"))`.
 
 For each disease, an unstratified overview of the observed signals is provided, as well as stratified analyses by relevant characteristics.
 The stratification may differ by disease.

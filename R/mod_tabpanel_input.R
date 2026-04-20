@@ -395,6 +395,32 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       df
     })
 
+    # Extract filter variables
+    selected_filter_vars <- shiny::reactive({
+      vars <- c()
+      n_filters()
+
+      filters <- reactiveValuesToList(all_filters)
+
+      for (filter in names(filters)) {
+        params <- filters[[filter]]
+
+        var <- params$filter_var()
+        val <- params$filter_val()
+
+        if (var == "None" || is.null(val)) next
+
+        if (length(val) > 1) {
+          val_str <- paste0('"', val, '"', collapse = " - ")
+        } else {
+          val_str <- paste0('"', val, '"')
+        }
+
+        vars <- c(vars, paste0(var, ": ", val_str))
+      }
+
+      vars
+    })
 
     output$strat_choices <- shiny::renderUI({
       shiny::req(!errors_detected())
@@ -611,7 +637,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       no_algorithm_possible = shiny::reactive(no_algorithm_possible()),
       intervention_date = shiny::reactive(intervention_date()),
       pad_signals_choice = shiny::reactive(input$pad_signals_choice),
-      min_cases_signals = shiny::reactive(input$min_cases_signals)
+      min_cases_signals = shiny::reactive(input$min_cases_signals),
+      selected_filter_vars = shiny::reactive(selected_filter_vars())
     ))
   })
 }

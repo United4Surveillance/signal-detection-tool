@@ -11,6 +11,7 @@ run_report(
   number_of_weeks = 6,
   pathogens = NULL,
   strata = c("county", "age_group"),
+  selected_filter_vars = NULL,
   tables = TRUE,
   output_file = NULL,
   output_dir = ".",
@@ -38,6 +39,8 @@ If `NULL` (default), all pathogens present in `data`, `signals_padded`, or `sign
 Multi-pathogen reports are supported only for HTML output.}
 
 \item{strata}{A character vector specifying the columns to stratify. If `NULL` no strata are used. If precomputed signals are provided  this argument is ignored and strata are inferred from the provided signals. Defaults to c("county", "age_group") when no precomputed signals were provided.}
+
+\item{selected_filter_vars}{A character vector for printing the variables used for filtering. If `NULL` either no filter is used or the filter is applied outside the app. Custom strings may be included.}
 
 \item{tables}{Logical, default TRUE. True if Signal Detection Tables should be included in report. Only used for DOCX reports, the parameter is ignored for HTML reports.}
 

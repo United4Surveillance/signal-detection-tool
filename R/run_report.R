@@ -32,6 +32,7 @@
 #'   columns must exist in `data`. Pathogen-specific strata are supported only
 #'   for HTML output. When precomputed signals are supplied, `strata` is not
 #'   inferred from them and is still used to control report rendering.
+#' @param selected_filter_vars A character vector for printing the variables used for filtering. If `NULL` either no filter is used or the filter is applied outside the app. Custom strings may be included.
 #' @param tables Logical scalar; if `TRUE`, include signal detection tables in
 #'   the report. Used only for DOCX output and ignored for HTML output.
 #' @param output_file Character scalar specifying the output file name without a
@@ -144,6 +145,7 @@ run_report <- function(
   number_of_weeks = 6,
   pathogens = NULL,
   strata = NULL,
+  selected_filter_vars = NULL,
   tables = TRUE,
   output_file = NULL,
   output_dir = ".",
@@ -326,6 +328,7 @@ run_report <- function(
     disease = pathogens,
     number_of_weeks = number_of_weeks,
     method = method,
+    selected_filter_vars = selected_filter_vars,
     signals_padded = signals_padded,
     signals_agg = signals_agg,
     intervention_date = intervention_date,

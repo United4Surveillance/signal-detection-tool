@@ -18,6 +18,7 @@ if (is.null(params$data)) {
 - Length of signal detection period: `r params$number_of_weeks` weeks
 - Strata selected: `r paste(params$strata, collapse = ", ")`
 - Intervention date: `r params$intervention_date`
+- Filters applied in the application: `r paste0(ifelse(length(params$selected_filter_vars) != 0, paste(params$selected_filter_vars, collapse = ", "), "None"))`
 
 
 ```{r}
