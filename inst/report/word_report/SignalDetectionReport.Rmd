@@ -13,7 +13,8 @@ params:
   number_of_weeks: 6
   method: "farrington"
   alpha_upper: 0.05
-  strata: !r c("county_id", "community_id", "sex", "age_group") 
+  strata: NULL 
+  selected_filter_vars: NULL
   tables: true
   signals_padded: NULL
   signals_agg: NULL

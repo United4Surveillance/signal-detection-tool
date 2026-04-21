@@ -19,6 +19,7 @@ if (is.null(params$data)) {
 - Strata selected: `r paste(params$strata, collapse = ", ")`
 - Intervention date: `r params$intervention_date`
 `r ifelse(grepl("glm|farrington", params$method) && !is.null(params$alpha_upper), paste0("- P-value cutoff: ", params$alpha_upper), paste0(""))`
+- Filters applied in the application: `r paste0(ifelse(length(params$selected_filter_vars) != 0, paste(params$selected_filter_vars, collapse = ", "), "None"))`
 
 
 ```{r}
