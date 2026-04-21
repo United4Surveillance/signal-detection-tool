@@ -34,7 +34,7 @@ Supported values are `"HTML"` and `"DOCX"`.}
 
 \item{method}{Character scalar specifying the signal detection method.
 Must be one of `"FarringtonFlexible"`, `"EARS"`, `"CUSUM"`, `"Mean"`,
-`"Timetrend"`, `"Harmonic"`, `"Harmonic with timetrend"`,
+`"Timetrend"`, `"Harmonic"`, `"Harmonic with timetrend"`, `Multi-seasonal harmonic`,
 `"Step harmonic"`, or `"Step harmonic with timetrend"`.
 Use [names(available_algorithms())] to retrieve the full list.}
 

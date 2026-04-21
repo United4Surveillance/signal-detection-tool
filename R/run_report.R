@@ -14,7 +14,7 @@
 #'   Supported values are `"HTML"` and `"DOCX"`.
 #' @param method Character scalar specifying the signal detection method.
 #'   Must be one of `"FarringtonFlexible"`, `"EARS"`, `"CUSUM"`, `"Mean"`,
-#'   `"Timetrend"`, `"Harmonic"`, `"Harmonic with timetrend"`,
+#'   `"Timetrend"`, `"Harmonic"`, `"Harmonic with timetrend"`, `Multi-seasonal harmonic`,
 #'   `"Step harmonic"`, or `"Step harmonic with timetrend"`.
 #'   Use [names(available_algorithms())] to retrieve the full list.
 #' @param number_of_weeks Integer scalar giving the number of weeks for which
@@ -176,7 +176,7 @@ run_report <- function(
     checkmate::check_choice(method, choices = names(available_algorithms()))
   )
 
-  if (grepl("glm", method) || grepl("farrington", method)) {
+  if (!grepl("cusum", method, ignore.case = TRUE) && !grepl("ears", method, ignore.case = TRUE)) {
     checkmate::assert(
       checkmate::check_number(alpha_upper, lower = 0.001, upper = 0.2)
     )
