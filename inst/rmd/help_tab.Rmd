@@ -112,7 +112,7 @@ This method augments the intercept-only model (as used by “Mean”) with sine 
 
 The same as the Harmonic method but with fitted timetrend to account for the underlying trend in the data.
 
-### Multi-seasonal harmonic
+#### Multi-seasonal harmonic
 
 This method extends the Harmonic method by incorporating two pairs of sine and cosine terms to capture multiple seasonal components. By default, it models one and two cycles per year (annual and semiannual seasonality). A fitted timetrend is included to account for the underlying trend in the data. However, the timetrend is removed and the model is refitted if any predicted value in the test period exceeds twice the maximum observed count in the training period.
 
@@ -129,6 +129,39 @@ The same as the Step harmonic method but with fitted timetrend to account for th
 The "Covid19 Pandemic Correction" feature, accessible via an additional button, applies an interrupted time series analysis to the outbreak detection methods. It is possible to apply the correction to the following algorithms: Mean, Timetrend, Harmonic, Harmonic with timetrend, Step harmonic, Step harmonic with timetrend.  
 In the Mean model, separate means are fitted for the periods before and after the selected intervention date. For models that include a time trend, both the intercept and time trend can differ following the intervention. However, the seasonality components are fitted across the entire time period and are not adjusted based on the intervention date.
 This approach allows you to model changes in case counts, such as a decline due to the pandemic, and to capture a different time trend that may emerge afterward. A critical assumption behind these models is that the current case counts are represented by the model applied after the intervention, meaning it models the case counts which occurred during and following the pandemic.
+
+### Post-processing filter
+
+Post-processing filters are applied after signal detection. They refine which signals are ultimately flagged as alarms.
+
+#### Minimum number of cases per signal 
+Defines the minimum number of cases required for a signal to be considered.  
+Default: `1` (no alarms are excluded).
+
+#### Minimum score accepted for signal inclusion
+Specifies the threshold below which signals are not flagged. The score reflects the priority of a signal.  
+Scores range from `0` (least restrictive) to `1` (most restrictive).  
+Default: `0` (no alarms are excluded).
+
+The overall score is computed as the mean of several component scores, each ranging from 0 to 1:
+
+- **Seasonal score**  
+  Evaluates signals based on the seasonal distribution of cases.  
+  It uses the average monthly proportion of cases and is defined as:  
+  1 - percentage.
+
+- **Rarity score**  
+  Measures how frequently alarms occur within the same stratum and category during the test period.  
+  Lower alarm frequency results in a higher score.
+
+- **Strength score**  
+  Reflects the magnitude of the signal, defined by the distance from the expected value relative to the upper threshold.
+  The score follows the formula:
+  (1-size)/size.
+
+- **Specificity score**  
+  Compares a signal to the fraction of other alarms in the same category and week.  
+  A higher fraction of stronger concurrent signals reduces the score.
 
 ### References
 

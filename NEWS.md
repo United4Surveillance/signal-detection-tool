@@ -10,8 +10,8 @@
 * Rewrite vignette to include visualization functions
 * Export plot_regional(), plot_barchart(), and plot_signals_per_week(); remove plot_agegroup_by()
 * Added option to extend the dataset up to the current day
-
 * Added new multi-seasonal harmonic method with annual and semiannual components and optional timetrend
+* Introduced a post-processing score for alarms to support priority-based filtering
 
 # SignalDetectionTool 0.9.0
 
