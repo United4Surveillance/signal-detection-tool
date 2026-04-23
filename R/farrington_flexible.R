@@ -15,7 +15,7 @@ get_signals_farringtonflexible <- function(data_aggregated,
     checkmate::check_integerish(number_of_time_units)
   )
 
-  sts_cases <- convert_to_sts(data_aggregated)
+  sts_cases <- convert_to_sts(data_aggregated, time_unit = "weekly")
 
   num_time_units_total <- length(sts_cases@observed)
   num_time_units_for_calibration <- num_time_units_total - number_of_time_units

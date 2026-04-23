@@ -1,6 +1,7 @@
 #' Get signals of CUSUM algorithm with reset
 #' @param data_aggregated data.frame, aggregated data with case counts
-#' @param number_of_time_units integer, specifying number of time units to generate signals for. The default is weeks
+#' @param number_of_time_units integer, specifying number of time units to generate signals for.
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #'
 #' @examples
 #' \dontrun{
@@ -11,12 +12,13 @@
 #' results <- get_signals_cusum(data_aggregated)
 #' }
 get_signals_cusum <- function(data_aggregated,
-                              number_of_time_units = 52) {
+                              number_of_time_units = 52,
+                              time_unit = "weekly") {
   checkmate::assert(
     checkmate::check_integerish(number_of_time_units)
   )
 
-  sts_cases <- convert_to_sts(data_aggregated)
+  sts_cases <- convert_to_sts(data_aggregated, time_unit = time_unit)
 
   num_time_units_total <- length(sts_cases@observed)
   num_time_units_for_calibration <- num_time_units_total - number_of_time_units

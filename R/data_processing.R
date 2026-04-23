@@ -104,7 +104,6 @@ preprocess_data <- function(data) {
 #'
 #' @param data data.frame, linelist of cases to be aggregated
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
-#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #' @param date_start A date object or character of format yyyy-mm-dd. Default is NULL which means that missing time units are added until the minimum date of the dataset. This parameter can be used when the dataset should be extended further than the minimum date of the dataset.
 #' @param date_end A date object or character of format yyyy-mm-dd. Default is NULL which means that missing time units are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.
 #' @param group A character specifying another grouping variable. Usually used for stratification.
@@ -115,7 +114,6 @@ preprocess_data <- function(data) {
 #' @export
 aggregate_data <- function(data,
                            date_var = "date_report",
-                           time_unit = "weekly",
                            date_start = NULL,
                            date_end = NULL,
                            group = NULL) {
@@ -132,11 +130,11 @@ aggregate_data <- function(data,
     combine = "or"
   )
 
-  checkmate::assert_choice(
-    time_unit,
-    choices = c("weekly", "biweekly", "monthly"),
-    null.ok = FALSE
-  )
+  time_unit <- unique(data$time_unit_selected)
+
+  if (length(time_unit) != 1) {
+    stop("time_unit is not identifiable")
+  }
 
   if (is.null(group)) {
     data_agg <- data %>%
@@ -264,6 +262,7 @@ filter_by_date <- function(data, date_var = "date_report", date_start = NULL, da
 
 #' Turns aggregated data into surveillance's sts format
 #' @param case_counts case count data frame to be converted
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #'
 #' @examples
 #' \dontrun{
@@ -272,19 +271,18 @@ filter_by_date <- function(data, date_var = "date_report", date_start = NULL, da
 #' data <- preprocess_data(data) %>% aggregate_data()
 #' sts_cases <- convert_to_sts(data)
 #' }
-convert_to_sts <- function(case_counts) {
-if ("month" %in% names(case_counts)) {
-
+convert_to_sts <- function(case_counts, time_unit = "weekly") {
+if (time_unit %in% "monthly") {
   start <- c(case_counts$year[1], case_counts$month[1])
   frequency <- 12
-
-} else if ("week" %in% names(case_counts)) {
-
-  start <- c(case_counts$year[1], case_counts$week[1])
-  frequency <- 52
-
-} else {
-  stop("Neither 'week' nor 'month' column found in case_counts")
+  } else if (time_unit %in% "weekly") {
+    start <- c(case_counts$year[1], case_counts$week[1])
+    frequency <- 52
+  } else if (time_unit %in% "biweekly") {
+    start <- c(case_counts$year[1], case_counts$week[1])
+    frequency <- 26
+    } else {
+  stop("A incorrect time unit is chosen")
 }
 
 surveillance::sts(
@@ -297,7 +295,7 @@ surveillance::sts(
 #' Filter the data so that only the data of the last n weeks are returned
 #' This function can be used to filter for those last n weeks where signals were generated.
 #' @param data_agg data.frame, aggregated surveillance or signals dataset, where aggregated means no linelist but cases or signals per week/month, year
-#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #' @param number_of_time_units integer, specifying the number of weeks from the most recent week we want to filter the data for
 #' @returns data.frame, aggregated data of last n weeks
 filter_data_last_n_time_units <- function(data_agg,
@@ -327,11 +325,19 @@ filter_data_last_n_time_units <- function(data_agg,
 #' Uses `date_var`to create a factor column of time units. Factor levels are all
 #' time units between `date_start` and `date_end`.
 #' @inheritParams aggregate_data
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 add_cw_iso <- function(data,
                        date_start = NULL,
                        date_end = NULL,
                        date_var = "date_report",
                        time_unit = "weekly") {
+
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
+  )
+
   # get min and max date of the whole dataset before stratification
   # stratified aggregated data can be filled up with 0s until min and max date
   # of the full dataset
@@ -342,22 +348,17 @@ add_cw_iso <- function(data,
     date_end <- max(data[[date_var]], na.rm = TRUE)
   }
 
-  # change time_unit name for calculation if necessary
-  time_unit <- ifelse(time_unit=="biweekly", "2 weeks", time_unit)
-  time_unit <- ifelse(time_unit=="weekly", "week", time_unit)
-  time_unit <- ifelse(time_unit=="monthly", "month", time_unit)
-
   # function to get all time units between date_start and date_end
   get_all_cw_iso <- function(date_start, date_end, time_unit) {
 
     all_dates <- seq.Date(from = date_start, to = date_end, by = "day")
 
-    if (time_unit == "week") {
+    if (time_unit == "weekly") {
 
       unique(paste0(
         lubridate::isoyear(all_dates), "-", lubridate::isoweek(all_dates)))
 
-    } else if (time_unit == "2 weeks") {
+    } else if (time_unit == "biweekly") {
 
       iso_year <- lubridate::isoyear(all_dates)
       iso_week <- lubridate::isoweek(all_dates)
@@ -369,7 +370,7 @@ add_cw_iso <- function(data,
         sprintf("%02d", start_week)
       ))
 
-    } else if (time_unit == "month") {
+    } else if (time_unit == "monthly") {
 
       unique(paste0(substr(all_dates,0,7)))
     }
@@ -377,15 +378,16 @@ add_cw_iso <- function(data,
 
   # add cw_iso as factor levels
   all_cw_iso <- get_all_cw_iso(date_start = date_start, date_end = date_end, time_unit = time_unit)
-  if (time_unit == "week"){
+  if (time_unit == "weekly"){
   data <- data %>%
     dplyr::mutate(
       cw_iso = paste0(
         lubridate::isoyear(!!rlang::sym(date_var)), "-",
         lubridate::isoweek(!!rlang::sym(date_var))
       ),
-      cw_iso = factor(cw_iso, levels = all_cw_iso)
-    )} else if (time_unit == "2 weeks"){
+      cw_iso = factor(cw_iso, levels = all_cw_iso),
+      time_unit_selected = time_unit
+    )} else if (time_unit == "biweekly"){
       data <- data %>%
         dplyr::mutate(
           iso_year = lubridate::isoyear(!!rlang::sym(date_var)),
@@ -397,15 +399,17 @@ add_cw_iso <- function(data,
             iso_year, "-",
             sprintf("%02d", start_week)
           ),
-          cw_iso = factor(cw_iso, levels = all_cw_iso)
-        )} else if (time_unit == "month"){
+          cw_iso = factor(cw_iso, levels = all_cw_iso),
+          time_unit_selected = time_unit
+        )} else if (time_unit == "monthly"){
           data <- data %>%
             dplyr::mutate(
               cw_iso = paste0(
                 lubridate::year(!!rlang::sym(date_var)), "-",
                 sprintf("%02d", lubridate::month(!!rlang::sym(date_var)))
               ),
-              cw_iso = factor(cw_iso, levels = all_cw_iso)
+              cw_iso = factor(cw_iso, levels = all_cw_iso),
+              time_unit_selected = time_unit
             )
         }
   data

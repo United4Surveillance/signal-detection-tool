@@ -195,7 +195,7 @@ get_signals_stratified <- function(data,
       # filter the data
       filter_by_date(date_var = date_var, date_start = date_start, date_end = date_end) %>%
       # aggregate data
-      aggregate_data(date_var = date_var, time_unit = time_unit, date_start = date_start, date_end = date_end, group = category)
+      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, group = category)
 
     split_list <- sub_data %>%
       dplyr::group_split(!!rlang::sym(category), .keep = FALSE)
@@ -223,6 +223,8 @@ get_signals_stratified <- function(data,
       } else {
         if (model != "") {
           results <- fun(sub_data_agg, number_of_time_units, model = model, time_trend = time_trend, intervention_date = intervention_date)
+        } else if (identical(fun, get_signals_ears) || identical(fun, get_signals_cusum)){
+          results <- fun(sub_data_agg, number_of_time_units, time_unit = time_unit)
         } else {
           results <- fun(sub_data_agg, number_of_time_units)
         }
@@ -270,7 +272,7 @@ get_signals_stratified <- function(data,
 #' @param date_start A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.
 #' @param date_end A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
-#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #' @param number_of_time_units integer, specifying number of time units to generate signals for.
 #' @return A tibble containing the results of the signal detection analysis.
 #' @export
@@ -381,11 +383,13 @@ get_signals <- function(data,
       # filter the data
       filter_by_date(date_start = date_start, date_end = date_end, date_var = date_var) %>%
       # aggregate and complete the data
-      aggregate_data(date_var = date_var, time_unit = time_unit, date_start = date_start, date_end = date_end)
+      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end)
 
     if (grepl("glm", method)) {
       results <- fun(data_agg, number_of_time_units, model = model, time_trend = time_trend, intervention_date = intervention_date)
-    } else {
+    } else if (grepl("cusum", method, ignore.case = TRUE) || grepl("ears", method, ignore.case = TRUE)) {
+      results <- fun(data_agg, number_of_time_units, time_unit = time_unit)
+    } else{
       results <- fun(data_agg, number_of_time_units)
     }
     if (!is.null(results)) {

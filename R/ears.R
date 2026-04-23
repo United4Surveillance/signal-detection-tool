@@ -2,6 +2,7 @@
 #' @param data_aggregated data.frame, aggregated data with case counts
 #' @param number_of_time_units integer, specifying number of time units to generate signals for. The default is weeks
 #' @param method string indicating which method to use: one of "C1", "C2", "C3"
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #'
 #' @examples
 #' \dontrun{
@@ -13,7 +14,8 @@
 #' }
 get_signals_ears <- function(data_aggregated,
                              number_of_time_units = 52,
-                             method = "C1") {
+                             method = "C1",
+                             time_unit = "weekly") {
   checkmate::assert(
     checkmate::check_integerish(number_of_time_units)
   )
@@ -23,8 +25,8 @@ get_signals_ears <- function(data_aggregated,
   # using default value for baseline
   baseline <- 7
 
-  sts_cases <- convert_to_sts(data_aggregated)
-
+  sts_cases <- convert_to_sts(data_aggregated, time_unit = time_unit)
+  browser()
   num_time_units_total <- length(sts_cases@observed)
   num_time_units_for_calibration <- num_time_units_total - number_of_time_units
 
