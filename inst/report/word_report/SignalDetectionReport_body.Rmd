@@ -18,6 +18,7 @@ if (is.null(params$data)) {
 - Length of signal detection period: `r params$number_of_weeks` weeks
 - Strata selected: `r paste(params$strata, collapse = ", ")`
 - Intervention date: `r params$intervention_date`
+`r ifelse(grepl("glm|farrington", params$method) && !is.null(params$alpha_upper), paste0("- P-value cutoff: ", params$alpha_upper), paste0(""))`
 - Filters applied in the application: `r paste0(ifelse(length(params$selected_filter_vars) != 0, paste(params$selected_filter_vars, collapse = ", "), "None"))`
 
 
@@ -30,6 +31,7 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
   signal_results <- SignalDetectionTool::get_signals(data_preprocessed,
     stratification = NULL,
     method = params$method,
+    alpha_upper = params$alpha_upper,
     number_of_weeks = params$number_of_weeks,
     intervention_date = params$intervention_date
   )
@@ -39,6 +41,7 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
       data_preprocessed,
       stratification = params$strata,
       method = params$method,
+      alpha_upper = params$alpha_upper,
       number_of_weeks = params$number_of_weeks,
       intervention_date = params$intervention_date
     )
