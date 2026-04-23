@@ -14,7 +14,7 @@ filter_data_last_n_time_units(
 \arguments{
 \item{data_agg}{data.frame, aggregated surveillance or signals dataset, where aggregated means no linelist but cases or signals per week/month, year}
 
-\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "week".}
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 
 \item{number_of_time_units}{integer, specifying the number of weeks from the most recent week we want to filter the data for}
 }

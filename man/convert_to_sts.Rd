@@ -4,10 +4,12 @@
 \alias{convert_to_sts}
 \title{Turns aggregated data into surveillance's sts format}
 \usage{
-convert_to_sts(case_counts)
+convert_to_sts(case_counts, time_unit = "weekly")
 }
 \arguments{
 \item{case_counts}{case count data frame to be converted}
+
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 }
 \description{
 Turns aggregated data into surveillance's sts format

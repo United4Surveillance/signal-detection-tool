@@ -26,7 +26,7 @@ get_signals_ears <- function(data_aggregated,
   baseline <- 7
 
   sts_cases <- convert_to_sts(data_aggregated, time_unit = time_unit)
-  browser()
+
   num_time_units_total <- length(sts_cases@observed)
   num_time_units_for_calibration <- num_time_units_total - number_of_time_units
 

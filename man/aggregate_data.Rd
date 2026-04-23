@@ -8,7 +8,6 @@ Additionally number of cases part of a known outbreak is added if the variable o
 aggregate_data(
   data,
   date_var = "date_report",
-  time_unit = "weekly",
   date_start = NULL,
   date_end = NULL,
   group = NULL
@@ -18,8 +17,6 @@ aggregate_data(
 \item{data}{data.frame, linelist of cases to be aggregated}
 
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
-
-\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 
 \item{date_start}{A date object or character of format yyyy-mm-dd. Default is NULL which means that missing time units are added until the minimum date of the dataset. This parameter can be used when the dataset should be extended further than the minimum date of the dataset.}
 
