@@ -414,7 +414,7 @@ get_signals_glm <- function(data_aggregated,
         intervention_date = intervention_date,
         min_timepoints_baseline = min_timepoints_baseline,
         min_timepoints_trend = min_timepoints_trend,
-        past_time_units_not_included =  past_time_units_not_included
+        past_time_units_not_included = past_time_units_not_included
       )
     )
   }
