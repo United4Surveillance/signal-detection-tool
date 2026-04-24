@@ -252,7 +252,7 @@ get_signals_stratified <- function(data,
       } else {
         if (model != "") {
           results <- fun(sub_data_agg, number_of_time_units, model = model, time_trend = time_trend, intervention_date = intervention_date, alpha_upper = alpha_upper)
-        } else if (identical(fun, get_signals_ears) || identical(fun, get_signals_cusum)){
+        } else if (identical(fun, get_signals_ears) || identical(fun, get_signals_cusum)) {
           results <- fun(sub_data_agg, number_of_time_units, time_unit = time_unit)
         } else if (identical(fun, get_signals_farringtonflexible)) {
           results <- fun(sub_data_agg, number_of_time_units, alpha_upper = alpha_upper)
@@ -435,7 +435,7 @@ get_signals <- function(data,
       results <- fun(data_agg, number_of_time_units, model = model, time_trend = time_trend, intervention_date = intervention_date, alpha_upper = alpha_upper)
     } else if (grepl("cusum", method, ignore.case = TRUE) || grepl("ears", method, ignore.case = TRUE)) {
       results <- fun(data_agg, number_of_time_units, time_unit = time_unit)
-    } else{
+    } else {
       results <- fun(data_agg, number_of_time_units, alpha_upper = alpha_upper)
     }
     if (!is.null(results)) {
@@ -610,13 +610,13 @@ pad_signals <- function(data,
   stopifnot(length(method) == 1)
   stopifnot(length(time_unit) == 1)
 
-  if(time_unit %in% "weekly"){
-  cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(number_of_time_units)
-  } else if (time_unit %in% "biweekly"){
-    cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(2*number_of_time_units)
-  } else if (time_unit %in% "monthly"){
+  if (time_unit %in% "weekly") {
+    cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(number_of_time_units)
+  } else if (time_unit %in% "biweekly") {
+    cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(2 * number_of_time_units)
+  } else if (time_unit %in% "monthly") {
     cutoff_date <- as.Date(lubridate::add_with_rollback(max(data$date_report, na.rm = TRUE), -months(number_of_time_units), roll_to_first = TRUE))
-    }
+  }
 
   data_no_signals <- data %>%
     dplyr::filter(date_report <= cutoff_date)
@@ -640,7 +640,7 @@ pad_signals <- function(data,
   }
 
 
-  if (time_unit %in% c("weekly", "biweekly")){
+  if (time_unit %in% c("weekly", "biweekly")) {
     result_padding_unstratified <- signals_timeopt %>%
       dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
 
@@ -665,44 +665,46 @@ pad_signals <- function(data,
         result_padding_stratified,
         result_padding_unstratified
       )
-  }} else if (time_unit %in% "monthly"){
-  result_padding_unstratified <- signals_timeopt %>%
-    dplyr::select(year, month, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
+    }
+  } else if (time_unit %in% "monthly") {
+    result_padding_unstratified <- signals_timeopt %>%
+      dplyr::select(year, month, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
 
-  # preparing dataset with padding
-  if (is.null(stratification)) {
-    result_padding <- result_padding_unstratified
-  } else {
-    result_padding_stratified <- SignalDetectionTool::get_signals(
-      data = data,
-      method = method,
-      date_var = "date_report",
-      stratification = stratification,
-      time_unit = time_unit,
-      number_of_time_units = (max_time_opt + number_of_time_units),
-      alpha_upper = alpha_upper
-    ) %>%
-      dplyr::select(year, month, upperbound_pad = upperbound, expected_pad = expected, category, stratum) %>%
-      dplyr::group_by(category, stratum) %>%
-      dplyr::slice_head(n = -(number_of_time_units - 1)) %>%
-      dplyr::ungroup()
+    # preparing dataset with padding
+    if (is.null(stratification)) {
+      result_padding <- result_padding_unstratified
+    } else {
+      result_padding_stratified <- SignalDetectionTool::get_signals(
+        data = data,
+        method = method,
+        date_var = "date_report",
+        stratification = stratification,
+        time_unit = time_unit,
+        number_of_time_units = (max_time_opt + number_of_time_units),
+        alpha_upper = alpha_upper
+      ) %>%
+        dplyr::select(year, month, upperbound_pad = upperbound, expected_pad = expected, category, stratum) %>%
+        dplyr::group_by(category, stratum) %>%
+        dplyr::slice_head(n = -(number_of_time_units - 1)) %>%
+        dplyr::ungroup()
 
-    result_padding <- dplyr::bind_rows(
-      result_padding_stratified,
-      result_padding_unstratified
-    )
-  }}
+      result_padding <- dplyr::bind_rows(
+        result_padding_stratified,
+        result_padding_unstratified
+      )
+    }
+  }
 
   # preparing dataset within actual signal detection period
-  if (time_unit %in% c("weekly", "biweekly")){
-  results <- signals %>%
-    dplyr::arrange(category, stratum, year, week) %>%
-    dplyr::left_join(x = ., y = result_padding, by = c("category", "stratum", "year", "week"))
-  } else if (time_unit %in% "monthly"){
+  if (time_unit %in% c("weekly", "biweekly")) {
+    results <- signals %>%
+      dplyr::arrange(category, stratum, year, week) %>%
+      dplyr::left_join(x = ., y = result_padding, by = c("category", "stratum", "year", "week"))
+  } else if (time_unit %in% "monthly") {
     results <- signals %>%
       dplyr::arrange(category, stratum, year, month) %>%
       dplyr::left_join(x = ., y = result_padding, by = c("category", "stratum", "year", "month"))
-}
+  }
 
   # adjusting padding that the first upperbound which is calculated in the signals is set to the last upperbound padding such that no jump in the visualisation occurs
   results <- results %>%

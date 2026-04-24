@@ -237,9 +237,9 @@ prepare_signals_table <- function(data,
 
   # Somehow columns are of type double when the should be integers
   # convert for styling later on
-  if ("week" %in% names(data)){
+  if ("week" %in% names(data)) {
     data <- convert_columns_integer(data, c("year", "week", "cases"))
-  } else if ("month" %in% names(data)){
+  } else if ("month" %in% names(data)) {
     data <- convert_columns_integer(data, c("year", "month", "cases"))
   }
 

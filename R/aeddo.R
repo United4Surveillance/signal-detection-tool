@@ -58,18 +58,18 @@ get_signals_aeddo <- function(data_aggregated,
 
   # Append the 'time' and population size, 'n', for the 'aeddo' algorithm
   if ("week" %in% names(data_aggregated)) {
-  data_aggregated <- data_aggregated %>%
-    dplyr::mutate(week = formatC(.data$week, width = 2, flag = 0)) %>%
-    dplyr::mutate(
-      time = ISOweek::ISOweek2date(
-        paste0(.data$year, "-W", .data$week, "-7")
-      ),
-      n = population_size,
-      t = dplyr::row_number(),
-      w = as.integer(.data$week)
-    ) %>%
-    dplyr::rename(y = "cases")
-  } else if ("month" %in% names(data_aggregated)){
+    data_aggregated <- data_aggregated %>%
+      dplyr::mutate(week = formatC(.data$week, width = 2, flag = 0)) %>%
+      dplyr::mutate(
+        time = ISOweek::ISOweek2date(
+          paste0(.data$year, "-W", .data$week, "-7")
+        ),
+        n = population_size,
+        t = dplyr::row_number(),
+        w = as.integer(.data$week)
+      ) %>%
+      dplyr::rename(y = "cases")
+  } else if ("month" %in% names(data_aggregated)) {
     data_aggregated <- data_aggregated %>%
       dplyr::mutate(month = formatC(.data$month, width = 2, flag = 0)) %>%
       dplyr::mutate(

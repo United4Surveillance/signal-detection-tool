@@ -27,77 +27,77 @@ plot_time_series <- function(results, interactive = FALSE,
   padding <- any(padding_expected, padding_upperbound)
 
   # extract time unit used
-  if ("monthly" == results$time_unit %>% head(1)){
+  if ("monthly" == results$time_unit %>% head(1)) {
     time_unit <- "monthly"
-  } else if ("biweekly" == results$time_unit %>% head(1)){
+  } else if ("biweekly" == results$time_unit %>% head(1)) {
     time_unit <- "biweekly"
-  } else{
+  } else {
     time_unit <- "weekly"
   }
 
   # round up and change data types
-  if (time_unit %in% c("weekly", "biweekly")){
-  results <- results %>%
-    dplyr::mutate(
-      dplyr::across(
-        c("year", "week", "cases", "number_of_time_units"),
-        ~ as.integer(.x)
-      ),
-      dplyr::across(
-        dplyr::contains("upperbound"),
-        ~ round(.x, 1)
-      ),
-      dplyr::across(
-        dplyr::contains("expected"),
-        ~ round(.x, 1)
-      )
-    )
-
-  results <- results %>%
-    dplyr::mutate(
-      isoweek = paste0(
-        .data$year, "-W",
-        stringr::str_pad(.data$week, width = 2, pad = "0")
-      ),
-      date = ISOweek::ISOweek2date(paste0(.data$isoweek, "-1")),
-      set_status = dplyr::if_else(is.na(.data$alarms), "Training data", "Test data"),
-      set_status = factor(.data$set_status, levels = c("Training data", "Test data"))
-    )
-
-  if (padding_upperbound) {
+  if (time_unit %in% c("weekly", "biweekly")) {
     results <- results %>%
-      dplyr::mutate(hover_text = paste0(
-        ifelse(.data$set_status == "Test data", "Signal detection period", ""),
-        "<br>Week: ", .data$isoweek,
-        "<br>Observed: ", .data$cases,
-        ifelse(!is.na(.data$upperbound_pad) | !is.na(.data$upperbound), (
-          ifelse(is.na(.data$upperbound_pad),
-                 paste0("<br>Threshold: ", round(.data$upperbound, 1)),
-                 paste0("<br>Threshold: ", round(.data$upperbound_pad, 1))
-          )
-        ), ""),
-        ifelse(!is.na(.data$expected_pad) | !is.na(.data$expected), (
-          ifelse(is.na(.data$expected_pad),
-                 paste0("<br>Expected: ", round(.data$expected, 1)),
-                 paste0("<br>Expected: ", round(.data$expected_pad, 1))
-          )
-        ), "")
-      ))
-  } else {
-    results <- results %>%
-      dplyr::mutate(hover_text = paste0(
-        ifelse(.data$set_status == "Test data", "Signal detection period", ""),
-        "<br>Week: ", .data$isoweek,
-        "<br>Observed: ", .data$cases,
-        ifelse(!is.na(.data$upperbound),
-               paste0("<br>Threshold: ", round(.data$upperbound, 1)), ""
+      dplyr::mutate(
+        dplyr::across(
+          c("year", "week", "cases", "number_of_time_units"),
+          ~ as.integer(.x)
         ),
-        ifelse(!is.na(.data$expected),
-               paste0("<br>Expected: ", round(.data$expected, 1)), ""
+        dplyr::across(
+          dplyr::contains("upperbound"),
+          ~ round(.x, 1)
+        ),
+        dplyr::across(
+          dplyr::contains("expected"),
+          ~ round(.x, 1)
         )
-      ))
-  }
-  } else if (time_unit %in% "monthly"){
+      )
+
+    results <- results %>%
+      dplyr::mutate(
+        isoweek = paste0(
+          .data$year, "-W",
+          stringr::str_pad(.data$week, width = 2, pad = "0")
+        ),
+        date = ISOweek::ISOweek2date(paste0(.data$isoweek, "-1")),
+        set_status = dplyr::if_else(is.na(.data$alarms), "Training data", "Test data"),
+        set_status = factor(.data$set_status, levels = c("Training data", "Test data"))
+      )
+
+    if (padding_upperbound) {
+      results <- results %>%
+        dplyr::mutate(hover_text = paste0(
+          ifelse(.data$set_status == "Test data", "Signal detection period", ""),
+          "<br>Week: ", .data$isoweek,
+          "<br>Observed: ", .data$cases,
+          ifelse(!is.na(.data$upperbound_pad) | !is.na(.data$upperbound), (
+            ifelse(is.na(.data$upperbound_pad),
+              paste0("<br>Threshold: ", round(.data$upperbound, 1)),
+              paste0("<br>Threshold: ", round(.data$upperbound_pad, 1))
+            )
+          ), ""),
+          ifelse(!is.na(.data$expected_pad) | !is.na(.data$expected), (
+            ifelse(is.na(.data$expected_pad),
+              paste0("<br>Expected: ", round(.data$expected, 1)),
+              paste0("<br>Expected: ", round(.data$expected_pad, 1))
+            )
+          ), "")
+        ))
+    } else {
+      results <- results %>%
+        dplyr::mutate(hover_text = paste0(
+          ifelse(.data$set_status == "Test data", "Signal detection period", ""),
+          "<br>Week: ", .data$isoweek,
+          "<br>Observed: ", .data$cases,
+          ifelse(!is.na(.data$upperbound),
+            paste0("<br>Threshold: ", round(.data$upperbound, 1)), ""
+          ),
+          ifelse(!is.na(.data$expected),
+            paste0("<br>Expected: ", round(.data$expected, 1)), ""
+          )
+        ))
+    }
+  } else if (time_unit %in% "monthly") {
     results <- results %>%
       dplyr::mutate(
         dplyr::across(
@@ -135,14 +135,14 @@ plot_time_series <- function(results, interactive = FALSE,
           "<br>Observed: ", .data$cases,
           ifelse(!is.na(.data$upperbound_pad) | !is.na(.data$upperbound), (
             ifelse(is.na(.data$upperbound_pad),
-                   paste0("<br>Threshold: ", round(.data$upperbound, 1)),
-                   paste0("<br>Threshold: ", round(.data$upperbound_pad, 1))
+              paste0("<br>Threshold: ", round(.data$upperbound, 1)),
+              paste0("<br>Threshold: ", round(.data$upperbound_pad, 1))
             )
           ), ""),
           ifelse(!is.na(.data$expected_pad) | !is.na(.data$expected), (
             ifelse(is.na(.data$expected_pad),
-                   paste0("<br>Expected: ", round(.data$expected, 1)),
-                   paste0("<br>Expected: ", round(.data$expected_pad, 1))
+              paste0("<br>Expected: ", round(.data$expected, 1)),
+              paste0("<br>Expected: ", round(.data$expected_pad, 1))
             )
           ), "")
         ))
@@ -153,10 +153,10 @@ plot_time_series <- function(results, interactive = FALSE,
           "<br>Month: ", .data$month,
           "<br>Observed: ", .data$cases,
           ifelse(!is.na(.data$upperbound),
-                 paste0("<br>Threshold: ", round(.data$upperbound, 1)), ""
+            paste0("<br>Threshold: ", round(.data$upperbound, 1)), ""
           ),
           ifelse(!is.na(.data$expected),
-                 paste0("<br>Expected: ", round(.data$expected, 1)), ""
+            paste0("<br>Expected: ", round(.data$expected, 1)), ""
           )
         ))
     }
@@ -164,12 +164,12 @@ plot_time_series <- function(results, interactive = FALSE,
 
   # Periods - ends on the first date in the following week, [start; end)
   # Dates for the latest ~year (for weeks as time_unit) (`number_of_time_units` period).
-  if (time_unit %in% "weekly"){
+  if (time_unit %in% "weekly") {
     range_dates_year <- max(results$date) - lubridate::weeks(c(number_of_time_units, 0) - 1)
-  } else if (time_unit %in% "biweekly"){
-    range_dates_year <- max(results$date) - lubridate::weeks(c(2*number_of_time_units, 0) - 2)
-  } else if (time_unit %in% "monthly"){
-    range_dates_year <- lubridate::add_with_rollback(max(results$date), -months(c(number_of_time_units  - 1, - 1)))
+  } else if (time_unit %in% "biweekly") {
+    range_dates_year <- max(results$date) - lubridate::weeks(c(2 * number_of_time_units, 0) - 2)
+  } else if (time_unit %in% "monthly") {
+    range_dates_year <- lubridate::add_with_rollback(max(results$date), -months(c(number_of_time_units - 1, -1)))
   }
 
   # Static plots should be based only on the latest `number_of_time_units` time units
@@ -184,12 +184,12 @@ plot_time_series <- function(results, interactive = FALSE,
     dplyr::summarise(
       start = if (time_unit[1] == "monthly") {
         lubridate::floor_date(min(.data$date), "month")
-      }  else {
+      } else {
         min(.data$date)
       },
       end = if (time_unit[1] == "monthly") {
         lubridate::ceiling_date(max(.data$date), "month") - 1
-      } else if (time_unit[1] == "biweekly"){
+      } else if (time_unit[1] == "biweekly") {
         max(.data$date) + 13
       } else {
         max(.data$date) + 6
@@ -210,13 +210,13 @@ plot_time_series <- function(results, interactive = FALSE,
     dplyr::filter(date == max(.data$date)) %>% # final time_unit-date
     dplyr::mutate(
       cases = NA, alarms = NA,
-     end = if (time_unit[1] == "monthly") {
-       lubridate::ceiling_date(.data$date, "month") - 1
-     } else if (time_unit[1] == "biweekly"){
-       .data$date + 13
-     } else {
-       .data$date + 6
-     },
+      end = if (time_unit[1] == "monthly") {
+        lubridate::ceiling_date(.data$date, "month") - 1
+      } else if (time_unit[1] == "biweekly") {
+        .data$date + 13
+      } else {
+        .data$date + 6
+      },
       hover_text = "" # don't show misleading hover at dummy data
     ) %>%
     dplyr::bind_rows(results, .)
@@ -259,20 +259,18 @@ plot_time_series <- function(results, interactive = FALSE,
     "Threshold" = col.threshold
   )
 
-  hover_fmt <- switch(
-    time_unit,
+  hover_fmt <- switch(time_unit,
     "weekly"   = "Week: %G-W%V",
     "biweekly" = "Start period: %Y-%m-%d",
     "monthly"  = "Month: %Y-%m",
-    "%Y-%m-%d"  # fallback
+    "%Y-%m-%d" # fallback
   )
 
-  offset_test_period <- switch(
-    time_unit,
+  offset_test_period <- switch(time_unit,
     "weekly"   = 3,
     "biweekly" = 3,
     "monthly"  = 14,
-    3  # fallback
+    3 # fallback
   )
 
   half_point <- ifelse(time_unit %in% c("weekly", "biweekly"), lubridate::days(3), 0)
@@ -577,7 +575,7 @@ plot_time_series <- function(results, interactive = FALSE,
           time_unit == "monthly", "4 months", "month"
         ),
         date_labels = ifelse(
-          time_unit == "monthly", "%Y-%m","%Y-%m-%d"
+          time_unit == "monthly", "%Y-%m", "%Y-%m-%d"
         ),
         expand = c(0, 0)
       ) +

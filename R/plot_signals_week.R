@@ -33,18 +33,18 @@ plot_signals_per_time_unit <- function(results, n_strata, interactive = FALSE, b
   results <- results %>% dplyr::filter(!is.na(.data$alarms))
 
   # add date
-  if ("week" %in% names(results)){
-  results <- results %>%
-    dplyr::mutate(
-      year_time_unit = sprintf("%d-W%02d", .data$year, .data$week),
-      date = ISOweek::ISOweek2date(paste0(.data$year_time_unit, "-1"))
-    )
-  } else if ("month" %in% names(results)){
-  results <- results %>%
-    dplyr::mutate(
-      year_time_unit = sprintf("%d-%02d", .data$year, .data$month),
-      date = as.Date(paste0(.data$year_time_unit, "-01"))
-    )
+  if ("week" %in% names(results)) {
+    results <- results %>%
+      dplyr::mutate(
+        year_time_unit = sprintf("%d-W%02d", .data$year, .data$week),
+        date = ISOweek::ISOweek2date(paste0(.data$year_time_unit, "-1"))
+      )
+  } else if ("month" %in% names(results)) {
+    results <- results %>%
+      dplyr::mutate(
+        year_time_unit = sprintf("%d-%02d", .data$year, .data$month),
+        date = as.Date(paste0(.data$year_time_unit, "-01"))
+      )
   }
 
   # count strata with signals for each time unit

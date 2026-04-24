@@ -231,13 +231,13 @@ mod_tabpanel_signals_server <- function(
       shiny::req(signal_results())
       shiny::req(time_unit())
 
-      if (time_unit() %in% c("weekly", "biweekly")){
-      signal_results() %>%
-        dplyr::mutate(date_week = as.Date(paste0(year, "-", week, "-1"), "%Y-%W-%u")) %>%
-        dplyr::distinct(date_week, .keep_all = T) %>%
-        dplyr::arrange(desc(date_week)) %>%
-        head(number_of_time_units())
-      } else if (time_unit() %in% "monthly"){
+      if (time_unit() %in% c("weekly", "biweekly")) {
+        signal_results() %>%
+          dplyr::mutate(date_week = as.Date(paste0(year, "-", week, "-1"), "%Y-%W-%u")) %>%
+          dplyr::distinct(date_week, .keep_all = T) %>%
+          dplyr::arrange(desc(date_week)) %>%
+          head(number_of_time_units())
+      } else if (time_unit() %in% "monthly") {
         signal_results() %>%
           dplyr::mutate(date_month = as.Date(paste0(year, "-", month, "-1"), "%Y-%m-%d")) %>%
           dplyr::distinct(date_month, .keep_all = T) %>%
@@ -250,17 +250,17 @@ mod_tabpanel_signals_server <- function(
       shiny::req(signal_results())
       shiny::req(time_unit())
 
-      if (time_unit() %in% c("weekly", "biweekly")){
-      signal_results() %>%
-        dplyr::filter(is.na(category)) %>%
-        dplyr::arrange(year, week) %>%
-        dplyr::slice_tail(n = number_of_time_units())
-      } else if (time_unit() %in% "monthly"){
+      if (time_unit() %in% c("weekly", "biweekly")) {
+        signal_results() %>%
+          dplyr::filter(is.na(category)) %>%
+          dplyr::arrange(year, week) %>%
+          dplyr::slice_tail(n = number_of_time_units())
+      } else if (time_unit() %in% "monthly") {
         signal_results() %>%
           dplyr::filter(is.na(category)) %>%
           dplyr::arrange(year, month) %>%
           dplyr::slice_tail(n = number_of_time_units())
-        }
+      }
     })
 
     alarms_trig <- shiny::reactive({
@@ -366,20 +366,21 @@ mod_tabpanel_signals_server <- function(
       shiny::req(signal_time_units())
       shiny::req(time_unit())
 
-      if (time_unit() %in% c("weekly", "biweekly")){
-      if (signal_time_units()$year[1] != signal_time_units()$year[number_of_time_units()]) {
-        signal_period <- paste0(format(signal_time_units()$date_week[number_of_time_units()], "W%W-%Y"), " - ", format(signal_time_units()$date_week[1], "W%W-%Y"))
-      } else {
-        signal_period <- paste0("W", signal_time_units()$week[number_of_time_units()], "-", signal_time_units()$week[1], " ", signal_time_units()$year[1])
-      }
-      } else if (time_unit() %in% "monthly"){
-      if (signal_time_units()$year[1] != signal_time_units()$year[number_of_time_units()]) {
+      if (time_unit() %in% c("weekly", "biweekly")) {
+        if (signal_time_units()$year[1] != signal_time_units()$year[number_of_time_units()]) {
+          signal_period <- paste0(format(signal_time_units()$date_week[number_of_time_units()], "W%W-%Y"), " - ", format(signal_time_units()$date_week[1], "W%W-%Y"))
+        } else {
+          signal_period <- paste0("W", signal_time_units()$week[number_of_time_units()], "-", signal_time_units()$week[1], " ", signal_time_units()$year[1])
+        }
+      } else if (time_unit() %in% "monthly") {
+        if (signal_time_units()$year[1] != signal_time_units()$year[number_of_time_units()]) {
           signal_period <- paste0(format(signal_time_units()$date_month[number_of_time_units()], "%m-%Y"), " - ", format(signal_time_units()$date_month[1], "%m-%Y"))
         } else {
           signal_period <- paste0(
             format(signal_time_units()$date_month[number_of_time_units()], "%m"), "-",
             format(signal_time_units()$date_month[1], "%m"), " ",
-            signal_time_units()$year[1])
+            signal_time_units()$year[1]
+          )
         }
       }
 
