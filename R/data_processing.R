@@ -139,18 +139,18 @@ aggregate_data <- function(data,
     combine = "or"
   )
 
-  if (!is.null(date_ext)) {
-    if (is.null(date_start)) { # TODO check when is this really NULL
-      date_start <- min(data[[date_var]], na.rm = TRUE)
-    }
-    extended_data_range <- get_all_cw_iso(date_start = date_start, date_end = date_ext)
-    data$cw_iso <- factor(data$cw_iso, levels = extended_data_range)
-  }
-
   time_unit <- unique(data$time_unit_selected)
 
   if (length(time_unit) != 1) {
     stop("time_unit is not identifiable")
+  }
+
+  if (!is.null(date_ext)) {
+    if (is.null(date_start)) { # TODO check when is this really NULL
+      date_start <- min(data[[date_var]], na.rm = TRUE)
+    }
+    extended_data_range <- get_all_cw_iso(date_start = date_start, date_end = date_ext, time_unit = time_unit)
+    data$cw_iso <- factor(data$cw_iso, levels = extended_data_range)
   }
 
   if (is.null(group)) {
@@ -435,8 +435,51 @@ add_cw_iso <- function(data,
 
 #' function to get all iso weeks between `date_start` and `date_end`
 #' @param date_start date object, starting date of sequence
-#' @param date_end date object, endind date of sequence
-get_all_cw_iso <- function(date_start, date_end) {
-  all_weeks_as_dates <- c(seq.Date(from = date_start, to = date_end, by = "week"), date_end)
-  unique(paste0(lubridate::isoyear(all_weeks_as_dates), "-", lubridate::isoweek(all_weeks_as_dates)))
+#' @param date_end date object, ending date of sequence
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
+
+# get_all_cw_iso <- function(date_start, date_end) {
+#   all_weeks_as_dates <- c(seq.Date(from = date_start, to = date_end, by = "week"), date_end)
+#   unique(paste0(lubridate::isoyear(all_weeks_as_dates), "-", lubridate::isoweek(all_weeks_as_dates)))
+# }
+get_all_cw_iso <- function(date_start, date_end, time_unit = "weekly") {
+
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
+  )
+
+  if (time_unit == "weekly") {
+
+    all_weeks_as_dates <- c(
+      seq.Date(from = date_start, to = date_end, by = "week"),
+      date_end
+    )
+
+    unique(paste0(
+      lubridate::isoyear(all_weeks_as_dates), "-", lubridate::isoweek(all_weeks_as_dates))
+    )
+
+  } else {
+    all_dates <- seq.Date(from = date_start, to = date_end, by = "day")
+
+    if (time_unit == "biweekly") {
+
+      iso_year <- lubridate::isoyear(all_dates)
+      iso_week <- lubridate::isoweek(all_dates)
+
+      start_week <- iso_week - ((iso_week - 1) %% 2)
+
+      unique(paste0(
+        iso_year, "-",
+        sprintf("%02d", start_week)
+      ))
+
+    } else if (time_unit == "monthly") {
+
+      unique(paste0(substr(all_dates,0,7)))
+
+    }
+  }
 }

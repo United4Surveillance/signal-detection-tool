@@ -4,12 +4,14 @@
 \alias{get_all_cw_iso}
 \title{function to get all iso weeks between `date_start` and `date_end`}
 \usage{
-get_all_cw_iso(date_start, date_end)
+get_all_cw_iso(date_start, date_end, time_unit = "weekly")
 }
 \arguments{
 \item{date_start}{date object, starting date of sequence}
 
-\item{date_end}{date object, endind date of sequence}
+\item{date_end}{date object, ending date of sequence}
+
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 }
 \description{
 function to get all iso weeks between `date_start` and `date_end`

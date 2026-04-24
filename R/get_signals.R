@@ -244,7 +244,7 @@ get_signals_stratified <- function(data,
           # set alarms to FALSE for the timeperiod signals are generated for in the other present levels
           # logically the alarms column should also contain NA but later on computations are based on when the first alarm appears and when giving 0 timeseries to the algorithms they also put FALSE to the alarms column thus it is consistent
           # upperbound and expected to NA
-          dplyr::mutate(alarms = dplyr::if_else(dplyr::row_number() > (nrow(.) - number_of_time_units + 1), FALSE, NA)) %>%
+          dplyr::mutate(alarms = dplyr::if_else(dplyr::row_number() >= (nrow(.) - number_of_time_units + 1), FALSE, NA)) %>%
           dplyr::mutate(
             upperbound = NA,
             expected = NA
@@ -482,11 +482,11 @@ get_signals <- function(data,
 #' time series with historical expected values and thresholds prior to the signal
 #' generation window. This is primarily used for report generation and visualization.
 #'
-#' @param signal_results A tibble returned by [get_signals()], containing weekly
+#' @param signal_results A tibble returned by [get_signals()], containing weekly, biweekly or monthly
 #'   signal detection results (cases, alarms, upperbound, expected, etc.).
 #' @param preprocessed A data frame containing the surveillance data preprocessed with [preprocess_data()].
 #' @param number_of_time_units Integer specifying how many time units to include in the aggregation.
-#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #' @param method A character string specifying the method used to generate the signals.
 #'   Determines whether padding is necessary. For `"glm"` methods, padding is skipped
 #'   as it is assumed to be already included.
@@ -508,7 +508,7 @@ get_signals <- function(data,
 #' @examples
 #' \dontrun{
 #' results <- get_signals(preprocessed_data, method = "farrington")
-#' output <- aggregate_pad_signals(results, number_of_time_units = 6, time_unit == "weekly", method = "farrington")
+#' output <- aggregate_pad_signals(results, number_of_time_units = 6, time_unit = "weekly", method = "farrington")
 #' output$signals_agg
 #' output$signals_padded
 #' }

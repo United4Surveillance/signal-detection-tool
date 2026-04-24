@@ -27,7 +27,7 @@ get_signals_glm(
 
 \item{time_trend}{boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.}
 
-\item{return_full_model}{boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_weeks should be returned and attached to data_aggregated as well.}
+\item{return_full_model}{boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_time_units should be returned and attached to data_aggregated as well.}
 
 \item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05).
 Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}

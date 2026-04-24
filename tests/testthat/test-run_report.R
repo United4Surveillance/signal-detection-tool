@@ -80,7 +80,8 @@ test_that("run_report() works with pre-computed signals_agg and signals_pad", {
     signal_results,
     preprocessed,
     number_of_time_units = 6,
-    method = "ears"
+    method = "ears",
+    time_unit = "weekly"
   )
 
   run_report(
@@ -175,7 +176,8 @@ test_that("run_report() works with multiple pathogens using precomputed signals_
       signals,
       preprocessed_data_pat,
       number_of_time_units = 6,
-      method = "ears"
+      method = "ears",
+      time_unit = "weekly"
     )
 
     signals_agg_list[[pat]] <- signals_agg_pad$signals_agg %>% dplyr::mutate(pathogen = pat)

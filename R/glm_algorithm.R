@@ -238,7 +238,7 @@ create_formula <- function(model_data) {
 #' @param number_of_time_units integer, specifying number of time units to generate signals for.
 #' @param model character, default "mean" one of c("mean", "sincos", "sincos_multiS", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.
 #' @param time_trend boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.
-#' @param return_full_model boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_weeks should be returned and attached to data_aggregated as well.
+#' @param return_full_model boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_time_units should be returned and attached to data_aggregated as well.
 #' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05).
 #'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done, i.e. no additional intercept and possibly new time trend is fitted. When a date is given a new intercept and possibly time_trend (if time_trend == TRUE) is fitted.
@@ -401,12 +401,12 @@ get_signals_glm <- function(data_aggregated,
 
   if (model == "sincos_multiS" &&
     time_trend == TRUE &&
-    max(data_aggregated$expected[(nrow(data_aggregated) - number_of_weeks + 1):nrow(data_aggregated)], na.rm = TRUE) > 2 * max(data_aggregated$cases[1:(nrow(data_aggregated) - number_of_weeks)], na.rm = TRUE)
+    max(data_aggregated$expected[(nrow(data_aggregated) - number_of_time_units + 1):nrow(data_aggregated)], na.rm = TRUE) > 2 * max(data_aggregated$cases[1:(nrow(data_aggregated) - number_of_time_units)], na.rm = TRUE)
   ) {
     return(
       get_signals_glm(
         data_aggregated = data_aggregated,
-        number_of_weeks = number_of_weeks,
+        number_of_time_units = number_of_time_units,
         model = model,
         time_trend = FALSE,
         return_full_model = return_full_model,
