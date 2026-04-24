@@ -22,7 +22,7 @@ data.frame or DataTable or Flextable depending on `format`
 }
 \description{
 Prepares and formats the aggregated signal results table for one category and orders the strata by the factor levels.
-This function combines the preparation of the aggregated signals data.frame with the final formatting of the table by applying \link{prepare_signals_agg_table} and \link{format_table}.
+This function combines the preparation of the aggregated signals data.frame with the final formating of the table by applying \link{prepare_signals_agg_table} and \link{format_table}.
 }
 \examples{
 \dontrun{

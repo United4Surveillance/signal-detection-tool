@@ -19,9 +19,9 @@ aggregate_data(
 
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 
-\item{date_start}{A date object or character of format yyyy-mm-dd. Default is NULL which means that missing time units are added until the minimum date of the dataset. This parameter can be used when the dataset should be extended further than the minimum date of the dataset.}
+\item{date_start}{A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the minimum date of the dataset. This parameter can be used when the dataset should be extended further than the minimum date of the dataset.}
 
-\item{date_end}{A date object or character of format yyyy-mm-dd. Default is NULL which means that missing time units are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.}
+\item{date_end}{A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.}
 
 \item{date_ext}{A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL}
 
