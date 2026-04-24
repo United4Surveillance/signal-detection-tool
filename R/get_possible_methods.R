@@ -82,11 +82,11 @@ get_possible_methods <- function(min_date,
     null.ok = FALSE
   )
 
-  if (time_unit == "weekly"){
+  if (time_unit == "weekly") {
     time_units_test <- lubridate::weeks(number_of_time_units)
-  } else if (time_unit == "biweekly"){
-    time_units_test <- lubridate::weeks(number_of_time_units)*2
-  } else if (time_unit == "monthly"){
+  } else if (time_unit == "biweekly") {
+    time_units_test <- lubridate::weeks(number_of_time_units) * 2
+  } else if (time_unit == "monthly") {
     time_units_test <- months(number_of_time_units)
   }
 
@@ -97,9 +97,9 @@ get_possible_methods <- function(min_date,
 
   number_of_time_units_available_fitting <- ceiling(as.numeric(difftime(max_date_fit, min_date - lubridate::days(1), units = "weeks")))
 
-  if (time_unit == "biweeekly"){
-    number_of_time_units_available_fitting <- ceiling(number_of_time_units_available_fitting/2)
-  } else if (time_unit == "monthly"){
+  if (time_unit == "biweeekly") {
+    number_of_time_units_available_fitting <- ceiling(number_of_time_units_available_fitting / 2)
+  } else if (time_unit == "monthly") {
     number_of_time_units_available_fitting <- seq.Date(
       from = lubridate::floor_date(min_date, "month"),
       to   = lubridate::add_with_rollback(max_date, -time_units_test),
@@ -134,7 +134,7 @@ get_possible_methods <- function(min_date,
   }
 
   # restrict FarringtonFlexible usage to weekly aggregation level
-  if (time_unit != "weekly"){
+  if (time_unit != "weekly") {
     methods_possible <- methods_possible[!grepl("farrington", methods_possible, ignore.case = TRUE)]
   }
 

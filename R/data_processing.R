@@ -192,24 +192,24 @@ aggregate_data <- function(data,
       dplyr::mutate(cases_in_outbreak = dplyr::if_else(is.na(cases_in_outbreak), 0, cases_in_outbreak))
   }
 
-  if (time_unit %in% c("weekly", "biweekly")){
-  data_agg %>%
-    tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "week")) %>%
-    dplyr::mutate(
-      year = as.numeric(year),
-      week = as.numeric(week)
-    ) %>%
-    dplyr::arrange(year, week) %>%
-    as.data.frame()
-  } else if (time_unit %in% c("monthly")){
-      data_agg %>%
-        tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "month")) %>%
-        dplyr::mutate(
-          year = as.numeric(year),
-          month = as.numeric(month)
-        ) %>%
-        dplyr::arrange(year, month) %>%
-        as.data.frame()
+  if (time_unit %in% c("weekly", "biweekly")) {
+    data_agg %>%
+      tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "week")) %>%
+      dplyr::mutate(
+        year = as.numeric(year),
+        week = as.numeric(week)
+      ) %>%
+      dplyr::arrange(year, week) %>%
+      as.data.frame()
+  } else if (time_unit %in% c("monthly")) {
+    data_agg %>%
+      tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "month")) %>%
+      dplyr::mutate(
+        year = as.numeric(year),
+        month = as.numeric(month)
+      ) %>%
+      dplyr::arrange(year, month) %>%
+      as.data.frame()
   }
 }
 
@@ -289,24 +289,24 @@ filter_by_date <- function(data, date_var = "date_report", date_start = NULL, da
 #' sts_cases <- convert_to_sts(data)
 #' }
 convert_to_sts <- function(case_counts, time_unit = "weekly") {
-if (time_unit %in% "monthly") {
-  start <- c(case_counts$year[1], case_counts$month[1])
-  frequency <- 12
+  if (time_unit %in% "monthly") {
+    start <- c(case_counts$year[1], case_counts$month[1])
+    frequency <- 12
   } else if (time_unit %in% "weekly") {
     start <- c(case_counts$year[1], case_counts$week[1])
     frequency <- 52
   } else if (time_unit %in% "biweekly") {
     start <- c(case_counts$year[1], case_counts$week[1])
     frequency <- 26
-    } else {
-  stop("A incorrect time unit is chosen")
-}
+  } else {
+    stop("A incorrect time unit is chosen")
+  }
 
-surveillance::sts(
-  observed = case_counts$cases,
-  start = start,
-  frequency = frequency
-)
+  surveillance::sts(
+    observed = case_counts$cases,
+    start = start,
+    frequency = frequency
+  )
 }
 
 #' Filter the data so that only the data of the last n weeks are returned
@@ -316,19 +316,19 @@ surveillance::sts(
 #' @param number_of_time_units integer, specifying the number of weeks from the most recent week we want to filter the data for
 #' @returns data.frame, aggregated data of last n weeks
 filter_data_last_n_time_units <- function(data_agg,
-                                     time_unit = "weekly",
-                                     number_of_time_units) {
+                                          time_unit = "weekly",
+                                          number_of_time_units) {
   checkmate::assert(
     checkmate::check_integerish(number_of_time_units)
   )
 
-  if (time_unit %in% c("weekly", "biweekly")){
+  if (time_unit %in% c("weekly", "biweekly")) {
     data_agg %>%
-    dplyr::group_by(category, stratum) %>%
-    dplyr::arrange(year, week) %>%
-    dplyr::slice_tail(n = number_of_time_units) %>%
-    dplyr::ungroup()
-  } else if (time_unit %in% "monthly"){
+      dplyr::group_by(category, stratum) %>%
+      dplyr::arrange(year, week) %>%
+      dplyr::slice_tail(n = number_of_time_units) %>%
+      dplyr::ungroup()
+  } else if (time_unit %in% "monthly") {
     data_agg %>%
       dplyr::group_by(category, stratum) %>%
       dplyr::arrange(year, month) %>%
@@ -348,7 +348,6 @@ add_cw_iso <- function(data,
                        date_end = NULL,
                        date_var = "date_report",
                        time_unit = "weekly") {
-
   checkmate::assert_choice(
     time_unit,
     choices = c("weekly", "biweekly", "monthly"),
@@ -367,16 +366,13 @@ add_cw_iso <- function(data,
 
   # function to get all time units between date_start and date_end
   get_all_cw_iso <- function(date_start, date_end, time_unit) {
-
     all_dates <- seq.Date(from = date_start, to = date_end, by = "day")
 
     if (time_unit == "weekly") {
-
       unique(paste0(
-        lubridate::isoyear(all_dates), "-", lubridate::isoweek(all_dates)))
-
+        lubridate::isoyear(all_dates), "-", lubridate::isoweek(all_dates)
+      ))
     } else if (time_unit == "biweekly") {
-
       iso_year <- lubridate::isoyear(all_dates)
       iso_week <- lubridate::isoweek(all_dates)
 
@@ -386,49 +382,47 @@ add_cw_iso <- function(data,
         iso_year, "-",
         sprintf("%02d", start_week)
       ))
-
     } else if (time_unit == "monthly") {
-
-      unique(paste0(substr(all_dates,0,7)))
+      unique(paste0(substr(all_dates, 0, 7)))
     }
   }
 
   # add cw_iso as factor levels
   all_cw_iso <- get_all_cw_iso(date_start = date_start, date_end = date_end, time_unit = time_unit)
-  if (time_unit == "weekly"){
-  data <- data %>%
-    dplyr::mutate(
-      cw_iso = paste0(
-        lubridate::isoyear(!!rlang::sym(date_var)), "-",
-        lubridate::isoweek(!!rlang::sym(date_var))
-      ),
-      cw_iso = factor(cw_iso, levels = all_cw_iso),
-      time_unit_selected = time_unit
-    )} else if (time_unit == "biweekly"){
-      data <- data %>%
-        dplyr::mutate(
-          iso_year = lubridate::isoyear(!!rlang::sym(date_var)),
-          iso_week = lubridate::isoweek(!!rlang::sym(date_var)),
-
-          start_week = iso_week - ((iso_week - 1) %% 2),
-
-          cw_iso = paste0(
-            iso_year, "-",
-            sprintf("%02d", start_week)
-          ),
-          cw_iso = factor(cw_iso, levels = all_cw_iso),
-          time_unit_selected = time_unit
-        )} else if (time_unit == "monthly"){
-          data <- data %>%
-            dplyr::mutate(
-              cw_iso = paste0(
-                lubridate::year(!!rlang::sym(date_var)), "-",
-                sprintf("%02d", lubridate::month(!!rlang::sym(date_var)))
-              ),
-              cw_iso = factor(cw_iso, levels = all_cw_iso),
-              time_unit_selected = time_unit
-            )
-        }
+  if (time_unit == "weekly") {
+    data <- data %>%
+      dplyr::mutate(
+        cw_iso = paste0(
+          lubridate::isoyear(!!rlang::sym(date_var)), "-",
+          lubridate::isoweek(!!rlang::sym(date_var))
+        ),
+        cw_iso = factor(cw_iso, levels = all_cw_iso),
+        time_unit_selected = time_unit
+      )
+  } else if (time_unit == "biweekly") {
+    data <- data %>%
+      dplyr::mutate(
+        iso_year = lubridate::isoyear(!!rlang::sym(date_var)),
+        iso_week = lubridate::isoweek(!!rlang::sym(date_var)),
+        start_week = iso_week - ((iso_week - 1) %% 2),
+        cw_iso = paste0(
+          iso_year, "-",
+          sprintf("%02d", start_week)
+        ),
+        cw_iso = factor(cw_iso, levels = all_cw_iso),
+        time_unit_selected = time_unit
+      )
+  } else if (time_unit == "monthly") {
+    data <- data %>%
+      dplyr::mutate(
+        cw_iso = paste0(
+          lubridate::year(!!rlang::sym(date_var)), "-",
+          sprintf("%02d", lubridate::month(!!rlang::sym(date_var)))
+        ),
+        cw_iso = factor(cw_iso, levels = all_cw_iso),
+        time_unit_selected = time_unit
+      )
+  }
   data
 }
 
@@ -443,7 +437,6 @@ add_cw_iso <- function(data,
 #   unique(paste0(lubridate::isoyear(all_weeks_as_dates), "-", lubridate::isoweek(all_weeks_as_dates)))
 # }
 get_all_cw_iso <- function(date_start, date_end, time_unit = "weekly") {
-
   checkmate::assert_choice(
     time_unit,
     choices = c("weekly", "biweekly", "monthly"),
@@ -451,21 +444,18 @@ get_all_cw_iso <- function(date_start, date_end, time_unit = "weekly") {
   )
 
   if (time_unit == "weekly") {
-
     all_weeks_as_dates <- c(
       seq.Date(from = date_start, to = date_end, by = "week"),
       date_end
     )
 
     unique(paste0(
-      lubridate::isoyear(all_weeks_as_dates), "-", lubridate::isoweek(all_weeks_as_dates))
-    )
-
+      lubridate::isoyear(all_weeks_as_dates), "-", lubridate::isoweek(all_weeks_as_dates)
+    ))
   } else {
     all_dates <- seq.Date(from = date_start, to = date_end, by = "day")
 
     if (time_unit == "biweekly") {
-
       iso_year <- lubridate::isoyear(all_dates)
       iso_week <- lubridate::isoweek(all_dates)
 
@@ -475,11 +465,8 @@ get_all_cw_iso <- function(date_start, date_end, time_unit = "weekly") {
         iso_year, "-",
         sprintf("%02d", start_week)
       ))
-
     } else if (time_unit == "monthly") {
-
-      unique(paste0(substr(all_dates,0,7)))
-
+      unique(paste0(substr(all_dates, 0, 7)))
     }
   }
 }

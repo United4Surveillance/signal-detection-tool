@@ -123,12 +123,11 @@ isoweek_to_date <- function(week, year) {
 #' }
 get_intervention_timepoint <- function(date, data_aggregated) {
   # check if data_aggregated is calculated with isoyear and isoweek data or year and month data
-  if ("week" %in% names(data_aggregated)){
+  if ("week" %in% names(data_aggregated)) {
+    iso_week_year <- get_iso_week_year(date)
 
-  iso_week_year <- get_iso_week_year(date)
-
-  which(data_aggregated$year == iso_week_year$iso_year & data_aggregated$week == iso_week_year$iso_week)
-  } else if ("month" %in% names(data_aggregated)){
+    which(data_aggregated$year == iso_week_year$iso_year & data_aggregated$week == iso_week_year$iso_week)
+  } else if ("month" %in% names(data_aggregated)) {
     date <- as.Date(date)
 
     calendar_month <- lubridate::month(date)

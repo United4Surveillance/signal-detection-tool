@@ -94,9 +94,9 @@ create_model_data <- function(ts_len,
     checkmate::check_choice(model, choices = c("mean", "sincos", "sincos_multiS", "FN"))
   )
 
-  if (time_unit %in% "monthly"){
+  if (time_unit %in% "monthly") {
     freq <- 12
-  } else if (time_unit %in% "biweekly"){
+  } else if (time_unit %in% "biweekly") {
     freq <- 26
   } else {
     freq <- 52
@@ -459,13 +459,13 @@ get_valid_dates_intervention_start <- function(data,
 
   # start after the delay to still have enough time points to fit the non intervention model
   # reality would be that the intervention is rather later in the timeseries but let's not be strict and the user decide
-  if (time_unit == "weekly"){
+  if (time_unit == "weekly") {
     min_date_plus_delay <- min_date + lubridate::weeks(delay)
     max_date_minus_delay <- max_date - lubridate::weeks(number_of_time_units + delay + past_time_units_not_included)
-  } else if (time_unit == "biweekly"){
-    min_date_plus_delay <- min_date + lubridate::weeks(2*delay)
-    max_date_minus_delay <- max_date - lubridate::weeks(2*(number_of_time_units + delay + past_time_units_not_included))
-  } else if (time_unit == "monthly"){
+  } else if (time_unit == "biweekly") {
+    min_date_plus_delay <- min_date + lubridate::weeks(2 * delay)
+    max_date_minus_delay <- max_date - lubridate::weeks(2 * (number_of_time_units + delay + past_time_units_not_included))
+  } else if (time_unit == "monthly") {
     min_date_plus_delay <- lubridate::add_with_rollback(min_date, months(delay))
     max_date_minus_delay <- lubridate::add_with_rollback(max_date, -months(number_of_time_units + delay + past_time_units_not_included))
   }
