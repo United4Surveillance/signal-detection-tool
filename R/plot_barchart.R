@@ -6,6 +6,7 @@
 #' @param interactive boolean identifying whether the plot should be static or interactive
 #' @param toggle_alarms boolean identifying whether the plot should showing number of signals explicitly or only when hovering
 #' @returns either a gg or plotly object
+#' @export
 #' @examples
 #' \dontrun{
 #' signals_agg_sex <- input_example %>%

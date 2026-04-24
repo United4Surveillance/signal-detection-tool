@@ -39,12 +39,35 @@ create_sincos_data <- function(ts_len, freq = 52, S = 1) {
   modelData
 }
 
+#' Create a data.frame with multiple sine and cosine components for harmonic modeling.
+#'
+#' This function generates a data.frame with multiple sine and cosine values based on the provided time series length and frequency. It is primarily used to create harmonic models that describe periodic patterns in time series data. The dataframe will be used to fit parameters of a glm with sin and cos elements.
+#'
+#' @param ts_len integer, specifying the length of the time series.
+#' @param freq integer, default 52, specifying the frequency of the sine and cosine waves. When the timeseries is aggregated weekly then freq = 52.
+#' @param S_1 integer, default 1, specifying the number of cycles per freq. When freq = 52 this specifies the number of cycles to have per year
+#' @param S_2 integer, default 2, specifying the number of cycles per freq. When freq = 52 this specifies the number of cycles to have per year. S_2 has to be greater than S_1 and at least 2
+#' @return A data frame with columns for the sine and cosine values over time.
+create_fourier_terms <- function(ts_len, freq = 52, S_1 = 1, S_2 = 2) {
+  checkmate::assert_number(S_1, lower = 1)
+  checkmate::assert_int(S_2, lower = 2)
+  checkmate::assert_true(S_2 > S_1)
+
+  modelData <- data.frame(
+    sin_1 = sin(2 * pi * S_1 * (1:ts_len) / freq),
+    cos_1 = cos(2 * pi * S_1 * (1:ts_len) / freq),
+    sin_2 = sin(2 * pi * S_2 * (1:ts_len) / freq),
+    cos_2 = cos(2 * pi * S_2 * (1:ts_len) / freq)
+  )
+  modelData
+}
+
 #' Create Model Data for Generalized Linear Modeling
 #'
 #' This function generates a dataset containing all the necessary columns for fitting a Generalized Linear Model (GLM) in the context of epidemiological time series analysis. The generated dataset can include components for seasonality, time trends, and baseline adjustments, depending on the specified model type and intervention parameters.
 #'
 #' @param ts_len integer, specifying the length of the aggregated timeseries of case counts
-#' @param model character, default "mean" one of c("mean", "sincos", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.
+#' @param model character, default "mean" one of c("mean", "sincos", "sincos_multiS", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.
 #' @param time_trend boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.
 #' @param time_unit character, specifying the time units to aggreagte case data on
 #' @param intervention_start integer, specifying the rownumber in the aggregated timeseries which corresponds to the intervention date.
@@ -68,7 +91,7 @@ create_model_data <- function(ts_len,
                               past_time_units_not_included = 4) {
   # check that input method and stratification are correct
   checkmate::assert(
-    checkmate::check_choice(model, choices = c("mean", "sincos", "FN"))
+    checkmate::check_choice(model, choices = c("mean", "sincos", "sincos_multiS", "FN"))
   )
 
   if (time_unit %in% "monthly"){
@@ -82,8 +105,10 @@ create_model_data <- function(ts_len,
   data_season <- NULL
   if (model == "sincos") {
     data_season <- create_sincos_data(ts_len, freq = freq)
+  } else if (model == "sincos_multiS") {
+    data_season <- create_fourier_terms(ts_len, freq = freq)
   } else if (model == "FN") {
-    data_season <- create_fn_data(ts_len)
+    data_season <- create_fn_data(ts_len, freq = freq)
   }
   data_time_trend <- NULL
   if (time_trend) {
@@ -208,13 +233,14 @@ create_formula <- function(model_data) {
 
 
 #' Get signals based on a weigthed GLM quasipoisson regression model for the expected case counts
-#' The GLM is flexible being able to just fit a mean, add a time trend, fit a harmonic sin/cos model or the seasons from the farringtonflexible.
+#' The GLM is flexible being able to just fit a mean, add a time trend, fit a harmonic sin/cos model (one or two seasonal components) or the seasons from the farringtonflexible.
 #' @param data_aggregated data.frame, aggregated data with case counts.
 #' @param number_of_time_units integer, specifying number of time units to generate signals for.
-#' @param model character, default "mean" one of c("mean", "sincos", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.
+#' @param model character, default "mean" one of c("mean", "sincos", "sincos_multiS", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.
 #' @param time_trend boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.
 #' @param return_full_model boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_weeks should be returned and attached to data_aggregated as well.
-#' @param alpha_upper decimal between 0 and 1, default 0.05 specifying the pvalue cutoff used for computing the threshold, when set to 0.05 the 95 percent quantile is used.
+#' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05).
+#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done, i.e. no additional intercept and possibly new time trend is fitted. When a date is given a new intercept and possibly time_trend (if time_trend == TRUE) is fitted.
 #' @param min_timepoints_baseline integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.
 #' @param min_timepoints_trend integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.
@@ -242,7 +268,11 @@ get_signals_glm <- function(data_aggregated,
                             min_timepoints_trend = 12,
                             past_time_units_not_included = 4) {
   checkmate::assert(
-    checkmate::check_choice(model, choices = c("mean", "sincos", "FN"))
+    checkmate::check_choice(model, choices = c("mean", "sincos", "sincos_multiS", "FN"))
+  )
+
+  checkmate::assert(
+    checkmate::check_number(alpha_upper, lower = 0.001, upper = 0.2)
   )
 
   ts_len <- nrow(data_aggregated)
@@ -367,6 +397,26 @@ get_signals_glm <- function(data_aggregated,
     data_aggregated$expected_pad <- c(full_model_expectation, bound_results$expectation[1], pad_number_of_time_units)
 
     data_aggregated
+  }
+
+  if (model == "sincos_multiS" &&
+    time_trend == TRUE &&
+    max(data_aggregated$expected[(nrow(data_aggregated) - number_of_weeks + 1):nrow(data_aggregated)], na.rm = TRUE) > 2 * max(data_aggregated$cases[1:(nrow(data_aggregated) - number_of_weeks)], na.rm = TRUE)
+  ) {
+    return(
+      get_signals_glm(
+        data_aggregated = data_aggregated,
+        number_of_weeks = number_of_weeks,
+        model = model,
+        time_trend = FALSE,
+        return_full_model = return_full_model,
+        alpha_upper = alpha_upper,
+        intervention_date = intervention_date,
+        min_timepoints_baseline = min_timepoints_baseline,
+        min_timepoints_trend = min_timepoints_trend,
+        past_weeks_not_included = past_weeks_not_included
+      )
+    )
   }
 
   data_aggregated

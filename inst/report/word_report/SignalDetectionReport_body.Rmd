@@ -18,6 +18,8 @@ if (is.null(params$data)) {
 - Length of signal detection period: `r params$number_of_time_units` time units
 - Strata selected: `r paste(params$strata, collapse = ", ")`
 - Intervention date: `r params$intervention_date`
+`r ifelse(grepl("glm|farrington", params$method) && !is.null(params$alpha_upper), paste0("- P-value cutoff: ", params$alpha_upper), paste0(""))`
+- Filters applied in the application: `r paste0(ifelse(length(params$selected_filter_vars) != 0, paste(params$selected_filter_vars, collapse = ", "), "None"))`
 
 
 ```{r}
@@ -31,6 +33,7 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
     method = params$method,
     number_of_time_units = params$number_of_time_units,
     time_unit = params$time_unit,
+    alpha_upper = params$alpha_upper,
     intervention_date = params$intervention_date
   )
 
@@ -41,6 +44,7 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
       method = params$method,
       number_of_time_units = params$number_of_time_units,
       time_unit = params$time_unit,
+      alpha_upper = params$alpha_upper,
       intervention_date = params$intervention_date
     )
 

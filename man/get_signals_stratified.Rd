@@ -13,9 +13,11 @@ get_signals_stratified(
   stratification_columns,
   date_start = NULL,
   date_end = NULL,
+  date_ext = NULL,
   date_var = "date_report",
   time_unit = "weekly",
-  number_of_time_units = 6
+  number_of_time_units = 6,
+  alpha_upper = 0.05
 )
 }
 \arguments{
@@ -23,7 +25,7 @@ get_signals_stratified(
 
 \item{fun}{The signal detection function to apply to each stratum.}
 
-\item{model}{character, default empty string which is the choice if farrington, ears or cusum are used and if a glm method was chosen as outbreak detection method then one of c("mean","sincos", "FN")}
+\item{model}{character, default empty string which is the choice if farrington, ears or cusum are used and if a glm method was chosen as outbreak detection method then one of c("mean","sincos", "sincos_multiS", "FN")}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.}
 
@@ -36,11 +38,17 @@ stratify the data by.}
 
 \item{date_end}{A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.}
 
+\item{date_ext}{A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL.}
+
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 
 \item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 
 \item{number_of_time_units}{integer, specifying number of time units to generate signals for.}
+
+\item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
+and internally set to NULL.
+Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
 }
 \value{
 A tibble containing the results of the signal detection analysis

@@ -15,10 +15,14 @@
 #'   the beginning of the analysis period.
 #' @param date_end Optional. A date or character string in yyyy-mm-dd format indicating
 #'   the end of the analysis period.
+#' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL
 #' @param date_var A character string specifying the column name of the date variable to use.
 #'   Default is "date_report".
-#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #' @param number_of_time_units Integer specifying how many time units to generate signals for.
+#' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
+#'   and internally set to NULL.
+#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
 #'
 #' @return A tibble with columns for signals, expected values, thresholds, and
 #'   stratification information (if applicable), containing both stratified and
@@ -40,9 +44,11 @@ get_signals_all <- function(preprocessed_data,
                             stratification = NULL,
                             date_start = NULL,
                             date_end = NULL,
+                            date_ext = NULL,
                             date_var = "date_report",
                             time_unit = "weekly",
-                            number_of_time_units = 6) {
+                            number_of_time_units = 6,
+                            alpha_upper = 0.05) {
   results <- get_signals(
     data = preprocessed_data,
     method = method,
@@ -50,9 +56,11 @@ get_signals_all <- function(preprocessed_data,
     stratification = stratification,
     date_start = date_start,
     date_end = date_end,
+    date_ext = date_ext,
     date_var = date_var,
     time_unit = time_unit,
-    number_of_time_units = number_of_time_units
+    number_of_time_units = number_of_time_units,
+    alpha_upper = alpha_upper
   )
   # when stratified signals were computed also add unstratified signals to the dataframe so that all can be visualised
   if (!is.null(stratification)) {
@@ -63,9 +71,11 @@ get_signals_all <- function(preprocessed_data,
       stratification = NULL,
       date_start = date_start,
       date_end = date_end,
+      date_ext = date_ext,
       date_var = date_var,
       time_unit = time_unit,
-      number_of_time_units = number_of_time_units
+      number_of_time_units = number_of_time_units,
+      alpha_upper = alpha_upper
     )
     results <- dplyr::bind_rows(results, results_unstratified)
   }
@@ -80,16 +90,20 @@ get_signals_all <- function(preprocessed_data,
 #'
 #' @param data A data frame containing the surveillance data.
 #' @param fun The signal detection function to apply to each stratum.
-#' @param model character, default empty string which is the choice if farrington, ears or cusum are used and if a glm method was chosen as outbreak detection method then one of c("mean","sincos", "FN")
+#' @param model character, default empty string which is the choice if farrington, ears or cusum are used and if a glm method was chosen as outbreak detection method then one of c("mean","sincos", "sincos_multiS", "FN")
 #' @param intervention_date A date object or character of format yyyy-mm-dd specifying the date for the intervention in the pandemic correction models. After this date a new intercept and possibly time_trend is fitted.
 #' @param time_trend boolean default TRUE setting time_trend in the get_signals_glm(). This parameter is only used when an the glm based outbreak detection models are used, i.e. for the models c("mean","sincos", "FN")
 #' @param stratification_columns A character vector specifying the columns to
 #'   stratify the data by.
 #' @param date_start A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.
 #' @param date_end A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.
+#' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL.
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #' @param number_of_time_units integer, specifying number of time units to generate signals for.
+#' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
+#'   and internally set to NULL.
+#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
 #' @return A tibble containing the results of the signal detection analysis
 #'   stratified by the specified columns.
 #'
@@ -112,9 +126,11 @@ get_signals_stratified <- function(data,
                                    stratification_columns,
                                    date_start = NULL,
                                    date_end = NULL,
+                                   date_ext = NULL,
                                    date_var = "date_report",
                                    time_unit = "weekly",
-                                   number_of_time_units = 6) {
+                                   number_of_time_units = 6,
+                                   alpha_upper = 0.05) {
   # check that all columns are present in the data
   for (col in stratification_columns) {
     checkmate::assert(
@@ -122,7 +138,15 @@ get_signals_stratified <- function(data,
     )
   }
 
-  checkmate::check_choice(model, choices = c("", "mean", "sincos", "FN"))
+  checkmate::check_choice(model, choices = c("", "mean", "sincos", "sincos_multiS", "FN"))
+
+  if (model != "" || identical(fun, get_signals_farringtonflexible)) {
+    checkmate::assert(
+      checkmate::check_number(alpha_upper, lower = 0.001, upper = 0.2)
+    )
+  } else {
+    alpha_upper <- NULL
+  }
 
   checkmate::assert(
     checkmate::check_null(intervention_date),
@@ -140,6 +164,11 @@ get_signals_stratified <- function(data,
   checkmate::assert(
     checkmate::check_null(date_end),
     checkmate::check_date(lubridate::date(date_end)),
+    combine = "or"
+  )
+  checkmate::assert(
+    checkmate::check_null(date_ext),
+    checkmate::check_date(lubridate::date(date_ext)),
     combine = "or"
   )
 
@@ -195,7 +224,7 @@ get_signals_stratified <- function(data,
       # filter the data
       filter_by_date(date_var = date_var, date_start = date_start, date_end = date_end) %>%
       # aggregate data
-      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, group = category)
+      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext, group = category)
 
     split_list <- sub_data %>%
       dplyr::group_split(!!rlang::sym(category), .keep = FALSE)
@@ -222,11 +251,11 @@ get_signals_stratified <- function(data,
           )
       } else {
         if (model != "") {
-          results <- fun(sub_data_agg, number_of_time_units, model = model, time_trend = time_trend, intervention_date = intervention_date)
+          results <- fun(sub_data_agg, number_of_time_units, model = model, time_trend = time_trend, intervention_date = intervention_date, alpha_upper = alpha_upper)
         } else if (identical(fun, get_signals_ears) || identical(fun, get_signals_cusum)){
           results <- fun(sub_data_agg, number_of_time_units, time_unit = time_unit)
-        } else {
-          results <- fun(sub_data_agg, number_of_time_units)
+        } else if (identical(fun, get_signals_farringtonflexible)) {
+          results <- fun(sub_data_agg, number_of_time_units, alpha_upper = alpha_upper)
         }
       }
 
@@ -261,7 +290,7 @@ get_signals_stratified <- function(data,
 #' @param method A character string specifying the signal detection method to use.
 #'   Available options include:
 #'   `"farrington"`, `"ears"`, `"cusum"`, `"glm mean"`, `"glm timetrend"`,
-#'   `"glm harmonic"`, `"glm harmonic with timetrend"`,
+#'   `"glm harmonic"`, `"glm harmonic with timetrend"`, `"glm harmonic multi"`,
 #'   `"glm farrington"`, `"glm farrington with timetrend"`.
 #'   You can retrieve the full list using [available_algorithms()].
 #'
@@ -271,9 +300,13 @@ get_signals_stratified <- function(data,
 #'   the analysis. Default is NULL.
 #' @param date_start A date object or character of format yyyy-mm-dd specifying the start date to filter the data by. Default is NULL.
 #' @param date_end A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.
+#' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #' @param number_of_time_units integer, specifying number of time units to generate signals for.
+#' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
+#'   and internally set to NULL.
+#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
 #' @return A tibble containing the results of the signal detection analysis.
 #' @export
 #'
@@ -292,13 +325,23 @@ get_signals <- function(data,
                         stratification = NULL,
                         date_start = NULL,
                         date_end = NULL,
+                        date_ext = NULL,
                         date_var = "date_report",
                         time_unit = "weekly",
-                        number_of_time_units = 6) {
+                        number_of_time_units = 6,
+                        alpha_upper = 0.05) {
   # check that input method and stratification are correct
   checkmate::assert(
     checkmate::check_choice(method, choices = available_algorithms())
   )
+
+  if (grepl("glm", method) || grepl("farrington", method)) {
+    checkmate::assert(
+      checkmate::check_number(alpha_upper, lower = 0.001, upper = 0.2)
+    )
+  } else {
+    alpha_upper <- NULL
+  }
 
   checkmate::assert(
     checkmate::check_null(intervention_date),
@@ -365,6 +408,9 @@ get_signals <- function(data,
     } else if (method == "glm harmonic with timetrend") {
       model <- "sincos"
       time_trend <- TRUE
+    } else if (method == "glm harmonic multi") {
+      model <- "sincos_multiS"
+      time_trend <- TRUE
     } else if (method == "glm farrington") {
       model <- "FN"
       time_trend <- FALSE
@@ -383,14 +429,14 @@ get_signals <- function(data,
       # filter the data
       filter_by_date(date_start = date_start, date_end = date_end, date_var = date_var) %>%
       # aggregate and complete the data
-      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end)
+      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext)
 
     if (grepl("glm", method)) {
-      results <- fun(data_agg, number_of_time_units, model = model, time_trend = time_trend, intervention_date = intervention_date)
+      results <- fun(data_agg, number_of_time_units, model = model, time_trend = time_trend, intervention_date = intervention_date, alpha_upper = alpha_upper)
     } else if (grepl("cusum", method, ignore.case = TRUE) || grepl("ears", method, ignore.case = TRUE)) {
       results <- fun(data_agg, number_of_time_units, time_unit = time_unit)
     } else{
-      results <- fun(data_agg, number_of_time_units)
+      results <- fun(data_agg, number_of_time_units, alpha_upper = alpha_upper)
     }
     if (!is.null(results)) {
       results <- results %>%
@@ -398,17 +444,19 @@ get_signals <- function(data,
     }
   } else {
     results <- get_signals_stratified(
-      data,
-      fun,
+      data = data,
+      fun = fun,
       model = model,
       intervention_date = intervention_date,
       time_trend = time_trend,
-      stratification,
-      date_start,
-      date_end,
-      date_var,
+      stratification_columns = stratification,
+      date_start = date_start,
+      date_end = date_end,
+      date_ext = date_ext,
+      date_var = date_var,
       time_unit = time_unit,
-      number_of_time_units
+      number_of_time_units = number_of_time_units,
+      alpha_upper = alpha_upper
     )
   }
 
@@ -418,7 +466,8 @@ get_signals <- function(data,
       dplyr::mutate(
         method = method,
         number_of_time_units = number_of_time_units,
-        time_unit = time_unit
+        time_unit = time_unit,
+        alpha_upper = alpha_upper
       )
   }
 
@@ -472,11 +521,8 @@ aggregate_pad_signals <- function(signal_results,
   # aggregate signals for report
   signals_agg <- aggregate_signals(signal_results, number_of_time_units = number_of_time_units, time_unit = time_unit)
 
-
-  # padd timeseries so it also has information before detection period
   logic_apply_padding <- function() {
     if (grepl("glm", method)) {
-      # for those the results are already padded
       return(signal_results)
     }
     pad_signals(preprocessed, signal_results)
@@ -552,7 +598,15 @@ pad_signals <- function(data,
   method <- unique(signals$method)
   time_unit <- unique(signals$time_unit)
 
+
   stopifnot(length(number_of_time_units) == 1)
+
+  if (grepl("farrington", method)) {
+    alpha_upper <- unique(signals$alpha_upper)
+  } else {
+    alpha_upper <- NULL
+  }
+
   stopifnot(length(method) == 1)
   stopifnot(length(time_unit) == 1)
 
@@ -568,14 +622,18 @@ pad_signals <- function(data,
     dplyr::filter(date_report <= cutoff_date)
 
   available_thresholds <- c(26, 20, 14, 8, 2)
+
   for (timeopt in available_thresholds) {
     max_time_opt <- timeopt
-    signals_timeopt <- get_signals(
+
+    signals_timeopt <- SignalDetectionTool::get_signals(
       data_no_signals,
       method = method,
       time_unit = time_unit,
-      number_of_time_units = timeopt + number_of_time_units
+      number_of_time_units = timeopt + number_of_time_units,
+      alpha_upper = alpha_upper
     )
+
     if (!is.null(signals_timeopt)) {
       break
     }
@@ -621,7 +679,8 @@ pad_signals <- function(data,
       date_var = "date_report",
       stratification = stratification,
       time_unit = time_unit,
-      number_of_time_units = (max_time_opt + number_of_time_units)
+      number_of_time_units = (max_time_opt + number_of_time_units),
+      alpha_upper = alpha_upper
     ) %>%
       dplyr::select(year, month, upperbound_pad = upperbound, expected_pad = expected, category, stratum) %>%
       dplyr::group_by(category, stratum) %>%

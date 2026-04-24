@@ -3,7 +3,7 @@
 \name{get_signals_glm}
 \alias{get_signals_glm}
 \title{Get signals based on a weigthed GLM quasipoisson regression model for the expected case counts
-The GLM is flexible being able to just fit a mean, add a time trend, fit a harmonic sin/cos model or the seasons from the farringtonflexible.}
+The GLM is flexible being able to just fit a mean, add a time trend, fit a harmonic sin/cos model (one or two seasonal components) or the seasons from the farringtonflexible.}
 \usage{
 get_signals_glm(
   data_aggregated,
@@ -23,13 +23,14 @@ get_signals_glm(
 
 \item{number_of_time_units}{integer, specifying number of time units to generate signals for.}
 
-\item{model}{character, default "mean" one of c("mean", "sincos", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.}
+\item{model}{character, default "mean" one of c("mean", "sincos", "sincos_multiS", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.}
 
 \item{time_trend}{boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.}
 
 \item{return_full_model}{boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_weeks should be returned and attached to data_aggregated as well.}
 
-\item{alpha_upper}{decimal between 0 and 1, default 0.05 specifying the pvalue cutoff used for computing the threshold, when set to 0.05 the 95 percent quantile is used.}
+\item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05).
+Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done, i.e. no additional intercept and possibly new time trend is fitted. When a date is given a new intercept and possibly time_trend (if time_trend == TRUE) is fitted.}
 
@@ -46,7 +47,7 @@ data.frame aggregated data with case counts and additional columns alarms, upper
 }
 \description{
 Get signals based on a weigthed GLM quasipoisson regression model for the expected case counts
-The GLM is flexible being able to just fit a mean, add a time trend, fit a harmonic sin/cos model or the seasons from the farringtonflexible.
+The GLM is flexible being able to just fit a mean, add a time trend, fit a harmonic sin/cos model (one or two seasonal components) or the seasons from the farringtonflexible.
 }
 \examples{
 \dontrun{

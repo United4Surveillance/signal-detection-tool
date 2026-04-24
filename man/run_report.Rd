@@ -2,7 +2,7 @@
 % Please edit documentation in R/run_report.R
 \name{run_report}
 \alias{run_report}
-\title{Renders signal detection report}
+\title{Renders a signal detection report}
 \usage{
 run_report(
   data,
@@ -11,7 +11,8 @@ run_report(
   number_of_time_units = 6,
   time_unit = "weekly",
   pathogens = NULL,
-  strata = c("county", "age_group"),
+  strata = NULL,
+  selected_filter_vars = NULL,
   tables = TRUE,
   output_file = NULL,
   output_dir = ".",
@@ -21,72 +22,115 @@ run_report(
   custom_logo = NULL,
   custom_theme = NULL,
   min_cases_signals = 1,
-  title = NULL
+  title = NULL,
+  alpha_upper = 0.05
 )
 }
 \arguments{
-\item{data}{data.frame containing surveillance data in linelist format following the format specified in `input_metadata`}
+\item{data}{A data.frame containing surveillance data in linelist format
+following the structure specified in `input_metadata`.}
 
-\item{report_format}{character, format of the report: "HTML" or "DOCX"}
+\item{report_format}{Character scalar specifying the report format.
+Supported values are `"HTML"` and `"DOCX"`.}
 
-\item{method}{a character string, signal detection method to be used. One of "FarringtonFlexible", "EARS" , "CUSUM", "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend".
-You can retrieve the full list using [names(available_algorithms())].}
+\item{method}{Character scalar specifying the signal detection method.
+Must be one of `"FarringtonFlexible"`, `"EARS"`, `"CUSUM"`, `"Mean"`,
+`"Timetrend"`, `"Harmonic"`, `"Harmonic with timetrend"`, `Multi-seasonal harmonic`,
+`"Step harmonic"`, or `"Step harmonic with timetrend"`.
+Use [names(available_algorithms())] to retrieve the full list.}
 
-\item{number_of_time_units}{integer, number of weeks for which signals are generated}
+\item{number_of_time_units}{integer, number of time units for which signals are generated}
 
 \item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 
-\item{pathogens}{A character vector specifying which pathogens to include in the report.
-If `NULL` (default), all pathogens present in `data`, `signals_padded`, or `signals_agg` are used.
-Multi-pathogen reports are supported only for HTML output.}
+\item{pathogens}{Character vector specifying which pathogens to include in
+the report. If `NULL`, all pathogens present in `data` are used when
+signals are recomputed; otherwise the pathogens in `signals_padded` are
+used. Multi-pathogen reports are supported only for HTML output.}
 
-\item{strata}{A character vector specifying the columns to stratify. If `NULL` no strata are used. If precomputed signals are provided  this argument is ignored and strata are inferred from the provided signals. Defaults to c("county", "age_group") when no precomputed signals were provided.}
+\item{strata}{Stratification specification. Supported values are `NULL`,
+`"None"`, a character vector of column names in `data`, or a data
+frame/tibble with columns `pathogen` and `strata`, where `strata` is a
+list-column of character vectors. Character input applies the same strata
+to all pathogens. Data-frame input allows pathogen-specific strata and must
+contain one entry for each pathogen included in the report; all referenced
+columns must exist in `data`. Pathogen-specific strata are supported only
+for HTML output. When precomputed signals are supplied, `strata` is not
+inferred from them and is still used to control report rendering.}
 
-\item{tables}{Logical, default TRUE. True if Signal Detection Tables should be included in report. Only used for DOCX reports, the parameter is ignored for HTML reports.}
+\item{selected_filter_vars}{A character vector for printing the variables used for filtering. If `NULL` either no filter is used or the filter is applied outside the app. Custom strings may be included.}
 
-\item{output_file}{A character string specifying the name of the output file (without directory path). If `NULL` (default), the file name is automatically generated to be SignalDetectionReport. See \link[rmarkdown]{render} for more details.}
+\item{tables}{Logical scalar; if `TRUE`, include signal detection tables in
+the report. Used only for DOCX output and ignored for HTML output.}
 
-\item{output_dir}{A character string specifying the output directory for the rendered output file (default is ".", which means the rendered file will be saved in the current working directory. See \link[rmarkdown]{render} for more details. `NULL` is used when running the report from shiny app which will take the Downloads folder as default option for saving.}
+\item{output_file}{Character scalar specifying the output file name without a
+directory path. If `NULL`, a default file name is generated.}
 
-\item{signals_padded}{A tibble of precomputed and padded signals containing a `pathogen` column.
-If multiple pathogens are present, the tibble should represent all of them stacked together
-(e.g., using `dplyr::bind_rows()`).
-Defaults to `NULL`, in which case the signal data will be computed from the linelist
-within the `run_report()` function.
-If not `NULL`, the provided `signals_padded` is used as-is, and signals are not recomputed.}
+\item{output_dir}{Character scalar specifying the output directory. Defaults
+to `"."`, i.e. the current working directory. In the Shiny app, `NULL`
+uses the default download location.}
 
-\item{signals_agg}{A tibble of aggregated signals containing a `pathogen` column.
-If multiple pathogens are included, the tibble should represent all of them stacked together
-(e.g., using `dplyr::bind_rows()`).
-Defaults to `NULL`, in which case the aggregated signals are computed from the linelist
-within the `run_report()` function.
-If not `NULL`, the provided `signals_agg` is used directly and signals are not recomputed.}
+\item{signals_padded}{Tibble of precomputed padded signals containing a
+`pathogen` column. If multiple pathogens are included, rows for all
+pathogens should be stacked in a single object, for example with
+`dplyr::bind_rows()`. To reuse precomputed signals and skip recomputation,
+`signals_padded` and `signals_agg` must both be supplied. If either object
+is `NULL`, both are recomputed from `data`.}
 
-\item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention. This can be used for interrupted timeseries analysis. It only works with the following methods: "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Step harmonic", "Step harmonic with timetrend". Default is NULL which indicates that no intervention is done.}
+\item{signals_agg}{Tibble of precomputed aggregated signals containing a
+`pathogen` column. If multiple pathogens are included, rows for all
+pathogens should be stacked in a single object, for example with
+`dplyr::bind_rows()`. To reuse precomputed signals and skip recomputation,
+`signals_agg` and `signals_padded` must both be supplied. If either object
+is `NULL`, both are recomputed from `data`.}
 
-\item{custom_logo}{A character string with a path to a png or svg logo, to replace the default United4Surveillance logo. Only used when `report_format` is `"HTML"`.}
+\item{intervention_date}{Date object, character string in `"yyyy-mm-dd"`
+format, or `NULL` specifying the intervention date for interrupted time
+series analysis. Supported only by the methods `"Mean"`, `"Timetrend"`,
+`"Harmonic"`, `"Harmonic with timetrend"`, `"Multi-seasonal harmonic"`, `"Step harmonic"`,
+and`"Step harmonic with timetrend"`. The default `NULL` disables the
+intervention analysis.}
 
-\item{custom_theme}{A bslib::bs_theme() to replace the default United4Surveillance theme. This is mainly used to change colors. See the bslib documentation for all parameters. Use version = "3" to keep the navbar intact. Only used when `report_format` is `"HTML"`.}
+\item{custom_logo}{Character scalar giving the path to a PNG or SVG logo
+that replaces the default United4Surveillance logo. Used only for HTML
+output.}
 
-\item{min_cases_signals}{integer, minimum number of cases a signal must have. All signals with case counts smaller than this will be filtered in a post-processing step. This parameter is only applied when precomputed signals_agg and signals_padded are not given. If you want to post-process your precomputed signals you need to do that before generating the report.}
+\item{custom_theme}{A [bslib::bs_theme()] object that replaces the default
+United4Surveillance theme. This is mainly used to change colors. Use
+`version = "3"` to keep the navbar intact. Used only for HTML output.}
 
-\item{title}{NULL or a character string. Specifies the title of the report that is to be created}
+\item{min_cases_signals}{Integer scalar giving the minimum number of cases an
+alarm must have to remain flagged. For observations with fewer than this
+number of cases, `alarms` is set to `FALSE` in a post-processing step.
+This is applied only when signals are recomputed inside `run_report()`,
+i.e. when `signals_agg` or `signals_padded` is `NULL`.}
+
+\item{title}{`NULL` or a character scalar specifying the report title. If
+`NULL` or an empty string, a default title of the form
+`"Signal Detection Report - <country>"` is used.}
+
+\item{alpha_upper}{Numeric between 0.001 and 0.2. Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to
+using the 0.95 quantile. `alpha_upper` is only used for methods that require it (currently "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend"), for which a default value of 0.05 is applied.
+Ears and cusum do not use the value; for these, the argument is ignored and internally set to NULL.}
 }
 \value{
-the compiled document is written into the output file, and the path of the output file is returned; see \link[rmarkdown]{render}
+Returns the path to the rendered output written to disk. For DOCX
+  output this is the Word document; for HTML output this is the ZIP archive
+  containing the landing page and generated report pages.
 }
 \description{
-The function supports the generation of a single-pathogen and multi-pathogen report when `report_format = "HTML"`.
-For Word (DOCX) output, only single-pathogen reports are currently supported.
+Generates signal detection reports from surveillance linelist data.
+HTML output supports both single-pathogen and multi-pathogen reports,
+including pathogen-specific stratification defined via `strata`.
+DOCX output currently supports single-pathogen reports only.
 }
 \details{
-If executed as a standalone function, all filtering must
-be performed beforehand.
-This function is also invoked within the app.
+If executed as a standalone function, all filtering of `data` must be
+performed beforehand. This function is also invoked within the app.
 }
 \examples{
 \dontrun{
-# Example 1: Run report with specified parameters and HTML format output
+# Example 1: Run a report with specified parameters and HTML output
 run_report(
   report_format = "HTML",
   data = SignalDetectionTool::input_example,
@@ -94,18 +138,20 @@ run_report(
   strata = c("county", "sex"),
   number_of_time_units = 6
 )
-# Example 2: An example output directory specified
+
+# Example 2: Specify an output directory
 run_report(
   method = "EARS",
   output_dir = "C:/Users/SmithJ/Documents"
 )
-# Example 3: An example output file name is specified
+
+# Example 3: Specify an output file name
 run_report(
   method = "EARS",
   output_file = "My Signal Report"
 )
 
-# Example 4: No strata are used
+# Example 4: Do not use stratification
 run_report(
   report_format = "HTML",
   data = SignalDetectionTool::input_example,
@@ -113,21 +159,33 @@ run_report(
   strata = NULL
 )
 
-# Example 5: HTML report for multiple pathogens
+# Example 5: Create an HTML report for multiple pathogens
 run_report(
   report_format = "HTML",
   data = SignalDetectionTool::input_example_multipathogen,
   method = "Harmonic"
 )
 
-Example 6: HTML report for a subset of pathogens in a multi-pathogen dataset
+# Example 6: Restrict a multi-pathogen HTML report to a subset of pathogens
 run_report(
   report_format = "HTML",
   data = SignalDetectionTool::input_example_multipathogen,
-  pathogens = c("Enterobacter","Salmonella"),
+  pathogens = c("Enterobacter", "Salmonella"),
   method = "Harmonic"
 )
 
+# Example 7: Use pathogen-specific strata in an HTML report
+pathogen_strata <- tibble::tibble(
+  pathogen = c("Enterobacter", "Salmonella"),
+  strata = list(c("county", "age_group"), c("sex"))
+)
+run_report(
+  report_format = "HTML",
+  data = SignalDetectionTool::input_example_multipathogen,
+  pathogens = c("Enterobacter", "Salmonella"),
+  strata = pathogen_strata,
+  method = "Harmonic"
+)
 }
 }
 \seealso{

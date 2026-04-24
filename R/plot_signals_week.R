@@ -9,6 +9,7 @@
 #' @param branding named vector with branding colours
 #'
 #' @return either a ggplot or plotly object
+#' @export
 #'
 #' @examples
 #' \dontrun{

@@ -50,8 +50,9 @@ The method selection criteria are approximately (for the default setting):
         \code{"glm farrington with timetrend"} are possible.
   \item If 2 to <3 years (about 104 to <156 weeks) of historic data are
         available: all methods except \code{"glm farrington"},
-        \code{"glm farrington with timetrend"} and
-        \code{"glm harmonic with timetrend"} are possible.
+        \code{"glm farrington with timetrend"}.
+        \code{"glm harmonic with timetrend"} and
+        \code{"glm harmonic multi"} are possible.
   \item If 26 to <104 weeks of historic data are available:
         \code{"Mean"}, \code{"CUSUM"} and \code{"EARS"} are possible.
   \item If 7 to <26 weeks of historic data are available:

@@ -44,7 +44,9 @@ mod_tabpanel_report_server <- function(id,
                                        number_of_time_units_input_valid,
                                        signals_padded,
                                        signals_agg,
-                                       intervention_date) {
+                                       intervention_date,
+                                       alpha_upper,
+                                       selected_filter_vars) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -122,7 +124,8 @@ mod_tabpanel_report_server <- function(id,
         "by ", paste0(strat_vars(), collapse = ", "), " for the last ",
         number_of_time_units(), " selected time units using ",
         names(available_algorithms())[available_algorithms() == method()],
-        " as outbreak detection algorithm. The time unit selected is ", time_unit(), "."
+        " as outbreak detection algorithm. The time unit selected is ", time_unit(), ".", ifelse(grepl("glm|farrington", method()) && !is.null(alpha_upper()), paste("A p-value cutoff of", alpha_upper(), "is used."), ""),
+        " The following filters were applied: ", ifelse(length(selected_filter_vars()) != 0, paste0(selected_filter_vars(), collapse = ", "), paste0("None")), "."
       )
     })
 
@@ -145,13 +148,15 @@ mod_tabpanel_report_server <- function(id,
           time_unit = time_unit(),
           pathogens = pathogen_vars(),
           strata = strat_vars(),
+          selected_filter_vars = selected_filter_vars(),
           tables = tables(),
           output_file = con,
           output_dir = NULL,
           signals_padded = signals_padded() %>% dplyr::mutate(pathogen = pathogen_vars()),
           signals_agg = signals_agg() %>% dplyr::mutate(pathogen = pathogen_vars()),
           intervention_date = intervention_date(),
-          title = input$report_title
+          title = input$report_title,
+          alpha_upper = alpha_upper()
         )
       }
     )

@@ -10,6 +10,7 @@ create_barplot_or_table(
   category_selected,
   n_levels = 25,
   interactive = TRUE,
+  page_length = 10,
   toggle_alarms = FALSE
 )
 }
@@ -21,6 +22,8 @@ create_barplot_or_table(
 \item{n_levels}{the threshold for the number of levels from which we decide when a table is generated instead of a barchart visualisation}
 
 \item{interactive}{boolean identifying whether the plot should be static or interactive}
+
+\item{page_length}{integer indicating number of elements per DataTable page. Default is 10}
 
 \item{toggle_alarms}{boolean identifying whether the plot should showing number of signals explicitly or only when hovering}
 }

@@ -128,7 +128,8 @@ for(cate in params$strata){
      s_agg,
      params$data,
      cate,
-     interactive = TRUE
+     interactive = TRUE, 
+     page_length = 5
     ) 
   
   print(htmltools::tagList(dist_plot))
@@ -152,7 +153,7 @@ SignalDetectionTool::plot_time_series(
 
 > `r paste("Number of", params$disease, "cases by time unit and signals,", params$country)`
 
-Row 
+Row {data-height=800}
 -------------------------------------
 ### Signal Detection Table
 
@@ -162,7 +163,8 @@ txt <- NULL
 if (sum(results_analysis$alarms, na.rm = TRUE) != 0) {
   SignalDetectionTool::build_signals_table(
     s_pad,
-    format = "DataTable"
+    format = "DataTable", 
+    page_length = 15
   )
 } else {
   txt <- "No signals were detected."

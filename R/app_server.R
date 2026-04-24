@@ -28,11 +28,13 @@ app_server <- function(input, output, session) {
     time_unit = datinput$time_unit,
     number_of_time_units = datinput$n_time_units,
     number_of_time_units_input_valid = datinput$time_units_input_valid,
+    alpha_upper = datinput$alpha_upper,
     strat_vars = datinput$strat_vars,
     errors_detected = data_load_check_result$errors_detected,
     method = datinput$method,
     no_algorithm_possible = datinput$no_algorithm_possible,
     intervention_date = datinput$intervention_date,
+    date_ext = datinput$date_ext,
     pad_signals_choice = datinput$pad_signals_choice,
     min_cases_signals = datinput$min_cases_signals
   )
@@ -45,9 +47,11 @@ app_server <- function(input, output, session) {
     errors_detected = data_load_check_result$errors_detected,
     datinput$no_algorithm_possible,
     number_of_time_units_input_valid = datinput$time_units_input_valid,
+    alpha_upper = datinput$alpha_upper,
     signals_padded = signals_output$signals_padded,
     signals_agg = signals_output$signals_agg,
-    intervention_date = datinput$intervention_date
+    intervention_date = datinput$intervention_date,
+    selected_filter_vars = datinput$selected_filter_vars
   )
 
   mod_tabpanel_linelist_server("linelist",

@@ -18,7 +18,7 @@ create_model_data(
 \arguments{
 \item{ts_len}{integer, specifying the length of the aggregated timeseries of case counts}
 
-\item{model}{character, default "mean" one of c("mean", "sincos", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.}
+\item{model}{character, default "mean" one of c("mean", "sincos", "sincos_multiS", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.}
 
 \item{time_trend}{boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.}
 

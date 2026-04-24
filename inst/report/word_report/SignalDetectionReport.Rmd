@@ -13,7 +13,9 @@ params:
   number_of_time_units: 6
   time_unit: "weekly"
   method: "farrington"
-  strata: !r c("county_id", "community_id", "sex", "age_group") 
+  alpha_upper: 0.05
+  strata: NULL 
+  selected_filter_vars: NULL
   tables: true
   signals_padded: NULL
   signals_agg: NULL

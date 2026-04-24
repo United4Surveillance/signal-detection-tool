@@ -11,9 +11,11 @@ get_signals_all(
   stratification = NULL,
   date_start = NULL,
   date_end = NULL,
+  date_ext = NULL,
   date_var = "date_report",
   time_unit = "weekly",
-  number_of_time_units = 6
+  number_of_time_units = 6,
+  alpha_upper = 0.05
 )
 }
 \arguments{
@@ -33,12 +35,18 @@ the beginning of the analysis period.}
 \item{date_end}{Optional. A date or character string in yyyy-mm-dd format indicating
 the end of the analysis period.}
 
+\item{date_ext}{A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL}
+
 \item{date_var}{A character string specifying the column name of the date variable to use.
 Default is "date_report".}
 
-\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "week".}
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 
 \item{number_of_time_units}{Integer specifying how many time units to generate signals for.}
+
+\item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
+and internally set to NULL.
+Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
 }
 \value{
 A tibble with columns for signals, expected values, thresholds, and

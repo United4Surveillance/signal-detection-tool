@@ -8,7 +8,8 @@ format_table(
   data,
   signals_only = TRUE,
   interactive = TRUE,
-  dt_selection_type = "single"
+  dt_selection_type = "single",
+  page_length = 10
 )
 }
 \arguments{
@@ -20,6 +21,8 @@ format_table(
 DataTable (default is TRUE).}
 
 \item{dt_selection_type}{String controlling the DataTable selection argument. Expected values are "multiple", "single", "none" (default is 'single').}
+
+\item{page_length}{integer indicating number of elements per DataTable page. Default is 10}
 }
 \value{
 An interactive DataTable or a static gt table, depending on the value

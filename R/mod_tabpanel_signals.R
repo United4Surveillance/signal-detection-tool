@@ -42,12 +42,14 @@ mod_tabpanel_signals_server <- function(
   time_unit,
   number_of_time_units,
   number_of_time_units_input_valid,
+  date_ext,
   strat_vars,
   method,
   no_algorithm_possible,
   intervention_date,
   pad_signals_choice,
-  min_cases_signals
+  min_cases_signals,
+  alpha_upper
 ) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -209,7 +211,9 @@ mod_tabpanel_signals_server <- function(
         stratification = strat_vars_tidy(),
         date_var = "date_report",
         time_unit = time_unit(),
-        number_of_time_units = number_of_time_units()
+        number_of_time_units = number_of_time_units(),
+        date_ext = date_ext(),
+        alpha_upper = alpha_upper()
       )
       results %>% dplyr::mutate(
         alarms = dplyr::if_else(alarms & cases < min_cases_signals(),

@@ -96,7 +96,7 @@ EARS was developed by CDC and published in Hutwagner et al. (2003). In this tool
 
 #### Mean 
 
-The algorithms labelled “Mean”, “Timetrend”, “Harmonic”, “Harmonic with timetrend”, “Step harmonic”, and “Step harmonic with timetrend” share the same generalised linear model (GLM) backbone implemented in the function get_signals_glm(). Aggregated case counts are iteratively refitted with a quasi-Poisson GLM where down-weighted Anscombe residuals reduce the influence of past outbreaks. Depending on the method, the GLM contains an intercept only, time trends, harmonic sine/cosine waves, or terms for 10 seasonal windows. A threshold is then determined using a prediction interval derived from the mean, applying either a Poisson or negative binomial distribution. The choice of distribution is based on the fitted dispersion of the data. 
+The algorithms labelled “Mean”, “Timetrend”, “Harmonic”, “Harmonic with timetrend”, “Multi-seasonal harmonic“, “Step harmonic”, and “Step harmonic with timetrend” share the same generalised linear model (GLM) backbone implemented in the function get_signals_glm(). Aggregated case counts are iteratively refitted with a quasi-Poisson GLM where down-weighted Anscombe residuals reduce the influence of past outbreaks. Depending on the method, the GLM contains an intercept only, time trends, harmonic sine/cosine waves, or terms for 10 seasonal windows. A threshold is then determined using a prediction interval derived from the mean, applying either a Poisson or negative binomial distribution. The choice of distribution is based on the fitted dispersion of the data. 
 
 The Mean option fits only an intercept, i.e., calculates the mean of all previous case counts while downweighting past outbreaks. This mean serves as the expected value for the current number of cases.
 
@@ -112,6 +112,9 @@ This method augments the intercept-only model (as used by “Mean”) with sine 
 
 The same as the Harmonic method but with fitted timetrend to account for the underlying trend in the data.
 
+### Multi-seasonal harmonic
+
+This method extends the Harmonic method by incorporating two pairs of sine and cosine terms to capture multiple seasonal components. By default, it models one and two cycles per year (annual and semiannual seasonality). A fitted timetrend is included to account for the underlying trend in the data. However, the timetrend is removed and the model is refitted if any predicted value in the test period exceeds twice the maximum observed count in the training period.
 
 #### Step harmonic
 
@@ -120,6 +123,10 @@ This method models the expected number of cases using the season groups defined 
 #### Step harmonic with timetrend
 
 The same as the Step harmonic method but with fitted timetrend to account for the underlying trend in the data.
+
+### Alpha_upper selection
+
+Here you can specify the p-value cutoff, denoted as the one-sided significance level alpha_upper, which is used by several signal detection algorithms to define the corresponding signal threshold. The p-value represents the probability, under the null hypothesis of no signal, of observing a result at least as extreme as the one obtained. In practice, the algorithm triggers a signal when the observation exceeds the threshold defined by the upper (1−alpha_upper)*100 % quantile of the predictive distribution. If a p-value is smaller than alpha_upper the null hypothesis is rejected. Lower p-value cutoffs result in higher thresholds, meaning fewer signals and a less sensitive algorithm. Higher p-value cutoffs lower the threshold, making the algorithm more sensitive and increasing the likelihood of detecting signals, but also raising the false alarm rate. It is possible to apply the correction to the following algorithms: FarringtonFlexible, Mean, Timetrend, Harmonic, Harmonic with timetrend, Step harmonic, Step harmonic with timetrend.  
 
 ### Covid19 Pandemic correction
 
