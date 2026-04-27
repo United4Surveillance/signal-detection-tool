@@ -287,7 +287,7 @@ the app.
 ## Usage
 
 The shiny application is structured into a **Help**, **Data**, **Input
-parameters**, **Signals** and **Report** tab.  
+parameters**, **Signals**, **Signal Line List** and **Report** tab.  
 You can try the shiny application yourself using [test
 data](https://github.com/United4Surveillance/signal-detection-tool/blob/main/dev/data/input/input.csv)
 provided with the package.
@@ -330,6 +330,11 @@ algorithm with pandemic correction:
 ![](man/figures/README-signals_tab.PNG)
 ![](man/figures/README-timeseries.PNG)
 ![](man/figures/README-signal_detection_table.PNG)
+
+### Signal Line List
+
+The Signal Line List tab displays cases for selected signals in a line
+list.
 
 ### Report
 
@@ -398,6 +403,12 @@ Defines key variables for analysis and signal detection.
 - `pathogen` *(Scalar: String)* – Default pathogen under analysis (e.g.,
   *Pertussis*).
 
+- `date_ext_enabled` *(Scalar: Boolean)* - Use an end date for the
+  analysis period that differs from the line list end date.
+
+- `date_ext_date` *(Scalar: String, Date format `YYYY-MM-DD`)* - Custom
+  end date for the analysis period
+
 - `strata` *(Sequence of Scalars: List of Strings)* – Categories used to
   stratify the analysis (e.g., `age_group`, `community`).
 
@@ -411,11 +422,18 @@ Defines key variables for analysis and signal detection.
   compute the threshold, only used in FarringtonFlexible and GLM
   algorithms.
 
-- `pandemic_correction`: *(Scalar: Boolean)* Correct for the effects of
-  the COVID-19 pandemic, only used in GLM algorithms
+- `pandemic_correction`: *(Scalar: Boolean)* - Correct for the effects
+  of the COVID-19 pandemic, only used in GLM algorithms.
 
 - `intervention_date`: *(Scalar: String, Date format `YYYY-MM-DD`)* -
-  Date for the intervention in the pandemic correction models
+  Date for the intervention in the pandemic correction models.
+
+##### **Post-Processing Parameters (`post-processing`)** *(Mapping)*
+
+Defines key variables for post-processing.
+
+- `min_cases_signals` *(Scalar: Integer)* - Minimum number of cases for
+  a signal to be included
 
 ##### **Shapefile Path (`shapefile_path`)** *(Scalar: Null or String)*
 
@@ -448,7 +466,7 @@ Possible strata values:
 - community
 - sex
 
-Possible algorithms values:
+Possible algorithm values:
 
 - farrington
 - ears
@@ -457,6 +475,7 @@ Possible algorithms values:
 - glm timetrend
 - glm harmonic
 - glm harmonic with timetrend
+- glm harmonic multi
 - glm farrington
 - glm farrington with timetrend
 
