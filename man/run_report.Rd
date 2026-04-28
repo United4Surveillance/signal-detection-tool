@@ -131,7 +131,7 @@ performed beforehand. This function is also invoked within the app.
 # Example 1: Run a report with specified parameters and HTML output
 run_report(
   report_format = "HTML",
-  data = SignalDetectionTool::input_example,
+  data = input_example,
   method = "FarringtonFlexible",
   strata = c("county", "sex"),
   number_of_weeks = 6
@@ -152,7 +152,7 @@ run_report(
 # Example 4: Do not use stratification
 run_report(
   report_format = "HTML",
-  data = SignalDetectionTool::input_example,
+  data = input_example,
   method = "EARS",
   strata = NULL
 )
@@ -160,14 +160,14 @@ run_report(
 # Example 5: Create an HTML report for multiple pathogens
 run_report(
   report_format = "HTML",
-  data = SignalDetectionTool::input_example_multipathogen,
+  data = input_example_multipathogen,
   method = "Harmonic"
 )
 
 # Example 6: Restrict a multi-pathogen HTML report to a subset of pathogens
 run_report(
   report_format = "HTML",
-  data = SignalDetectionTool::input_example_multipathogen,
+  data = input_example_multipathogen,
   pathogens = c("Enterobacter", "Salmonella"),
   method = "Harmonic"
 )
@@ -179,7 +179,7 @@ pathogen_strata <- tibble::tibble(
 )
 run_report(
   report_format = "HTML",
-  data = SignalDetectionTool::input_example_multipathogen,
+  data = input_example_multipathogen,
   pathogens = c("Enterobacter", "Salmonella"),
   strata = pathogen_strata,
   method = "Harmonic"

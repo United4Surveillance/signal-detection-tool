@@ -7,7 +7,8 @@
 #'
 #' @examples
 #' \dontrun{
-#' preprocess_data(input_example)
+#' data_preprocessed <- input_example %>% preprocess_data()
+#' data_preprocessed
 #' }
 preprocess_data <- function(data) {
   # remove completely empty columns from the dataset
@@ -111,7 +112,10 @@ preprocess_data <- function(data) {
 #' @param group A character specifying another grouping variable. Usually used for stratification.
 #' @examples
 #' \dontrun{
-#' data <- preprocess_data(input_example) %>% aggregate_data()
+#' data_aggregated <- input_example %>%
+#'   preprocess_data() %>%
+#'   aggregate_data()
+#' data_aggregated
 #' }
 #' @export
 aggregate_data <- function(data,
@@ -278,10 +282,11 @@ filter_by_date <- function(data, date_var = "date_report", date_start = NULL, da
 #'
 #' @examples
 #' \dontrun{
-#' input_path <- "data/input/input.csv"
-#' data <- read.csv(input_path, header = TRUE, sep = ",")
-#' data <- preprocess_data(data) %>% aggregate_data()
+#' data <- input_example %>%
+#'   preprocess_data() %>%
+#'   aggregate_data()
 #' sts_cases <- convert_to_sts(data)
+#' sts_cases
 #' }
 convert_to_sts <- function(case_counts) {
   # create sts object

@@ -12,7 +12,7 @@
 #' @examples
 #'
 #' data <- data.frame(a = 1:5, b = 1:5, c = 1L:5L)
-#' SignalDetectionTool::get_float_columns(data)
+#' get_float_columns(data)
 #'
 get_float_columns <- function(data) {
   # Create a logical vector indicating whether each column is numeric
@@ -273,7 +273,10 @@ prepare_signals_table <- function(data,
 #' \dontrun{
 #' signal_results <- input_example %>%
 #'   preprocess_data() %>%
-#'   get_signals(stratification = c("age_group"), number_of_weeks = 6)
+#'   get_signals(
+#'     stratification = c("age_group"),
+#'     number_of_weeks = 6
+#'     )
 #' build_signals_table(signal_results)
 #' build_signals_table(signal_results, format = "data.frame")
 #' }

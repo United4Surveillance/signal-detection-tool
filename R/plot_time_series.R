@@ -14,9 +14,10 @@
 #'
 #' @examples
 #' \dontrun{
-#' data <- read.csv("data/input/input.csv", header = TRUE, sep = ",")
-#' results <- get_signals_farringtonflexible(data)
-#' plot_time_series(results)
+#' data_preprocessed <- input_example %>% preprocess_data()
+#' signals <- data_preprocessed %>% get_signals_farringtonflexible()
+#' signals_time_series <- signals %>% plot_time_series()
+#' signals_time_series
 #' }
 plot_time_series <- function(results, interactive = FALSE,
                              intervention_date = NULL,

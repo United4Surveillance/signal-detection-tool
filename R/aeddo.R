@@ -18,6 +18,7 @@
 #'   preprocess_data() %>%
 #'   aggregate_data()
 #' results <- get_signals_aeddo(data_aggregated)
+#' results
 #' }
 #'
 #' @seealso

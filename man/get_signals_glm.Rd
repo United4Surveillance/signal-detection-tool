@@ -55,5 +55,6 @@ data_aggregated <- input_example \%>\%
   preprocess_data() \%>\%
   aggregate_data()
 results <- get_signals_glm(data_aggregated)
+results
 }
 }

@@ -13,11 +13,14 @@
 #'
 #' @examples
 #' \dontrun{
-#' dat <- preprocess_data(input_example)
-#' signals <- get_signals(dat, stratification = "county")
+#' data_preprocessed <- input_example %>% preprocess_data()
+#' signals <- data_preprocessed %>% get_signals(stratification = "county")
 #' n.strata <- 9
-#'
-#' plot_signals_per_week(signals, n_strata = n.strata)
+#' signals_week_barchart <- plot_signals_per_week(
+#'   signals,
+#'   n_strata = n.strata
+#'   )
+#' signals_week_barchart
 #' }
 plot_signals_per_week <- function(results, n_strata, interactive = FALSE, branding = NULL) {
   if (is.null(branding)) {

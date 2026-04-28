@@ -9,6 +9,7 @@
 #'   preprocess_data() %>%
 #'   aggregate_data()
 #' results <- get_signals_ears(data_aggregated)
+#' results
 #' }
 get_signals_ears <- function(data_aggregated,
                              number_of_weeks = 52,

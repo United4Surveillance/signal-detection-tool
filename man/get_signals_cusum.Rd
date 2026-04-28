@@ -20,5 +20,6 @@ data_aggregated <- input_example \%>\%
   preprocess_data() \%>\%
   aggregate_data()
 results <- get_signals_cusum(data_aggregated)
+results
 }
 }

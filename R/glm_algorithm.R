@@ -245,6 +245,7 @@ create_formula <- function(model_data) {
 #'   preprocess_data() %>%
 #'   aggregate_data()
 #' results <- get_signals_glm(data_aggregated)
+#' results
 #' }
 get_signals_glm <- function(data_aggregated,
                             number_of_weeks = 6,
@@ -421,10 +422,10 @@ get_signals_glm <- function(data_aggregated,
 #' Default is `4`.
 #' @return list with three dates or NULL values. valid_start_date is the first date which is valid to chose as intervention_date, valid_end_date is the last date which is valid to chose to chose as intervention_date, default_intervention is a default date which is used for the intervention_date and usually set to "2020-03-15" but checked whether this is possible with the data we have
 #' @examples \dontrun{
-#' input_prepro <- input_example %>% preprocess_data()
-#' get_valid_dates_intervention_start(input_prepro) # this just gives the default date "2020-03-15" back
-#' get_valid_dates_intervention_start(input_prepro %>% dplyr::filter(date_report >= "2020-04-01")) # this gives the valid_start date back as default date
-#' get_valid_dates_intervention_start(input_prepro %>% dplyr::filter(date_report >= "2020-04-01") %>% dplyr::filter(date_report <= "2020-05-01")) # this gives NULL as the timeperiod of date provided is too short to do a intervention
+#' data_preprocessed <- input_example %>% preprocess_data()
+#' get_valid_dates_intervention_start(data_preprocessed) # this just gives the default date "2020-03-15" back
+#' get_valid_dates_intervention_start(data_preprocessed %>% dplyr::filter(date_report >= "2020-04-01")) # this gives the valid_start date back as default date
+#' get_valid_dates_intervention_start(data_preprocessed %>% dplyr::filter(date_report >= "2020-04-01") %>% dplyr::filter(date_report <= "2020-05-01")) # this gives NULL as the timeperiod of date provided is too short to do a intervention
 #' }
 get_valid_dates_intervention_start <- function(data,
                                                date_var = "date_report",

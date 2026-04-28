@@ -39,7 +39,10 @@ columns to integers for styling purposes. This table is used to show all signal 
 \dontrun{
 signal_results <- input_example \%>\%
   preprocess_data() \%>\%
-  get_signals(stratification = c("age_group"), number_of_weeks = 6)
+  get_signals(
+    stratification = c("age_group"),
+    number_of_weeks = 6
+    )
 build_signals_table(signal_results)
 build_signals_table(signal_results, format = "data.frame")
 }

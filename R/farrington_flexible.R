@@ -10,6 +10,7 @@
 #'   preprocess_data() %>%
 #'   aggregate_data()
 #' results <- get_signals_farringtonflexible(data_aggregated)
+#' results
 #' }
 get_signals_farringtonflexible <- function(data_aggregated,
                                            number_of_weeks = 52,
