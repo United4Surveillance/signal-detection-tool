@@ -243,8 +243,7 @@ create_formula <- function(model_data) {
 #' \dontrun{
 #' data_aggregated <- input_example %>%
 #'   preprocess_data() %>%
-#'   aggregate_data() %>%
-#'   add_rows_missing_dates()
+#'   aggregate_data()
 #' results <- get_signals_glm(data_aggregated)
 #' }
 get_signals_glm <- function(data_aggregated,

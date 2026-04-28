@@ -117,8 +117,7 @@ isoweek_to_date <- function(week, year) {
 #' @examples \dontrun{
 #' data_agg <- input_example %>%
 #'   preprocess_data() %>%
-#'   aggregate_data() %>%
-#'   add_rows_missing_dates()
+#'   aggregate_data()
 #' get_intervention_timepoint("2020-03-04", data_agg)
 #' }
 get_intervention_timepoint <- function(date, data_aggregated) {

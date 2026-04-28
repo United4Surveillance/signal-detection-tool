@@ -7,8 +7,7 @@
 #' \dontrun{
 #' data_aggregated <- input_example %>%
 #'   preprocess_data() %>%
-#'   aggregate_data() %>%
-#'   add_rows_missing_dates()
+#'   aggregate_data()
 #' results <- get_signals_ears(data_aggregated)
 #' }
 get_signals_ears <- function(data_aggregated,

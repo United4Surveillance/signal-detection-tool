@@ -138,10 +138,25 @@ aggregate_data <- function(data,
     combine = "or"
   )
 
+  if (is.null(date_start)) {
+    date_start <- min(data[[date_var]], na.rm = TRUE)
+  }
+  if (is.null(date_end)) {
+    date_end <- max(data[[date_var]], na.rm = TRUE)
+  }
+
+  # add cw_iso (isoweeks) as factor levels
+  all_cw_iso <- get_all_cw_iso(date_start = date_start, date_end = date_end)
+  data <- data %>%
+    dplyr::mutate(
+      cw_iso = paste0(
+        lubridate::isoyear(!!rlang::sym(date_var)), "-",
+        lubridate::isoweek(!!rlang::sym(date_var))
+      ),
+      cw_iso = factor(cw_iso, levels = all_cw_iso)
+    )
+
   if (!is.null(date_ext)) {
-    if (is.null(date_start)) { # TODO check when is this really NULL
-      date_start <- min(data[[date_var]], na.rm = TRUE)
-    }
     extended_data_range <- get_all_cw_iso(date_start = date_start, date_end = date_ext)
     data$cw_iso <- factor(data$cw_iso, levels = extended_data_range)
   }
@@ -296,39 +311,6 @@ filter_data_last_n_weeks <- function(data_agg,
     dplyr::slice_tail(n = number_of_weeks) %>%
     dplyr::ungroup()
 }
-
-#' Adds a column `cw_iso` to the data.frame `data`.
-#'
-#' Uses `date_var`to create a factor column of isoweeks. Factor levels are all
-#' weeks between `date_start` and `date_end`.
-#' @inheritParams aggregate_data
-add_cw_iso <- function(data,
-                       date_start = NULL,
-                       date_end = NULL,
-                       date_var = "date_report") {
-  # get min and max date of the whole dataset before stratification
-  # stratified aggregated data can be filled up with 0s until min and max date
-  # of the full dataset
-  if (is.null(date_start)) {
-    date_start <- min(data[[date_var]], na.rm = TRUE)
-  }
-  if (is.null(date_end)) {
-    date_end <- max(data[[date_var]], na.rm = TRUE)
-  }
-
-  # add cw_iso (isoweeks) as factor levels
-  all_cw_iso <- get_all_cw_iso(date_start = date_start, date_end = date_end)
-  data <- data %>%
-    dplyr::mutate(
-      cw_iso = paste0(
-        lubridate::isoyear(!!rlang::sym(date_var)), "-",
-        lubridate::isoweek(!!rlang::sym(date_var))
-      ),
-      cw_iso = factor(cw_iso, levels = all_cw_iso)
-    )
-  data
-}
-
 
 #' function to get all iso weeks between `date_start` and `date_end`
 #' @param date_start date object, starting date of sequence

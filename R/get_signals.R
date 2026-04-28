@@ -104,14 +104,13 @@ get_signals_all <- function(preprocessed_data,
 #'
 #' @examples
 #' \dontrun{
-#' data <- read.csv("../data/input/input.csv")
+#' data <- input_example %>% preprocess_data()
 #' categories <- c("county", "sex", "age_group") # Replace with actual column names
 #' results <- get_signals_stratified(
 #'   data,
 #'   fun = get_signals_farringtonflexible,
 #'   stratification_columns = categories
 #' )
-#' print(results)
 #' }
 get_signals_stratified <- function(data,
                                    fun,
@@ -395,10 +394,6 @@ get_signals <- function(data,
       time_trend <- TRUE
     }
   }
-
-  data <- data %>%
-    add_cw_iso(date_start = date_start, date_end = date_end, date_var = date_var)
-
 
   if (is.null(stratification)) {
     data_agg <- data %>%
