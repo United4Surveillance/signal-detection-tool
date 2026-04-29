@@ -21,17 +21,22 @@ score_strength <- function(signals_res){
       )
   } else {
     signals_res <- signals_res %>%
-      dplyr::mutate(size.alarm = (.data$cases-.data$expected)/(.data$upperbound-.data$expected))
-
-    signals_res <- signals_res %>%
-    dplyr::mutate(
+      dplyr::mutate(
+        size.alarm = dplyr::case_when(
+          .data$alarms ~ (.data$cases-.data$expected)/(.data$upperbound-.data$expected),
+          .default = NA
+        )
+      ) 
+      
+      signals_res <- signals_res %>%
+        dplyr::mutate(
       score = dplyr::case_when(
-        is.na(.data$alarms) ~ NA,
-        isFALSE(.data$alarms) ~ NA,
-        .default = ((.data$size.alarm^3) - 1)/(.data$size.alarm^3)
+        .data$alarms ~ ((.data$size.alarm^3) - 1)/(.data$size.alarm^3),
+        .default = NA
       )
     )
   }
+  
 
   return(signals_res %>% dplyr::select(c(".row_id", "score")))
 }

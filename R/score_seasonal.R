@@ -1,8 +1,8 @@
 #' @title Score signals according to seasonal distribution of cases
-#' @description Scores each signal in the signals_pad object according to the
+#' @description Scores each signal in the signal detection results according to the
 #' calculated seasonal distribution. See [case_yearly_dist]
 #'
-#' @param signals_pad, signal detection results obtained from get_signals()
+#' @param signals_res, signal detection results obtained from get_signals()
 #'
 #' @returns signal detection results scored
 #' @export
@@ -12,10 +12,10 @@
 #'
 #' score_seasonal(signals)
 #' }
-score_seasonal <- function(signals_pad){
+score_seasonal <- function(signals_res){
 
   # select the unstratified
-  ts_pathogen <- signals_pad %>% dplyr::filter(is.na(category))
+  ts_pathogen <- signals_res %>% dplyr::filter(is.na(category))
 
   # select years that are complete (52, 53 weeks)
   sel_years <- ts_pathogen %>%
@@ -28,7 +28,7 @@ score_seasonal <- function(signals_pad){
     dplyr::select(-"cases.dist")
 
   # score_signals
-  signals_pad <- signals_pad %>%
+  signals_res <- signals_res %>%
     dplyr::mutate(
       month = factor(
         lubridate::month(isoweek_to_date(.data$week, .data$year)),
@@ -38,13 +38,12 @@ score_seasonal <- function(signals_pad){
     dplyr::left_join(scores_per_month, by = c("month")) %>%
     dplyr::mutate(
       score = dplyr::case_when(
-        is.na(.data$alarms) ~ NA,
-        !alarms ~ NA,
-        .default = .data$score
+        .data$alarms ~ .data$score,
+        .default = NA
       )
     )
 
-  return(signals_pad %>% dplyr::select(c(".row_id", "score")))
+  return(signals_res %>% dplyr::select(c(".row_id", "score")))
 }
 
 
