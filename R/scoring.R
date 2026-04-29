@@ -269,5 +269,7 @@ get_scores <- function(signal_results, scorers, aggregation = c("mean", "sum")) 
       ),
       by = ".row_id"
     ) %>%
+    dplyr::left_join(all_scores,
+                     by = ".row_id") %>%
     dplyr::select(-.row_id)
 }
