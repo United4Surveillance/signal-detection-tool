@@ -8,6 +8,8 @@
 #' where `signal_results$alarms == TRUE`. For all other rows, `score` must be
 #' `NA`.
 #'
+#' Missing scores must be represented as `NA`, not `NaN`.
+#'
 #' @param score_tbl A data frame returned by a scorer function.
 #' @param signal_results The input data frame passed to the scorer, including
 #'   `.row_id` and `alarms`.
@@ -73,6 +75,16 @@ validate_scorer_output <- function(score_tbl, signal_results, scorer_name = "<un
          call. = FALSE)
   }
 
+  if (any(is.nan(score_tbl$score))) {
+    stop(
+      sprintf(
+        "Scorer '%s': `score` must use `NA` for missing values, not `NaN`.",
+        scorer_name
+      ),
+      call. = FALSE
+    )
+  }
+
   is_alarm <- signal_results$alarms[match(score_tbl$.row_id, signal_results$.row_id)] %in% TRUE
 
   if (any(!is.na(score_tbl$score[!is_alarm]))) {
@@ -108,16 +120,21 @@ validate_scorer_output <- function(score_tbl, signal_results, scorer_name = "<un
 #' Aggregates individual scorer outputs into one final score per row.
 #' Supported aggregation methods are `"mean"` and `"sum"`.
 #'
+#' Missing values in individual score columns are ignored during aggregation.
+#' Therefore, rows with at least one non-missing individual score receive an
+#' aggregated numeric value.
+#'
 #' Rows for which all individual scorer outputs are `NA` remain `NA` in the
-#' aggregated result. This is the expected behaviour for rows where
-#' `alarms != TRUE`.
+#' aggregated result. This avoids returning `NaN` for row-wise means and `0`
+#' for row-wise sums when no observed score is available.
 #'
 #' @param score_df A data frame containing `.row_id` and one or more numeric
 #'   score columns.
 #' @param aggregation A character string specifying the aggregation method.
 #'   Must be either `"mean"` or `"sum"`.
 #'
-#' @return A numeric vector containing one aggregated score per row.
+#' @return A double vector containing one aggregated score per row. Rows with
+#'   no non-missing individual score receive `NA_real_`.
 #' @noRd
 aggregate_scores <- function(score_df, aggregation = c("mean", "sum")) {
   aggregation <- match.arg(aggregation)
@@ -128,15 +145,25 @@ aggregate_scores <- function(score_df, aggregation = c("mean", "sum")) {
     stop("No individual scores were found for aggregation.", call. = FALSE)
   }
 
+  if (!all(vapply(score_df[score_cols], is.numeric, logical(1)))) {
+    stop("All individual score columns must be numeric.", call. = FALSE)
+  }
+
   score_matrix <- score_df %>%
     dplyr::select(dplyr::all_of(score_cols)) %>%
     as.matrix()
 
-  switch(
+  n_observed_scores <- rowSums(!is.na(score_matrix))
+
+  aggregated_score <- switch(
     aggregation,
-    mean = rowMeans(score_matrix),
-    sum  = rowSums(score_matrix)
+    mean = rowMeans(score_matrix, na.rm = TRUE),
+    sum  = rowSums(score_matrix, na.rm = TRUE)
   )
+
+  aggregated_score[n_observed_scores == 0L] <- NA_real_
+
+  as.double(aggregated_score)
 }
 
 #' Calculate aggregated scores for epidemiological signals
@@ -151,7 +178,12 @@ aggregate_scores <- function(score_df, aggregation = c("mean", "sum")) {
 #' columns: `.row_id` and `score`.
 #'
 #' Scores must be numeric in `[0, 1]` only for rows where `alarms == TRUE`.
-#' For all other rows, scorers must return `NA`.
+#' For all other rows, scorers must return `NA`. Missing scores must be encoded
+#' as `NA`, not `NaN`.
+#'
+#' During aggregation, missing individual scores are ignored. Rows for which all
+#' individual scores are missing receive `NA_real_` as their final aggregated
+#' score.
 #'
 #' @param signal_results A data frame or tibble containing the input signals,
 #'   including an `alarms` column.
@@ -160,8 +192,8 @@ aggregate_scores <- function(score_df, aggregation = c("mean", "sum")) {
 #'   be aggregated. Must be either `"mean"` or `"sum"`.
 #'
 #' @return A tibble containing the original `signal_results` columns plus one
-#'   additional aggregated `score` column. Rows with `alarms != TRUE` receive
-#'   `NA`.
+#'   additional aggregated `score` column. Rows with no non-missing individual
+#'   score receive `NA_real_`.
 #'
 #' @examples
 #' signal_results <- tibble::tibble(
