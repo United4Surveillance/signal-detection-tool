@@ -277,8 +277,8 @@ prepare_signals_table <- function(data,
 #'     stratification = c("age_group"),
 #'     number_of_weeks = 6
 #'     )
-#' build_signals_table(signal_results)
-#' build_signals_table(signal_results, format = "data.frame")
+#' signals_table <- build_signals_table(signal_results, format = "data.frame")
+#' signals_table
 #' }
 build_signals_table <- function(signal_results,
                                 signals_only = TRUE,
@@ -373,8 +373,8 @@ build_empty_datatable <- function(message) {
 #'   get_signals(stratification = c("age_group", "sex")) %>%
 #'   aggregate_signals(number_of_weeks = 6) %>%
 #'   filter(category == "age_group")
-#'
-#' prepare_signals_agg_table(signals_agg)
+#' signals_agg_table <- prepare_signals_agg_table(signals_agg)
+#' signals_agg_table
 #' }
 prepare_signals_agg_table <- function(signals_agg) {
   category <- unique(signals_agg$category)
@@ -411,8 +411,8 @@ prepare_signals_agg_table <- function(signals_agg) {
 #'   get_signals(stratification = c("age_group", "sex")) %>%
 #'   aggregate_signals(number_of_weeks = 6) %>%
 #'   filter(category == "age_group")
-#'
-#' build_signals_agg_table(signals_agg)
+#' signals_agg_table <- build_signals_agg_table(signals_agg, format = "data.frame")
+#' signals_agg_table
 #' }
 build_signals_agg_table <- function(signals_agg,
                                     format = "DataTable",
