@@ -43,7 +43,7 @@ signal_results <- input_example \%>\%
     stratification = c("age_group"),
     number_of_weeks = 6
     )
-build_signals_table(signal_results)
-build_signals_table(signal_results, format = "data.frame")
+signals_table <- build_signals_table(signal_results, format = "data.frame")
+signals_table
 }
 }
