@@ -12,7 +12,9 @@
 #' # Save signals with default or custom filepath
 #' \dontrun{
 #' data_preprocessed <- input_example %>% preprocess_data()
-#' save_signals_data <- data_preprocessed %>% get_signals() %>% save_signals(data_preprocessed)
+#' save_signals_data <- data_preprocessed %>%
+#'   get_signals() %>%
+#'   save_signals(data_preprocessed)
 #' save_signals_data
 #' }
 #'
