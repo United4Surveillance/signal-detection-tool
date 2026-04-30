@@ -1,7 +1,7 @@
 #' Preprocessing of linelist surveillance data with or without outbreak_ids
 #' @param data data.frame, Linelist of surveillance data
 #' @returns data.frame, preprocessed linelist with transformation of columns to date,
-#' to lower, generation of isoyear and isoweek
+#' to lower
 #'
 #' @export
 #'
@@ -64,21 +64,6 @@ preprocess_data <- function(data) {
       dplyr::across(all_of(regional_id_vars), as.character),
       dplyr::across(all_of(yes_no_unknown_vars), ~ factor(.x, levels = lvl_ynu)),
       dplyr::across(all_of(factorization_vars), as.factor)
-    )
-
-
-  # add columns for isoyear, month and isoweek for each date
-  data <- data %>%
-    dplyr::mutate(
-      dplyr::across(
-        starts_with("date") & !where(is.numeric),
-        .fns = list(
-          year = ~ lubridate::isoyear(.x),
-          week = ~ lubridate::isoweek(.x),
-          month = ~ lubridate::month(.x)
-        ),
-        .names = "{.col}_{.fn}"
-      )
     )
 
   if ("age" %in% names(data())) {
@@ -203,7 +188,7 @@ aggregate_data <- function(data,
       as.data.frame()
   } else if (time_unit %in% c("monthly")) {
     data_agg %>%
-      tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "month")) %>%
+      tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "month")) %>% # uses calendar year logic through cw_iso generation
       dplyr::mutate(
         year = as.numeric(year),
         month = as.numeric(month)

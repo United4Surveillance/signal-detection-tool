@@ -11,7 +11,7 @@ preprocess_data(data)
 }
 \value{
 data.frame, preprocessed linelist with transformation of columns to date,
-to lower, generation of isoyear and isoweek
+to lower
 }
 \description{
 Preprocessing of linelist surveillance data with or without outbreak_ids

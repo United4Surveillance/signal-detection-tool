@@ -13,14 +13,14 @@ aggregate_pad_signals(
 )
 }
 \arguments{
-\item{signal_results}{A tibble returned by [get_signals()], containing weekly
+\item{signal_results}{A tibble returned by [get_signals()], containing weekly, biweekly or monthly
 signal detection results (cases, alarms, upperbound, expected, etc.).}
 
 \item{preprocessed}{A data frame containing the surveillance data preprocessed with [preprocess_data()].}
 
 \item{number_of_time_units}{Integer specifying how many time units to include in the aggregation.}
 
-\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "week".}
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 
 \item{method}{A character string specifying the method used to generate the signals.
 Determines whether padding is necessary. For `"glm"` methods, padding is skipped
@@ -48,7 +48,7 @@ before the signal detection window, which is useful for plotting full time serie
 \examples{
 \dontrun{
 results <- get_signals(preprocessed_data, method = "farrington")
-output <- aggregate_pad_signals(results, number_of_time_units = 6, time_unit == "weekly", method = "farrington")
+output <- aggregate_pad_signals(results, number_of_time_units = 6, time_unit = "weekly", method = "farrington")
 output$signals_agg
 output$signals_padded
 }
