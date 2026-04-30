@@ -13,7 +13,7 @@ reformatted and its levels are completed.}
 
 \item{break_at}{An integer vector specifying additional lower bounds of
 age groups (excluding 0, which is always used as the first lower bound).
-If `NULL` (the default), 5-year age groups 00-04, 05-09, ..., 125+ are used.}
+If `NULL` (the default), 5-year age groups 00-04, 05-09, ..., 115+ are used.}
 }
 \value{
 The input data frame `df` with a factor column `age_group` added
