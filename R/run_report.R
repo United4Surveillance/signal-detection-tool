@@ -297,11 +297,12 @@ run_report <- function(
         number_of_weeks = number_of_weeks
       ) %>%
         get_scores(
-          seasonal = score_seasonal,
-          rarity = score_rarity,
-          strength = score_strength,
-          specificity = score_specificity_alarm,
-          #specificity_2 = score_specificity_stronger,
+          list(
+            seasonal = score_seasonal,
+            rarity = score_rarity,
+            strength = score_strength,
+            specificity = score_specificity_alarm
+          ),
           aggregation = "mean"
         ) %>%
         dplyr::mutate(
@@ -467,7 +468,7 @@ run_report <- function(
 
       # pathogen specific strata are obtained if given
       if (precomputed) {
-        strata_per_path <- get_strata_from_signals_agg(signals_agg)
+        strata_per_path <- get_strata_from_signals_agg(signals_agg_p)
       } else {
         strata_per_path <- get_strata_for_path(strata, patho)
       }
