@@ -23,7 +23,7 @@ score_strength <- function(signals_res){
     signals_res <- signals_res %>%
       dplyr::mutate(
         size.alarm = dplyr::case_when(
-          .data$alarms ~ (.data$cases-.data$expected)/(.data$upperbound-.data$expected),
+          .data$alarms ~ abs((.data$cases-.data$expected)/(.data$upperbound-.data$expected)),
           .default = NA
         )
       ) 
