@@ -214,6 +214,12 @@ get_signals_stratified <- function(data,
       # aggregate data
       aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext, group = category)
 
+    # add extension date information if available
+    if(!is.null(date_ext)){
+      sub_data <- sub_data %>%
+        dplyr::mutate(extension_date = date_ext)
+    }
+
     split_list <- sub_data %>%
       dplyr::group_split(!!rlang::sym(category), .keep = FALSE)
     strata <- levels(sub_data[, category])
@@ -351,6 +357,11 @@ get_signals <- function(data,
     combine = "or"
   )
   checkmate::assert(
+    checkmate::check_null(date_ext),
+    checkmate::check_date(lubridate::date(date_ext)),
+    combine = "or"
+  )
+  checkmate::assert(
     checkmate::check_character(date_var, len = 1, pattern = "date")
   )
 
@@ -445,6 +456,11 @@ get_signals <- function(data,
       )
   }
 
+  # add extension date information if available
+  if(!is.null(date_ext)){
+    results <- results %>%
+      dplyr::mutate(extension_date = date_ext)
+  }
 
   return(results)
 }
@@ -568,6 +584,12 @@ pad_signals <- function(data,
   number_of_weeks <- unique(signals$number_of_weeks)
   method <- unique(signals$method)
 
+  date_ext <- if ("extension_date" %in% names(signals)) {
+    unique(signals$extension_date)
+  } else {
+    NULL
+  }
+
   if (grepl("farrington", method)) {
     alpha_upper <- unique(signals$alpha_upper)
   } else {
@@ -576,7 +598,9 @@ pad_signals <- function(data,
 
   stopifnot(length(number_of_weeks) == 1)
   stopifnot(length(method) == 1)
+  stopifnot(is.null(date_ext) || length(date_ext) == 1)
 
+  if (is.null(date_ext)){
   cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(number_of_weeks)
 
   data_no_signals <- data %>%
@@ -591,13 +615,62 @@ pad_signals <- function(data,
       data_no_signals,
       method = method,
       number_of_weeks = timeopt + number_of_weeks,
-      alpha_upper = alpha_upper
+      alpha_upper = alpha_upper,
+      date_ext = date_ext
     )
 
     if (!is.null(signals_timeopt)) {
       break
     }
   }
+  } #else if(!is.null(date_ext)){
+    #
+    # # also look at filters?
+    # if ((date_ext - lubridate::weeks(number_of_weeks)) < max(data$date_report, na.rm = TRUE)) {
+    #   cutoff_date <- date_ext - lubridate::weeks(number_of_weeks)
+    #
+    #   data_no_signals <- data %>%
+    #     dplyr::filter(date_report <= cutoff_date)
+    #
+    # available_thresholds <- c(26, 20, 14, 8, 2)
+    #
+    # for (timeopt in available_thresholds) {
+    #   max_time_opt <- timeopt
+    #
+    #   signals_timeopt <- SignalDetectionTool::get_signals(
+    #     data_no_signals,
+    #     method = method,
+    #     number_of_weeks = timeopt + number_of_weeks,
+    #     alpha_upper = alpha_upper,
+    #     date_ext = date_ext - lubridate::weeks(number_of_weeks)
+    #   )
+    #
+    #   if (!is.null(signals_timeopt)) {
+    #     break
+    #   }
+    # }
+    # } else {
+    #     data_no_signals <- data
+    #
+    #      available_thresholds <- c(26, 20, 14, 8, 2)
+    #
+    #     for (timeopt in available_thresholds) {
+    #       max_time_opt <- timeopt
+    #
+    #       signals_timeopt <- SignalDetectionTool::get_signals(
+    #         data_no_signals,
+    #         method = method,
+    #         number_of_weeks = timeopt + number_of_weeks,
+    #         alpha_upper = alpha_upper,
+    #         date_ext = date_ext - lubridate::weeks(number_of_weeks)
+    #       )
+    #
+    #       if (!is.null(signals_timeopt)) {
+    #         break
+    #       }
+    #     }
+    #   }
+    # }
 
   result_padding_unstratified <- signals_timeopt %>%
     dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
@@ -612,7 +685,8 @@ pad_signals <- function(data,
       date_var = "date_report",
       stratification = stratification,
       number_of_weeks = max_time_opt + number_of_weeks,
-      alpha_upper = alpha_upper
+      alpha_upper = alpha_upper,
+      date_ext = date_ext
     ) %>%
       dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected, category, stratum) %>%
       dplyr::group_by(category, stratum) %>%
