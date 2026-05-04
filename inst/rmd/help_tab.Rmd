@@ -34,7 +34,7 @@ Use this Shiny app as what it is - a tool. A tool to help bring another perspect
 # Input data
 
 This app requires specific input data formatting. For full details, see the README `Data` section on
-[Github](https://github.com/United4Surveillance/signal-detection-tool/blob/main/README.md#data).
+[Github](https://github.com/United4Surveillance/signal-detection-tool/blob/main/README.md#data){target="_top"}.
 
 # Workflow of the tool
 
@@ -188,6 +188,6 @@ The report can be produced in two different formats: HTML or DOCX.
 
 # Bug reporting
 
-If you encounter any technical issues or bugs when using the SignalDetectionTool, please report them on [Github](https://github.com/United4Surveillance/signal-detection-evaluation-tool/issues/new/choose) by creating an issue. 
+If you encounter any technical issues or bugs when using the SignalDetectionTool, please report them on [Github](https://github.com/United4Surveillance/signal-detection-evaluation-tool/issues/new/choose){target="_top"} by creating an issue. 
 Thank you in advance!
 
