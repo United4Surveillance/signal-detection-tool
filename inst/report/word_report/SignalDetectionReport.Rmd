@@ -12,6 +12,7 @@ params:
   country: "Austria"
   number_of_weeks: 6
   method: "farrington"
+  alpha_upper: 0.05
   strata: NULL 
   selected_filter_vars: NULL
   tables: true

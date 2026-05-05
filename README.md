@@ -4,6 +4,8 @@
 # SignalDetectionTool
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/United4Surveillance/signal-detection-tool/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/United4Surveillance/signal-detection-tool/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 ## Overview
@@ -41,170 +43,251 @@ found under
 [Releases](https://github.com/United4Surveillance/signal-detection-tool/releases).
 
 <details>
+
 <summary>
+
 <strong>Detailed Installation Guideline for the Files in
 Releases</strong>
 </summary>
+
 <ul>
+
 <li>
+
 <strong>Navigating to the Release Page</strong>
 <ul>
+
 <li>
+
 Scroll up and look on the right-hand side of the page under a section
 labelled <strong>Releases</strong>.
 </li>
+
 <li>
+
 Click on <strong>Releases</strong> to access the latest tool release.
 </li>
+
 <li>
+
 There are three different files you can download.
 </li>
+
 </ul>
+
 </li>
 
 <br>
 
 <details>
+
 <summary>
+
 <strong>Source Code (tar.gz)</strong>
 </summary>
+
 <p>
+
 This is a tarball. You must have Rtools installed on your computer to
 use this installation method. If you only want to run the app and use
 its functionalities, this is the correct installation for you. In case
 you are interested in modifying the code of the app, go to
 <strong>Source Code (zip)</strong>.
 </p>
+
 <ul>
+
 <li>
+
 Download the provided <code>.tar.gz</code> file and save it on your
 computer.
 </li>
+
 <li>
+
 Install the package <code>remotes</code> by putting
 <code>install.packages(“remotes”)</code> in the console.
 </li>
+
 <li>
+
 Install the package dependencies for the SignalDetectionTool using the
 full path where you stored the <code>.tar.gz</code> file. Replace
 <code>x.x.x</code> with the current version of the binary. For example:
 <code>remotes::install_deps(“C:/Users/YourUsername/Downloads/SignalDetectionTool_x.x.x.tar.gz”)</code>
 </li>
+
 <li>
+
 Execute this command in the console.
 </li>
+
 <li>
+
 This should also install any dependencies you need to run the tool. Wait
 until the installation finishes successfully.
 </li>
+
 <li>
+
 Write the following command into the console to install the tool:
 <code>install.packages(“path_to_the_tool/SignalDetectionTool_x.x.x.tar.gz”,
 repos = NULL, type=“source”)</code>
 </li>
+
 <li>
+
 Go back above the detailed installation instructions to read how to run
 the app.
 </li>
+
 </ul>
+
 </details>
+
 <details>
+
 <summary>
+
 <strong>SignalDetectionTool_x.x.x.zip</strong>
 </summary>
+
 <p>
+
 This is a binary. You do not need to have Rtools installed on your
 computer to use this installation method.
 </p>
+
 <ul>
+
 <li>
+
 Download the provided <code>.zip</code> file and save it on your
 computer (do NOT unzip). Open RStudio.
 </li>
+
 <li>
+
 Install the package <code>remotes</code> by putting
 <code>install.packages(“remotes”)</code> in the console.
 </li>
+
 <li>
+
 Install the package dependencies for the SignalDetectionTool using the
 full path where you stored the <code>.zip</code> file. Replace
 <code>x.x.x</code> with the current version of the binary. For example:
 <code>remotes::install_deps(“C:/Users/YourUsername/Downloads/SignalDetectionTool_x.x.x.binary.zip”)</code>
 </li>
+
 <li>
+
 Execute this command in the console.
 </li>
+
 <li>
+
 This command will ask if you want to update your installed packages.
 Type <code>1</code> and press enter to install the updates. For advanced
 users, you can also install only the minimal required versions written
 inside the <code>DESCRIPTION</code> file by using
 <code>remotes::install_version()</code>.
 </li>
+
 <li>
+
 Install the SignalDetectionTool with:
 <code>install.packages(“your_path_to_the_zip/SignalDetectionTool_x.x.x_binary.zip”)</code>.
 </li>
+
 <li>
+
 Go back above the detailed installation instructions to read how to run
 the app.
 </li>
+
 </ul>
+
 </details>
+
 <details>
+
 <summary>
+
 <strong>Source Code (zip)</strong>
 </summary>
+
 <p>
+
 This is a zipped folder of the SignalDetectionTool repository. You must
 have Rtools installed on your computer to use this installation method.
 It can be unzipped and installed over the ‘Build’ tab in RStudio. This
 is ideal if you want to modify the app’s code. Alternatively, you can
 clone the repository.
 </p>
+
 <ul>
+
 <li>
+
 Download the provided <code>.zip</code> file and save it on your
 computer.
 </li>
+
 <li>
+
 Go into the unzipped SignalDetectionTool folder and double-click on the
 <code>SignalDetectionTool.Rproj</code> file to open it.
 </li>
+
 <li>
+
 Install packages via RStudio’s suggestion (click ‘Install’) or copy this
 line into the console: <code>devtools::install_deps()</code>.
 </li>
+
 <li>
+
 The command may ask if you want to update your installed packages. Type
 <code>1</code> and press enter to install updates.
 </li>
+
 <li>
+
 For advanced users, install minimal required versions from the
 <code>DESCRIPTION</code> file using
 <code>remotes::install_version()</code>.
 </li>
+
 <li>
+
 If <code>devtools::install_deps()</code> gives an error (e.g., ‘no
 package called devtools’), install it with:
 <code>install.packages(“devtools”)</code>, then run the command again.
 </li>
+
 <li>
+
 To install the SignalDetectionTool, go to RStudio’s ‘Build’ tab (top
 right window) and click ‘Install’.
 </li>
+
 <li>
+
 Go back above the detailed installation instructions to read how to run
 the app.
 </li>
+
 </ul>
+
 </details>
+
 </details>
 
 ## Usage
 
 The shiny application is structured into a **Help**, **Data**, **Input
-parameters**, **Signals** and **Report** tab.  
+parameters**, **Signals**, **Signal Line List** and **Report** tab.  
 You can try the shiny application yourself using [test
 data](https://github.com/United4Surveillance/signal-detection-tool/blob/main/dev/data/input/input.csv)
 provided with the package.
@@ -248,6 +331,11 @@ algorithm with pandemic correction:
 ![](man/figures/README-timeseries.PNG)
 ![](man/figures/README-signal_detection_table.PNG)
 
+### Signal Line List
+
+The Signal Line List tab retrieves the line list of cases corresponding
+to a signal selected by the user.
+
 ### Report
 
 In the Report tab HTML and Word reports can be generated showing the
@@ -255,59 +343,121 @@ results of the Signals Tab. Reports can also be generated using the
 `run_report()` function.
 
 ## Data Configuration File
-There is the possibility to start the app with a predefined configuration. This means you don't have to go through all the manual steps like selecting an input file, specifying stratification or choosing an algorithm.
-To use this functionality simply alter the command to start the app.
-Instead of `run_app()` you can use `run_app(path_to_yaml="./path/config_file.yaml")`.
-An example yaml file is part of the external data of the SignalDetectionTool package and can also be found here: [data config example](https://raw.githubusercontent.com/United4Surveillance/signal-detection-tool/refs/heads/main/inst/extdata/data_config_example.yml).
 
-The YAML file needs to adhere to a particular structure and parameter values. It consists of mappings, sequences, and scalars that configure data sources, analytical settings, and pathogen-specific overrides.  
+There is the possibility to start the app with a predefined
+configuration. This means you don’t have to go through all the manual
+steps like selecting an input file, specifying stratification or
+choosing an algorithm. To use this functionality simply alter the
+command to start the app. Instead of `run_app()` you can use
+`run_app(path_to_yaml="./path/config_file.yaml")`. An example yaml file
+is part of the external data of the SignalDetectionTool package and can
+also be found here: [data config
+example](https://raw.githubusercontent.com/United4Surveillance/signal-detection-tool/refs/heads/main/inst/extdata/data_config_example.yml).
 
-### Config File Structure  
+The YAML file needs to adhere to a particular structure and parameter
+values. It consists of mappings, sequences, and scalars that configure
+data sources, analytical settings, and pathogen-specific overrides.
 
-The YAML document is organized into **root keys**, each representing a distinct configuration profile.  
+### Config File Structure
 
-#### 1. **Default Configuration (`default`)**  
-The `default` root key provides global settings applied unless overridden by pathogen-specific mappings.  
+The YAML document is organized into **root keys**, each representing a
+distinct configuration profile.
 
-##### **Data Source (`datasource`)** *(Mapping)*  
-Specifies how input data is retrieved. Currently only supports file based data sources out of the box.
-- `file` *(Scalar: Boolean)*  
+#### 1. **Default Configuration (`default`)**
+
+The `default` root key provides global settings applied unless
+overridden by pathogen-specific mappings.
+
+##### **Data Source (`datasource`)** *(Mapping)*
+
+Specifies how input data is retrieved. Currently only supports file
+based data sources out of the box.
+
+- `file` *(Scalar: Boolean)*
+
   - `TRUE` → Use an external file (CSV or Excel).  
-  - `FALSE` → Use a database.  
-- `filepath` *(Scalar: String)* Path to the external file, applicable when `file: TRUE`.  
-- `db` *(Nested Mapping)* Child elements define database connection details (used when `file: FALSE`).  
-  - `host` *(Scalar: String)* – Database server address (e.g., `localhost`).  
+  - `FALSE` → Use a database.
+
+- `filepath` *(Scalar: String)* Path to the external file, applicable
+  when `file: TRUE`.
+
+- `db` *(Nested Mapping)* Child elements define database connection
+  details (used when `file: FALSE`).
+
+  - `host` *(Scalar: String)* – Database server address (e.g.,
+    `localhost`).  
   - `port` *(Scalar: Integer)* – Database port (e.g., `5432`).  
-  - `database` *(Scalar: String)* – Name of the database.  
-  
-Do note that there is no true database support right now! The DB related parameters are merely placeholders at the moment.
-To actually connect your own database to the tool, you will need to [define custom functions and apply monkey patching](https://gist.github.com/mlbach/0a75ffa695f81e0d777973d3928d9013).
+  - `database` *(Scalar: String)* – Name of the database.
+
+Do note that there is no true database support right now! The DB related
+parameters are merely placeholders at the moment. To actually connect
+your own database to the tool, you will need to [define custom functions
+and apply monkey
+patching](https://gist.github.com/mlbach/0a75ffa695f81e0d777973d3928d9013).
 We plan to add full database support in the future.
 
-##### **Analysis Parameters (`params`)** *(Mapping)*  
-Defines key variables for analysis and signal detection.  
-- `pathogen` *(Scalar: String)* – Default pathogen under analysis (e.g., *Pertussis*).  
-- `strata` *(Sequence of Scalars: List of Strings)* – Categories used to stratify the analysis (e.g., `age_group`, `community`).  
-- `signal_detection_period` *(Scalar: Integer)* – Time period (in weeks or months) for detecting signals.  
-- `signal_detection_algorithm` *(Scalar: String)* – Method used for signal detection (e.g., `ears`).  
-- `pandemic_correction`: *(Scalar: Boolean)* Correct for the effects of the COVID-19 pandemic, only used in GLM algorithms
-- `intervention_date`: *(Scalar: String, Date format `YYYY-MM-DD`)* - Date for the intervention in the pandemic correction models
+##### **Analysis Parameters (`params`)** *(Mapping)*
 
-##### **Shapefile Path (`shapefile_path`)** *(Scalar: Null or String)*  
-Specifies the file path for geographic boundary data. The `~` value indicates that no shapefile is provided.  
+Defines key variables for analysis and signal detection.
 
----
+- `pathogen` *(Scalar: String)* – Default pathogen under analysis (e.g.,
+  *Pertussis*).
 
-#### 2. **Pathogen-Specific Mappings**  
-In addition to the default configuration, you can also define pathogen-specific configurations as another root key. 
-These mappings inherit values from `default` unless explicitly overridden.  
-This way it is possible to adjust parameters and algorithm choice to the pathogen of interest.
+- `date_ext_enabled` *(Scalar: Boolean)* - Use an end date for the
+  analysis period that differs from the line list end date.
 
----
+- `date_ext_date` *(Scalar: String, Date format `YYYY-MM-DD`)* - Custom
+  end date for the analysis period
 
-Note that the tool might only recognize and use certain values supplied via the config file.
-Currently, there is a limited set of valid values for stratification and algorithm choice.
+- `strata` *(Sequence of Scalars: List of Strings)* – Categories used to
+  stratify the analysis (e.g., `age_group`, `community`).
+
+- `signal_detection_period` *(Scalar: Integer)* – Time period (in weeks
+  or months) for detecting signals.
+
+- `signal_detection_algorithm` *(Scalar: String)* – Method used for
+  signal detection (e.g., `ears`).
+
+- `alpha_upper`: *(Scalar: Numeric)* – Adjust the p-value cutoff used to
+  compute the threshold, only used in FarringtonFlexible and GLM
+  algorithms.
+
+- `pandemic_correction`: *(Scalar: Boolean)* - Correct for the effects
+  of the COVID-19 pandemic, only used in GLM algorithms.
+
+- `intervention_date`: *(Scalar: String, Date format `YYYY-MM-DD`)* -
+  Date for the intervention in the pandemic correction models.
+
+##### **Post-Processing Parameters (`post-processing`)** *(Mapping)*
+
+Defines key variables for post-processing.
+
+- `min_cases_signals` *(Scalar: Integer)* - Minimum number of cases
+  required for a signal to be shown.
+
+##### **Shapefile Path (`shapefile_path`)** *(Scalar: Null or String)*
+
+Specifies the file path for geographic boundary data. The `~` value
+indicates that no shapefile is provided.
+
+------------------------------------------------------------------------
+
+#### 2. **Pathogen-Specific Mappings**
+
+In addition to the default configuration, you can also define
+pathogen-specific configurations as another root key. These mappings
+inherit values from `default` unless explicitly overridden.  
+This way it is possible to adjust parameters and algorithm choice to the
+pathogen of interest.
+
+------------------------------------------------------------------------
+
+Note that the tool might only recognize and use certain values supplied
+via the config file. Currently, there is a limited set of valid values
+for stratification and algorithm choice.
+
 Possible strata values:
+
 - None
 - age_group
 - state
@@ -316,18 +466,21 @@ Possible strata values:
 - community
 - sex
 
-Possible algorithms values:
-- "farrington"
-- "ears"
-- "cusum"
-- "glm mean" 
-- "glm timetrend"
-- "glm harmonic"
-- "glm harmonic with timetrend"
-- "glm farrington" 
-- "glm farrington with timetrend" 
+Possible algorithm values:
 
-In the future we will strive to make the tool even more flexible and convenient.
+- farrington
+- ears
+- cusum
+- glm mean
+- glm timetrend
+- glm harmonic
+- glm harmonic with timetrend
+- glm harmonic multi
+- glm farrington
+- glm farrington with timetrend
+
+In the future we will strive to make the tool even more flexible and
+convenient.
 
 ## Development Process and Contribution
 

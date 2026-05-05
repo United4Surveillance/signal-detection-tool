@@ -229,7 +229,8 @@ create_formula <- function(model_data) {
 #' @param model character, default "mean" one of c("mean", "sincos", "sincos_multiS", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.
 #' @param time_trend boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.
 #' @param return_full_model boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_weeks should be returned and attached to data_aggregated as well.
-#' @param alpha_upper decimal between 0 and 1, default 0.05 specifying the pvalue cutoff used for computing the threshold, when set to 0.05 the 95 percent quantile is used.
+#' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05).
+#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
 #' @param intervention_date A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done, i.e. no additional intercept and possibly new time trend is fitted. When a date is given a new intercept and possibly time_trend (if time_trend == TRUE) is fitted.
 #' @param min_timepoints_baseline integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.
 #' @param min_timepoints_trend integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.
@@ -258,6 +259,10 @@ get_signals_glm <- function(data_aggregated,
                             past_weeks_not_included = 4) {
   checkmate::assert(
     checkmate::check_choice(model, choices = c("mean", "sincos", "sincos_multiS", "FN"))
+  )
+
+  checkmate::assert(
+    checkmate::check_number(alpha_upper, lower = 0.001, upper = 0.2)
   )
 
   ts_len <- nrow(data_aggregated)
