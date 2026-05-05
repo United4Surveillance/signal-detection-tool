@@ -170,6 +170,7 @@ complete_agegrp_arr <- function(df, format_check_results) {
     gsub(pattern = "\\D", replacement = "")
 
   # remove rows with age >= 115
+  unusual_agegroup <- ifelse(any(apply(splits, 2, as.numeric) >= 115), TRUE, FALSE) # flag if unusual groups were corrected 
   splits[apply(splits, 2, as.numeric) >= 115] <- NA
   orig_agegrp <- orig_agegrp[!apply(is.na(splits) | splits == "", 1, any)]
   
@@ -312,7 +313,7 @@ complete_agegrp_arr <- function(df, format_check_results) {
     }
   }
   # adding back NAs when there were any
-  if (any(is.na(df$age_group))) {
+  if (any(is.na(df$age_group)) | unusual_agegroup) {
     all_agegrps <- c(all_agegrps, NA_character_)
   }
 
