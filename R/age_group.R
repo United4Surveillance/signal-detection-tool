@@ -171,7 +171,7 @@ complete_agegrp_arr <- function(df, format_check_results) {
 
   # remove rows with age >= 115
   splits[apply(splits, 2, as.numeric) >= 115] <- NA
-  orig_agegrp <- orig_agegrp[!apply(is.na(splits) | splits == "", 1, all)]
+  orig_agegrp <- orig_agegrp[!apply(is.na(splits) | splits == "", 1, any)]
   
   # remove rows of only NA or empty
   splits <- splits[!apply(is.na(splits) | splits == "", 1, all), ]
