@@ -14,7 +14,7 @@
 #'   Supported values are `"HTML"` and `"DOCX"`.
 #' @param method Character scalar specifying the signal detection method.
 #'   Must be one of `"FarringtonFlexible"`, `"EARS"`, `"CUSUM"`, `"Mean"`,
-#'   `"Timetrend"`, `"Harmonic"`, `"Harmonic with timetrend"`,
+#'   `"Timetrend"`, `"Harmonic"`, `"Harmonic with timetrend"`, `Multi-seasonal harmonic`,
 #'   `"Step harmonic"`, or `"Step harmonic with timetrend"`.
 #'   Use [names(available_algorithms())] to retrieve the full list.
 #' @param number_of_weeks Integer scalar giving the number of weeks for which
@@ -72,6 +72,9 @@
 #' @param title `NULL` or a character scalar specifying the report title. If
 #'   `NULL` or an empty string, a default title of the form
 #'   `"Signal Detection Report - <country>"` is used.
+#' @param alpha_upper Numeric between 0.001 and 0.2. Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to
+#'   using the 0.95 quantile. `alpha_upper` is only used for methods that require it (currently "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend"), for which a default value of 0.05 is applied.
+#'   Ears and cusum do not use the value; for these, the argument is ignored and internally set to NULL.
 #'
 #' @return Returns the path to the rendered output written to disk. For DOCX
 #'   output this is the Word document; for HTML output this is the ZIP archive
@@ -155,7 +158,8 @@ run_report <- function(
   custom_logo = NULL,
   custom_theme = NULL,
   min_cases_signals = 1,
-  title = NULL
+  title = NULL,
+  alpha_upper = 0.05
 ) {
   # Currently multi pathogen report is only supported for HTML
   if ((report_format == "DOCX" & length(unique(data$pathogen)) > 1) | report_format == "DOCX" & is.data.frame(strata)) {
@@ -171,6 +175,15 @@ run_report <- function(
   checkmate::assert(
     checkmate::check_choice(method, choices = names(available_algorithms()))
   )
+
+  if (!grepl("cusum", method, ignore.case = TRUE) && !grepl("ears", method, ignore.case = TRUE)) {
+    checkmate::assert(
+      checkmate::check_number(alpha_upper, lower = 0.001, upper = 0.2)
+    )
+  } else {
+    alpha_upper <- NULL
+  }
+
   checkmate::assert(
     checkmate::check_integerish(number_of_weeks, lower = 1)
   )
@@ -287,7 +300,8 @@ run_report <- function(
         date_start = NULL,
         date_end = NULL,
         date_var = "date_report",
-        number_of_weeks = number_of_weeks
+        number_of_weeks = number_of_weeks,
+        alpha_upper = alpha_upper
       ) %>%
         dplyr::mutate(
           pathogen = pat,
@@ -332,7 +346,8 @@ run_report <- function(
     signals_padded = signals_padded,
     signals_agg = signals_agg,
     intervention_date = intervention_date,
-    title = title
+    title = title,
+    alpha_upper = alpha_upper
   )
 
   if (report_format == "DOCX") {
@@ -450,7 +465,7 @@ run_report <- function(
 
       # pathogen specific strata are obtained if given
       if (precomputed) {
-        strata_per_path <- get_strata_from_signals_agg(signals_agg)
+        strata_per_path <- get_strata_from_signals_agg(signals_agg_p)
       } else {
         strata_per_path <- get_strata_for_path(strata, patho)
       }

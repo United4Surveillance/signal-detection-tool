@@ -1,6 +1,8 @@
 #' Get signals of surveillance's farringtonFlexible algorithm
 #' @param data_aggregated data.frame, aggregated data with case counts
 #' @param number_of_weeks integer, specifying number of weeks to generate signals for
+#' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05).
+#'   Specifies the p-value cutoff used to define the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
 #'
 #' @examples
 #' \dontrun{
@@ -11,9 +13,14 @@
 #' results <- get_signals_farringtonflexible(data_aggregated)
 #' }
 get_signals_farringtonflexible <- function(data_aggregated,
-                                           number_of_weeks = 52) {
+                                           number_of_weeks = 52,
+                                           alpha_upper = 0.05) {
   checkmate::assert(
     checkmate::check_integerish(number_of_weeks)
+  )
+
+  checkmate::assert(
+    checkmate::check_number(alpha_upper, lower = 0.001, upper = 0.2)
   )
 
   sts_cases <- convert_to_sts(data_aggregated)
@@ -39,6 +46,8 @@ get_signals_farringtonflexible <- function(data_aggregated,
     return(NULL)
   }
 
+  alpha <- alpha_upper
+
   control <- list(
     range = ((num_weeks_total - number_of_weeks + 1):num_weeks_total),
     noPeriods = 10, populationOffset = FALSE,
@@ -46,7 +55,7 @@ get_signals_farringtonflexible <- function(data_aggregated,
     b = num_years_total, w = 3, weightsThreshold = 2.58,
     pastWeeksNotIncluded = 26,
     pThresholdTrend = 1, trend = TRUE,
-    thresholdMethod = "delta", alpha = 0.1
+    thresholdMethod = "delta", alpha = alpha
   )
 
   # run Farrington Flexible on data

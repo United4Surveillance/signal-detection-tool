@@ -19,6 +19,9 @@
 #' @param date_var A character string specifying the column name of the date variable to use.
 #'   Default is "date_report".
 #' @param number_of_weeks Integer specifying how many weeks to generate signals for.
+#' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
+#'   and internally set to NULL.
+#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
 #'
 #' @return A tibble with columns for signals, expected values, thresholds, and
 #'   stratification information (if applicable), containing both stratified and
@@ -42,7 +45,8 @@ get_signals_all <- function(preprocessed_data,
                             date_end = NULL,
                             date_ext = NULL,
                             date_var = "date_report",
-                            number_of_weeks = 6) {
+                            number_of_weeks = 6,
+                            alpha_upper = 0.05) {
   results <- get_signals(
     data = preprocessed_data,
     method = method,
@@ -52,7 +56,8 @@ get_signals_all <- function(preprocessed_data,
     date_end = date_end,
     date_ext = date_ext,
     date_var = date_var,
-    number_of_weeks = number_of_weeks
+    number_of_weeks = number_of_weeks,
+    alpha_upper = alpha_upper
   )
   # when stratified signals were computed also add unstratified signals to the dataframe so that all can be visualised
   if (!is.null(stratification)) {
@@ -65,7 +70,8 @@ get_signals_all <- function(preprocessed_data,
       date_end = date_end,
       date_ext = date_ext,
       date_var = date_var,
-      number_of_weeks = number_of_weeks
+      number_of_weeks = number_of_weeks,
+      alpha_upper = alpha_upper
     )
     results <- dplyr::bind_rows(results, results_unstratified)
   }
@@ -90,6 +96,9 @@ get_signals_all <- function(preprocessed_data,
 #' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL.
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @param number_of_weeks integer, specifying number of weeks to generate signals for.
+#' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
+#'   and internally set to NULL.
+#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
 #' @return A tibble containing the results of the signal detection analysis
 #'   stratified by the specified columns.
 #'
@@ -114,7 +123,8 @@ get_signals_stratified <- function(data,
                                    date_end = NULL,
                                    date_ext = NULL,
                                    date_var = "date_report",
-                                   number_of_weeks = 6) {
+                                   number_of_weeks = 6,
+                                   alpha_upper = 0.05) {
   # check that all columns are present in the data
   for (col in stratification_columns) {
     checkmate::assert(
@@ -123,6 +133,14 @@ get_signals_stratified <- function(data,
   }
 
   checkmate::check_choice(model, choices = c("", "mean", "sincos", "sincos_multiS", "FN"))
+
+  if (model != "" || identical(fun, get_signals_farringtonflexible)) {
+    checkmate::assert(
+      checkmate::check_number(alpha_upper, lower = 0.001, upper = 0.2)
+    )
+  } else {
+    alpha_upper <- NULL
+  }
 
   checkmate::assert(
     checkmate::check_null(intervention_date),
@@ -221,7 +239,9 @@ get_signals_stratified <- function(data,
           )
       } else {
         if (model != "") {
-          results <- fun(sub_data_agg, number_of_weeks, model = model, time_trend = time_trend, intervention_date = intervention_date)
+          results <- fun(sub_data_agg, number_of_weeks, model = model, alpha_upper = alpha_upper, time_trend = time_trend, intervention_date = intervention_date)
+        } else if (identical(fun, get_signals_farringtonflexible)) {
+          results <- fun(sub_data_agg, number_of_weeks, alpha_upper = alpha_upper)
         } else {
           results <- fun(sub_data_agg, number_of_weeks)
         }
@@ -270,6 +290,9 @@ get_signals_stratified <- function(data,
 #' @param date_end A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.
 #' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
+#' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
+#'   and internally set to NULL.
+#'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
 #' @param number_of_weeks integer, specifying number of weeks to generate signals for.
 #' @return A tibble containing the results of the signal detection analysis.
 #' @export
@@ -291,11 +314,20 @@ get_signals <- function(data,
                         date_end = NULL,
                         date_ext = NULL,
                         date_var = "date_report",
-                        number_of_weeks = 6) {
+                        number_of_weeks = 6,
+                        alpha_upper = 0.05) {
   # check that input method and stratification are correct
   checkmate::assert(
     checkmate::check_choice(method, choices = available_algorithms())
   )
+
+  if (grepl("glm", method) || grepl("farrington", method)) {
+    checkmate::assert(
+      checkmate::check_number(alpha_upper, lower = 0.001, upper = 0.2)
+    )
+  } else {
+    alpha_upper <- NULL
+  }
 
   checkmate::assert(
     checkmate::check_null(intervention_date),
@@ -376,7 +408,9 @@ get_signals <- function(data,
       aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext)
 
     if (grepl("glm", method)) {
-      results <- fun(data_agg, number_of_weeks, model = model, time_trend = time_trend, intervention_date = intervention_date)
+      results <- fun(data_agg, number_of_weeks, model = model, alpha_upper = alpha_upper, time_trend = time_trend, intervention_date = intervention_date)
+    } else if (grepl("farrington", method)) {
+      results <- fun(data_agg, number_of_weeks, alpha_upper = alpha_upper)
     } else {
       results <- fun(data_agg, number_of_weeks)
     }
@@ -396,7 +430,8 @@ get_signals <- function(data,
       date_end = date_end,
       date_ext = date_ext,
       date_var = date_var,
-      number_of_weeks = number_of_weeks
+      number_of_weeks = number_of_weeks,
+      alpha_upper = alpha_upper
     )
   }
 
@@ -405,7 +440,8 @@ get_signals <- function(data,
     results <- results %>%
       dplyr::mutate(
         method = method,
-        number_of_weeks = number_of_weeks
+        number_of_weeks = number_of_weeks,
+        alpha_upper = alpha_upper
       )
   }
 
@@ -454,14 +490,10 @@ aggregate_pad_signals <- function(signal_results,
                                   preprocessed,
                                   number_of_weeks,
                                   method) {
-  # aggregate signals for report
   signals_agg <- aggregate_signals(signal_results, number_of_weeks = number_of_weeks)
 
-
-  # padd timeseries so it also has information before detection period
   logic_apply_padding <- function() {
     if (grepl("glm", method)) {
-      # for those the results are already padded
       return(signal_results)
     }
     pad_signals(preprocessed, signal_results)
@@ -474,6 +506,7 @@ aggregate_pad_signals <- function(signal_results,
     signals_padded = signals_padded
   )
 }
+
 
 #' Aggregate cases and signals over the number of weeks.
 
@@ -535,6 +568,12 @@ pad_signals <- function(data,
   number_of_weeks <- unique(signals$number_of_weeks)
   method <- unique(signals$method)
 
+  if (grepl("farrington", method)) {
+    alpha_upper <- unique(signals$alpha_upper)
+  } else {
+    alpha_upper <- NULL
+  }
+
   stopifnot(length(number_of_weeks) == 1)
   stopifnot(length(method) == 1)
 
@@ -544,13 +583,17 @@ pad_signals <- function(data,
     dplyr::filter(date_report <= cutoff_date)
 
   available_thresholds <- c(26, 20, 14, 8, 2)
+
   for (timeopt in available_thresholds) {
     max_time_opt <- timeopt
-    signals_timeopt <- get_signals(
+
+    signals_timeopt <- SignalDetectionTool::get_signals(
       data_no_signals,
       method = method,
-      number_of_weeks = timeopt + number_of_weeks
+      number_of_weeks = timeopt + number_of_weeks,
+      alpha_upper = alpha_upper
     )
+
     if (!is.null(signals_timeopt)) {
       break
     }
@@ -568,7 +611,8 @@ pad_signals <- function(data,
       method = method,
       date_var = "date_report",
       stratification = stratification,
-      number_of_weeks = (max_time_opt + number_of_weeks)
+      number_of_weeks = max_time_opt + number_of_weeks,
+      alpha_upper = alpha_upper
     ) %>%
       dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected, category, stratum) %>%
       dplyr::group_by(category, stratum) %>%
