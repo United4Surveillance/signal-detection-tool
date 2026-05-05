@@ -33,7 +33,8 @@ Use this Shiny app as what it is - a tool. A tool to help bring another perspect
 
 # Input data
 
-This app requires specific input data formatting, which is described in detail in the description, which is described in detail in the README (see the Data section).
+This app requires specific input data formatting. For full details, see the README `Data` section on
+[Github](https://github.com/United4Surveillance/signal-detection-tool/blob/main/README.md#data){target="_top"}.
 
 # Workflow of the tool
 
@@ -63,7 +64,9 @@ Using this tool, it is only possible to perform signal detection upon one kind o
 
 ### Time period extension
 
-By default the selected time period ranges from the first date of the linelist to its end date. Here you can choose to use a different end date.
+By default, the selected time period ranges from the first date of the linelist to its end date. If no cases have been reported in the most recent weeks, the app automatically uses the last week (or selected time unit) with reported cases as the end date. This means that recent weeks with zero cases are not included in the analysis by default.
+
+Using this option, you can extend the time period to a later date (e.g. the current date). In this case, the app will include the missing recent time units and assign zero cases to them.
 
 ### Filters
 
@@ -130,7 +133,7 @@ The same as the Harmonic method but with fitted timetrend to account for the und
 
 #### Multi-seasonal harmonic
 
-This method extends the Harmonic method by incorporating two pairs of sine and cosine terms to capture multiple seasonal components. By default, it models one and two cycles per year (annual and semiannual seasonality). A fitted timetrend is included to account for the underlying trend in the data. However, the timetrend is removed and the model is refitted if any predicted value in the test period exceeds twice the maximum observed count in the training period.
+This method extends the Harmonic method by incorporating two pairs of sine and cosine terms to capture multiple seasonal components. By default, it models one and two cycles per year (annual and semiannual seasonality). A fitted timetrend is included to account for the underlying trend in the data. To ensure stable and realistic results, the model checks whether the trend leads to unusually large predictions. If any predicted value in the signal detection period is more than twice as high as the maximum observed value in the historical data, the trend is considered unreliable and is automatically removed. The model is then refitted without the trend.
 
 #### Step harmonic
 
@@ -152,7 +155,7 @@ This approach allows you to model changes in case counts, such as a decline due 
 
 #### Show expectation and threshold for historic data
 
-The "Show expectation and threshold for historic data" feature, accessible via an additional button, extends the expectation and/or threshold to historic data. The feature can only be used with FarringtonFlexible, EARS and CUSUM.
+The "Show expectation and threshold for historic data" feature, accessible via an additional button, extends the expectation and/or threshold to historic data. The feature can only be used with FarringtonFlexible, EARS and CUSUM. For the other algorithms, expected values are computed and displayed by default for historical data, since this is less computationally intensive.
 
 ### References
 
@@ -176,7 +179,7 @@ When one of the strata about regions (state, county or community) is selected in
 
 ## Signal Line List tab
 
-The `Signal Line List` tab displays all signals in a line list. Here you can select a signal for further investigation. The cases associated with the selected signal are then shown in a separate line list.
+The `Signal Line List` tab allows to retrieve the linelist of cases corresponding to a signal. All signals are displayed in a table. You can select one or multiple signals for further investigation. The linelist of cases belonging to the signal(s) are shown in a separate table.
 
 ## Report tab
 
@@ -185,6 +188,6 @@ The report can be produced in two different formats: HTML or DOCX.
 
 # Bug reporting
 
-If you encounter any technical issues or bugs when using the SignalDetectionTool, please report them on [Github](https://github.com/United4Surveillance/signal-detection-evaluation-tool/issues/new/choose) by creating an issue. 
+If you encounter any technical issues or bugs when using the SignalDetectionTool, please report them on [Github](https://github.com/United4Surveillance/signal-detection-evaluation-tool/issues/new/choose){target="_top"} by creating an issue. 
 Thank you in advance!
 

@@ -333,8 +333,8 @@ algorithm with pandemic correction:
 
 ### Signal Line List
 
-The Signal Line List tab displays cases for selected signals in a line
-list.
+The Signal Line List tab retrieves the line list of cases corresponding
+to a signal selected by the user.
 
 ### Report
 
@@ -432,8 +432,8 @@ Defines key variables for analysis and signal detection.
 
 Defines key variables for post-processing.
 
-- `min_cases_signals` *(Scalar: Integer)* - Minimum number of cases for
-  a signal to be included
+- `min_cases_signals` *(Scalar: Integer)* - Minimum number of cases
+  required for a signal to be shown.
 
 ##### **Shapefile Path (`shapefile_path`)** *(Scalar: Null or String)*
 
