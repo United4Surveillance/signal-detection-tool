@@ -171,10 +171,10 @@ complete_agegrp_arr <- function(df, format_check_results) {
 
   # remove rows with age >= 115
   logical_unusual_agegroup <- (splits != "") & (apply(splits, 2, as.numeric) >= 115) # split can be "" when open end group (eg. 100+)
-  unusual_agegroup <- ifelse(any(logical_unusual_agegroup), TRUE, FALSE) 
+  unusual_agegroup <- ifelse(any(logical_unusual_agegroup), TRUE, FALSE)
   splits[logical_unusual_agegroup] <- NA
   orig_agegrp <- orig_agegrp[!apply(is.na(splits), 1, any)]
-  
+
   # remove rows of only NA or empty
   splits <- splits[!apply(is.na(splits) | splits == "", 1, all), ]
 
@@ -310,7 +310,7 @@ complete_agegrp_arr <- function(df, format_check_results) {
         dplyr::distinct() %>%
         unlist()
 
-      if(length(rows_to_remove) > 0){
+      if (length(rows_to_remove) > 0) {
         all_agegrps <- all_agegrps[-rows_to_remove]
       }
     }
