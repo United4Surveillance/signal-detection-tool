@@ -25,7 +25,7 @@
 #'   input_example,
 #'   "county",
 #'   nuts_shp
-#'   )
+#' )
 #' }
 create_map_or_table <- function(signals_agg,
                                 data_surveillance,
@@ -161,7 +161,7 @@ create_map_or_table <- function(signals_agg,
 #' create_barplot_or_table(
 #'   signals_agg,
 #'   "age_group"
-#'   )
+#' )
 #' }
 create_barplot_or_table <- function(signals_agg,
                                     category_selected,

@@ -19,7 +19,7 @@
 #' signals_week_barchart <- plot_signals_per_week(
 #'   signals,
 #'   n_strata = n.strata
-#'   )
+#' )
 #' signals_week_barchart
 #' }
 plot_signals_per_week <- function(results, n_strata, interactive = FALSE, branding = NULL) {

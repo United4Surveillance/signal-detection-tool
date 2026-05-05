@@ -63,8 +63,8 @@ save_signals <- function(signals, original_input_data, filepath = "") {
 #' \dontrun{
 #' data_preprocessed <- input_example %>% preprocess_data()
 #' data_preprocessed %>%
-#' get_signals() %>%
-#' conjure_filename()
+#'   get_signals() %>%
+#'   conjure_filename()
 #' }
 #'
 #' @export

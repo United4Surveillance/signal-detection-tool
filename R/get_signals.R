@@ -304,8 +304,8 @@ get_signals_stratified <- function(data,
 #'   data_preprocessed,
 #'   method = "farrington",
 #'   stratification = c("county", "sex")
-#'   )
-#'   results
+#' )
+#' results
 #' }
 get_signals <- function(data,
                         method = "farrington",
@@ -482,13 +482,13 @@ get_signals <- function(data,
 #' results <- get_signals(
 #'   data_preprocessed,
 #'   method = "farrington"
-#'   )
+#' )
 #' output <- aggregate_pad_signals(
 #'   signal_results = results,
 #'   preprocessed = data_preprocessed,
 #'   number_of_weeks = 6,
 #'   method = "farrington"
-#'   )
+#' )
 #' output$signals_agg
 #' output$signals_padded
 #' }
@@ -529,7 +529,7 @@ aggregate_pad_signals <- function(signal_results,
 #' results <- get_signals(
 #'   data_preprocessed,
 #'   stratification = c("sex", "county_id")
-#'   )
+#' )
 #' results_agg <- results %>% aggregate_signals(number_of_weeks = 6)
 #' results_agg
 #' }

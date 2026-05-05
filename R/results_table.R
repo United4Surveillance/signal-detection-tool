@@ -271,7 +271,7 @@ prepare_signals_table <- function(data,
 #'   get_signals(
 #'     stratification = c("age_group"),
 #'     number_of_weeks = 6
-#'     )
+#'   )
 #' signals_table <- build_signals_table(signal_results, format = "data.frame")
 #' signals_table
 #' }
