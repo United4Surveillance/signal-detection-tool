@@ -584,10 +584,10 @@ pad_signals <- function(data,
   number_of_weeks <- unique(signals$number_of_weeks)
   method <- unique(signals$method)
 
-  date_ext <- if ("extension_date" %in% names(signals)) {
-    unique(signals$extension_date)
+  if ("extension_date" %in% names(signals)) {
+    date_ext <- unique(signals$extension_date)
   } else {
-    NULL
+    date_ext <- NULL
   }
 
   if (grepl("farrington", method)) {
@@ -623,57 +623,63 @@ pad_signals <- function(data,
       break
     }
   }
-  } #else if(!is.null(date_ext)){
-    #
-    # # also look at filters?
-    # if ((date_ext - lubridate::weeks(number_of_weeks)) < max(data$date_report, na.rm = TRUE)) {
-    #   cutoff_date <- date_ext - lubridate::weeks(number_of_weeks)
-    #
-    #   data_no_signals <- data %>%
-    #     dplyr::filter(date_report <= cutoff_date)
-    #
-    # available_thresholds <- c(26, 20, 14, 8, 2)
-    #
-    # for (timeopt in available_thresholds) {
-    #   max_time_opt <- timeopt
-    #
-    #   signals_timeopt <- SignalDetectionTool::get_signals(
-    #     data_no_signals,
-    #     method = method,
-    #     number_of_weeks = timeopt + number_of_weeks,
-    #     alpha_upper = alpha_upper,
-    #     date_ext = date_ext - lubridate::weeks(number_of_weeks)
-    #   )
-    #
-    #   if (!is.null(signals_timeopt)) {
-    #     break
-    #   }
-    # }
-    # } else {
-    #     data_no_signals <- data
-    #
-    #      available_thresholds <- c(26, 20, 14, 8, 2)
-    #
-    #     for (timeopt in available_thresholds) {
-    #       max_time_opt <- timeopt
-    #
-    #       signals_timeopt <- SignalDetectionTool::get_signals(
-    #         data_no_signals,
-    #         method = method,
-    #         number_of_weeks = timeopt + number_of_weeks,
-    #         alpha_upper = alpha_upper,
-    #         date_ext = date_ext - lubridate::weeks(number_of_weeks)
-    #       )
-    #
-    #       if (!is.null(signals_timeopt)) {
-    #         break
-    #       }
-    #     }
-    #   }
-    # }
+  } else if(!is.null(date_ext)){
+
+    # also look at filters?
+    if ((date_ext - lubridate::weeks(number_of_weeks)) < max(data$date_report, na.rm = TRUE)) {
+      diff_weeks <- as.numeric(
+        lubridate::interval(date_ext - lubridate::weeks(number_of_weeks),
+                 max(data$date_report, na.rm = TRUE)) / lubridate::days(7)
+      )
+      cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(number_of_weeks) + lubridate::weeks(diff_weeks) # to do: round correctly
+
+      data_no_signals <- data %>%
+        dplyr::filter(date_report <= cutoff_date)
+
+    available_thresholds <- c(26, 20, 14, 8, 2)
+
+    for (timeopt in available_thresholds) {
+      max_time_opt <- timeopt
+
+      signals_timeopt <- SignalDetectionTool::get_signals(
+        data_no_signals,
+        method = method,
+        number_of_weeks = timeopt + number_of_weeks,
+        alpha_upper = alpha_upper,
+        date_ext = date_ext - lubridate::weeks(number_of_weeks)
+      )
+
+      if (!is.null(signals_timeopt)) {
+        break
+      }
+    }
+    } else { # To do; is it rational to use the historic threshold option here?
+        data_no_signals <- data
+
+         available_thresholds <- c(26, 20, 14, 8, 2)
+
+        for (timeopt in available_thresholds) {
+          max_time_opt <- timeopt
+
+          signals_timeopt <- SignalDetectionTool::get_signals(
+            data_no_signals,
+            method = method,
+            number_of_weeks = timeopt + number_of_weeks,
+            alpha_upper = alpha_upper,
+            date_ext = date_ext - lubridate::weeks(number_of_weeks)
+          )
+
+          if (!is.null(signals_timeopt)) {
+            break
+          }
+        }
+      }
+    }
 
   result_padding_unstratified <- signals_timeopt %>%
     dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
+
+  # TO DO: STRATIFICATION
 
   # preparing dataset with padding
   if (is.null(stratification)) {
