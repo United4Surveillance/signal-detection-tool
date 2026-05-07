@@ -17,10 +17,14 @@
 #' create_age_group_levels(data_frame)
 #' }
 create_age_group_levels <- function(df) {
-  format_check_results <- age_format_check(df)
-  all_agegroups <- complete_agegrp_arr(df, format_check_results)
-  age_group_levels <- stringr::str_sort(all_agegroups, numeric = TRUE)
-
+  # check if only unknown (NA) age groups are present in df. Possible when filtering 
+  if(all(is.na(unique(df$age_group)))){
+    age_group_levels <- factor(NA, levels = NA)
+  } else {
+    format_check_results <- age_format_check(df)
+    all_agegroups <- complete_agegrp_arr(df, format_check_results)
+    age_group_levels <- stringr::str_sort(all_agegroups, numeric = TRUE)
+  }
   age_group_levels
 }
 #' Age Group Format Check
