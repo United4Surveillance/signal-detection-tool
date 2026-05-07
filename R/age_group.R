@@ -17,8 +17,8 @@
 #' create_age_group_levels(data_frame)
 #' }
 create_age_group_levels <- function(df) {
-  # check if only unknown (NA) age groups are present in df. Possible when filtering 
-  if(all(is.na(unique(df$age_group)))){
+  # check if only unknown (NA) age groups are present in df. Possible when filtering
+  if (all(is.na(unique(df$age_group)))) {
     age_group_levels <- factor(NA, levels = NA)
   } else {
     format_check_results <- age_format_check(df)
