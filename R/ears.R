@@ -22,6 +22,12 @@ get_signals_ears <- function(data_aggregated,
   checkmate::assert(
     checkmate::check_choice(method, choices = c("C1", "C2", "C3"))
   )
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
+  )
+
   # using default value for baseline
   baseline <- 7
 

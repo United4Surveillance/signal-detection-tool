@@ -362,24 +362,33 @@ mod_tabpanel_signals_server <- function(
       return(results)
     })
 
+    # calculate signal period labels for the selected time unit
     signal_period <- shiny::reactive({
       shiny::req(signal_time_units())
       shiny::req(time_unit())
 
-      if (time_unit() %in% c("weekly", "biweekly")) {
-        if (signal_time_units()$year[1] != signal_time_units()$year[number_of_time_units()]) {
-          signal_period <- paste0(format(signal_time_units()$date_week[number_of_time_units()], "W%W-%Y"), " - ", format(signal_time_units()$date_week[1], "W%W-%Y"))
+      signal_time_units_value <- signal_time_units()
+      time_unit_value <- time_unit()
+      number_of_time_units_value <- number_of_time_units()
+
+      if (time_unit_value %in% c("weekly", "biweekly")) {
+        # check whether the signal period spans multiple years
+        if (signal_time_units_value$year[1] != signal_time_units_value$year[number_of_time_units_value]) {
+          signal_period <- paste0(format(signal_time_units_value$date_week[number_of_time_units_value], "W%W-%Y"), " - ", format(signal_time_units_value$date_week[1], "W%W-%Y"))
         } else {
-          signal_period <- paste0("W", signal_time_units()$week[number_of_time_units()], "-", signal_time_units()$week[1], " ", signal_time_units()$year[1])
+          signal_period <- paste0("W", signal_time_units_value$week[number_of_time_units_value], "-", signal_time_units_value$week[1], " ", signal_time_units_value$year[1])
         }
-      } else if (time_unit() %in% "monthly") {
-        if (signal_time_units()$year[1] != signal_time_units()$year[number_of_time_units()]) {
-          signal_period <- paste0(format(signal_time_units()$date_month[number_of_time_units()], "%m-%Y"), " - ", format(signal_time_units()$date_month[1], "%m-%Y"))
+      } else if (time_unit_value %in% "monthly") {
+        # check whether the signal period spans multiple years
+        if (signal_time_units_value$year[1] != signal_time_units_value$year[number_of_time_units_value]) {
+          signal_period <- paste0(format(signal_time_units_value$date_month[number_of_time_units_value], "%m-%Y"), " - ", format(signal_time_units_value$date_month[1], "%m-%Y"))
         } else {
           signal_period <- paste0(
-            format(signal_time_units()$date_month[number_of_time_units()], "%m"), "-",
-            format(signal_time_units()$date_month[1], "%m"), " ",
-            signal_time_units()$year[1]
+            format(signal_time_units_value$date_month[number_of_time_units_value], "%m"),
+            "-",
+            format(signal_time_units_value$date_month[1], "%m"),
+            " ",
+            signal_time_units_value$year[1]
           )
         }
       }

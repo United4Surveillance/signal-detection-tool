@@ -17,6 +17,11 @@ get_signals_cusum <- function(data_aggregated,
   checkmate::assert(
     checkmate::check_integerish(number_of_time_units)
   )
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
+  )
 
   sts_cases <- convert_to_sts(data_aggregated, time_unit = time_unit)
 
