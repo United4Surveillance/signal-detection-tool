@@ -557,6 +557,7 @@ aggregate_signals <- function(signals, number_of_weeks) {
 #' Inside the function it is computed what the maximum number of timepoints is the signal detection algorithms can be applied for. This depends on the algorithm and the amount of historic data. The already generated signals dataframe is then extended with the expectation and threshold into the past
 #' @param data A data frame containing the surveillance data preprocessed with [preprocess_data()].
 #' @param signals tibble, output of the \code{\link{get_signals}} function with number of cases and signal per week, year
+#' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @returns tibble, with padded signals
 #' @examples
 #' \dontrun{
@@ -568,7 +569,8 @@ aggregate_signals <- function(signals, number_of_weeks) {
 #' }
 #' @export
 pad_signals <- function(data,
-                        signals) {
+                        signals,
+                        date_var = "date_report") {
   # get the stratification, method and number_of_weeks from the signals data
   stratification <- if (all(is.na(signals$category))) {
     NULL
@@ -601,10 +603,10 @@ pad_signals <- function(data,
   stopifnot(is.null(date_ext) || length(date_ext) == 1)
 
   if (is.null(date_ext)){
-  cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(number_of_weeks)
+  cutoff_date <- max(data[[date_var]], na.rm = TRUE) - lubridate::weeks(number_of_weeks)
 
   data_no_signals <- data %>%
-    dplyr::filter(date_report <= cutoff_date)
+    dplyr::filter(.data[[date_var]] <= cutoff_date)
 
   available_thresholds <- c(26, 20, 14, 8, 2)
 
@@ -626,15 +628,16 @@ pad_signals <- function(data,
   } else if(!is.null(date_ext)){
 
     # also look at filters?
-    if ((date_ext - lubridate::weeks(number_of_weeks)) < max(data$date_report, na.rm = TRUE)) {
+    if ((date_ext - lubridate::weeks(number_of_weeks)) < max(data[[date_var]], na.rm = TRUE)) {
       diff_weeks <- as.numeric(
         lubridate::interval(date_ext - lubridate::weeks(number_of_weeks),
-                 max(data$date_report, na.rm = TRUE)) / lubridate::days(7)
+                 max(data[[date_var]], na.rm = TRUE)) / lubridate::days(7)
       )
-      cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(number_of_weeks) + lubridate::weeks(diff_weeks) # to do: round correctly
+      diff_weeks <- floor(diff_weeks)
+      cutoff_date <- max(data[[date_var]], na.rm = TRUE) - lubridate::weeks(number_of_weeks) + lubridate::weeks(diff_weeks) # to do: round correctly
 
       data_no_signals <- data %>%
-        dplyr::filter(date_report <= cutoff_date)
+        dplyr::filter(.data[[date_var]] <= cutoff_date)
 
     available_thresholds <- c(26, 20, 14, 8, 2)
 
