@@ -215,7 +215,7 @@ get_signals_stratified <- function(data,
       aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext, group = category)
 
     # add extension date information if available
-    if(!is.null(date_ext)){
+    if (!is.null(date_ext)) {
       sub_data <- sub_data %>%
         dplyr::mutate(extension_date = date_ext)
     }
@@ -457,7 +457,7 @@ get_signals <- function(data,
   }
 
   # add extension date information if available
-  if(!is.null(date_ext)){
+  if (!is.null(date_ext)) {
     results <- results %>%
       dplyr::mutate(extension_date = date_ext)
   }
@@ -602,41 +602,11 @@ pad_signals <- function(data,
   stopifnot(length(method) == 1)
   stopifnot(is.null(date_ext) || length(date_ext) == 1)
 
-  if (is.null(date_ext)){
-  cutoff_date <- max(data[[date_var]], na.rm = TRUE) - lubridate::weeks(number_of_weeks)
+  if (is.null(date_ext)) {
+    cutoff_date <- max(data[[date_var]], na.rm = TRUE) - lubridate::weeks(number_of_weeks)
 
-  data_no_signals <- data %>%
-    dplyr::filter(.data[[date_var]] <= cutoff_date)
-
-  available_thresholds <- c(26, 20, 14, 8, 2)
-
-  for (timeopt in available_thresholds) {
-    max_time_opt <- timeopt
-
-    signals_timeopt <- SignalDetectionTool::get_signals(
-      data_no_signals,
-      method = method,
-      number_of_weeks = timeopt + number_of_weeks,
-      alpha_upper = alpha_upper,
-      date_ext = date_ext
-    )
-
-    if (!is.null(signals_timeopt)) {
-      break
-    }
-  }
-  } else if(!is.null(date_ext)){
-
-    if ((date_ext - lubridate::weeks(number_of_weeks)) < max(data[[date_var]], na.rm = TRUE)) {
-      diff_weeks <- as.numeric(
-        lubridate::interval(date_ext - lubridate::weeks(number_of_weeks),
-                 max(data[[date_var]], na.rm = TRUE)) / lubridate::days(7)
-      )
-      diff_weeks <- floor(diff_weeks)
-      cutoff_date <- max(data[[date_var]], na.rm = TRUE) - lubridate::weeks(number_of_weeks) + lubridate::weeks(diff_weeks)
-
-      data_no_signals <- data %>%
-        dplyr::filter(.data[[date_var]] <= cutoff_date)
+    data_no_signals <- data %>%
+      dplyr::filter(.data[[date_var]] <= cutoff_date)
 
     available_thresholds <- c(26, 20, 14, 8, 2)
 
@@ -648,35 +618,66 @@ pad_signals <- function(data,
         method = method,
         number_of_weeks = timeopt + number_of_weeks,
         alpha_upper = alpha_upper,
-        date_ext = date_ext - lubridate::weeks(number_of_weeks)
+        date_ext = date_ext
       )
 
       if (!is.null(signals_timeopt)) {
         break
       }
     }
+  } else if (!is.null(date_ext)) {
+    if ((date_ext - lubridate::weeks(number_of_weeks)) < max(data[[date_var]], na.rm = TRUE)) {
+      diff_weeks <- as.numeric(
+        lubridate::interval(
+          date_ext - lubridate::weeks(number_of_weeks),
+          max(data[[date_var]], na.rm = TRUE)
+        ) / lubridate::days(7)
+      )
+      diff_weeks <- floor(diff_weeks)
+      cutoff_date <- max(data[[date_var]], na.rm = TRUE) - lubridate::weeks(number_of_weeks) + lubridate::weeks(diff_weeks)
+
+      data_no_signals <- data %>%
+        dplyr::filter(.data[[date_var]] <= cutoff_date)
+
+      available_thresholds <- c(26, 20, 14, 8, 2)
+
+      for (timeopt in available_thresholds) {
+        max_time_opt <- timeopt
+
+        signals_timeopt <- SignalDetectionTool::get_signals(
+          data_no_signals,
+          method = method,
+          number_of_weeks = timeopt + number_of_weeks,
+          alpha_upper = alpha_upper,
+          date_ext = date_ext - lubridate::weeks(number_of_weeks)
+        )
+
+        if (!is.null(signals_timeopt)) {
+          break
+        }
+      }
     } else {
-        data_no_signals <- data
+      data_no_signals <- data
 
-         available_thresholds <- c(26, 20, 14, 8, 2)
+      available_thresholds <- c(26, 20, 14, 8, 2)
 
-        for (timeopt in available_thresholds) {
-          max_time_opt <- timeopt
+      for (timeopt in available_thresholds) {
+        max_time_opt <- timeopt
 
-          signals_timeopt <- SignalDetectionTool::get_signals(
-            data_no_signals,
-            method = method,
-            number_of_weeks = timeopt + number_of_weeks,
-            alpha_upper = alpha_upper,
-            date_ext = date_ext - lubridate::weeks(number_of_weeks)
-          )
+        signals_timeopt <- SignalDetectionTool::get_signals(
+          data_no_signals,
+          method = method,
+          number_of_weeks = timeopt + number_of_weeks,
+          alpha_upper = alpha_upper,
+          date_ext = date_ext - lubridate::weeks(number_of_weeks)
+        )
 
-          if (!is.null(signals_timeopt)) {
-            break
-          }
+        if (!is.null(signals_timeopt)) {
+          break
         }
       }
     }
+  }
 
   result_padding_unstratified <- signals_timeopt %>%
     dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
