@@ -80,9 +80,9 @@ preprocess_data <- function(data) {
       )
     )
 
-  if ("age" %in% names(data())) {
+  if ("age" %in% names(data)) {
     data <- data %>%
-      dplyr::mutate(dplyr::across(dplyr::all_of("age"), ~ dplyr::if_else(.x < 0, NA_integer_, .x)))
+      dplyr::mutate(dplyr::across(dplyr::all_of("age"), ~ dplyr::if_else(.x < 0 | .x >= 115, NA_integer_, .x)))
   }
   # age or age_group is mandatory thus we need to check whether column present in data
   # or else create age_group from age
