@@ -627,14 +627,13 @@ pad_signals <- function(data,
   }
   } else if(!is.null(date_ext)){
 
-    # also look at filters?
     if ((date_ext - lubridate::weeks(number_of_weeks)) < max(data[[date_var]], na.rm = TRUE)) {
       diff_weeks <- as.numeric(
         lubridate::interval(date_ext - lubridate::weeks(number_of_weeks),
                  max(data[[date_var]], na.rm = TRUE)) / lubridate::days(7)
       )
       diff_weeks <- floor(diff_weeks)
-      cutoff_date <- max(data[[date_var]], na.rm = TRUE) - lubridate::weeks(number_of_weeks) + lubridate::weeks(diff_weeks) # to do: round correctly
+      cutoff_date <- max(data[[date_var]], na.rm = TRUE) - lubridate::weeks(number_of_weeks) + lubridate::weeks(diff_weeks)
 
       data_no_signals <- data %>%
         dplyr::filter(.data[[date_var]] <= cutoff_date)
@@ -656,7 +655,7 @@ pad_signals <- function(data,
         break
       }
     }
-    } else { # To do; is it rational to use the historic threshold option here?
+    } else {
         data_no_signals <- data
 
          available_thresholds <- c(26, 20, 14, 8, 2)
@@ -681,8 +680,6 @@ pad_signals <- function(data,
 
   result_padding_unstratified <- signals_timeopt %>%
     dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
-
-  # TO DO: STRATIFICATION
 
   # preparing dataset with padding
   if (is.null(stratification)) {
