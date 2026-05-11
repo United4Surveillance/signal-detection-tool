@@ -79,7 +79,8 @@ mod_tabpanel_linelist_server <- function(
           ),
           bslib::card(
             min_height = "500px",
-            shiny::h1("Line list of selected signals"),
+            shiny::h1("Signal Investigation"),
+            plotly::plotlyOutput(ns("age_comparison")),
             shiny::span("Click any of the buttons below to export the line list in your desired format."),
             DT::DTOutput(ns("linelist"))
           )
@@ -118,39 +119,70 @@ mod_tabpanel_linelist_server <- function(
       }
     })
 
-    # display line lists of selected signals
-    output$linelist <- DT::renderDataTable({
+    # display age distribution graphic
+    output$age_comparison <- plotly::renderPlotly({
+      req(cases_linelist)
+      req(true_signals)
+
+      linelist_cases <- dplyr::bind_rows(cases_linelist()$cases |> dplyr::mutate(signal = T),
+                                        cases_linelist()$cases_comparison |> dplyr::mutate(signal = F))
+      cases_agg <- linelist_cases |>
+        dplyr::count(signal,age_group)
+
+      plot_agegroup_comparison(cases_agg,unique(true_signals()$number_of_weeks))
+
+    })
+
+    cases_linelist <- shiny::reactive({
       req(filtered_data)
       req(true_signals)
       # check if any signals are selected for investigation
       req(!is.na(input$show_signals_padded_rows_selected))
+
       # selected rows by user in UI
       selected_signal_ids <- sort(input$show_signals_padded_rows_selected)
 
-      filter_rows <- function(df1_row, df2) {
-        # extract year and week out of df1
-        year <- df1_row$year
-        week <- df1_row$week
-        category <- df1_row$category
-        stratum <- df1_row$stratum
+      filter_rows_by_period <- function(linelist, start_date, end_date, df1_row = NULL) {
 
-        # determine start and end time of detection period
-        start_date <- ISOweek::ISOweek2date(paste0(year, "-W", sprintf("%02d", week), "-1"))
-        end_date <- start_date + lubridate::days(6)
+        filtered_df <- linelist %>%
+          dplyr::filter(date_report >= start_date & date_report <= end_date)
 
-        # Dynamic filtering
-        filtered_df <- df2 %>%
-          dplyr::filter(
-            date_report >= start_date & date_report <= end_date # Filter für das Datum
-          )
-
-        # further filtering if stratification was applied
-        if (!is.na(category) && !is.na(stratum)) {
-          filtered_df <- filtered_df %>%
-            dplyr::filter(!!sym(category) == stratum)
+        # filtering for the specific stratum in the linelist
+        if (!is.null(df1_row)){
+          category <- df1_row$category
+          stratum <- df1_row$stratum
+          if (!is.na(category) && !is.na(stratum)) {
+            filtered_df <- filtered_df %>%
+              dplyr::filter(!!rlang::sym(category) == stratum)
+          }
         }
 
-        return(filtered_df)
+        filtered_df
+      }
+
+      filter_rows_past_weeks <- function(signals_padded, linelist) {
+
+        number_of_weeks <- unique(signals_padded$number_of_weeks)
+        signals_padded_n_weeks <- signals_padded |>
+          dplyr::filter(!is.na(alarms)) |>
+          dplyr::mutate(
+            week_start = ISOweek::ISOweek2date(
+              paste0(year, "-W", sprintf("%02d", week), "-1")
+            ))
+
+        start_date <- min(signals_padded_n_weeks$week_start)
+        end_date <- max(signals_padded_n_weeks$week_start) + lubridate::days(6)
+
+        filter_rows_by_period(linelist, start_date, end_date)
+      }
+
+      filter_rows_signal_week <- function(df1_row, df2) {
+        start_date <- ISOweek::ISOweek2date(
+          paste0(df1_row$year, "-W", sprintf("%02d", df1_row$week), "-1")
+        )
+        end_date <- start_date + lubridate::days(6)
+
+        filter_rows_by_period(df2, start_date, end_date, df1_row)
       }
 
       # Filter rows for each signal ID
@@ -159,7 +191,7 @@ mod_tabpanel_linelist_server <- function(
         signal_row <- true_signals() %>% dplyr::slice(ssid)
 
         # Apply the filtering function
-        filtered_cases <- filter_rows(signal_row, filtered_data())
+        filtered_cases <- filter_rows_signal_week(signal_row, filtered_data())
 
         # Add signal_id column
         filtered_cases <- filtered_cases %>%
@@ -168,10 +200,27 @@ mod_tabpanel_linelist_server <- function(
         return(filtered_cases)
       })
 
+      # remove duplicated cases in signals if there are some
+
+      # Apply the filtering function
+      cases_comparison <- filter_rows_past_weeks(signals_padded(), filtered_data())
+      # removing signal cases
+      cases_comparison <- cases_comparison |> dplyr::anti_join(cases, by = "case_id")
+
+      list(
+        cases = cases,
+        cases_comparison = cases_comparison
+      )
+    })
+
+    # display line lists of selected signals
+    output$linelist <- DT::renderDataTable({
+
+
       filename_download <- "signals_line_list"
 
       DT::datatable(
-        cases,
+        cases_linelist()$cases,
         extensions = "Buttons",
         options = list(
           dom = "Bfrtip",
