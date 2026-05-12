@@ -137,6 +137,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
               shiny::column(
                 width = 12,
                 shiny::conditionalPanel(
+                  condition = sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
+                  checkboxInput(ns("filter_outbreak_cases"), "Ignore cases in outreaks")
+                )
+              ),
+              shiny::column(
+                width = 12,
+                shiny::conditionalPanel(
                   condition = sprintf("output['%s'] == 'FALSE'", ns("algorithm_glm")),
                   checkboxInput(ns("pad_signals_choice"), "Show expectation and threshold for historic data (computation intensive)")
                 )
