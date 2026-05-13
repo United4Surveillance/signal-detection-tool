@@ -50,6 +50,6 @@ create_map_or_table(
   input_example,
   "county",
   nuts_shp
-  )
+)
 }
 }

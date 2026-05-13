@@ -30,7 +30,7 @@ n.strata <- 9
 signals_week_barchart <- plot_signals_per_week(
   signals,
   n_strata = n.strata
-  )
+)
 signals_week_barchart
 }
 }

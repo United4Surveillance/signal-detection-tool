@@ -27,7 +27,7 @@ data_preprocessed <- input_example \%>\% preprocess_data()
 results <- get_signals(
   data_preprocessed,
   stratification = c("sex", "county_id")
-  )
+)
 results_agg <- results \%>\% aggregate_signals(number_of_weeks = 6)
 results_agg
 }

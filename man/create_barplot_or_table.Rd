@@ -43,6 +43,6 @@ signals_agg <- signals \%>\% aggregate_signals(number_of_weeks = 6)
 create_barplot_or_table(
   signals_agg,
   "age_group"
-  )
+)
 }
 }

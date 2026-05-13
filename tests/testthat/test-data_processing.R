@@ -262,11 +262,11 @@ test_that("Aggregation of data is performed correctly using outbreak status", {
 
 
   linelist1_agg <- linelist1 %>%
-    aggregate_data(date_var = "date_report")
+    aggregate_data()
   linelist2_agg <- linelist2 %>%
-    aggregate_data(date_var = "date_report")
+    aggregate_data()
   linelist4_agg <- linelist4 %>%
-    aggregate_data(date_var = "date_report")
+    aggregate_data()
 
 
   expect_equal(data.frame(linelist1_agg), data.frame(year = c(2024, 2024), week = c(40, 41), cases = c(6, 4)))

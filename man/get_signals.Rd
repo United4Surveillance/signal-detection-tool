@@ -61,8 +61,8 @@ results <- get_signals(
   data_preprocessed,
   method = "farrington",
   stratification = c("county", "sex")
-  )
-  results
+)
+results
 }
 }
 \seealso{
