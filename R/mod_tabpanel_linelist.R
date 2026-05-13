@@ -127,7 +127,13 @@ mod_tabpanel_linelist_server <- function(
       linelist_cases <- dplyr::bind_rows(cases_linelist()$cases |> dplyr::mutate(signal = T),
                                         cases_linelist()$cases_comparison |> dplyr::mutate(signal = F))
       cases_agg <- linelist_cases |>
-        dplyr::count(signal,age_group)
+        dplyr::count(signal,age_group) |>
+        dplyr::group_by(signal) |>
+        dplyr::mutate(
+          total_n = sum(n),
+          perc = round(n / total_n * 100)
+        ) |>
+        dplyr::ungroup()
 
       plot_agegroup_comparison(cases_agg,unique(true_signals()$number_of_weeks))
 

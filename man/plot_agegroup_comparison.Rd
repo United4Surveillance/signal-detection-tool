@@ -8,7 +8,7 @@ plot_agegroup_comparison(data_agg, number_of_weeks)
 }
 \arguments{
 \item{data_agg}{A data frame containing aggregated case counts. Must include at least
-the variables `signal`, `age_group`, and `n`. Typically created using `dplyr::count()`.}
+the variables `signal`, `age_group`,`n`,`perc` and `total_n`. Typically created using `dplyr::count()`.}
 
 \item{number_of_weeks}{Integer scalar. Number of weeks signal detection was applied for, which defines the time window or cases used for the comparison.
 Must be a single positive integer (>= 1).}

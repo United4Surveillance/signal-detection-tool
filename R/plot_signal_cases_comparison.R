@@ -7,7 +7,7 @@
 #' and returns a Plotly interactive visualization with a minimal dashboard-style theme.
 #'
 #' @param data_agg A data frame containing aggregated case counts. Must include at least
-#'   the variables `signal`, `age_group`, and `n`. Typically created using `dplyr::count()`.
+#'   the variables `signal`, `age_group`,`n`,`perc` and `total_n`. Typically created using `dplyr::count()`.
 #'
 #' @param number_of_weeks Integer scalar. Number of weeks signal detection was applied for, which defines the time window or cases used for the comparison.
 #'   Must be a single positive integer (>= 1).
@@ -35,11 +35,13 @@ plot_agegroup_comparison <- function(data_agg, number_of_weeks){
 
   p <- ggplot2::ggplot(data_agg,
                   ggplot2::aes(x = age_group,
-                               y = n,
+                               y = perc,
                                fill = signal,
                                text = paste0(
                                  "Age group: ", age_group, "<br>",
+                                 "Proportion of cases: ", perc,"%","<br>",
                                  "Number of cases: ", n, "<br>",
+                                 "Total number of cases: ", total_n, "<br>",
                                  "Group: ", signal
                                ))) +
     ggplot2::geom_col(position = ggplot2::position_dodge(preserve = "single")) +
@@ -47,7 +49,7 @@ plot_agegroup_comparison <- function(data_agg, number_of_weeks){
     ggplot2::labs(
       title = "Distribution by age group",
       x = "Age group",
-      y = "Number of cases",
+      y = "Proportion (%) of cases",
       fill = NULL
     ) +
     ggplot2::theme_minimal(base_size = 12) +
