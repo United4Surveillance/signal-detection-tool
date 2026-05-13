@@ -85,9 +85,9 @@ is `NULL`, both are recomputed from `data`.}
 \item{intervention_date}{Date object, character string in `"yyyy-mm-dd"`
 format, or `NULL` specifying the intervention date for interrupted time
 series analysis. Supported only by the methods `"Mean"`, `"Timetrend"`,
-`"Harmonic"`, `"Harmonic with timetrend"`, `"Step harmonic"`, and
-`"Step harmonic with timetrend"`. The default `NULL` disables the
-intervention analysis.}
+`"Harmonic"`, `"Harmonic with timetrend"`, `Multi-seasonal harmonic`,
+`"Step harmonic"`, and `"Step harmonic with timetrend"`. The default `NULL`
+disables the intervention analysis.}
 
 \item{custom_logo}{Character scalar giving the path to a PNG or SVG logo
 that replaces the default United4Surveillance logo. Used only for HTML
