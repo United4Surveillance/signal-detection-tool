@@ -8,9 +8,9 @@
 #' \dontrun{
 #' data_aggregated <- input_example %>%
 #'   preprocess_data() %>%
-#'   aggregate_data() %>%
-#'   add_rows_missing_dates()
+#'   aggregate_data()
 #' results <- get_signals_farringtonflexible(data_aggregated)
+#' results
 #' }
 get_signals_farringtonflexible <- function(data_aggregated,
                                            number_of_weeks = 52,
