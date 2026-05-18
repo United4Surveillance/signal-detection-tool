@@ -73,7 +73,8 @@ test_that("run_report() works with pre-computed signals_agg and signals_pad", {
     preprocessed,
     method = "ears",
     stratification = "age_group",
-    number_of_weeks = 6
+    number_of_weeks = 6,
+    filter_outbreak_cases = FALSE
   )
 
   signals_agg_pad <- aggregate_pad_signals(
@@ -167,7 +168,8 @@ test_that("run_report() works with multiple pathogens using precomputed signals_
       preprocessed_data_pat,
       method = "ears",
       stratification = "age_group",
-      number_of_weeks = 6
+      number_of_weeks = 6,
+      filter_outbreak_cases = FALSE
     ) %>%
       dplyr::mutate(pathogen = pat)
 
