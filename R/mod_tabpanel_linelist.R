@@ -148,74 +148,11 @@ mod_tabpanel_linelist_server <- function(
       # selected rows by user in UI
       selected_signal_ids <- sort(input$show_signals_padded_rows_selected)
 
-      filter_rows_by_period <- function(linelist, start_date, end_date, df1_row = NULL) {
-
-        filtered_df <- linelist %>%
-          dplyr::filter(date_report >= start_date & date_report <= end_date)
-
-        # filtering for the specific stratum in the linelist
-        if (!is.null(df1_row)){
-          category <- df1_row$category
-          stratum <- df1_row$stratum
-          if (!is.na(category) && !is.na(stratum)) {
-            filtered_df <- filtered_df %>%
-              dplyr::filter(!!rlang::sym(category) == stratum)
-          }
-        }
-
-        filtered_df
-      }
-
-      filter_rows_past_weeks <- function(signals_padded, linelist) {
-
-        number_of_weeks <- unique(signals_padded$number_of_weeks)
-        signals_padded_n_weeks <- signals_padded |>
-          dplyr::filter(!is.na(alarms)) |>
-          dplyr::mutate(
-            week_start = ISOweek::ISOweek2date(
-              paste0(year, "-W", sprintf("%02d", week), "-1")
-            ))
-
-        start_date <- min(signals_padded_n_weeks$week_start)
-        end_date <- max(signals_padded_n_weeks$week_start) + lubridate::days(6)
-
-        filter_rows_by_period(linelist, start_date, end_date)
-      }
-
-      filter_rows_signal_week <- function(df1_row, df2) {
-        start_date <- ISOweek::ISOweek2date(
-          paste0(df1_row$year, "-W", sprintf("%02d", df1_row$week), "-1")
-        )
-        end_date <- start_date + lubridate::days(6)
-
-        filter_rows_by_period(df2, start_date, end_date, df1_row)
-      }
-
-      # Filter rows for each signal ID
-      cases <- purrr::map_dfr(selected_signal_ids, function(ssid) {
-        # Extract the corresponding row from true_signals()
-        signal_row <- true_signals() %>% dplyr::slice(ssid)
-
-        # Apply the filtering function
-        filtered_cases <- filter_rows_signal_week(signal_row, filtered_data())
-
-        # Add signal_id column
-        filtered_cases <- filtered_cases %>%
-          dplyr::mutate(signal_id = ssid, .before = 1)
-
-        return(filtered_cases)
-      })
-
-      # remove duplicated cases in signals if there are some
-
-      # Apply the filtering function
-      cases_comparison <- filter_rows_past_weeks(signals_padded(), filtered_data())
-      # removing signal cases
-      cases_comparison <- cases_comparison |> dplyr::anti_join(cases, by = "case_id")
-
-      list(
-        cases = cases,
-        cases_comparison = cases_comparison
+      build_signal_and_comparison_linelist(
+        selected_signal_ids = selected_signal_ids,
+        true_signals = true_signals(),
+        signals_padded = signals_padded(),
+        filtered_data = filtered_data()
       )
     })
 
