@@ -14,6 +14,7 @@
 * Added option to extend the dataset up to the current day
 * Added new multi-seasonal harmonic method with annual and semiannual components and optional timetrend
 * Fixed outdated dontrun examples
+* Added handling for ages and age-group bounds greater than or equal to 115 to avoid unplausible ages in linelist
 
 # SignalDetectionTool 0.9.0
 
