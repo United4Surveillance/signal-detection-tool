@@ -201,10 +201,12 @@ aggregate_data <- function(data,
       dplyr::left_join(data_outbreak_agg, by = c("cw_iso", group)) %>%
       dplyr::mutate(cases_in_outbreak = dplyr::if_else(is.na(cases_in_outbreak), 0, cases_in_outbreak))
 
-    if (filter_outbreak_cases == TRUE){
+    if (filter_outbreak_cases == TRUE) {
       data_agg <- data_agg %>%
-        dplyr::mutate(cases_total = cases, # looping problem?
-                      cases = cases_total - cases_in_outbreak)
+        dplyr::mutate(
+          cases_total = cases, # looping problem?
+          cases = cases_total - cases_in_outbreak
+        )
     }
   }
   data_agg %>%

@@ -137,14 +137,17 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
               shiny::column(
                 width = 12,
                 shiny::conditionalPanel(
-                  condition = sprintf("output['%s'] == 'TRUE' && output['%s'] == 'TRUE'",
-                                      ns("algorithm_glm"),
-                                      ns("has_outbreak_status")),
+                  condition = sprintf(
+                    "output['%s'] == 'TRUE' && output['%s'] == 'TRUE'",
+                    ns("algorithm_glm"),
+                    ns("has_outbreak_status")
+                  ),
                   checkboxInput(ns("filter_outbreak_cases"), "Ignore cases in outbreaks",
-                                value = get_data_config_value(
-                    "params:filter_outbreak_cases",
-                    FALSE, c(TRUE, FALSE)
-                  ))
+                    value = get_data_config_value(
+                      "params:filter_outbreak_cases",
+                      FALSE, c(TRUE, FALSE)
+                    )
+                  )
                 )
               ),
               shiny::column(
