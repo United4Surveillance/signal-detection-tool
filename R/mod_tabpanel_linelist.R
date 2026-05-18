@@ -66,8 +66,8 @@ mod_tabpanel_linelist_server <- function(
         return(shiny::tagList(
           bslib::card(
             min_height = "700px",
-            shiny::h1("Investigate signals"),
-            shiny::span("Click into the table to select the signals you want to investigate."),
+            shiny::h1("Signals Overview"),
+            shiny::span("Click into the table to select the signals you want to further investigate."),
             shiny::span(
               paste0(
                 "Detected signals using method '",
@@ -80,8 +80,12 @@ mod_tabpanel_linelist_server <- function(
           bslib::card(
             min_height = "500px",
             shiny::h1("Signal Investigation"),
-            plotly::plotlyOutput(ns("age_comparison")),
-            shiny::span("Click any of the buttons below to export the line list in your desired format."),
+            plotly::plotlyOutput(ns("age_comparison"))
+          ),
+          bslib::card(
+            min_height = "500px",
+            shiny::h1("Case Linelist for Selected Signals"),
+            shiny::span("Export or review cases linked to the selected signals."),
             DT::DTOutput(ns("linelist"))
           )
         ))
