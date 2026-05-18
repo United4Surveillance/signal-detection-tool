@@ -137,7 +137,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
               shiny::column(
                 width = 12,
                 shiny::conditionalPanel(
-                  condition = sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
+                  condition = sprintf("output['%s'] == 'TRUE' && output['%s'] == 'TRUE'",
+                                      ns("algorithm_glm"),
+                                      ns("has_outbreak_status")),
                   checkboxInput(ns("filter_outbreak_cases"), "Ignore cases in outbreaks",
                                 value = get_data_config_value(
                     "params:filter_outbreak_cases",
@@ -616,6 +618,32 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     observeEvent(input$algorithm_choice, {
       if (!algorithm_glm()) {
         updateCheckboxInput(session, "filter_outbreak_cases", value = FALSE)
+      }
+    })
+
+    # Check if outbreak_status is in dataset: If not do not show option to exclude cases in outbreaks
+    has_outbreak_status <- reactive({
+      dat <- data()
+      if (is.null(dat)) {
+        return(FALSE)
+      }
+
+      "outbreak_status" %in% names(dat)
+    })
+
+    output$has_outbreak_status <- renderText({
+      if (isTRUE(has_outbreak_status())) "TRUE" else "FALSE"
+    })
+
+    outputOptions(output, "has_outbreak_status", suspendWhenHidden = FALSE)
+
+    observe({
+      if (!isTRUE(has_outbreak_status())) {
+        updateCheckboxInput(
+          session,
+          "filter_outbreak_cases",
+          value = FALSE
+        )
       }
     })
 
