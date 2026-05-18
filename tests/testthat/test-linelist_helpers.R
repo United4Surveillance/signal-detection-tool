@@ -2,18 +2,18 @@ test_that("build_signal_and_comparison_linelist deduplicates cases and combines 
   true_signals <- data.frame(
     year = rep(2024, 3),
     week = c(1, 2, 1),
-    cases = c(13,12,5),
-    category = c(NA_character_, "sex","sex"),
+    cases = c(13, 12, 5),
+    category = c(NA_character_, "sex", "sex"),
     stratum = c(NA_character_, "male", "male"),
-    alarms = c(TRUE,TRUE,TRUE),
-    signal_id = c(1,2,3)
+    alarms = c(TRUE, TRUE, TRUE),
+    signal_id = c(1, 2, 3)
   )
 
   signals_padded <- data.frame(
-    year = c(rep(2023,52),2024, 2024),
-    week = c(seq(1,52,1),1, 2),
-    cases = c(rep(5,52),18,12),
-    alarms = c(rep(NA,52),TRUE, TRUE)
+    year = c(rep(2023, 52), 2024, 2024),
+    week = c(seq(1, 52, 1), 1, 2),
+    cases = c(rep(5, 52), 18, 12),
+    alarms = c(rep(NA, 52), TRUE, TRUE)
   )
 
   filtered_data <- filtered_data <- data.frame(
@@ -71,10 +71,9 @@ test_that("build_signal_and_comparison_linelist deduplicates cases and combines 
       rep("2023-12-12", 5),
       rep("2023-12-19", 5),
       rep("2023-12-26", 5),
-
       rep("2024-01-02", 13), # week 1, female
-      rep("2024-01-03", 5),  # week 1, male
-      rep("2024-01-09", 12)  # week 2, male
+      rep("2024-01-03", 5), # week 1, male
+      rep("2024-01-09", 12) # week 2, male
     )),
     sex = c(
       rep("female", 260),
@@ -120,7 +119,7 @@ test_that("build_signal_and_comparison_linelist excludes selected signal cases f
     week = c(seq(1, 52, 1), 1, 2),
     cases = c(rep(5, 52), 18, 12),
     alarms = c(rep(NA, 52), TRUE, TRUE),
-    number_of_weeks = rep(3,54)
+    number_of_weeks = rep(3, 54)
   )
 
   filtered_data <- data.frame(

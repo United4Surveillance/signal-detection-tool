@@ -17,12 +17,11 @@
 #' @return A filtered data frame containing linelist rows within the selected
 #'   reporting period and, if applicable, the selected stratum.
 filter_linelist_by_period_and_stratum <- function(linelist, start_date, end_date, df2 = NULL) {
-
   filtered_df <- linelist %>%
     dplyr::filter(date_report >= start_date & date_report <= end_date)
 
   # filtering for the specific stratum in the linelist
-  if (!is.null(df2)){
+  if (!is.null(df2)) {
     category <- df2$category
     stratum <- df2$stratum
     if (!is.na(category) && !is.na(stratum)) {
@@ -51,14 +50,14 @@ filter_linelist_by_period_and_stratum <- function(linelist, start_date, end_date
 #' @return A filtered linelist containing cases reported during the signal
 #'   detection period.
 filter_rows_past_weeks <- function(signals_padded, linelist) {
-
   number_of_weeks <- unique(signals_padded$number_of_weeks)
   signals_padded_n_weeks <- signals_padded |>
     dplyr::filter(!is.na(alarms)) |>
     dplyr::mutate(
       week_start = ISOweek::ISOweek2date(
         paste0(year, "-W", sprintf("%02d", week), "-1")
-      ))
+      )
+    )
 
   start_date <- min(signals_padded_n_weeks$week_start)
   end_date <- max(signals_padded_n_weeks$week_start) + lubridate::days(6)
@@ -115,7 +114,6 @@ filter_rows_signal_week <- function(signal_row, df2) {
 #'   detection period, excluding cases already present in `cases`.}
 #' }
 build_signal_and_comparison_linelist <- function(selected_signal_ids, true_signals, signals_padded, filtered_data) {
-
   cases <- purrr::map_dfr(selected_signal_ids, function(ssid) {
     signal_row <- true_signals |> dplyr::slice(ssid)
 

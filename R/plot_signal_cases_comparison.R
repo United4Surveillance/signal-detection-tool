@@ -13,8 +13,7 @@
 #'   Must be a single positive integer (>= 1).
 #'
 #' @return A Plotly object representing a grouped bar chart of case counts by age group and signal status.
-plot_agegroup_comparison <- function(data_agg, number_of_weeks){
-
+plot_agegroup_comparison <- function(data_agg, number_of_weeks) {
   checkmate::assert_data_frame(
     data_agg,
     min.rows = 1,
@@ -29,21 +28,26 @@ plot_agegroup_comparison <- function(data_agg, number_of_weeks){
 
   data_agg <- data_agg |>
     dplyr::mutate(signal = factor(signal,
-                                  levels = c(TRUE, FALSE),
-                                  labels = c("Signal cases",paste0("All cases excluding signal cases (last ",number_of_weeks," weeks)")))) |>
-    tidyr::complete(age_group,signal,fill = list(n = 0))
+      levels = c(TRUE, FALSE),
+      labels = c("Signal cases", paste0("All cases excluding signal cases (last ", number_of_weeks, " weeks)"))
+    )) |>
+    tidyr::complete(age_group, signal, fill = list(n = 0))
 
-  p <- ggplot2::ggplot(data_agg,
-                  ggplot2::aes(x = age_group,
-                               y = perc,
-                               fill = signal,
-                               text = paste0(
-                                 "Age group: ", age_group, "<br>",
-                                 "Proportion of cases: ", perc,"%","<br>",
-                                 "Number of cases: ", n, "<br>",
-                                 "Total number of cases: ", total_n, "<br>",
-                                 "Group: ", signal
-                               ))) +
+  p <- ggplot2::ggplot(
+    data_agg,
+    ggplot2::aes(
+      x = age_group,
+      y = perc,
+      fill = signal,
+      text = paste0(
+        "Age group: ", age_group, "<br>",
+        "Proportion of cases: ", perc, "%", "<br>",
+        "Number of cases: ", n, "<br>",
+        "Total number of cases: ", total_n, "<br>",
+        "Group: ", signal
+      )
+    )
+  ) +
     ggplot2::geom_col(position = ggplot2::position_dodge(preserve = "single")) +
     ggplot2::scale_fill_manual(values = c("Signal cases" = "#304898")) +
     ggplot2::labs(
@@ -68,7 +72,7 @@ plot_agegroup_comparison <- function(data_agg, number_of_weeks){
       axis.title.y = ggplot2::element_text(face = "bold")
     )
 
-  plotly::ggplotly(p,tooltip = "text") |>
+  plotly::ggplotly(p, tooltip = "text") |>
     plotly::config(modeBarButtonsToRemove = c(
       "autoScale2d",
       "select2d",

@@ -128,10 +128,12 @@ mod_tabpanel_linelist_server <- function(
       req(cases_linelist)
       req(true_signals)
 
-      linelist_cases <- dplyr::bind_rows(cases_linelist()$cases |> dplyr::mutate(signal = T),
-                                        cases_linelist()$cases_comparison |> dplyr::mutate(signal = F))
+      linelist_cases <- dplyr::bind_rows(
+        cases_linelist()$cases |> dplyr::mutate(signal = T),
+        cases_linelist()$cases_comparison |> dplyr::mutate(signal = F)
+      )
       cases_agg <- linelist_cases |>
-        dplyr::count(signal,age_group) |>
+        dplyr::count(signal, age_group) |>
         dplyr::group_by(signal) |>
         dplyr::mutate(
           total_n = sum(n),
@@ -139,8 +141,7 @@ mod_tabpanel_linelist_server <- function(
         ) |>
         dplyr::ungroup()
 
-      plot_agegroup_comparison(cases_agg,unique(true_signals()$number_of_weeks))
-
+      plot_agegroup_comparison(cases_agg, unique(true_signals()$number_of_weeks))
     })
 
     cases_linelist <- shiny::reactive({
@@ -162,8 +163,6 @@ mod_tabpanel_linelist_server <- function(
 
     # display line lists of selected signals
     output$linelist <- DT::renderDataTable({
-
-
       filename_download <- "signals_line_list"
 
       DT::datatable(
