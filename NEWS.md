@@ -14,6 +14,7 @@
 * Added option to extend the dataset up to the current day
 * Added new multi-seasonal harmonic method with annual and semiannual components and optional timetrend
 * Added handling for ages and age-group bounds greater than or equal to 115 to avoid unplausible ages in linelist
+* Added option to exclude outbreak-associated cases from training and testing for GLM-based algorithms
 
 # SignalDetectionTool 0.9.0
 

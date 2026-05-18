@@ -16,7 +16,8 @@ get_signals_stratified(
   date_ext = NULL,
   date_var = "date_report",
   number_of_weeks = 6,
-  alpha_upper = 0.05
+  alpha_upper = 0.05,
+  filter_outbreak_cases = FALSE
 )
 }
 \arguments{
@@ -46,6 +47,12 @@ stratify the data by.}
 \item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
 and internally set to NULL.
 Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
+
+\item{filter_outbreak_cases}{A boolean specifying whether outbreak-associated cases should be excluded from case counts.
+This option can only be applied when GLM-based outbreak detection models are used. For other models, `filter_outbreak_cases = TRUE` is ignored.
+If `data` does not contain an `outbreak_status` column indicating the number of cases associated with outbreaks,
+no filtering is applied, even when `filter_outbreak_cases = TRUE`.
+Default is `FALSE`.}
 }
 \value{
 A tibble containing the results of the signal detection analysis

@@ -138,7 +138,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                 width = 12,
                 shiny::conditionalPanel(
                   condition = sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
-                  checkboxInput(ns("filter_outbreak_cases"), "Ignore cases in outreaks")
+                  checkboxInput(ns("filter_outbreak_cases"), "Ignore cases in outbreaks",
+                                value = get_data_config_value(
+                    "params:filter_outbreak_cases",
+                    FALSE, c(TRUE, FALSE)
+                  ))
                 )
               ),
               shiny::column(
@@ -608,6 +612,13 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }
     })
 
+    # Observe changes in algorithm_choice to reset filter_outbreak_cases checkbox to FALSE when other algorithm is selected
+    observeEvent(input$algorithm_choice, {
+      if (!algorithm_glm()) {
+        updateCheckboxInput(session, "filter_outbreak_cases", value = FALSE)
+      }
+    })
+
     # Output (not seen in UI) for FarringtonFlexible p-value output
     algorithm_farrington_chosen <- reactive({
       shiny::req(!errors_detected())
@@ -694,7 +705,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       intervention_date = shiny::reactive(intervention_date()),
       pad_signals_choice = shiny::reactive(input$pad_signals_choice),
       min_cases_signals = shiny::reactive(input$min_cases_signals),
-      selected_filter_vars = shiny::reactive(selected_filter_vars())
+      selected_filter_vars = shiny::reactive(selected_filter_vars()),
+      filter_outbreak_cases = shiny::reactive(input$filter_outbreak_cases)
     ))
   })
 }

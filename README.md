@@ -428,6 +428,10 @@ Defines key variables for analysis and signal detection.
 - `intervention_date`: *(Scalar: String, Date format `YYYY-MM-DD`)* -
   Date for the intervention in the pandemic correction models.
 
+- `filter_outbreak_cases`: *(Scalar: Boolean)* - Exclude
+  outbreak-associated cases from training and testing, only used in GLM
+  algorithms.
+
 ##### **Post-Processing Parameters (`post-processing`)** *(Mapping)*
 
 Defines key variables for post-processing.

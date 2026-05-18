@@ -109,6 +109,9 @@ preprocess_data <- function(data) {
 #' @param date_end A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.
 #' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL
 #' @param group A character specifying another grouping variable. Usually used for stratification.
+#' @param filter_outbreak_cases A boolean specifying whether cases in outbreaks should be excluded from case counts. The value TRUE should only be used
+#'  for the application of glm based outbreak detection models. If there is no `outbreak_status` column in `data` indicating the number of cases in outbreaks
+#'  no filtering is applied even if TRUE is selected. Default is FALSE
 #' @examples
 #' \dontrun{
 #' data <- preprocess_data(input_example) %>% aggregate_data()
@@ -119,7 +122,8 @@ aggregate_data <- function(data,
                            date_start = NULL,
                            date_end = NULL,
                            date_ext = NULL,
-                           group = NULL) {
+                           group = NULL,
+                           filter_outbreak_cases = FALSE) {
   checkmate::check_subset(c(group, date_var), names(data), empty.ok = TRUE)
 
   checkmate::assert(
@@ -135,6 +139,11 @@ aggregate_data <- function(data,
   checkmate::assert(
     checkmate::check_null(date_ext),
     checkmate::check_date(lubridate::date(date_ext)),
+    combine = "or"
+  )
+  checkmate::assert(
+    checkmate::check_true(filter_outbreak_cases),
+    checkmate::check_false(filter_outbreak_cases),
     combine = "or"
   )
 
@@ -183,6 +192,12 @@ aggregate_data <- function(data,
     data_agg <- data_agg %>%
       dplyr::left_join(data_outbreak_agg, by = c("cw_iso", group)) %>%
       dplyr::mutate(cases_in_outbreak = dplyr::if_else(is.na(cases_in_outbreak), 0, cases_in_outbreak))
+
+    if (filter_outbreak_cases == TRUE){
+      data_agg <- data_agg %>%
+        dplyr::mutate(cases_total = cases, # looping problem?
+                      cases = cases_total - cases_in_outbreak)
+    }
   }
   data_agg %>%
     tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "week")) %>%

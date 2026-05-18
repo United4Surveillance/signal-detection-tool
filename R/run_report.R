@@ -75,6 +75,11 @@
 #' @param alpha_upper Numeric between 0.001 and 0.2. Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to
 #'   using the 0.95 quantile. `alpha_upper` is only used for methods that require it (currently "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend"), for which a default value of 0.05 is applied.
 #'   Ears and cusum do not use the value; for these, the argument is ignored and internally set to NULL.
+#' @param filter_outbreak_cases A boolean specifying whether outbreak-associated cases should be excluded from case counts.
+#'   This option can only be applied when GLM-based outbreak detection models are used. For other models, `filter_outbreak_cases = TRUE` is ignored.
+#'   If `data` does not contain an `outbreak_status` column indicating the number of cases associated with outbreaks,
+#'   no filtering is applied, even when `filter_outbreak_cases = TRUE`.
+#'   Default is `FALSE`.
 #'
 #' @return Returns the path to the rendered output written to disk. For DOCX
 #'   output this is the Word document; for HTML output this is the ZIP archive
@@ -159,7 +164,8 @@ run_report <- function(
   custom_theme = NULL,
   min_cases_signals = 1,
   title = NULL,
-  alpha_upper = 0.05
+  alpha_upper = 0.05,
+  filter_outbreak_cases = FALSE
 ) {
   # Currently multi pathogen report is only supported for HTML
   if ((report_format == "DOCX" & length(unique(data$pathogen)) > 1) | report_format == "DOCX" & is.data.frame(strata)) {
@@ -251,6 +257,18 @@ run_report <- function(
   checkmate::assert(
     checkmate::check_string(title, null.ok = TRUE)
   )
+  if (!grepl("cusum", method, ignore.case = TRUE) && !grepl("ears", method, ignore.case = TRUE)
+      && !grepl("farringtonflexible", method, ignore.case = TRUE)) {
+    checkmate::assert(
+      checkmate::check_true(filter_outbreak_cases),
+      checkmate::check_false(filter_outbreak_cases),
+      combine = "or"
+    )
+  } else {
+    checkmate::assert(
+      checkmate::check_false(filter_outbreak_cases)
+    )
+  }
 
   # Preparation for reporting ---------------------------------------------------------------
   # transform the method name used in the app to the method names in the background
@@ -301,7 +319,8 @@ run_report <- function(
         date_end = NULL,
         date_var = "date_report",
         number_of_weeks = number_of_weeks,
-        alpha_upper = alpha_upper
+        alpha_upper = alpha_upper,
+        filter_outbreak_cases = filter_outbreak_cases
       ) %>%
         dplyr::mutate(
           pathogen = pat,
@@ -347,7 +366,8 @@ run_report <- function(
     signals_agg = signals_agg,
     intervention_date = intervention_date,
     title = title,
-    alpha_upper = alpha_upper
+    alpha_upper = alpha_upper,
+    filter_outbreak_cases = filter_outbreak_cases
   )
 
   if (report_format == "DOCX") {
