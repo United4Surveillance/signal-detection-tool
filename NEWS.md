@@ -13,6 +13,7 @@
 * Export plot_regional(), plot_barchart(), and plot_signals_per_week(); remove plot_agegroup_by()
 * Added option to extend the dataset up to the current day
 * Added new multi-seasonal harmonic method with annual and semiannual components and optional timetrend
+* Added visualisation of age group comparison of cases in signal vs. cases from the signal detection period in the linelist tab
 
 # SignalDetectionTool 0.9.0
 
