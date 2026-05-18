@@ -257,8 +257,8 @@ run_report <- function(
   checkmate::assert(
     checkmate::check_string(title, null.ok = TRUE)
   )
-  if (!grepl("cusum", method, ignore.case = TRUE) && !grepl("ears", method, ignore.case = TRUE)
-      && !grepl("farringtonflexible", method, ignore.case = TRUE)) {
+  if (!grepl("cusum", method, ignore.case = TRUE) && !grepl("ears", method, ignore.case = TRUE) &&
+    !grepl("farringtonflexible", method, ignore.case = TRUE)) {
     checkmate::assert(
       checkmate::check_true(filter_outbreak_cases),
       checkmate::check_false(filter_outbreak_cases),

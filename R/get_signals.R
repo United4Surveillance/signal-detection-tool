@@ -187,17 +187,17 @@ get_signals_stratified <- function(data,
     checkmate::check_integerish(number_of_weeks)
   )
 
-  if (model != ""){
-  checkmate::assert(
-    checkmate::check_true(filter_outbreak_cases),
-    checkmate::check_false(filter_outbreak_cases),
-    combine = "or"
-  )
-  } else if (model == ""){
+  if (model != "") {
+    checkmate::assert(
+      checkmate::check_true(filter_outbreak_cases),
+      checkmate::check_false(filter_outbreak_cases),
+      combine = "or"
+    )
+  } else if (model == "") {
     checkmate::assert(
       checkmate::check_false(filter_outbreak_cases)
     )
-    }
+  }
 
   # Initialize an empty list to store results per category
   category_results <- list()
