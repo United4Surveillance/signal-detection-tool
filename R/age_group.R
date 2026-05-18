@@ -12,9 +12,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Example usage:
 #' data_frame <- data.frame(age = c(2, 6, 16), age_group = c("01-05", "6-10", "16-20"))
-#' create_age_group_levels(data_frame)
+#' age_group_levels <- create_age_group_levels(data_frame)
+#' age_group_levels
 #' }
 create_age_group_levels <- function(df) {
   # check if only unknown (NA) age groups are present in df. Possible when filtering
@@ -44,10 +44,8 @@ create_age_group_levels <- function(df) {
 #'
 #' @examples
 #' \dontrun{
-#' # Example usage:
 #' data_frame <- data.frame(age = c(2, 5, 15, 16), age_group = c("01-05", "6-10", "11-15", "16-20"))
-#' check_results <- age_format_check(data_frame)
-#' print(check_results)
+#' age_format_check(data_frame)
 #' }
 age_format_check <- function(df) {
   # setting variables
@@ -136,9 +134,21 @@ age_format_check <- function(df) {
 #' @examples
 #' \dontrun{
 #' # Example usage:
-#' data_frame <- data.frame(age = c(2, 5, 15, 16), age_group = c("01-05", "6-10", "11-15", "16-20"))
-#' format_check_results <- list(equal_sizing = TRUE, agegrp_div = "-", other_punct_char = list(), format_agegrp_xx = 2)
-#' complete_agegrp_arr(data_frame, format_check_results)
+#' data_frame <- data.frame(
+#'   age = c(2, 5, 15, 16),
+#'   age_group = c("01-05", "6-10", "11-15", "16-20")
+#' )
+#' format_check_results <- list(
+#'   equal_sizing = TRUE,
+#'   agegrp_div = "-",
+#'   other_punct_char = list(),
+#'   format_agegrp_xx = 2
+#' )
+#' complete_agegrp_arr <- complete_agegrp_arr(
+#'   data_frame,
+#'   format_check_results
+#' )
+#' complete_agegrp_arr
 #' }
 complete_agegrp_arr <- function(df, format_check_results) {
   # find unique elements of age_group
@@ -354,8 +364,7 @@ complete_agegrp_arr <- function(df, format_check_results) {
 #'
 #' @examples
 #' \dontrun{
-#' input_path <- "data/input/input_sample.csv"
-#' data <- read.csv(input_path, header = TRUE, sep = ",")
+#' data <- input_example
 #' data$age <- sample(1:125, 10, replace = TRUE)
 #' age_groups(data) # default age groups
 #' age_groups(data, c(15L, 35L, 65L, 100L)) # custom age groups (lower bounds)

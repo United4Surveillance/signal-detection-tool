@@ -38,6 +38,9 @@ Additionally number of cases part of a known outbreak is added if the variable o
 }
 \examples{
 \dontrun{
-data <- preprocess_data(input_example) \%>\% aggregate_data()
+data_aggregated <- input_example \%>\%
+  preprocess_data() \%>\%
+  aggregate_data()
+data_aggregated
 }
 }

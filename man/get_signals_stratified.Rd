@@ -64,13 +64,12 @@ each stratum separately using the specified method.
 }
 \examples{
 \dontrun{
-data <- read.csv("../data/input/input.csv")
+data_preprocessed <- input_example \%>\% preprocess_data()
 categories <- c("county", "sex", "age_group") # Replace with actual column names
 results <- get_signals_stratified(
-  data,
+  data_preprocessed,
   fun = get_signals_farringtonflexible,
   stratification_columns = categories
 )
-print(results)
 }
 }

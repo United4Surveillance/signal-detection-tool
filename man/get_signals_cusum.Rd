@@ -18,8 +18,8 @@ Get signals of CUSUM algorithm with reset
 \dontrun{
 data_aggregated <- input_example \%>\%
   preprocess_data() \%>\%
-  aggregate_data() \%>\%
-  add_rows_missing_dates()
+  aggregate_data()
 results <- get_signals_cusum(data_aggregated)
+results
 }
 }
