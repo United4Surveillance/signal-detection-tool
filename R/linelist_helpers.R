@@ -115,12 +115,24 @@ filter_rows_signal_week <- function(signal_row, df2) {
 #'   detection period, excluding cases already present in `cases`.}
 #' }
 build_signal_and_comparison_linelist <- function(selected_signal_ids, true_signals, signals_padded, filtered_data) {
+
   cases <- purrr::map_dfr(selected_signal_ids, function(ssid) {
     signal_row <- true_signals |> dplyr::slice(ssid)
 
     filter_rows_signal_week(signal_row, filtered_data) |>
       dplyr::mutate(signal_id = ssid, .before = 1)
   })
+
+  # deduplicate cases, add both signal_id numbers to those cases occuring in two signals
+  cases <- cases |>
+    dplyr::group_by(case_id) |>
+    dplyr::summarise(
+      signal_id = paste(sort(unique(signal_id)), collapse = ","),
+      dplyr::across(-signal_id, dplyr::first),
+      .groups = "drop"
+    ) |>
+    dplyr::relocate(signal_id, .before = 1)
+
 
   cases_comparison <- filter_rows_past_weeks(signals_padded, filtered_data) |>
     dplyr::anti_join(cases, by = "case_id")
