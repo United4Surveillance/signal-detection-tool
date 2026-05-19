@@ -194,6 +194,11 @@ aggregate_data <- function(data,
       )
   }
 
+  if (!("outbreak_status" %in% names(data))) {
+    data_agg <- data_agg %>%
+      dplyr::select(-cases_in_outbreak)
+  }
+
   data_agg %>%
     tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "week")) %>%
     dplyr::mutate(
