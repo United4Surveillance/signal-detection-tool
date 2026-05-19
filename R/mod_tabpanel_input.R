@@ -232,20 +232,27 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::req(input$time_unit)
       shiny::req(iv_time_units$is_valid())
 
+      # Use extension date if available, otherwise latest date in filtered data
+      max_date_dataset <- if (!is.null(date_ext())) {
+        date_ext()
+      } else {
+        max(filtered_data()$date_report, na.rm = TRUE)
+      }
+
       # subtracting 1 from input$n_time_units to get correct dates for flooring (issue #256)
       if (input$time_unit == "weekly") {
-        date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(input$n_time_units - 1),
+        date_floor <- lubridate::floor_date(max_date_dataset - lubridate::weeks(input$n_time_units - 1),
           week_start = 1, unit = "week"
         )
-        date_ceil <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 7)
+        date_ceil <- lubridate::ceiling_date(max_date_dataset, unit = "week", week_start = 7)
       } else if (input$time_unit == "biweekly") {
-        date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(2 * input$n_time_units) + lubridate::weeks(1),
+        date_floor <- lubridate::floor_date(max_date_dataset - lubridate::weeks(2 * input$n_time_units) + lubridate::weeks(1),
           week_start = 1, unit = "week"
         )
-        date_ceil <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 7)
+        date_ceil <- lubridate::ceiling_date(max_date_dataset, unit = "week", week_start = 7)
       } else if (input$time_unit == "monthly") {
-        date_floor <- as.Date(lubridate::add_with_rollback(lubridate::floor_date(max(filtered_data()$date_report), unit = "month"), -months(input$n_time_units - 1), roll_to_first = TRUE))
-        date_ceil <- as.Date(lubridate::ceiling_date(max(filtered_data()$date_report), unit = "month") - lubridate::days(1))
+        date_floor <- as.Date(lubridate::add_with_rollback(lubridate::floor_date(max_date_dataset, unit = "month"), -months(input$n_time_units - 1), roll_to_first = TRUE))
+        date_ceil <- as.Date(lubridate::ceiling_date(max_date_dataset, unit = "month") - lubridate::days(1))
       }
 
       paste("Chosen signal detection period from", date_floor, "to", date_ceil)

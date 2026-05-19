@@ -226,6 +226,12 @@ get_signals_stratified <- function(data,
       # aggregate data
       aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext, group = category)
 
+    # add extension date information if available
+    if (!is.null(date_ext)) {
+      sub_data <- sub_data %>%
+        dplyr::mutate(extension_date = date_ext)
+    }
+
     split_list <- sub_data %>%
       dplyr::group_split(!!rlang::sym(category), .keep = FALSE)
     strata <- levels(sub_data[, category])
@@ -365,6 +371,11 @@ get_signals <- function(data,
     combine = "or"
   )
   checkmate::assert(
+    checkmate::check_null(date_ext),
+    checkmate::check_date(lubridate::date(date_ext)),
+    combine = "or"
+  )
+  checkmate::assert(
     checkmate::check_character(date_var, len = 1, pattern = "date")
   )
   checkmate::assert_choice(
@@ -470,6 +481,11 @@ get_signals <- function(data,
       )
   }
 
+  # add extension date information if available
+  if (!is.null(date_ext)) {
+    results <- results %>%
+      dplyr::mutate(extension_date = date_ext)
+  }
 
   return(results)
 }
@@ -599,6 +615,11 @@ pad_signals <- function(data,
   method <- unique(signals$method)
   time_unit <- unique(signals$time_unit)
 
+  if ("extension_date" %in% names(signals)) {
+    date_ext <- unique(signals$extension_date)
+  } else {
+    date_ext <- NULL
+  }
 
   stopifnot(length(number_of_time_units) == 1)
 
@@ -610,13 +631,34 @@ pad_signals <- function(data,
 
   stopifnot(length(method) == 1)
   stopifnot(length(time_unit) == 1)
+  stopifnot(is.null(date_ext) || length(date_ext) == 1)
+
+  if (!is.null(date_ext)){
+    max_date_df <- date_ext
+  } else if (is.null(date_ext)){
+    max_date_df <- max(data[[date_var]], na.rm = TRUE)
+  }
 
   if (time_unit %in% "weekly") {
-    cutoff_date <- max(data[[date_var]], na.rm = TRUE) - lubridate::weeks(number_of_time_units)
+    cutoff_date <- lubridate::floor_date(max_date_df - lubridate::weeks(number_of_time_units - 1),
+                                        week_start = 1, unit = "week"
+    ) - lubridate::days(1)
   } else if (time_unit %in% "biweekly") {
-    cutoff_date <- max(data[[date_var]], na.rm = TRUE) - lubridate::weeks(2 * number_of_time_units)
+    cutoff_date <- lubridate::floor_date(max_date_df - lubridate::weeks(2 * number_of_time_units) + lubridate::weeks(1),
+                                        week_start = 1, unit = "week"
+    ) - lubridate::days(1)
   } else if (time_unit %in% "monthly") {
-    cutoff_date <- as.Date(lubridate::add_with_rollback(max(data[[date_var]], na.rm = TRUE), -months(number_of_time_units), roll_to_first = TRUE))
+    cutoff_date <- lubridate::floor_date(
+      lubridate::`%m-%`(max_date_df, months(number_of_time_units)),
+      unit = "month"
+    )
+
+    cutoff_date <- lubridate::`%m+%`(
+      cutoff_date,
+      months(1)
+    ) - lubridate::days(1)
+
+    cutoff_date <- as.Date(cutoff_date)
   }
 
   data_no_signals <- data %>%
