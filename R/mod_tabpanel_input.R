@@ -632,7 +632,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }
 
       "outbreak_status" %in% names(dat) &&
-      any(!is.na(dat$outbreak_status) & trimws(as.character(dat$outbreak_status)) != "")
+        any(!is.na(dat$outbreak_status) & trimws(as.character(dat$outbreak_status)) != "")
     })
 
     output$has_outbreak_status <- renderText({
