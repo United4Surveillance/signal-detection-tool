@@ -52,7 +52,7 @@ get_signals_all <- function(preprocessed_data,
                             date_var = "date_report",
                             number_of_weeks = 6,
                             alpha_upper = 0.05,
-                            filter_outbreak_cases) {
+                            filter_outbreak_cases = FALSE) {
   results <- get_signals(
     data = preprocessed_data,
     method = method,
@@ -621,13 +621,6 @@ pad_signals <- function(data,
 
   number_of_weeks <- unique(signals$number_of_weeks)
   method <- unique(signals$method)
-
-  # # check if outbreak cases are ignored (could change that as function is not used by glm based algos)
-  # if ("cases_total" %in% names(signals)){
-  #   filter_outbreak_cases <- TRUE
-  # } else{
-  #   filter_outbreak_cases <- FALSE
-  # }
 
   if (grepl("farrington", method)) {
     alpha_upper <- unique(signals$alpha_upper)

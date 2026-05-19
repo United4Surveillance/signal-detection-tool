@@ -172,43 +172,28 @@ aggregate_data <- function(data,
     data$cw_iso <- factor(data$cw_iso, levels = extended_data_range)
   }
 
-  if (is.null(group)) {
-    data_agg <- data %>%
-      dplyr::group_by(cw_iso, .drop = FALSE)
-  } else {
-    data_agg <- data %>%
-      dplyr::group_by(cw_iso, !!rlang::sym(group), .drop = FALSE)
-  }
+  group_vars <- c("cw_iso", group)
 
-  data_agg <- data_agg %>%
-    dplyr::summarize(cases = dplyr::n(), .groups = "drop")
+  data_agg <- data %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_vars)), .drop = FALSE) %>%
+    dplyr::summarize(
+      cases = dplyr::n(),
+      cases_in_outbreak = if ("outbreak_status" %in% names(data)) {
+        sum(outbreak_status == "yes", na.rm = TRUE)
+      } else {
+        0L
+      },
+      .groups = "drop"
+    )
 
-  if ("outbreak_status" %in% names(data)) {
-    if (is.null(group)) {
-      data_outbreak_agg <- data %>%
-        dplyr::group_by(cw_iso, .drop = FALSE)
-    } else {
-      data_outbreak_agg <- data %>%
-        dplyr::group_by(cw_iso, !!rlang::sym(group), .drop = FALSE)
-    }
-    data_outbreak_agg <- data_outbreak_agg %>%
-      dplyr::summarize(
-        cases_in_outbreak = sum(outbreak_status == "yes", na.rm = TRUE),
-        .groups = "drop"
-      )
-
+  if ("outbreak_status" %in% names(data) && filter_outbreak_cases) {
     data_agg <- data_agg %>%
-      dplyr::left_join(data_outbreak_agg, by = c("cw_iso", group)) %>%
-      dplyr::mutate(cases_in_outbreak = dplyr::if_else(is.na(cases_in_outbreak), 0, cases_in_outbreak))
-
-    if (filter_outbreak_cases == TRUE) {
-      data_agg <- data_agg %>%
-        dplyr::mutate(
-          cases_total = cases, # looping problem?
-          cases = cases_total - cases_in_outbreak
-        )
-    }
+      dplyr::mutate(
+        cases_total = cases,
+        cases = cases_total - cases_in_outbreak
+      )
   }
+
   data_agg %>%
     tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "week")) %>%
     dplyr::mutate(
