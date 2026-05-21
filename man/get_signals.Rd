@@ -15,7 +15,7 @@ get_signals(
   date_var = "date_report",
   number_of_weeks = 6,
   alpha_upper = 0.05,
-  filter_outbreak_cases = FALSE
+  exclude_outbreak_cases_from_fitting = FALSE
 )
 }
 \arguments{
@@ -47,10 +47,10 @@ the analysis. Default is NULL.}
 and internally set to NULL.
 Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
 
-\item{filter_outbreak_cases}{A boolean specifying whether outbreak-associated cases should be excluded from case counts.
-This option can only be applied when GLM-based outbreak detection models are used. For other models, `filter_outbreak_cases = TRUE` is ignored.
+\item{exclude_outbreak_cases_from_fitting}{A boolean specifying whether outbreak-associated case counts should be excluded only when fitting the baseline.
+`TRUE` can only be applied when GLM-based outbreak detection models are used. For other models only `FALSE` is a valid input.
 If `data` does not contain an `outbreak_status` column indicating the number of cases associated with outbreaks,
-no filtering is applied, even when `filter_outbreak_cases = TRUE`.
+no exclusion is applied, even when `exclude_outbreak_cases_from_fitting = TRUE`.
 Default is `FALSE`.}
 }
 \value{

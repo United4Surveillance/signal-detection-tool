@@ -23,7 +23,7 @@ run_report(
   min_cases_signals = 1,
   title = NULL,
   alpha_upper = 0.05,
-  filter_outbreak_cases = FALSE
+  exclude_outbreak_cases_from_fitting = FALSE
 )
 }
 \arguments{
@@ -112,11 +112,10 @@ i.e. when `signals_agg` or `signals_padded` is `NULL`.}
 using the 0.95 quantile. `alpha_upper` is only used for methods that require it (currently "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend"), for which a default value of 0.05 is applied.
 Ears and cusum do not use the value; for these, the argument is ignored and internally set to NULL.}
 
-\item{filter_outbreak_cases}{A boolean specifying whether outbreak-associated cases should be excluded from case counts.
-This option can only be applied when GLM-based outbreak detection models are used. For other models, `filter_outbreak_cases = TRUE` is ignored.
-If `data` does not contain an `outbreak_status` column indicating the number of cases associated with outbreaks,
-no filtering is applied, even when `filter_outbreak_cases = TRUE`.
-Default is `FALSE`.}
+\item{exclude_outbreak_cases_from_fitting}{A boolean specifying whether outbreak-associated case counts should be excluded only when fitting the baseline.
+`TRUE` can only be applied when GLM-based outbreak detection models are used and `data` contains an `outbreak_status` column
+indicating the number of cases associated with outbreaks. For other specifications only `FALSE` is a valid input.
+Default is `FALSE`. `TRUE` can not be combined with using `outbreak_status` in `strata`.}
 }
 \value{
 Returns the path to the rendered output written to disk. For DOCX

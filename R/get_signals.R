@@ -22,10 +22,10 @@
 #' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
 #'   and internally set to NULL.
 #'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
-#' @param filter_outbreak_cases A boolean specifying whether outbreak-associated cases should be excluded from case counts.
-#'   This option can only be applied when GLM-based outbreak detection models are used. For other models, `filter_outbreak_cases = TRUE` is ignored.
+#' @param exclude_outbreak_cases_from_fitting A boolean specifying whether outbreak-associated case counts should be excluded only when fitting the baseline.
+#'   `TRUE` can only be applied when GLM-based outbreak detection models are used. For other models only `FALSE` is a valid input.
 #'   If `preprocessed_data` does not contain an `outbreak_status` column indicating the number of cases associated with outbreaks,
-#'   no filtering is applied, even when `filter_outbreak_cases = TRUE`.
+#'   no exclusion is applied, even when `exclude_outbreak_cases_from_fitting = TRUE`.
 #'   Default is `FALSE`.
 #'
 #' @return A tibble with columns for signals, expected values, thresholds, and
@@ -52,7 +52,7 @@ get_signals_all <- function(preprocessed_data,
                             date_var = "date_report",
                             number_of_weeks = 6,
                             alpha_upper = 0.05,
-                            filter_outbreak_cases = FALSE) {
+                            exclude_outbreak_cases_from_fitting = FALSE) {
   results <- get_signals(
     data = preprocessed_data,
     method = method,
@@ -64,7 +64,7 @@ get_signals_all <- function(preprocessed_data,
     date_var = date_var,
     number_of_weeks = number_of_weeks,
     alpha_upper = alpha_upper,
-    filter_outbreak_cases = filter_outbreak_cases
+    exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting
   )
   # when stratified signals were computed also add unstratified signals to the dataframe so that all can be visualised
   if (!is.null(stratification)) {
@@ -79,7 +79,7 @@ get_signals_all <- function(preprocessed_data,
       date_var = date_var,
       number_of_weeks = number_of_weeks,
       alpha_upper = alpha_upper,
-      filter_outbreak_cases = filter_outbreak_cases
+      exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting
     )
     results <- dplyr::bind_rows(results, results_unstratified)
   }
@@ -107,10 +107,10 @@ get_signals_all <- function(preprocessed_data,
 #' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
 #'   and internally set to NULL.
 #'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
-#' @param filter_outbreak_cases A boolean specifying whether outbreak-associated cases should be excluded from case counts.
-#'   This option can only be applied when GLM-based outbreak detection models are used. For other models, `filter_outbreak_cases = TRUE` is ignored.
+#' @param exclude_outbreak_cases_from_fitting A boolean specifying whether outbreak-associated case counts should be excluded only when fitting the baseline.
+#'   `TRUE` can only be applied when GLM-based outbreak detection models are used. For other models only `FALSE` is a valid input.
 #'   If `data` does not contain an `outbreak_status` column indicating the number of cases associated with outbreaks,
-#'   no filtering is applied, even when `filter_outbreak_cases = TRUE`.
+#'   no exclusion is applied, even when `exclude_outbreak_cases_from_fitting = TRUE`.
 #'   Default is `FALSE`.
 #' @return A tibble containing the results of the signal detection analysis
 #'   stratified by the specified columns.
@@ -137,7 +137,7 @@ get_signals_stratified <- function(data,
                                    date_var = "date_report",
                                    number_of_weeks = 6,
                                    alpha_upper = 0.05,
-                                   filter_outbreak_cases = FALSE) {
+                                   exclude_outbreak_cases_from_fitting = FALSE) {
   # check that all columns are present in the data
   for (col in stratification_columns) {
     checkmate::assert(
@@ -187,15 +187,16 @@ get_signals_stratified <- function(data,
     checkmate::check_integerish(number_of_weeks)
   )
 
+  # accept TRUE/FALSE for GLM-based algorithms and only FALSE otherwise
   if (model != "") {
     checkmate::assert(
-      checkmate::check_true(filter_outbreak_cases),
-      checkmate::check_false(filter_outbreak_cases),
+      checkmate::check_true(exclude_outbreak_cases_from_fitting),
+      checkmate::check_false(exclude_outbreak_cases_from_fitting),
       combine = "or"
     )
   } else if (model == "") {
     checkmate::assert(
-      checkmate::check_false(filter_outbreak_cases)
+      checkmate::check_false(exclude_outbreak_cases_from_fitting)
     )
   }
 
@@ -237,7 +238,7 @@ get_signals_stratified <- function(data,
       # filter the data
       filter_by_date(date_var = date_var, date_start = date_start, date_end = date_end) %>%
       # aggregate data
-      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext, group = category, filter_outbreak_cases = filter_outbreak_cases)
+      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext, group = category, exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting)
 
     split_list <- sub_data %>%
       dplyr::group_split(!!rlang::sym(category), .keep = FALSE)
@@ -264,7 +265,7 @@ get_signals_stratified <- function(data,
           )
       } else {
         if (model != "") {
-          results <- fun(sub_data_agg, number_of_weeks, model = model, alpha_upper = alpha_upper, time_trend = time_trend, intervention_date = intervention_date)
+          results <- fun(sub_data_agg, number_of_weeks, model = model, alpha_upper = alpha_upper, time_trend = time_trend, intervention_date = intervention_date, exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting)
         } else if (identical(fun, get_signals_farringtonflexible)) {
           results <- fun(sub_data_agg, number_of_weeks, alpha_upper = alpha_upper)
         } else {
@@ -319,10 +320,10 @@ get_signals_stratified <- function(data,
 #' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
 #'   and internally set to NULL.
 #'   Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.
-#' @param filter_outbreak_cases A boolean specifying whether outbreak-associated cases should be excluded from case counts.
-#'   This option can only be applied when GLM-based outbreak detection models are used. For other models, `filter_outbreak_cases = TRUE` is ignored.
+#' @param exclude_outbreak_cases_from_fitting A boolean specifying whether outbreak-associated case counts should be excluded only when fitting the baseline.
+#'   `TRUE` can only be applied when GLM-based outbreak detection models are used. For other models only `FALSE` is a valid input.
 #'   If `data` does not contain an `outbreak_status` column indicating the number of cases associated with outbreaks,
-#'   no filtering is applied, even when `filter_outbreak_cases = TRUE`.
+#'   no exclusion is applied, even when `exclude_outbreak_cases_from_fitting = TRUE`.
 #'   Default is `FALSE`.
 #' @return A tibble containing the results of the signal detection analysis.
 #' @export
@@ -348,7 +349,7 @@ get_signals <- function(data,
                         date_var = "date_report",
                         number_of_weeks = 6,
                         alpha_upper = 0.05,
-                        filter_outbreak_cases = FALSE) {
+                        exclude_outbreak_cases_from_fitting = FALSE) {
   # check that input method and stratification are correct
   checkmate::assert(
     checkmate::check_choice(method, choices = available_algorithms())
@@ -393,13 +394,13 @@ get_signals <- function(data,
 
   if (grepl("glm", method)) {
     checkmate::assert(
-      checkmate::check_true(filter_outbreak_cases),
-      checkmate::check_false(filter_outbreak_cases),
+      checkmate::check_true(exclude_outbreak_cases_from_fitting),
+      checkmate::check_false(exclude_outbreak_cases_from_fitting),
       combine = "or"
     )
   } else {
     checkmate::assert(
-      checkmate::check_false(filter_outbreak_cases)
+      checkmate::check_false(exclude_outbreak_cases_from_fitting)
     )
   }
 
@@ -446,10 +447,10 @@ get_signals <- function(data,
       # filter the data
       filter_by_date(date_start = date_start, date_end = date_end, date_var = date_var) %>%
       # aggregate and complete the data
-      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext, filter_outbreak_cases = filter_outbreak_cases)
+      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext, exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting)
 
     if (grepl("glm", method)) {
-      results <- fun(data_agg, number_of_weeks, model = model, alpha_upper = alpha_upper, time_trend = time_trend, intervention_date = intervention_date)
+      results <- fun(data_agg, number_of_weeks, model = model, alpha_upper = alpha_upper, time_trend = time_trend, intervention_date = intervention_date, exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting)
     } else if (grepl("farrington", method)) {
       results <- fun(data_agg, number_of_weeks, alpha_upper = alpha_upper)
     } else {
@@ -473,7 +474,7 @@ get_signals <- function(data,
       date_var = date_var,
       number_of_weeks = number_of_weeks,
       alpha_upper = alpha_upper,
-      filter_outbreak_cases = filter_outbreak_cases
+      exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting
     )
   }
 
@@ -646,7 +647,7 @@ pad_signals <- function(data,
       method = method,
       number_of_weeks = timeopt + number_of_weeks,
       alpha_upper = alpha_upper,
-      filter_outbreak_cases = FALSE # no filtering used in CUSUM, EARS, FarringtonFlexible
+      exclude_outbreak_cases_from_fitting = FALSE # no filtering used in CUSUM, EARS, FarringtonFlexible
     )
 
     if (!is.null(signals_timeopt)) {
@@ -668,7 +669,7 @@ pad_signals <- function(data,
       stratification = stratification,
       number_of_weeks = max_time_opt + number_of_weeks,
       alpha_upper = alpha_upper,
-      filter_outbreak_cases = FALSE # no filtering used in CUSUM, EARS, FarringtonFlexible
+      exclude_outbreak_cases_from_fitting = FALSE # no filtering used in CUSUM, EARS, FarringtonFlexible
     ) %>%
       dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected, category, stratum) %>%
       dplyr::group_by(category, stratum) %>%

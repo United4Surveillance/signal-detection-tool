@@ -36,7 +36,7 @@ app_server <- function(input, output, session) {
     date_ext = datinput$date_ext,
     pad_signals_choice = datinput$pad_signals_choice,
     min_cases_signals = datinput$min_cases_signals,
-    filter_outbreak_cases = datinput$filter_outbreak_cases
+    exclude_outbreak_cases_from_fitting = datinput$exclude_outbreak_cases_from_fitting
   )
 
   mod_tabpanel_report_server("report",
@@ -51,7 +51,7 @@ app_server <- function(input, output, session) {
     signals_agg = signals_output$signals_agg,
     intervention_date = datinput$intervention_date,
     selected_filter_vars = datinput$selected_filter_vars,
-    filter_outbreak_cases = datinput$filter_outbreak_cases
+    exclude_outbreak_cases_from_fitting = datinput$exclude_outbreak_cases_from_fitting
   )
 
   mod_tabpanel_linelist_server("linelist",

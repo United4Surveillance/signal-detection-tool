@@ -110,9 +110,10 @@ preprocess_data <- function(data) {
 #' @param date_end A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.
 #' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL
 #' @param group A character specifying another grouping variable. Usually used for stratification.
-#' @param filter_outbreak_cases A boolean specifying whether cases in outbreaks should be excluded from case counts. The value TRUE should only be used
-#'  for the application of glm based outbreak detection models. If there is no `outbreak_status` column in `data` indicating the number of cases in outbreaks
-#'  no filtering is applied even if TRUE is selected. Default is FALSE
+#' @param exclude_outbreak_cases_from_fitting A boolean specifying whether outbreak-associated case counts should be excluded only when fitting the baseline.
+#'   If `data` does not contain an `outbreak_status` column indicating the number of cases associated with outbreaks,
+#'   the number of cases not in outbreaks is not calculated, even when `exclude_outbreak_cases_from_fitting = TRUE`.
+#'   Default is `FALSE`. The default should only be changed if it is planned to use a GLM-based algorithm.
 #' @examples
 #' \dontrun{
 #' data_aggregated <- input_example %>%
@@ -127,7 +128,7 @@ aggregate_data <- function(data,
                            date_end = NULL,
                            date_ext = NULL,
                            group = NULL,
-                           filter_outbreak_cases = FALSE) {
+                           exclude_outbreak_cases_from_fitting = FALSE) {
   checkmate::check_subset(c(group, date_var), names(data), empty.ok = TRUE)
 
   checkmate::assert(
@@ -146,8 +147,8 @@ aggregate_data <- function(data,
     combine = "or"
   )
   checkmate::assert(
-    checkmate::check_true(filter_outbreak_cases),
-    checkmate::check_false(filter_outbreak_cases),
+    checkmate::check_true(exclude_outbreak_cases_from_fitting),
+    checkmate::check_false(exclude_outbreak_cases_from_fitting),
     combine = "or"
   )
 
@@ -186,11 +187,10 @@ aggregate_data <- function(data,
       .groups = "drop"
     )
 
-  if ("outbreak_status" %in% names(data) && filter_outbreak_cases) {
+  if ("outbreak_status" %in% names(data) && exclude_outbreak_cases_from_fitting) {
     data_agg <- data_agg %>%
       dplyr::mutate(
-        cases_total = cases,
-        cases = cases_total - cases_in_outbreak
+        cases_not_in_outbreak = cases - cases_in_outbreak
       )
   }
 

@@ -142,9 +142,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                     ns("algorithm_glm"),
                     ns("has_outbreak_status")
                   ),
-                  checkboxInput(ns("filter_outbreak_cases"), "Ignore cases in outbreaks",
+                  checkboxInput(ns("exclude_outbreak_cases_from_fitting"), "Exclude outbreak-assigned cases from baseline fitting",
                     value = get_data_config_value(
-                      "params:filter_outbreak_cases",
+                      "params:exclude_outbreak_cases_from_fitting",
                       FALSE, c(TRUE, FALSE)
                     )
                   )
@@ -617,10 +617,10 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }
     })
 
-    # Observe changes in algorithm_choice to reset filter_outbreak_cases checkbox to FALSE when other algorithm is selected
+    # Observe changes in algorithm_choice to reset exclude_outbreak_cases_from_fitting checkbox to FALSE when other algorithm is selected
     observeEvent(input$algorithm_choice, {
       if (!algorithm_glm()) {
-        updateCheckboxInput(session, "filter_outbreak_cases", value = FALSE)
+        updateCheckboxInput(session, "exclude_outbreak_cases_from_fitting", value = FALSE)
       }
     })
 
@@ -645,11 +645,50 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       if (!isTRUE(has_outbreak_status())) {
         updateCheckboxInput(
           session,
-          "filter_outbreak_cases",
+          "exclude_outbreak_cases_from_fitting",
           value = FALSE
         )
       }
     })
+
+    # do not allow usage of stratum "outbreak_status" while using "has_outbreak_status=TRUE" and choose the latest selection
+    observe({
+      strat_vars <- input$strat_vars %||% character(0)
+
+      if (
+        !isTRUE(has_outbreak_status()) ||
+        "outbreak_status" %in% strat_vars
+      ) {
+        updateCheckboxInput(
+          session,
+          "exclude_outbreak_cases_from_fitting",
+          value = FALSE
+        )
+      }
+    })
+
+    observeEvent(input$exclude_outbreak_cases_from_fitting, {
+      strat_vars <- input$strat_vars %||% character(0)
+
+      if (
+        isTRUE(has_outbreak_status()) &&
+        isTRUE(input$exclude_outbreak_cases_from_fitting) &&
+        "outbreak_status" %in% strat_vars
+      ) {
+        strat_vars_new <- setdiff(strat_vars, "outbreak_status")
+
+        # if no stratum selected use "None"
+        if (length(strat_vars_new) == 0) {
+          strat_vars_new <- "None"
+        }
+
+        updateSelectizeInput(
+          session = session,
+          inputId = "strat_vars",
+          selected = strat_vars_new
+        )
+      }
+    }, ignoreNULL = TRUE)
 
     # Output (not seen in UI) for FarringtonFlexible p-value output
     algorithm_farrington_chosen <- reactive({
@@ -738,7 +777,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       pad_signals_choice = shiny::reactive(input$pad_signals_choice),
       min_cases_signals = shiny::reactive(input$min_cases_signals),
       selected_filter_vars = shiny::reactive(selected_filter_vars()),
-      filter_outbreak_cases = shiny::reactive(input$filter_outbreak_cases)
+      exclude_outbreak_cases_from_fitting = shiny::reactive(input$exclude_outbreak_cases_from_fitting)
     ))
   })
 }

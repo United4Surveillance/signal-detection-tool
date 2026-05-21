@@ -237,6 +237,10 @@ create_formula <- function(model_data) {
 #' @param past_weeks_not_included An integer specifying the number of past weeks to exclude from
 #' the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 #' Default is `4`.
+#' @param exclude_outbreak_cases_from_fitting A boolean specifying whether outbreak-associated cases should be excluded from case counts.
+#'   If `data_aggregated` does not contain a `cases_not_in_outbreak` column indicating the number of cases not associated with outbreaks,
+#'   no exclusion is applied, even when `exclude_outbreak_cases_from_fitting = TRUE`.
+#'   Default is `FALSE`.
 #' @return data.frame aggregated data with case counts and additional columns alarms, upperbound and expected obtained from the signal detection algorithm. If return_full_model == TRUE then expected_pad is also added as a column to data_aggregated.
 #'
 #' @examples
@@ -256,13 +260,20 @@ get_signals_glm <- function(data_aggregated,
                             intervention_date = NULL,
                             min_timepoints_baseline = 12,
                             min_timepoints_trend = 12,
-                            past_weeks_not_included = 4) {
+                            past_weeks_not_included = 4,
+                            exclude_outbreak_cases_from_fitting = FALSE) {
   checkmate::assert(
     checkmate::check_choice(model, choices = c("mean", "sincos", "sincos_multiS", "FN"))
   )
 
   checkmate::assert(
     checkmate::check_number(alpha_upper, lower = 0.001, upper = 0.2)
+  )
+
+  checkmate::assert(
+    checkmate::check_true(exclude_outbreak_cases_from_fitting),
+    checkmate::check_false(exclude_outbreak_cases_from_fitting),
+    combine = "or"
   )
 
   ts_len <- nrow(data_aggregated)
@@ -304,12 +315,32 @@ get_signals_glm <- function(data_aggregated,
     model_data <- dplyr::bind_cols(cases, model_data)
   }
 
+  # add cases_not_in_outbreak-column if necessary
+  if (exclude_outbreak_cases_from_fitting == TRUE && "cases_not_in_outbreak" %in% names(data_aggregated)){
+    cases_not_in_outbreak <- data_aggregated %>%
+      dplyr::arrange(year, week) %>%
+      dplyr::select(cases_not_in_outbreak)
+    model_data <- dplyr::bind_cols(cases_not_in_outbreak, model_data)
+  } else if(exclude_outbreak_cases_from_fitting == TRUE && !("cases_not_in_outbreak" %in% names(data_aggregated))){
+    stop(
+      "`exclude_outbreak_cases_from_fitting = TRUE` requires `cases_not_in_outbreak` ",
+      "to be in `data_aggregated`.",
+      call. = FALSE
+    )
+  }
+
   # seperate the data into fitting and prediction
   # we fit based on the data without the signal detection period and also removing the first past_weeks_not_included to not have the influence of outbreaks shortly before
   # we use the fitted model to predict the values for the whole signal detection period
   # we do not iterate over the signal detection period to refit models including more past data points to save computation time
   fit_data <- model_data %>% head(first_signal_detection_week - (past_weeks_not_included + 1))
   pred_data <- model_data %>% tail(number_of_weeks)
+
+  # adjust cases if outbreak related cases should be excluded in the training data (only used for fitting not graphical display)
+  if (exclude_outbreak_cases_from_fitting == TRUE){
+    fit_data <- fit_data %>%
+      dplyr::mutate(cases = cases_not_in_outbreak)
+  }
 
   # fit a glm based on formula and data provided
   fit_glm <- glm(formula,
@@ -402,12 +433,19 @@ get_signals_glm <- function(data_aggregated,
         intervention_date = intervention_date,
         min_timepoints_baseline = min_timepoints_baseline,
         min_timepoints_trend = min_timepoints_trend,
-        past_weeks_not_included = past_weeks_not_included
+        past_weeks_not_included = past_weeks_not_included,
+        exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting
       )
     )
   }
 
+  if (exclude_outbreak_cases_from_fitting == TRUE){
+    data_aggregated <- data_aggregated %>%
+      dplyr::select(-c(cases_not_in_outbreak))
+    data_aggregated
+    } else {
   data_aggregated
+    }
 }
 
 #' Get a default and minimum and maximum date for the intervention time point for the glm algorithms with pandemic correction. This is based on the data provided and the settings for the delays.

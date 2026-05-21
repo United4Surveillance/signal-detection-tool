@@ -46,7 +46,7 @@ mod_tabpanel_report_server <- function(id,
                                        intervention_date,
                                        alpha_upper,
                                        selected_filter_vars,
-                                       filter_outbreak_cases) {
+                                       exclude_outbreak_cases_from_fitting) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -126,7 +126,7 @@ mod_tabpanel_report_server <- function(id,
         names(available_algorithms())[available_algorithms() == method()],
         " as outbreak detection algorithm.", ifelse(grepl("glm|farrington", method()) && !is.null(alpha_upper()), paste(" A p-value cutoff of", alpha_upper(), "is used."), ""),
         " The following filters were applied: ", ifelse(length(selected_filter_vars()) != 0, paste0(selected_filter_vars(), collapse = ", "), paste0("None")), ".",
-        ifelse(filter_outbreak_cases() == TRUE && grepl("glm", method()), " Only cases not associated with outbreaks are used for training and testing.", "")
+        ifelse(exclude_outbreak_cases_from_fitting() == TRUE && grepl("glm", method()), " Only cases not associated with outbreaks are used for training.", "")
       )
     })
 
@@ -157,7 +157,7 @@ mod_tabpanel_report_server <- function(id,
           intervention_date = intervention_date(),
           title = input$report_title,
           alpha_upper = alpha_upper(),
-          filter_outbreak_cases = filter_outbreak_cases()
+          exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting()
         )
       }
     )

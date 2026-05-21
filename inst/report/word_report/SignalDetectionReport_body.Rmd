@@ -20,7 +20,7 @@ if (is.null(params$data)) {
 - Intervention date: `r params$intervention_date`
 `r ifelse(grepl("glm|farrington", params$method) && !is.null(params$alpha_upper), paste0("- P-value cutoff: ", params$alpha_upper), paste0(""))`
 - Filters applied in the application: `r paste0(ifelse(length(params$selected_filter_vars) != 0, paste(params$selected_filter_vars, collapse = ", "), "None"))`
-`r ifelse(params$filter_outbreak_cases == TRUE && grepl("glm", params$method), paste0("- Only cases not associated with outbreaks are used for training and testing"), paste0(""))`
+`r ifelse(params$exclude_outbreak_cases_from_fitting == TRUE && grepl("glm", params$method), paste0("- Only cases not associated with outbreaks are used for training"), paste0(""))`
 
 
 ```{r}
@@ -35,7 +35,7 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
     alpha_upper = params$alpha_upper,
     number_of_weeks = params$number_of_weeks,
     intervention_date = params$intervention_date,
-    filter_outbreak_cases = params$filter_outbreak_cases
+    exclude_outbreak_cases_from_fitting = params$exclude_outbreak_cases_from_fitting
   )
 
   if (!is.null(params$strata)) {
@@ -46,7 +46,7 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
       alpha_upper = params$alpha_upper,
       number_of_weeks = params$number_of_weeks,
       intervention_date = params$intervention_date,
-      filter_outbreak_cases = params$filter_outbreak_cases
+      exclude_outbreak_cases_from_fitting = params$exclude_outbreak_cases_from_fitting
     )
 
     signal_results <- signal_results %>%
