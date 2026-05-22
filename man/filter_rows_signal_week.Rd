@@ -4,15 +4,16 @@
 \alias{filter_rows_signal_week}
 \title{Filter linelist to one signal week and stratum}
 \usage{
-filter_rows_signal_week(signal_row, df2)
+filter_rows_signal_week(signal_row, linelist)
 }
 \arguments{
-\item{signal_row}{A one-row data frame containing at least `year` and `week`.
-May also contain `category` and `stratum` for stratified signals.}
+\item{signal_row}{A one-row data frame from weekly aggregated signal results
+containing at least `year` and `week`. May also contain `category` and
+`stratum` for stratified signals.}
 
-\item{df2}{A data frame containing case-level surveillance data. Must contain
+\item{linelist}{A data frame containing a linelist of surveillance data. Must contain
 a `date_report` column and, for stratified signals, the column named in
-`signal_row$category`.}
+`signal_row$category`, i.e. "age_group" or "sex".}
 }
 \value{
 A filtered linelist containing cases reported during the selected

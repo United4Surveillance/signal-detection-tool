@@ -10,20 +10,28 @@
 #'   `date_report >= start_date` are retained.
 #' @param end_date End date of the reporting period. Rows with
 #'   `date_report <= end_date` are retained.
-#' @param df2 Optional data frame row containing the columns `category` and
-#'   `stratum`. If provided and both values are not `NA`, the linelist is
-#'   filtered to rows where the column named by `category` equals `stratum`.
+#' @param signal_row Optional one-row data frame from the signal results
+#'   containing the columns `category` and `stratum`. If provided and both
+#'   values are not `NA`, the linelist is filtered to rows where the column
+#'   named in `category` equals `stratum`
 #'
 #' @return A filtered data frame containing linelist rows within the selected
 #'   reporting period and, if applicable, the selected stratum.
-filter_linelist_by_period_and_stratum <- function(linelist, start_date, end_date, df2 = NULL) {
+filter_linelist_by_period_and_stratum <- function(linelist, start_date, end_date, signal_row = NULL) {
+
+  checkmate::assert(
+    checkmate::check_null(signal_row),
+    checkmate::check_data_frame(signal_row, nrows = 1),
+    combine = "or"
+  )
+
   filtered_df <- linelist %>%
     dplyr::filter(date_report >= start_date & date_report <= end_date)
 
   # filtering for the specific stratum in the linelist
-  if (!is.null(df2)) {
-    category <- df2$category
-    stratum <- df2$stratum
+  if (!is.null(signal_row)) {
+    category <- signal_row$category
+    stratum <- signal_row$stratum
     if (!is.na(category) && !is.na(stratum)) {
       filtered_df <- filtered_df %>%
         dplyr::filter(!!rlang::sym(category) == stratum)
@@ -71,21 +79,22 @@ filter_rows_past_weeks <- function(signals_padded, linelist) {
 #' If the signal row contains a non-missing `category` and `stratum`, the
 #' linelist is additionally restricted to that stratum.
 #'
-#' @param signal_row A one-row data frame containing at least `year` and `week`.
-#'   May also contain `category` and `stratum` for stratified signals.
-#' @param df2 A data frame containing case-level surveillance data. Must contain
+#' @param signal_row A one-row data frame from weekly aggregated signal results
+#'   containing at least `year` and `week`. May also contain `category` and
+#'   `stratum` for stratified signals.
+#' @param linelist A data frame containing a linelist of surveillance data. Must contain
 #'   a `date_report` column and, for stratified signals, the column named in
-#'   `signal_row$category`.
+#'   `signal_row$category`, i.e. "age_group" or "sex".
 #'
 #' @return A filtered linelist containing cases reported during the selected
 #'   signal week and, if applicable, matching the selected stratum.
-filter_rows_signal_week <- function(signal_row, df2) {
+filter_rows_signal_week <- function(signal_row, linelist) {
   start_date <- ISOweek::ISOweek2date(
     paste0(signal_row$year, "-W", sprintf("%02d", signal_row$week), "-1")
   )
   end_date <- start_date + lubridate::days(6)
 
-  filter_linelist_by_period_and_stratum(df2, start_date, end_date, signal_row)
+  filter_linelist_by_period_and_stratum(linelist, start_date, end_date, signal_row)
 }
 
 #' Build linelists for selected signal cases and comparison cases

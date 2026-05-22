@@ -8,7 +8,7 @@ filter_linelist_by_period_and_stratum(
   linelist,
   start_date,
   end_date,
-  df2 = NULL
+  signal_row = NULL
 )
 }
 \arguments{
@@ -21,9 +21,10 @@ Must contain a `date_report` column.}
 \item{end_date}{End date of the reporting period. Rows with
 `date_report <= end_date` are retained.}
 
-\item{df2}{Optional data frame row containing the columns `category` and
-`stratum`. If provided and both values are not `NA`, the linelist is
-filtered to rows where the column named by `category` equals `stratum`.}
+\item{signal_row}{Optional one-row data frame from the signal results
+containing the columns `category` and `stratum`. If provided and both
+values are not `NA`, the linelist is filtered to rows where the column
+named in `category` equals `stratum`}
 }
 \value{
 A filtered data frame containing linelist rows within the selected
