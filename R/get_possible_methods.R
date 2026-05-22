@@ -97,7 +97,7 @@ get_possible_methods <- function(min_date,
 
   number_of_time_units_available_fitting <- ceiling(as.numeric(difftime(max_date_fit, min_date - lubridate::days(1), units = "weeks")))
 
-  if (time_unit == "biweeekly") {
+  if (time_unit == "biweekly") {
     number_of_time_units_available_fitting <- ceiling(number_of_time_units_available_fitting / 2)
   } else if (time_unit == "monthly") {
     number_of_time_units_available_fitting <- seq.Date(
@@ -109,7 +109,7 @@ get_possible_methods <- function(min_date,
 
   algos <- available_algorithms()
 
-  if (number_of_time_units_available_fitting >= 4 * 52) { # discuss if this makes sense for different time units
+  if (number_of_time_units_available_fitting >= 4 * 52) {
     # all glm methods
     methods_possible <- algos
   } else if (number_of_time_units_available_fitting >= 3 * 52) {

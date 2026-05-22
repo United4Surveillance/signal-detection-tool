@@ -57,7 +57,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
             shiny::h2("Pathogen"),
             shiny::uiOutput(ns("pathogen_choices")),
             shiny::br(),
-            shiny::h2("Time unit aggregation"),
+            shiny::h2("Temporal aggregation"),
             shiny::uiOutput(ns("aggregation_choice")),
             shiny::h2("Time period extension"),
             span("By default the selected time period ranges from the first date of the linelist to its end date. Here you can choose to use a different end date."),
@@ -290,7 +290,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       # shiny::req(!errors_detected())
       return(shiny::selectInput(
         inputId = ns("time_unit"),
-        label = "Select a time unit used for case aggregation",
+        label = "Select a time unit used for case count aggregation",
         choices = list("weekly", "biweekly", "monthly"),
         multiple = FALSE,
         selected = get_data_config_value("params:time_unit", "weekly"),

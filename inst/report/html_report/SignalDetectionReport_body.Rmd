@@ -65,8 +65,17 @@ Row
 
 ### Number of cases
 ```{r}
+time_unit_label <- dplyr::case_when(
+  params$time_unit == "weekly" && params$number_of_time_units == 1 ~ "week",
+  params$time_unit == "weekly" && params$number_of_time_units > 1 ~ "weeks",
+  params$time_unit == "biweekly" && params$number_of_time_units == 1 ~ "biweekly period",
+  params$time_unit == "biweekly" && params$number_of_time_units > 1  ~ "biweekly periods",
+  params$time_unit == "monthly" && params$number_of_time_units == 1 ~ "month",
+  params$time_unit == "monthly" && params$number_of_time_units > 1  ~ "months"
+)
+
 flexdashboard::valueBox(value = s_agg$cases[is.na(s_agg$category)], 
-         caption = paste0("Number of ", params$disease," cases in the last ", params$number_of_time_units," time units. The time unit is ", params$time_unit, "."),
+         caption = paste0("Number of ", params$disease," cases in the last ", params$number_of_time_units, " ", time_unit_label, "."),
          color = brand_colors["info"])
 ```
 
@@ -86,8 +95,7 @@ n_signals_time_unit_col <- ifelse(
 
 flexdashboard::valueBox(value = n_signals_time_unit,
   caption = paste0("Number of signals for ", params$disease, " in the last ",
-    params$number_of_time_units, 
-    " time units. The time unit is ", params$time_unit, "."),
+    params$number_of_time_units, " ", time_unit_label, "."),
   color = n_signals_time_unit_col
 )
 ```

@@ -417,6 +417,9 @@ Defines key variables for analysis and signal detection.
 - `intervention_date`: *(Scalar: String, Date format `YYYY-MM-DD`)* -
   Date for the intervention in the pandemic correction models
 
+- `time_unit`: *(Scalar: String)* - Choose a time unit (weekly,
+  biweekly, monthly) for case count aggregation
+
 ##### **Shapefile Path (`shapefile_path`)** *(Scalar: Null or String)*
 
 Specifies the file path for geographic boundary data. The `~` value
@@ -484,7 +487,5 @@ piloting phase ended in November 2024. The tool can and is used after
 November 2024 and will still be developed further.<br> Some key features
 we want to develop are:
 
-- possibility to aggregate the time series on different levels
-  i.e. daily, biweekly, monthly,…
 - possibility to combine stratifications
 - retrieve linelist with cases corresponding to signals generated

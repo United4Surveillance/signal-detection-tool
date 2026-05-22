@@ -121,8 +121,8 @@ mod_tabpanel_signals_server <- function(
           bslib::card(
             full_screen = TRUE,
             shiny::h1(paste0(
-              "Timeseries of cases per time unit with signal detection applied to the last ",
-              number_of_time_units(), " time units. The time unit is ", time_unit(), "."
+              "Timeseries of cases per ",  time_unit_label_singular() ," with signal detection applied to the last ",
+              number_of_time_units(), " ", time_unit_label(),"."
             )),
             shiny::uiOutput(ns("ts_filter_var")),
             shiny::uiOutput(ns("ts_filter_val")),
@@ -360,6 +360,27 @@ mod_tabpanel_signals_server <- function(
         }
       }
       return(results)
+    })
+
+    # calculate time unit labels
+    time_unit_label <- reactive({
+      dplyr::case_when(
+        time_unit() == "weekly" && number_of_time_units() == 1 ~ "week",
+        time_unit() == "weekly" && number_of_time_units() > 1 ~ "weeks",
+        time_unit() == "biweekly" && number_of_time_units() == 1 ~ "biweekly period",
+        time_unit() == "biweekly" && number_of_time_units() > 1 ~ "biweekly periods",
+        time_unit() == "monthly" && number_of_time_units() == 1 ~ "month",
+        time_unit() == "monthly" && number_of_time_units() > 1 ~ "months"
+      )
+    })
+
+    # calculate time unit labels singular only
+    time_unit_label_singular <- reactive({
+      dplyr::case_when(
+        time_unit() == "weekly" ~ "week",
+        time_unit() == "biweekly" ~ "biweekly period",
+        time_unit() == "monthly" ~ "month"
+      )
     })
 
     # calculate signal period labels for the selected time unit

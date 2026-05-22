@@ -58,6 +58,16 @@ brand_colors <- bs_get_variables(
     "danger"
   )
 )
+
+# Use time unit labels
+time_unit_label <- dplyr::case_when(
+  params$time_unit == "weekly" && params$number_of_time_units == 1 ~ "week",
+  params$time_unit == "weekly" && params$number_of_time_units > 1 ~ "weeks",
+  params$time_unit == "biweekly" && params$number_of_time_units == 1 ~ "biweekly period",
+  params$time_unit == "biweekly" && params$number_of_time_units > 1  ~ "biweekly periods",
+  params$time_unit == "monthly" && params$number_of_time_units == 1 ~ "month",
+  params$time_unit == "monthly" && params$number_of_time_units > 1  ~ "months"
+)
 ```
 <!-- Landing page -->
 
@@ -182,7 +192,7 @@ dt <- DT::datatable(
   rownames = FALSE,
   escape = FALSE,
   caption = paste0("Number of signals encountered in each stratification level in the last ",
-                   params$number_of_time_units, " time_units. The selected time unit is ", params$time_unit, "."),
+                   params$number_of_time_units, " ", time_unit_label, "."),
   fillContainer = FALSE,
   class = list(stripe = FALSE),
   options = list(

@@ -32,14 +32,23 @@ plot_signals_per_time_unit <- function(results, n_strata, interactive = FALSE, b
   # filter out dates outside signal detection period
   results <- results %>% dplyr::filter(!is.na(.data$alarms))
 
+  # extract time unit used
+  if ("monthly" == results$time_unit %>% head(1)) {
+    time_unit <- "monthly"
+  } else if ("biweekly" == results$time_unit %>% head(1)) {
+    time_unit <- "biweekly"
+  } else {
+    time_unit <- "weekly"
+  }
+
   # add date
-  if ("week" %in% names(results)) {
+  if (time_unit %in% c("weekly", "biweekly")) {
     results <- results %>%
       dplyr::mutate(
         year_time_unit = sprintf("%d-W%02d", .data$year, .data$week),
         date = ISOweek::ISOweek2date(paste0(.data$year_time_unit, "-1"))
       )
-  } else if ("month" %in% names(results)) {
+  } else if (time_unit %in% "monthly") {
     results <- results %>%
       dplyr::mutate(
         year_time_unit = sprintf("%d-%02d", .data$year, .data$month),
@@ -79,7 +88,10 @@ plot_signals_per_time_unit <- function(results, n_strata, interactive = FALSE, b
           x = .data$year_time_unit, y = .data$p.strata, fill = .data$type
         )
       ) +
-      ggplot2::labs(x = "Time unit", y = "Strata with signals (%)") +
+      ggplot2::labs(
+        x = if (time_unit=="weekly") "Week" else if (time_unit=="biweekly") "Two-week period, starting week" else if (time_unit=="monthly") "Month",
+        y = "Strata with signals (%)"
+      ) +
       ggplot2::scale_fill_manual(
         values = stats::setNames(c(branding["primary"], branding["danger"]), NULL)
       ) +
@@ -124,7 +136,15 @@ plot_signals_per_time_unit <- function(results, n_strata, interactive = FALSE, b
         hovertemplate = "%{text} (%{y:.1f}%) strata<extra></extra>"
       ) %>%
       plotly::layout(
-        xaxis = list(title = "Time unit"),
+        xaxis = list(
+          title = if (time_unit == "weekly") {
+            "Week"
+          } else if (time_unit == "biweekly") {
+            "Two-week period, starting week"
+          } else if (time_unit == "monthly") {
+            "Month"
+          }
+        ),
         yaxis = list(
           title = "Strata with signals (%)"
         ),

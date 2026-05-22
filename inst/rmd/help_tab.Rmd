@@ -53,6 +53,9 @@ The input tab is where you can interact with, manipulate, and shape the input da
 ### Pathogen
 Using this tool, it is only possible to perform signal detection upon one kind of pathogen at a time. Thus, if data about multiple pathogens exists in the data, one will be preselected and can be changed using the drop-down list.
 
+### Temporal aggregation
+Select the time unit for aggregating case counts. Cases can be aggregated weekly, biweekly, or monthly.
+
 ### Filters
 You can choose to investigate a subset of your data according to the filters you select. When filtering upon one or more variables, whether it be choosing a specific time period through date_report and / or selecting only the age_groups 00-29, that subset of data is then used to train the outbreak detection algorithms and is shown in the time series visualisation.
 

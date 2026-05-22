@@ -117,14 +117,26 @@ mod_tabpanel_report_server <- function(id,
       unique(signals_padded()$number_of_time_units)
     })
 
+    # calculate time unit labels
+    time_unit_label <- reactive({
+      dplyr::case_when(
+        time_unit() == "weekly" && number_of_time_units() == 1 ~ "week",
+        time_unit() == "weekly" && number_of_time_units() > 1 ~ "weeks",
+        time_unit() == "biweekly" && number_of_time_units() == 1 ~ "biweekly period",
+        time_unit() == "biweekly" && number_of_time_units() > 1 ~ "biweekly periods",
+        time_unit() == "monthly" && number_of_time_units() == 1 ~ "month",
+        time_unit() == "monthly" && number_of_time_units() > 1 ~ "months"
+      )
+    })
+
     # Download generated report
     output$report_text <- shiny::renderText({
       paste0(
         "Generates report for ", pathogen_vars(), " stratified ",
         "by ", paste0(strat_vars(), collapse = ", "), " for the last ",
-        number_of_time_units(), " selected time units using ",
+        number_of_time_units(), " selected ", time_unit_label(), " using ",
         names(available_algorithms())[available_algorithms() == method()],
-        " as outbreak detection algorithm. The time unit selected is ", time_unit(), ".", ifelse(grepl("glm|farrington", method()) && !is.null(alpha_upper()), paste("A p-value cutoff of", alpha_upper(), "is used."), ""),
+        " as outbreak detection algorithm.", ifelse(grepl("glm|farrington", method()) && !is.null(alpha_upper()), paste(" A p-value cutoff of", alpha_upper(), "is used."), ""),
         " The following filters were applied: ", ifelse(length(selected_filter_vars()) != 0, paste0(selected_filter_vars(), collapse = ", "), paste0("None")), "."
       )
     })
