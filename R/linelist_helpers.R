@@ -18,7 +18,6 @@
 #' @return A filtered data frame containing linelist rows within the selected
 #'   reporting period and, if applicable, the selected stratum.
 filter_linelist_by_period_and_stratum <- function(linelist, start_date, end_date, signal_row = NULL) {
-
   checkmate::assert(
     checkmate::check_null(signal_row),
     checkmate::check_data_frame(signal_row, nrows = 1),
