@@ -18,6 +18,7 @@
 * Added option to extend the linelist up to the current day
 * Added new multi-seasonal harmonic method with annual and semiannual components and optional timetrend
 * Added handling for ages and age-group bounds greater than or equal to 115 to avoid unplausible ages in linelist
+* Added visualisation of age group comparison of cases in signal vs. cases from the signal detection period in the linelist tab
 * integrated missing ISO calendar week handling (add_cw_iso()) directly into aggregate_data(), removing the need for a seperate preprocessing step
 
 # SignalDetectionTool 0.9.0
