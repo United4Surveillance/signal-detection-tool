@@ -123,7 +123,7 @@ mod_tabpanel_report_server <- function(id,
         "by ", paste0(strat_vars(), collapse = ", "), " for the last ",
         number_of_weeks(), " weeks using ",
         names(available_algorithms())[available_algorithms() == method()],
-        " as outbreak detection algorithm.", ifelse(grepl("glm|farrington", method()) && !is.null(alpha_upper()), paste("A p-value cutoff of", alpha_upper(), "is used."), ""),
+        " as outbreak detection algorithm.", ifelse(grepl("glm|farrington", method()) && !is.null(alpha_upper()), paste(" A p-value cutoff of", alpha_upper(), "is used."), ""),
         " The following filters were applied: ", ifelse(length(selected_filter_vars()) != 0, paste0(selected_filter_vars(), collapse = ", "), paste0("None")), "."
       )
     })

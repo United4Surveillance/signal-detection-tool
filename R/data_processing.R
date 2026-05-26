@@ -7,7 +7,8 @@
 #'
 #' @examples
 #' \dontrun{
-#' preprocess_data(input_example)
+#' data_preprocessed <- input_example %>% preprocess_data()
+#' data_preprocessed
 #' }
 preprocess_data <- function(data) {
   # remove completely empty columns from the dataset
@@ -111,7 +112,10 @@ preprocess_data <- function(data) {
 #' @param group A character specifying another grouping variable. Usually used for stratification.
 #' @examples
 #' \dontrun{
-#' data <- preprocess_data(input_example) %>% aggregate_data()
+#' data_aggregated <- input_example %>%
+#'   preprocess_data() %>%
+#'   aggregate_data()
+#' data_aggregated
 #' }
 #' @export
 aggregate_data <- function(data,
@@ -138,11 +142,24 @@ aggregate_data <- function(data,
     combine = "or"
   )
 
+  # add the missing isoweeks to the dataset
+  # inform the user when date_start > min_date that the data is nevertheless extended
+  if (!is.null(date_start) && date_start > min(data[[date_var]])) {
+    message("Notice: Your input date_start is greater than the smallest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the smallest date in the dataset")
+  }
+  if (!is.null(date_end) && date_end < max(data[[date_var]])) {
+    message("Notice: Your input date_end is smaller than the greatest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the greatest date in the dataset")
+  }
+
+  data <- add_cw_iso(data = data, date_start = date_start, date_end = date_end, date_var = date_var)
+
   if (!is.null(date_ext)) {
-    if (is.null(date_start)) { # TODO check when is this really NULL
-      date_start <- min(data[[date_var]], na.rm = TRUE)
+    if (is.null(date_start)) {
+      date_start_ext <- min(data[[date_var]], na.rm = TRUE)
+    } else {
+      date_start_ext <- date_start
     }
-    extended_data_range <- get_all_cw_iso(date_start = date_start, date_end = date_ext)
+    extended_data_range <- get_all_cw_iso(date_start = date_start_ext, date_end = date_ext)
     data$cw_iso <- factor(data$cw_iso, levels = extended_data_range)
   }
 
@@ -152,15 +169,6 @@ aggregate_data <- function(data,
   } else {
     data_agg <- data %>%
       dplyr::group_by(cw_iso, !!rlang::sym(group), .drop = FALSE)
-  }
-
-  # add the missing isoweeks to the dataset
-  # inform the user when date_start > min_date that the data is nevertheless extended
-  if (!is.null(date_start) && date_start > min(data[[date_var]])) {
-    message("Notice: Your input date_start is greater than the smallest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the smallest date in the dataset")
-  }
-  if (!is.null(date_end) && date_end < max(data[[date_var]])) {
-    message("Notice: Your input date_end is smaller than the greatest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the greatest date in the dataset")
   }
 
   data_agg <- data_agg %>%
@@ -263,10 +271,11 @@ filter_by_date <- function(data, date_var = "date_report", date_start = NULL, da
 #'
 #' @examples
 #' \dontrun{
-#' input_path <- "data/input/input.csv"
-#' data <- read.csv(input_path, header = TRUE, sep = ",")
-#' data <- preprocess_data(data) %>% aggregate_data()
+#' data <- input_example %>%
+#'   preprocess_data() %>%
+#'   aggregate_data()
 #' sts_cases <- convert_to_sts(data)
+#' sts_cases
 #' }
 convert_to_sts <- function(case_counts) {
   # create sts object
@@ -318,7 +327,7 @@ add_cw_iso <- function(data,
 
   # add cw_iso (isoweeks) as factor levels
   all_cw_iso <- get_all_cw_iso(date_start = date_start, date_end = date_end)
-  data <- data %>%
+  data %>%
     dplyr::mutate(
       cw_iso = paste0(
         lubridate::isoyear(!!rlang::sym(date_var)), "-",
@@ -326,9 +335,7 @@ add_cw_iso <- function(data,
       ),
       cw_iso = factor(cw_iso, levels = all_cw_iso)
     )
-  data
 }
-
 
 #' function to get all iso weeks between `date_start` and `date_end`
 #' @param date_start date object, starting date of sequence
