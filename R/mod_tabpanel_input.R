@@ -233,7 +233,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(input$n_weeks - 1),
         week_start = 1, unit = "week"
       )
-      date_ceil <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 7)
+      date_ceil <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 1) - lubridate::days(1)
       paste("Chosen signal detection period from", date_floor, "to", date_ceil)
     })
 
