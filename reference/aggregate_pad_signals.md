@@ -64,8 +64,18 @@ for plotting full time series trends.
 
 ``` r
 if (FALSE) { # \dontrun{
-results <- get_signals(preprocessed_data, method = "farrington")
-output <- aggregate_pad_signals(results, number_of_weeks = 6, method = "farrington")
+data_preprocessed <- input_example %>%
+  preprocess_data()
+results <- get_signals(
+  data_preprocessed,
+  method = "farrington"
+)
+output <- aggregate_pad_signals(
+  signal_results = results,
+  preprocessed = data_preprocessed,
+  number_of_weeks = 6,
+  method = "farrington"
+)
 output$signals_agg
 output$signals_padded
 } # }

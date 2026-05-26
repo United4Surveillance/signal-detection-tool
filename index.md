@@ -19,6 +19,7 @@ You can install the most recent release of the SignalDetectionTool from
 with:
 
 ``` r
+
 # install.packages("devtools")
 devtools::install_github("United4Surveillance/signal-detection-tool")
 ```
@@ -26,6 +27,7 @@ devtools::install_github("United4Surveillance/signal-detection-tool")
 To run the app you need to type:
 
 ``` r
+
 library(SignalDetectionTool)
 run_app()
 ```
@@ -119,7 +121,7 @@ clone the repository.
 ## Usage
 
 The shiny application is structured into a **Help**, **Data**, **Input
-parameters**, **Signals** and **Report** tab.  
+parameters**, **Signals**, **Signal Line List** and **Report** tab.  
 You can try the shiny application yourself using [test
 data](https://github.com/United4Surveillance/signal-detection-tool/blob/main/dev/data/input/input.csv)
 provided with the package.
@@ -141,6 +143,7 @@ once the data file has been uploaded and feedback is provided to the
 user. Alternatively you can also view the required input format using:
 
 ``` r
+
 library(SignalDetectionTool)
 View(input_metadata)
 ```
@@ -160,6 +163,11 @@ The Signals tab can look like this when using the test data and
 stratification by age group, county and sex and using a timetrend
 algorithm with pandemic correction:
 ![](reference/figures/README-signals_tab.PNG)![](reference/figures/README-timeseries.PNG)![](reference/figures/README-signal_detection_table.PNG)
+
+### Signal Line List
+
+The Signal Line List tab retrieves the line list of cases corresponding
+to a signal selected by the user.
 
 ### Report
 
@@ -198,17 +206,23 @@ overridden by pathogen-specific mappings.
 ##### **Data Source (`datasource`)** *(Mapping)*
 
 Specifies how input data is retrieved. Currently only supports file
-based data sources out of the box. - `file` *(Scalar: Boolean)*  
-- `TRUE` → Use an external file (CSV or Excel).  
-- `FALSE` → Use a database.  
+based data sources out of the box.
+
+- `file` *(Scalar: Boolean)*
+
+  - `TRUE` → Use an external file (CSV or Excel).  
+  - `FALSE` → Use a database.
+
 - `filepath` *(Scalar: String)* Path to the external file, applicable
-when `file: TRUE`.  
+  when `file: TRUE`.
+
 - `db` *(Nested Mapping)* Child elements define database connection
-details (used when `file: FALSE`).  
-- `host` *(Scalar: String)* – Database server address (e.g.,
-`localhost`).  
-- `port` *(Scalar: Integer)* – Database port (e.g., `5432`).  
-- `database` *(Scalar: String)* – Name of the database.
+  details (used when `file: FALSE`).
+
+  - `host` *(Scalar: String)* – Database server address (e.g.,
+    `localhost`).  
+  - `port` *(Scalar: Integer)* – Database port (e.g., `5432`).  
+  - `database` *(Scalar: String)* – Name of the database.
 
 Do note that there is no true database support right now! The DB related
 parameters are merely placeholders at the moment. To actually connect
@@ -219,19 +233,42 @@ We plan to add full database support in the future.
 
 ##### **Analysis Parameters (`params`)** *(Mapping)*
 
-Defines key variables for analysis and signal detection.  
+Defines key variables for analysis and signal detection.
+
 - `pathogen` *(Scalar: String)* – Default pathogen under analysis (e.g.,
-*Pertussis*).  
+  *Pertussis*).
+
+- `date_ext_enabled` *(Scalar: Boolean)* - Use an end date for the
+  analysis period that differs from the line list end date.
+
+- `date_ext_date` *(Scalar: String, Date format `YYYY-MM-DD`)* - Custom
+  end date for the analysis period
+
 - `strata` *(Sequence of Scalars: List of Strings)* – Categories used to
-stratify the analysis (e.g., `age_group`, `community`).  
+  stratify the analysis (e.g., `age_group`, `community`).
+
 - `signal_detection_period` *(Scalar: Integer)* – Time period (in weeks
-or months) for detecting signals.  
+  or months) for detecting signals.
+
 - `signal_detection_algorithm` *(Scalar: String)* – Method used for
-signal detection (e.g., `ears`).  
-- `pandemic_correction`: *(Scalar: Boolean)* Correct for the effects of
-the COVID-19 pandemic, only used in GLM algorithms -
-`intervention_date`: *(Scalar: String, Date format `YYYY-MM-DD`)* - Date
-for the intervention in the pandemic correction models
+  signal detection (e.g., `ears`).
+
+- `alpha_upper`: *(Scalar: Numeric)* – Adjust the p-value cutoff used to
+  compute the threshold, only used in FarringtonFlexible and GLM
+  algorithms.
+
+- `pandemic_correction`: *(Scalar: Boolean)* - Correct for the effects
+  of the COVID-19 pandemic, only used in GLM algorithms.
+
+- `intervention_date`: *(Scalar: String, Date format `YYYY-MM-DD`)* -
+  Date for the intervention in the pandemic correction models.
+
+##### **Post-Processing Parameters (`post-processing`)** *(Mapping)*
+
+Defines key variables for post-processing.
+
+- `min_cases_signals` *(Scalar: Integer)* - Minimum number of cases
+  required for a signal to be shown.
 
 ##### **Shapefile Path (`shapefile_path`)** *(Scalar: Null or String)*
 
@@ -252,12 +289,30 @@ pathogen of interest.
 
 Note that the tool might only recognize and use certain values supplied
 via the config file. Currently, there is a limited set of valid values
-for stratification and algorithm choice. Possible strata values: -
-None - age_group - state - country - county - community - sex
+for stratification and algorithm choice.
 
-Possible algorithms values: - “farrington” - “ears” - “cusum” - “glm
-mean” - “glm timetrend” - “glm harmonic” - “glm harmonic with
-timetrend” - “glm farrington” - “glm farrington with timetrend”
+Possible strata values:
+
+- None
+- age_group
+- state
+- country
+- county
+- community
+- sex
+
+Possible algorithm values:
+
+- farrington
+- ears
+- cusum
+- glm mean
+- glm timetrend
+- glm harmonic
+- glm harmonic with timetrend
+- glm harmonic multi
+- glm farrington
+- glm farrington with timetrend
 
 In the future we will strive to make the tool even more flexible and
 convenient.

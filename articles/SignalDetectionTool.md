@@ -14,12 +14,14 @@ we give minimal instructions here. First install and load the SDT
 package.
 
 ``` r
+
 library(SignalDetectionTool)
 ```
 
 Run the app entering the following command in the console.
 
 ``` r
+
 run_app()
 ```
 
@@ -37,6 +39,7 @@ linelist (`input_example`) and its corresponding metadata specification
 can be accessed using:
 
 ``` r
+
 data("input_example")
 data("input_metadata")
 ```
@@ -53,10 +56,11 @@ cases.
 To apply different signal detection methods use the parameter method. To
 generate stratified signals use the parameter stratification. Please
 have a look at the function documentation for more details. This is an
-example for signals generated using the default paramters with
+example for signals generated using the default parameters with
 FarringtonFlexible and no stratification:
 
 ``` r
+
 data_prepro <- input_example %>% preprocess_data()
 signals <- data_prepro %>% get_signals()
 ```
@@ -96,6 +100,7 @@ number of cases per week with additional columns `cases_in_outbreak`,
 Generating stratified signals using EARS:
 
 ``` r
+
 data_prepro <- input_example %>% preprocess_data()
 signals_ears_stratified <- data_prepro %>% get_signals(
   method = "ears",
@@ -126,7 +131,172 @@ with `category == "county"` the values of `stratum` are “Burgenland”,
 
 ### Create visualisations and tables
 
-Coming soon…
+To visualise signal detection in your data for the most recent
+`number_of_weeks`, you first need to preprocess your linelist and then
+apply
+[`get_signals()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_signals.md).
+To display aggregated signal detection results, first aggregate the
+signals. In the final step, apply a function to generate either a plot
+or a table. The plotting functions support both interactive and static
+outputs; by default, static plots are generated. Tables are returned as
+interactive DataTables by default, with options to convert them to
+data.frame or flextable formats.
+
+The following example shows how to visualise the time series of detected
+signals using the default parameters of FarringtonFlexible without
+stratification in
+[`plot_time_series()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_time_series.md):
+
+``` r
+
+data_prepro <- input_example %>% preprocess_data()
+signals <- data_prepro %>% get_signals()
+signals_time_series <- signals %>% plot_time_series()
+signals_time_series
+```
+
+![](SignalDetectionTool_files/figure-html/unnamed-chunk-7-1.png)
+
+In the time series visualisation, the detection period is shaded in
+blue. The expectation is shown as a black line. The threshold is
+indicated by a blue line. Weekly case counts are displayed as bars. A
+signal is generated for a given week when the number of cases exceeds
+the threshold.
+
+To create an interactive or a non-interactive map you have to use
+aggregated signals and an appropriate shapefile in a combined sf-object
+which is used in
+[`plot_regional()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_regional.md).
+This is an example for visualising the specified data as a
+non-interactive map while using “county” as `stratum` and the internal
+European shapefile (`nuts_shp`).
+
+``` r
+
+data_prepro <- input_example %>% preprocess_data()
+signals <- data_prepro %>% get_signals(stratification = c("county"))
+signals_agg <- signals %>% aggregate_signals(number_of_weeks = 6)
+nuts_shp <- nuts_shp %>%
+  sf::st_as_sf() %>%
+  dplyr::filter(LEVL_CODE == 2 & CNTR_CODE == "AT") %>%
+  dplyr::select(NUTS_NAME, geometry)
+shape_with_signals <- nuts_shp %>%
+  dplyr::inner_join(
+    signals_agg,
+    by = c("NUTS_NAME" = "stratum")
+  ) %>%
+  sf::st_as_sf()
+signals_map <- plot_regional(
+  shape_with_signals,
+  signals_agg_unknown_region = data.frame(),
+  interactive = FALSE,
+  toggle_alarms = FALSE
+)
+signals_map
+```
+
+![](SignalDetectionTool_files/figure-html/unnamed-chunk-8-1.png)
+
+In the non-interactive map visualisation, the number of cases per region
+is represented by the shade of blue, with darker shades indicating
+higher case counts. Regions without signals are shown with a black
+border. If at least one signal occurs in a region, the border is
+coloured red and the number of signals is displayed as a label within
+the region.
+
+To create an interactive or a non-interactive barplot you have to use
+aggregated signals in
+[`plot_barchart()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_barchart.md).
+This is an example for visualising the specified data using “age group”
+as `stratum` and for the non-interactive plot using
+[`plot_barchart()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_barchart.md):
+
+``` r
+
+data_prepro <- input_example %>% preprocess_data()
+signals <- data_prepro %>% get_signals(stratification = c("age_group"))
+signals_agg <- signals %>% aggregate_signals(number_of_weeks = 6)
+signals_barchart <- plot_barchart(
+  signals_agg,
+  interactive = FALSE
+)
+signals_barchart
+```
+
+![](SignalDetectionTool_files/figure-html/unnamed-chunk-9-1.png)
+
+In the non-interactive barplot visualisation, the number of cases is
+represented by the height of the bars. If no signal occurs in a given
+stratum, the bar has no border. If at least one signal is detected, the
+bar is outlined in red. For non-interactive plots, the number of signals
+is additionally displayed as a label above the bar.
+
+To create an interactive or a non-interactive 100% stacked barplot
+showing a week-to-week representation of strata levels that had alarms
+you have to use signal data and specify the number of stratification
+levels in
+[`plot_signals_per_week()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_signals_per_week.md).
+This is an example for visualising the specified data using “county” as
+`stratum` with 9 levels for the non-interactive plot:
+
+``` r
+
+data_prepro <- preprocess_data(input_example)
+signals <- get_signals(
+  data_prepro,
+  stratification = "county"
+)
+n.strata <- 9
+signals_week_barchart <- plot_signals_per_week(
+  signals,
+  n_strata = n.strata
+)
+signals_week_barchart
+```
+
+![](SignalDetectionTool_files/figure-html/unnamed-chunk-10-1.png)
+
+In the non-interactive 100% stacked barplot visualisation, the
+proportion of levels with alarms per week is represented by the height
+of the red segment of each bar. If no signal occurs in a given week, the
+bar is shown entirely in grey.
+
+To create a signals detection results table with different formatting
+options you can use
+[`build_signals_table()`](https://united4surveillance.github.io/signal-detection-tool/reference/build_signals_table.md).
+This is an example for creating a DataTable using age_group as `stratum`
+and default options:
+
+``` r
+
+data_prepro <- input_example %>% preprocess_data()
+signals <- data_prepro %>% get_signals(
+  stratification = c("age_group"),
+  number_of_weeks = 6
+)
+signals_table <- signals %>% build_signals_table()
+signals_table
+```
+
+To create an aggregated signal detection results table with different
+formatting options you can use
+[`build_signals_agg_table()`](https://united4surveillance.github.io/signal-detection-tool/reference/build_signals_agg_table.md).
+This is an example for creating a DataTable using age_group as `stratum`
+and default options:
+
+``` r
+
+data_prepro <- input_example %>% preprocess_data()
+signals <- data_prepro %>% get_signals(
+  stratification = c("age_group"),
+  number_of_weeks = 6
+)
+agg_signals <- signals %>% aggregate_signals(number_of_weeks = 6)
+agg_signals_table <- agg_signals %>% build_signals_agg_table()
+agg_signals_table
+```
+
+In the table, rows with a signal are highlighted in red.
 
 ### Run the report
 
@@ -143,6 +313,7 @@ following code chunk generates a Word report using EARS without any
 stratification (default) for the past six weeks (default):
 
 ``` r
+
 run_report(input_example,
   report_format = "DOCX",
   method = "EARS"
@@ -154,6 +325,7 @@ group, county and sex for the last 2 weeks using FarringtonFlexible
 (default):
 
 ``` r
+
 run_report(input_example,
   strata = c("age_group", "county", "sex"),
   number_of_weeks = 2
@@ -174,6 +346,7 @@ An example line list is available in the package as an internal dataset:
 You can access it with:
 
 ``` r
+
 data("input_example_multipathogen")
 ```
 
@@ -181,6 +354,7 @@ To run an HTML report with the EARS algorithm and stratification by
 age_group and county for all pathogens in the line list you can run:
 
 ``` r
+
 run_report(input_example_multipathogen,
   strata = c("age_group", "county"),
   method = "EARS"
@@ -191,6 +365,7 @@ If you want to generate a report for a subset of pathogens in your
 linelist you can specify these using the pathogens parameter:
 
 ``` r
+
 run_report(input_example_multipathogen,
   pathogens = c("Enterobacter", "Salmonella"),
   strata = c("age_group", "county"),
@@ -204,6 +379,7 @@ do this, provide the path to a .png or .svg file using the custom_logo
 parameter.
 
 ``` r
+
 run_report(input_example_multipathogen,
   pathogens = c("Enterobacter", "Salmonella"),
   strata = c("age_group", "county"),

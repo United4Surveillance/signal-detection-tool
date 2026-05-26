@@ -35,10 +35,9 @@ tibble, with padded signals
 
 ``` r
 if (FALSE) { # \dontrun{
-input_example_prepro <- input_example %>%
-  preprocess_data()
-signals <- input_example_prepro %>%
-  get_signals(stratification = c("sex", "county_id"))
-pad_signals(input_example_prepro, signals)
+data_preprocessed <- input_example %>% preprocess_data()
+results <- data_preprocessed %>% get_signals(stratification = c("sex", "county_id"))
+results_padded <- pad_signals(data_preprocessed, results)
+results_padded
 } # }
 ```

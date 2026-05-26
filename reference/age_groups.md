@@ -22,7 +22,7 @@ age_groups(df, break_at = NULL)
 
   An integer vector specifying additional lower bounds of age groups
   (excluding 0, which is always used as the first lower bound). If
-  \`NULL\` (the default), 5-year age groups 00-04, 05-09, ..., 125+ are
+  \`NULL\` (the default), 5-year age groups 00-04, 05-09, ..., 115+ are
   used.
 
 ## Value
@@ -39,8 +39,7 @@ with lower and upper bounds zero-padded to two digits.
 
 ``` r
 if (FALSE) { # \dontrun{
-input_path <- "data/input/input_sample.csv"
-data <- read.csv(input_path, header = TRUE, sep = ",")
+data <- input_example
 data$age <- sample(1:125, 10, replace = TRUE)
 age_groups(data) # default age groups
 age_groups(data, c(15L, 35L, 65L, 100L)) # custom age groups (lower bounds)

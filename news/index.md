@@ -1,5 +1,40 @@
 # Changelog
 
+## SignalDetectionTool 0.10.0
+
+- Bug fixes and improvements to the HTML report
+  - mark those timeseries widgets in the stratified page that had
+    signals
+  - make the text in the overview boxes on the pathogens page uniform
+    and complete
+  - fix bug in tooltip not showing the week correctly in unstratified
+    time series in report
+  - fix wrong number of total cases in html report landing page
+  - fix signals tables being scrollable again
+  - fix stratification by sex after reloading the app in some
+    configurations
+  - fix positions of signals not appearing outside other regions
+- Shortening of long x axis labels in interactive barchart and adding
+  complete axis text to tooltip
+- Added an adjustable p-value cutoff parameter (alpha_upper) for signal
+  detection when using FarringtonFlexible or GLM-based algorithms
+- Reports now include a description of filter variables applied via the
+  UI
+- run_report() now supports pathogen-specific stratification in
+  multi-pathogen reports
+- Add visualisation and tables section to vignette
+- Fix issue of overlapping signal stars in map visualisation
+- Export plot_regional(), plot_barchart(), and plot_signals_per_week();
+  remove plot_agegroup_by()
+- Added option to extend the linelist up to the current day
+- Added new multi-seasonal harmonic method with annual and semiannual
+  components and optional timetrend
+- Added handling for ages and age-group bounds greater than or equal to
+  115 to avoid unplausible ages in linelist
+- integrated missing ISO calendar week handling (add_cw_iso()) directly
+  into aggregate_data(), removing the need for a seperate preprocessing
+  step
+
 ## SignalDetectionTool 0.9.0
 
 - Added signal post processing by an option to filter signals with a

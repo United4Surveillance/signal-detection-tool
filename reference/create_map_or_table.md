@@ -12,8 +12,8 @@ create_map_or_table(
   region,
   shape = get_shp_config_or_internal(),
   interactive = TRUE,
-  toggle_alarms = FALSE,
-  partial = FALSE
+  page_length = 10,
+  toggle_alarms = FALSE
 )
 ```
 
@@ -49,19 +49,20 @@ create_map_or_table(
 
   boolean identifying whether the plot should be static or interactive
 
+- page_length:
+
+  integer indicating number of elements per DataTable page. Default is
+  10
+
 - toggle_alarms:
 
   boolean identifying whether the plot should showing number of signals
   explicitly or only when hovering
 
-- partial:
-
-  logical, add partial bundle to plotly
-
 ## Value
 
 a table or a plot depending on whether the matching of the NUTS IDs was
-fully possible, the table and plots can be interactive or not depening
+fully possible, the table and plots can be interactive or not depending
 on the interactive parameter, can be class "ggplot" or "plotly" for plot
 and class "gt_tbl" or "datatables" for table
 
@@ -73,6 +74,11 @@ signals <- input_example %>%
   preprocess_data() %>%
   get_signals(stratification = c("sex", "county"))
 signals_agg <- signals %>% aggregate_signals(number_of_weeks = 6)
-create_map_or_table(signals_agg, input_example, "county", nuts_shp)
+create_map_or_table(
+  signals_agg,
+  input_example,
+  "county",
+  nuts_shp
+)
 } # }
 ```

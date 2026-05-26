@@ -43,9 +43,7 @@ A list containing the results of the formatting checks:
 
 ``` r
 if (FALSE) { # \dontrun{
-# Example usage:
 data_frame <- data.frame(age = c(2, 5, 15, 16), age_group = c("01-05", "6-10", "11-15", "16-20"))
-check_results <- age_format_check(data_frame)
-print(check_results)
+age_format_check(data_frame)
 } # }
 ```

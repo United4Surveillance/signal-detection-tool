@@ -18,9 +18,10 @@ convert_to_sts(case_counts)
 
 ``` r
 if (FALSE) { # \dontrun{
-input_path <- "data/input/input.csv"
-data <- read.csv(input_path, header = TRUE, sep = ",")
-data <- preprocess_data(data) %>% aggregate_data()
+data <- input_example %>%
+  preprocess_data() %>%
+  aggregate_data()
 sts_cases <- convert_to_sts(data)
+sts_cases
 } # }
 ```

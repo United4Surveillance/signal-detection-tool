@@ -53,8 +53,8 @@ The method selection criteria are approximately:
 
 - If 2 to \<3 years (about 104 to \<156 weeks) of historic data are
   available: all methods except `"glm farrington"`,
-  `"glm farrington with timetrend"` and `"glm harmonic with timetrend"`
-  are possible.
+  `"glm farrington with timetrend"`. `"glm harmonic with timetrend"` and
+  `"glm harmonic multi"` are possible.
 
 - If 26 to \<104 weeks of historic data are available: `"Mean"`,
   `"CUSUM"` and `"EARS"` are possible.
@@ -88,7 +88,10 @@ data <- data.frame(
   date_report = seq.Date(Sys.Date() - 500, Sys.Date(), by = "day")
 )
 
-mm <- get_min_max_date(data, date_var = "date_report")
+mm <- get_min_max_date(
+  data,
+  date_var = "date_report"
+)
 
 get_possible_methods(
   min_date = mm$min_date,

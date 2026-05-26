@@ -1,9 +1,9 @@
-# Get signals based on a weigthed GLM quasipoisson regression model for the expected case counts The GLM is flexible being able to just fit a mean, add a time trend, fit a harmonic sin/cos model or the seasons from the farringtonflexible.
+# Get signals based on a weigthed GLM quasipoisson regression model for the expected case counts The GLM is flexible being able to just fit a mean, add a time trend, fit a harmonic sin/cos model (one or two seasonal components) or the seasons from the farringtonflexible.
 
 Get signals based on a weigthed GLM quasipoisson regression model for
 the expected case counts The GLM is flexible being able to just fit a
-mean, add a time trend, fit a harmonic sin/cos model or the seasons from
-the farringtonflexible.
+mean, add a time trend, fit a harmonic sin/cos model (one or two
+seasonal components) or the seasons from the farringtonflexible.
 
 ## Usage
 
@@ -34,10 +34,10 @@ get_signals_glm(
 
 - model:
 
-  character, default "mean" one of c("mean", "sincos", "FN") specifying
-  which kind of model the glm is fitting. "mean" fits an intercept
-  model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from
-  farrington to fit parameters for seasonality.
+  character, default "mean" one of c("mean", "sincos", "sincos_multiS",
+  "FN") specifying which kind of model the glm is fitting. "mean" fits
+  an intercept model, "sincos" a harmonic sincos model, "FN" uses the
+  seasgroups from farrington to fit parameters for seasonality.
 
 - time_trend:
 
@@ -53,9 +53,9 @@ get_signals_glm(
 
 - alpha_upper:
 
-  decimal between 0 and 1, default 0.05 specifying the pvalue cutoff
-  used for computing the threshold, when set to 0.05 the 95 percent
-  quantile is used.
+  numeric between 0.001 and 0.2 (default: 0.05). Specifies the p-value
+  cutoff used to compute the threshold; for example, a value of 0.05
+  corresponds to using the 0.95 quantile.
 
 - intervention_date:
 
@@ -97,8 +97,8 @@ as a column to data_aggregated.
 if (FALSE) { # \dontrun{
 data_aggregated <- input_example %>%
   preprocess_data() %>%
-  aggregate_data() %>%
-  add_rows_missing_dates()
+  aggregate_data()
 results <- get_signals_glm(data_aggregated)
+results
 } # }
 ```

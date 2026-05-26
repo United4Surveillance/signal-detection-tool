@@ -24,7 +24,9 @@ signals_farrington_Austria_Pertussis_2022-01-01_2023-07-08\_.csv
 ``` r
 # Generate a filename based on results data
 if (FALSE) { # \dontrun{
-data <- preprocess_data(SignalDetectionTool::input_example)
-conjure_filename(SignalDetectionTool::get_signals(data))
+data_preprocessed <- input_example %>% preprocess_data()
+data_preprocessed %>%
+  get_signals() %>%
+  conjure_filename()
 } # }
 ```

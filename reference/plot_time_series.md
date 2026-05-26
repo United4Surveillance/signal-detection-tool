@@ -11,8 +11,7 @@ plot_time_series(
   results,
   interactive = FALSE,
   intervention_date = NULL,
-  number_of_weeks = 52,
-  partial = FALSE
+  number_of_weeks = 52
 )
 ```
 
@@ -37,10 +36,6 @@ plot_time_series(
 
   number of weeks to be covered in the plot
 
-- partial:
-
-  logical, add partial bundle to plotly
-
 ## Value
 
 either a gg or plotly object
@@ -49,8 +44,9 @@ either a gg or plotly object
 
 ``` r
 if (FALSE) { # \dontrun{
-data <- read.csv("data/input/input.csv", header = TRUE, sep = ",")
-results <- get_signals_farringtonflexible(data)
-plot_time_series(results)
+data_preprocessed <- input_example %>% preprocess_data()
+signals <- data_preprocessed %>% get_signals_farringtonflexible()
+signals_time_series <- signals %>% plot_time_series()
+signals_time_series
 } # }
 ```

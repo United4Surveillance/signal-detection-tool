@@ -19,6 +19,7 @@ You can install the most recent release of the SignalDetectionTool from
 with:
 
 ``` r
+
 # install.packages("devtools")
 devtools::install_github("United4Surveillance/signal-detection-tool")
 ```
@@ -26,6 +27,7 @@ devtools::install_github("United4Surveillance/signal-detection-tool")
 To run the app you need to type:
 
 ``` r
+
 library(SignalDetectionTool)
 run_app()
 ```
@@ -119,7 +121,7 @@ clone the repository.
 ## Usage
 
 The shiny application is structured into a **Help**, **Data**, **Input
-parameters**, **Signals** and **Report** tab.  
+parameters**, **Signals**, **Signal Line List** and **Report** tab.  
 You can try the shiny application yourself using [test
 data](https://github.com/United4Surveillance/signal-detection-tool/blob/main/dev/data/input/input.csv)
 provided with the package.
@@ -141,6 +143,7 @@ once the data file has been uploaded and feedback is provided to the
 user. Alternatively you can also view the required input format using:
 
 ``` r
+
 library(SignalDetectionTool)
 View(input_metadata)
 ```
@@ -160,6 +163,11 @@ The Signals tab can look like this when using the test data and
 stratification by age group, county and sex and using a timetrend
 algorithm with pandemic correction:
 ![](reference/figures/README-signals_tab.PNG)![](reference/figures/README-timeseries.PNG)![](reference/figures/README-signal_detection_table.PNG)
+
+### Signal Line List
+
+The Signal Line List tab retrieves the line list of cases corresponding
+to a signal selected by the user.
 
 ### Report
 
@@ -198,17 +206,23 @@ overridden by pathogen-specific mappings.
 ##### **Data Source (`datasource`)** *(Mapping)*
 
 Specifies how input data is retrieved. Currently only supports file
-based data sources out of the box. - `file` *(Scalar: Boolean)*  
-- `TRUE` → Use an external file (CSV or Excel).  
-- `FALSE` → Use a database.  
+based data sources out of the box.
+
+- `file` *(Scalar: Boolean)*
+
+  - `TRUE` → Use an external file (CSV or Excel).  
+  - `FALSE` → Use a database.
+
 - `filepath` *(Scalar: String)* Path to the external file, applicable
-when `file: TRUE`.  
+  when `file: TRUE`.
+
 - `db` *(Nested Mapping)* Child elements define database connection
-details (used when `file: FALSE`).  
-- `host` *(Scalar: String)* – Database server address (e.g.,
-`localhost`).  
-- `port` *(Scalar: Integer)* – Database port (e.g., `5432`).  
-- `database` *(Scalar: String)* – Name of the database.
+  details (used when `file: FALSE`).
+
+  - `host` *(Scalar: String)* – Database server address (e.g.,
+    `localhost`).  
+  - `port` *(Scalar: Integer)* – Database port (e.g., `5432`).  
+  - `database` *(Scalar: String)* – Name of the database.
 
 Do note that there is no true database support right now! The DB related
 parameters are merely placeholders at the moment. To actually connect
@@ -219,19 +233,42 @@ We plan to add full database support in the future.
 
 ##### **Analysis Parameters (`params`)** *(Mapping)*
 
-Defines key variables for analysis and signal detection.  
+Defines key variables for analysis and signal detection.
+
 - `pathogen` *(Scalar: String)* – Default pathogen under analysis (e.g.,
-*Pertussis*).  
+  *Pertussis*).
+
+- `date_ext_enabled` *(Scalar: Boolean)* - Use an end date for the
+  analysis period that differs from the line list end date.
+
+- `date_ext_date` *(Scalar: String, Date format `YYYY-MM-DD`)* - Custom
+  end date for the analysis period
+
 - `strata` *(Sequence of Scalars: List of Strings)* – Categories used to
-stratify the analysis (e.g., `age_group`, `community`).  
+  stratify the analysis (e.g., `age_group`, `community`).
+
 - `signal_detection_period` *(Scalar: Integer)* – Time period (in weeks
-or months) for detecting signals.  
+  or months) for detecting signals.
+
 - `signal_detection_algorithm` *(Scalar: String)* – Method used for
-signal detection (e.g., `ears`).  
-- `pandemic_correction`: *(Scalar: Boolean)* Correct for the effects of
-the COVID-19 pandemic, only used in GLM algorithms -
-`intervention_date`: *(Scalar: String, Date format `YYYY-MM-DD`)* - Date
-for the intervention in the pandemic correction models
+  signal detection (e.g., `ears`).
+
+- `alpha_upper`: *(Scalar: Numeric)* – Adjust the p-value cutoff used to
+  compute the threshold, only used in FarringtonFlexible and GLM
+  algorithms.
+
+- `pandemic_correction`: *(Scalar: Boolean)* - Correct for the effects
+  of the COVID-19 pandemic, only used in GLM algorithms.
+
+- `intervention_date`: *(Scalar: String, Date format `YYYY-MM-DD`)* -
+  Date for the intervention in the pandemic correction models.
+
+##### **Post-Processing Parameters (`post-processing`)** *(Mapping)*
+
+Defines key variables for post-processing.
+
+- `min_cases_signals` *(Scalar: Integer)* - Minimum number of cases
+  required for a signal to be shown.
 
 ##### **Shapefile Path (`shapefile_path`)** *(Scalar: Null or String)*
 
@@ -252,12 +289,30 @@ pathogen of interest.
 
 Note that the tool might only recognize and use certain values supplied
 via the config file. Currently, there is a limited set of valid values
-for stratification and algorithm choice. Possible strata values: -
-None - age_group - state - country - county - community - sex
+for stratification and algorithm choice.
 
-Possible algorithms values: - “farrington” - “ears” - “cusum” - “glm
-mean” - “glm timetrend” - “glm harmonic” - “glm harmonic with
-timetrend” - “glm farrington” - “glm farrington with timetrend”
+Possible strata values:
+
+- None
+- age_group
+- state
+- country
+- county
+- community
+- sex
+
+Possible algorithm values:
+
+- farrington
+- ears
+- cusum
+- glm mean
+- glm timetrend
+- glm harmonic
+- glm harmonic with timetrend
+- glm harmonic multi
+- glm farrington
+- glm farrington with timetrend
 
 In the future we will strive to make the tool even more flexible and
 convenient.
@@ -321,13 +376,13 @@ Some key features we want to develop are:
   : Create an Empty DataTable with a Custom Message
 - [`build_signals_agg_table()`](https://united4surveillance.github.io/signal-detection-tool/reference/build_signals_agg_table.md)
   : Builds the aggregated signal detection results table with different
-  formating options.
+  formatting options.
 - [`build_signals_table()`](https://united4surveillance.github.io/signal-detection-tool/reference/build_signals_table.md)
-  : Builds the signal detection results table with different formating
+  : Builds the signal detection results table with different formatting
   options. To get the raw data.frame containing method ald
   number_of_weeks as well use format = "data.frame", to obtain nicely
-  formated tables in an interactive DataTable or as Flextable use format
-  = "DataTable" or format = "Flextable".
+  formatted tables in an interactive DataTable or as Flextable use
+  format = "DataTable" or format = "Flextable".
 - [`check_any_age()`](https://united4surveillance.github.io/signal-detection-tool/reference/check_any_age.md)
   : Helper function to check for presence of age variable or instead
   age_group
@@ -340,7 +395,7 @@ Some key features we want to develop are:
   : check whether there is a completely empty row in provided
   surveillance data
 - [`check_for_missing_values()`](https://united4surveillance.github.io/signal-detection-tool/reference/check_for_missing_values.md)
-  : Varible names which should be checked for missing values
+  : Variable names which should be checked for missing values
 - [`check_mandatory_variables()`](https://united4surveillance.github.io/signal-detection-tool/reference/check_mandatory_variables.md)
   : checking mandatory variables in the surveillance data check if
   mandatory variables are present in the data check if they have the
@@ -398,6 +453,9 @@ Some key features we want to develop are:
 - [`create_formula()`](https://united4surveillance.github.io/signal-detection-tool/reference/create_formula.md)
   : Create a model formula based on the columns in the model_data
   dataframe.
+- [`create_fourier_terms()`](https://united4surveillance.github.io/signal-detection-tool/reference/create_fourier_terms.md)
+  : Create a data.frame with multiple sine and cosine components for
+  harmonic modeling.
 - [`create_map_or_table()`](https://united4surveillance.github.io/signal-detection-tool/reference/create_map_or_table.md)
   : Decider for creating a map or a table based on whether all NUTS_ids
   are found in the shapefile
@@ -423,6 +481,9 @@ Some key features we want to develop are:
   where signals were generated.
 - [`format_table()`](https://united4surveillance.github.io/signal-detection-tool/reference/format_table.md)
   : Format the signal results to an interactive or static table
+- [`get_all_cw_iso()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_all_cw_iso.md)
+  : function to get all iso weeks between \`date_start\` and
+  \`date_end\`
 - [`get_case_id_duplicates()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_case_id_duplicates.md)
   : Checking for duplicates in case_id
 - [`get_data_config_value()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_data_config_value.md)
@@ -472,8 +533,8 @@ Some key features we want to develop are:
 - [`get_signals_glm()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_signals_glm.md)
   : Get signals based on a weigthed GLM quasipoisson regression model
   for the expected case counts The GLM is flexible being able to just
-  fit a mean, add a time trend, fit a harmonic sin/cos model or the
-  seasons from the farringtonflexible.
+  fit a mean, add a time trend, fit a harmonic sin/cos model (one or two
+  seasonal components) or the seasons from the farringtonflexible.
 - [`get_signals_stratified()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_signals_stratified.md)
   : Get Signals Stratified
 - [`get_strata_from_signals_agg()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_strata_from_signals_agg.md)
@@ -519,8 +580,6 @@ Some key features we want to develop are:
   for. This depends on the algorithm and the amount of historic data.
   The already generated signals dataframe is then extended with the
   expectation and threshold into the past
-- [`plot_agegroup_by()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_agegroup_by.md)
-  : Plot age-groups grouped by another variable
 - [`plot_barchart()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_barchart.md)
   : Barplot visualising the number of cases and information about any
   signals
@@ -558,7 +617,7 @@ Some key features we want to develop are:
 - [`run_app()`](https://united4surveillance.github.io/signal-detection-tool/reference/run_app.md)
   : Run the Shiny Application
 - [`run_report()`](https://united4surveillance.github.io/signal-detection-tool/reference/run_report.md)
-  : Renders signal detection report
+  : Renders a signal detection report
 - [`save_signals()`](https://united4surveillance.github.io/signal-detection-tool/reference/save_signals.md)
   : Save signals
 - [`sex_levels()`](https://united4surveillance.github.io/signal-detection-tool/reference/sex_levels.md)
@@ -566,6 +625,8 @@ Some key features we want to develop are:
   all calculations
 - [`sex_raw_levels()`](https://united4surveillance.github.io/signal-detection-tool/reference/sex_raw_levels.md)
   : Allowed levels for sex in raw surveillance data
+- [`shorten_label()`](https://united4surveillance.github.io/signal-detection-tool/reference/shorten_label.md)
+  : Shorten labels for plotting
 - [`transform_required_format()`](https://united4surveillance.github.io/signal-detection-tool/reference/transform_required_format.md)
   : Transform Data to Required Format (Example Implementation)
 - [`yes_no_unknown_levels()`](https://united4surveillance.github.io/signal-detection-tool/reference/yes_no_unknown_levels.md)

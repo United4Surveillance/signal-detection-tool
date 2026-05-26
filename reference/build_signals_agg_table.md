@@ -1,9 +1,9 @@
-# Builds the aggregated signal detection results table with different formating options.
+# Builds the aggregated signal detection results table with different formatting options.
 
 Prepares and formats the aggregated signal results table for one
 category and orders the strata by the factor levels. This function
 combines the preparation of the aggregated signals data.frame with the
-final formating of the table by applying
+final formatting of the table by applying
 [prepare_signals_agg_table](https://united4surveillance.github.io/signal-detection-tool/reference/prepare_signals_agg_table.md)
 and
 [format_table](https://united4surveillance.github.io/signal-detection-tool/reference/format_table.md).
@@ -11,7 +11,7 @@ and
 ## Usage
 
 ``` r
-build_signals_agg_table(signals_agg, format = "DataTable")
+build_signals_agg_table(signals_agg, format = "DataTable", page_length = 10)
 ```
 
 ## Arguments
@@ -30,6 +30,11 @@ build_signals_agg_table(signals_agg, format = "DataTable")
   formatted table suitable for reporting,i.e. word documents. Default is
   "DataTable".
 
+- page_length:
+
+  integer indicating number of elements per DataTable page. Default is
+  10 description
+
 ## Value
 
 data.frame or DataTable or Flextable depending on \`format\`
@@ -43,7 +48,7 @@ signals_agg <- input_example %>%
   get_signals(stratification = c("age_group", "sex")) %>%
   aggregate_signals(number_of_weeks = 6) %>%
   filter(category == "age_group")
-
-build_signals_agg_table(signals_agg)
+signals_agg_table <- build_signals_agg_table(signals_agg, format = "data.frame")
+signals_agg_table
 } # }
 ```

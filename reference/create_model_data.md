@@ -29,10 +29,10 @@ create_model_data(
 
 - model:
 
-  character, default "mean" one of c("mean", "sincos", "FN") specifying
-  which kind of model the glm is fitting. "mean" fits an intercept
-  model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from
-  farrington to fit parameters for seasonality.
+  character, default "mean" one of c("mean", "sincos", "sincos_multiS",
+  "FN") specifying which kind of model the glm is fitting. "mean" fits
+  an intercept model, "sincos" a harmonic sincos model, "FN" uses the
+  seasgroups from farrington to fit parameters for seasonality.
 
 - time_trend:
 

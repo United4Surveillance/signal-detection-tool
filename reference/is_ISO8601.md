@@ -23,6 +23,6 @@ when FALSE at least one is not in required format
 
 ``` r
 if (FALSE) { # \dontrun{
-is_ISO8601(c("2023-04-01", "2022-12-31"))
+is_ISO8601(c("2023-04-01", "2022-12-31")) # Should return TRUE
 } # }
 ```

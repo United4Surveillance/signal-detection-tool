@@ -24,8 +24,8 @@ get_signals_cusum(data_aggregated, number_of_weeks = 52)
 if (FALSE) { # \dontrun{
 data_aggregated <- input_example %>%
   preprocess_data() %>%
-  aggregate_data() %>%
-  add_rows_missing_dates()
+  aggregate_data()
 results <- get_signals_cusum(data_aggregated)
+results
 } # }
 ```

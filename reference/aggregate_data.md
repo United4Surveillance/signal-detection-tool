@@ -13,6 +13,7 @@ aggregate_data(
   date_var = "date_report",
   date_start = NULL,
   date_end = NULL,
+  date_ext = NULL,
   group = NULL
 )
 ```
@@ -42,6 +43,11 @@ aggregate_data(
   dataset. This can be used when the dataset should be extended further
   than the minimum date of the dataset.
 
+- date_ext:
+
+  A date object or character of format yyyy-mm-dd. Extends the
+  aggregated dataset until this date. Default is NULL
+
 - group:
 
   A character specifying another grouping variable. Usually used for
@@ -51,6 +57,9 @@ aggregate_data(
 
 ``` r
 if (FALSE) { # \dontrun{
-data <- preprocess_data(input_example) %>% aggregate_data()
+data_aggregated <- input_example %>%
+  preprocess_data() %>%
+  aggregate_data()
+data_aggregated
 } # }
 ```

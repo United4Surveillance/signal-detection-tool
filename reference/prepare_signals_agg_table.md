@@ -34,7 +34,7 @@ signals_agg <- input_example %>%
   get_signals(stratification = c("age_group", "sex")) %>%
   aggregate_signals(number_of_weeks = 6) %>%
   filter(category == "age_group")
-
-prepare_signals_agg_table(signals_agg)
+signals_agg_table <- prepare_signals_agg_table(signals_agg)
+signals_agg_table
 } # }
 ```

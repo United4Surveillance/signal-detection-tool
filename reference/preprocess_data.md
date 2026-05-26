@@ -23,6 +23,7 @@ date, to lower, generation of isoyear and isoweek
 
 ``` r
 if (FALSE) { # \dontrun{
-preprocess_data(input_example)
+data_preprocessed <- input_example %>% preprocess_data()
+data_preprocessed
 } # }
 ```

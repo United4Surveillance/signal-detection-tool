@@ -12,8 +12,8 @@ decider_barplot_map_table(
   data_surveillance,
   signal_category,
   interactive = TRUE,
-  toggle_alarms = FALSE,
-  partial = FALSE
+  page_length = 10,
+  toggle_alarms = FALSE
 )
 ```
 
@@ -40,14 +40,15 @@ decider_barplot_map_table(
 
   boolean identifying whether the plot should be static or interactive
 
+- page_length:
+
+  integer indicating number of elements per DataTable page. Default is
+  10
+
 - toggle_alarms:
 
   boolean identifying whether the plot should showing number of signals
   explicitly or only when hovering
-
-- partial:
-
-  logical, add partial bundle to plotly
 
 ## Value
 

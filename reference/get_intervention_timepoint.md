@@ -28,10 +28,9 @@ the given date are
 
 ``` r
 if (FALSE) { # \dontrun{
-data_agg <- input_example %>%
+data_aggregated <- input_example %>%
   preprocess_data() %>%
-  aggregate_data() %>%
-  add_rows_missing_dates()
-get_intervention_timepoint("2020-03-04", data_agg)
+  aggregate_data()
+get_intervention_timepoint("2020-03-04", data_aggregated)
 } # }
 ```

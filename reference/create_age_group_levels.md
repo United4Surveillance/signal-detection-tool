@@ -24,8 +24,8 @@ character vector containing all age_group levels
 
 ``` r
 if (FALSE) { # \dontrun{
-# Example usage:
 data_frame <- data.frame(age = c(2, 6, 16), age_group = c("01-05", "6-10", "16-20"))
-create_age_group_levels(data_frame)
+age_group_levels <- create_age_group_levels(data_frame)
+age_group_levels
 } # }
 ```

@@ -16,8 +16,10 @@ get_signals_all(
   stratification = NULL,
   date_start = NULL,
   date_end = NULL,
+  date_ext = NULL,
   date_var = "date_report",
-  number_of_weeks = 6
+  number_of_weeks = 6,
+  alpha_upper = 0.05
 )
 ```
 
@@ -53,6 +55,11 @@ get_signals_all(
   Optional. A date or character string in yyyy-mm-dd format indicating
   the end of the analysis period.
 
+- date_ext:
+
+  A date object or character of format yyyy-mm-dd. Extends the
+  aggregated dataset until this date. Default is NULL
+
 - date_var:
 
   A character string specifying the column name of the date variable to
@@ -61,6 +68,13 @@ get_signals_all(
 - number_of_weeks:
 
   Integer specifying how many weeks to generate signals for.
+
+- alpha_upper:
+
+  numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not
+  use the value; for these, the argument is ignored and internally set
+  to NULL. Specifies the p-value cutoff used to compute the threshold;
+  for example, a value of 0.05 corresponds to using the 0.95 quantile.
 
 ## Value
 
@@ -72,9 +86,9 @@ and unstratified results for comprehensive comparison or plotting.
 
 ``` r
 if (FALSE) { # \dontrun{
-preprocessed <- preprocess_data(input_data)
+data_preprocessed <- input_example %>% preprocess_data()
 results_all <- get_signals_all(
-  preprocessed,
+  data_preprocessed,
   method = "farrington",
   stratification = c("sex", "age_group")
 )

@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Automated Signal Detection for Infectious Disease Surveillance • SignalDetectionTool</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Automated Signal Detection for Infectious Disease Surveillance">
 <meta name="description" content="An interactive shiny app for signal detection of infectious disease surveillance data. This app allows the user to investigate generated signals and corresponding surveillance time series. It includes upload of csv or Excel files, data checks, possibility to set parameters for signal detection, visualisation of results and generation of reports.">
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">SignalDetectionTool</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +50,7 @@
 <div class="page-header"><h1 id="signaldetectiontool">SignalDetectionTool<a class="anchor" aria-label="anchor" href="#signaldetectiontool"></a>
 </h1></div>
 <!-- badges: start -->
-<!-- badges: end -->
+
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
@@ -173,7 +173,7 @@ Go back above the detailed installation instructions to read how to run the app.
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>The shiny application is structured into a <strong>Help</strong>, <strong>Data</strong>, <strong>Input parameters</strong>, <strong>Signals</strong> and <strong>Report</strong> tab.<br>
+<p>The shiny application is structured into a <strong>Help</strong>, <strong>Data</strong>, <strong>Input parameters</strong>, <strong>Signals</strong>, <strong>Signal Line List</strong> and <strong>Report</strong> tab.<br>
 You can try the shiny application yourself using <a href="https://github.com/United4Surveillance/signal-detection-tool/blob/main/dev/data/input/input.csv" class="external-link">test data</a> provided with the package.</p>
 <div class="section level3">
 <h3 id="help">Help<a class="anchor" aria-label="anchor" href="#help"></a>
@@ -197,6 +197,11 @@ You can try the shiny application yourself using <a href="https://github.com/Uni
 <h3 id="signals">Signals<a class="anchor" aria-label="anchor" href="#signals"></a>
 </h3>
 <p>The Signals tab can look like this when using the test data and stratification by age group, county and sex and using a timetrend algorithm with pandemic correction: <img src="reference/figures/README-signals_tab.PNG"><img src="reference/figures/README-timeseries.PNG"><img src="reference/figures/README-signal_detection_table.PNG"></p>
+</div>
+<div class="section level3">
+<h3 id="signal-line-list">Signal Line List<a class="anchor" aria-label="anchor" href="#signal-line-list"></a>
+</h3>
+<p>The Signal Line List tab retrieves the line list of cases corresponding to a signal selected by the user.</p>
 </div>
 <div class="section level3">
 <h3 id="report">Report<a class="anchor" aria-label="anchor" href="#report"></a>
@@ -223,14 +228,33 @@ You can try the shiny application yourself using <a href="https://github.com/Uni
 <strong>Data Source (<code>datasource</code>)</strong> <em>(Mapping)</em>
 <a class="anchor" aria-label="anchor" href="#data-source-datasource-mapping"></a>
 </h5>
-<p>Specifies how input data is retrieved. Currently only supports file based data sources out of the box. - <code>file</code> <em>(Scalar: Boolean)</em><br>
-- <code>TRUE</code> → Use an external file (CSV or Excel).<br>
-- <code>FALSE</code> → Use a database.<br>
-- <code>filepath</code> <em>(Scalar: String)</em> Path to the external file, applicable when <code>file: TRUE</code>.<br>
-- <code>db</code> <em>(Nested Mapping)</em> Child elements define database connection details (used when <code>file: FALSE</code>).<br>
-- <code>host</code> <em>(Scalar: String)</em> – Database server address (e.g., <code>localhost</code>).<br>
-- <code>port</code> <em>(Scalar: Integer)</em> – Database port (e.g., <code>5432</code>).<br>
-- <code>database</code> <em>(Scalar: String)</em> – Name of the database.</p>
+<p>Specifies how input data is retrieved. Currently only supports file based data sources out of the box.</p>
+<ul>
+<li>
+<p><code>file</code> <em>(Scalar: Boolean)</em></p>
+<ul>
+<li>
+<code>TRUE</code> → Use an external file (CSV or Excel).<br>
+</li>
+<li>
+<code>FALSE</code> → Use a database.</li>
+</ul>
+</li>
+<li><p><code>filepath</code> <em>(Scalar: String)</em> Path to the external file, applicable when <code>file: TRUE</code>.</p></li>
+<li>
+<p><code>db</code> <em>(Nested Mapping)</em> Child elements define database connection details (used when <code>file: FALSE</code>).</p>
+<ul>
+<li>
+<code>host</code> <em>(Scalar: String)</em> – Database server address (e.g., <code>localhost</code>).<br>
+</li>
+<li>
+<code>port</code> <em>(Scalar: Integer)</em> – Database port (e.g., <code>5432</code>).<br>
+</li>
+<li>
+<code>database</code> <em>(Scalar: String)</em> – Name of the database.</li>
+</ul>
+</li>
+</ul>
 <p>Do note that there is no true database support right now! The DB related parameters are merely placeholders at the moment. To actually connect your own database to the tool, you will need to <a href="https://gist.github.com/mlbach/0a75ffa695f81e0d777973d3928d9013" class="external-link">define custom functions and apply monkey patching</a>. We plan to add full database support in the future.</p>
 </div>
 <div class="section level5">
@@ -238,12 +262,29 @@ You can try the shiny application yourself using <a href="https://github.com/Uni
 <strong>Analysis Parameters (<code>params</code>)</strong> <em>(Mapping)</em>
 <a class="anchor" aria-label="anchor" href="#analysis-parameters-params-mapping"></a>
 </h5>
-<p>Defines key variables for analysis and signal detection.<br>
-- <code>pathogen</code> <em>(Scalar: String)</em> – Default pathogen under analysis (e.g., <em>Pertussis</em>).<br>
-- <code>strata</code> <em>(Sequence of Scalars: List of Strings)</em> – Categories used to stratify the analysis (e.g., <code>age_group</code>, <code>community</code>).<br>
-- <code>signal_detection_period</code> <em>(Scalar: Integer)</em> – Time period (in weeks or months) for detecting signals.<br>
-- <code>signal_detection_algorithm</code> <em>(Scalar: String)</em> – Method used for signal detection (e.g., <code>ears</code>).<br>
-- <code>pandemic_correction</code>: <em>(Scalar: Boolean)</em> Correct for the effects of the COVID-19 pandemic, only used in GLM algorithms - <code>intervention_date</code>: <em>(Scalar: String, Date format <code>YYYY-MM-DD</code>)</em> - Date for the intervention in the pandemic correction models</p>
+<p>Defines key variables for analysis and signal detection.</p>
+<ul>
+<li><p><code>pathogen</code> <em>(Scalar: String)</em> – Default pathogen under analysis (e.g., <em>Pertussis</em>).</p></li>
+<li><p><code>date_ext_enabled</code> <em>(Scalar: Boolean)</em> - Use an end date for the analysis period that differs from the line list end date.</p></li>
+<li><p><code>date_ext_date</code> <em>(Scalar: String, Date format <code>YYYY-MM-DD</code>)</em> - Custom end date for the analysis period</p></li>
+<li><p><code>strata</code> <em>(Sequence of Scalars: List of Strings)</em> – Categories used to stratify the analysis (e.g., <code>age_group</code>, <code>community</code>).</p></li>
+<li><p><code>signal_detection_period</code> <em>(Scalar: Integer)</em> – Time period (in weeks or months) for detecting signals.</p></li>
+<li><p><code>signal_detection_algorithm</code> <em>(Scalar: String)</em> – Method used for signal detection (e.g., <code>ears</code>).</p></li>
+<li><p><code>alpha_upper</code>: <em>(Scalar: Numeric)</em> – Adjust the p-value cutoff used to compute the threshold, only used in FarringtonFlexible and GLM algorithms.</p></li>
+<li><p><code>pandemic_correction</code>: <em>(Scalar: Boolean)</em> - Correct for the effects of the COVID-19 pandemic, only used in GLM algorithms.</p></li>
+<li><p><code>intervention_date</code>: <em>(Scalar: String, Date format <code>YYYY-MM-DD</code>)</em> - Date for the intervention in the pandemic correction models.</p></li>
+</ul>
+</div>
+<div class="section level5">
+<h5 id="post-processing-parameters-post-processing-mapping">
+<strong>Post-Processing Parameters (<code>post-processing</code>)</strong> <em>(Mapping)</em>
+<a class="anchor" aria-label="anchor" href="#post-processing-parameters-post-processing-mapping"></a>
+</h5>
+<p>Defines key variables for post-processing.</p>
+<ul>
+<li>
+<code>min_cases_signals</code> <em>(Scalar: Integer)</em> - Minimum number of cases required for a signal to be shown.</li>
+</ul>
 </div>
 <div class="section level5">
 <h5 id="shapefile-path-shapefile_path-scalar-null-or-string">
@@ -261,8 +302,30 @@ You can try the shiny application yourself using <a href="https://github.com/Uni
 <p>In addition to the default configuration, you can also define pathogen-specific configurations as another root key. These mappings inherit values from <code>default</code> unless explicitly overridden.<br>
 This way it is possible to adjust parameters and algorithm choice to the pathogen of interest.</p>
 <hr>
-<p>Note that the tool might only recognize and use certain values supplied via the config file. Currently, there is a limited set of valid values for stratification and algorithm choice. Possible strata values: - None - age_group - state - country - county - community - sex</p>
-<p>Possible algorithms values: - “farrington” - “ears” - “cusum” - “glm mean” - “glm timetrend” - “glm harmonic” - “glm harmonic with timetrend” - “glm farrington” - “glm farrington with timetrend”</p>
+<p>Note that the tool might only recognize and use certain values supplied via the config file. Currently, there is a limited set of valid values for stratification and algorithm choice.</p>
+<p>Possible strata values:</p>
+<ul>
+<li>None</li>
+<li>age_group</li>
+<li>state</li>
+<li>country</li>
+<li>county</li>
+<li>community</li>
+<li>sex</li>
+</ul>
+<p>Possible algorithm values:</p>
+<ul>
+<li>farrington</li>
+<li>ears</li>
+<li>cusum</li>
+<li>glm mean</li>
+<li>glm timetrend</li>
+<li>glm harmonic</li>
+<li>glm harmonic with timetrend</li>
+<li>glm harmonic multi</li>
+<li>glm farrington</li>
+<li>glm farrington with timetrend</li>
+</ul>
 <p>In the future we will strive to make the tool even more flexible and convenient.</p>
 </div>
 </div>
@@ -323,7 +386,12 @@ This way it is possible to adjust parameters and algorithm choice to the pathoge
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/United4Surveillance/signal-detection-tool/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/United4Surveillance/signal-detection-tool/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>

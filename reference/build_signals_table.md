@@ -1,4 +1,4 @@
-# Builds the signal detection results table with different formating options. To get the raw data.frame containing method ald number_of_weeks as well use format = "data.frame", to obtain nicely formated tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".
+# Builds the signal detection results table with different formatting options. To get the raw data.frame containing method ald number_of_weeks as well use format = "data.frame", to obtain nicely formatted tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".
 
 This function applies the
 [prepare_signals_table](https://united4surveillance.github.io/signal-detection-tool/reference/prepare_signals_table.md)
@@ -20,7 +20,8 @@ build_signals_table(
   signal_results,
   signals_only = TRUE,
   format = "DataTable",
-  dt_selection_type = "single"
+  dt_selection_type = "single",
+  page_length = 10
 )
 ```
 
@@ -52,6 +53,11 @@ build_signals_table(
   String controlling the DataTable selection argument. Expected values
   are "multiple", "single", "none" (default is 'single').
 
+- page_length:
+
+  integer indicating number of elements per DataTable page. Default is
+  10
+
 ## Value
 
 data.frame or DataTable or Flextable depending on \`format\`
@@ -62,8 +68,11 @@ data.frame or DataTable or Flextable depending on \`format\`
 if (FALSE) { # \dontrun{
 signal_results <- input_example %>%
   preprocess_data() %>%
-  get_signals(stratification = c("age_group"), number_of_weeks = 6)
-build_signals_table(signal_results)
-build_signals_table(signal_results, format = "data.frame")
+  get_signals(
+    stratification = c("age_group"),
+    number_of_weeks = 6
+  )
+signals_table <- build_signals_table(signal_results, format = "data.frame")
+signals_table
 } # }
 ```

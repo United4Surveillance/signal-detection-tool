@@ -23,7 +23,8 @@ integer columns.
 ## Examples
 
 ``` r
+
 data <- data.frame(a = 1:5, b = 1:5, c = 1L:5L)
-SignalDetectionTool::get_float_columns(data)
+get_float_columns(data)
 #> character(0)
 ```

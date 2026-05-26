@@ -31,13 +31,13 @@
   : Create an Empty DataTable with a Custom Message
 - [`build_signals_agg_table()`](https://united4surveillance.github.io/signal-detection-tool/reference/build_signals_agg_table.md)
   : Builds the aggregated signal detection results table with different
-  formating options.
+  formatting options.
 - [`build_signals_table()`](https://united4surveillance.github.io/signal-detection-tool/reference/build_signals_table.md)
-  : Builds the signal detection results table with different formating
+  : Builds the signal detection results table with different formatting
   options. To get the raw data.frame containing method ald
   number_of_weeks as well use format = "data.frame", to obtain nicely
-  formated tables in an interactive DataTable or as Flextable use format
-  = "DataTable" or format = "Flextable".
+  formatted tables in an interactive DataTable or as Flextable use
+  format = "DataTable" or format = "Flextable".
 - [`check_any_age()`](https://united4surveillance.github.io/signal-detection-tool/reference/check_any_age.md)
   : Helper function to check for presence of age variable or instead
   age_group
@@ -50,7 +50,7 @@
   : check whether there is a completely empty row in provided
   surveillance data
 - [`check_for_missing_values()`](https://united4surveillance.github.io/signal-detection-tool/reference/check_for_missing_values.md)
-  : Varible names which should be checked for missing values
+  : Variable names which should be checked for missing values
 - [`check_mandatory_variables()`](https://united4surveillance.github.io/signal-detection-tool/reference/check_mandatory_variables.md)
   : checking mandatory variables in the surveillance data check if
   mandatory variables are present in the data check if they have the
@@ -108,6 +108,9 @@
 - [`create_formula()`](https://united4surveillance.github.io/signal-detection-tool/reference/create_formula.md)
   : Create a model formula based on the columns in the model_data
   dataframe.
+- [`create_fourier_terms()`](https://united4surveillance.github.io/signal-detection-tool/reference/create_fourier_terms.md)
+  : Create a data.frame with multiple sine and cosine components for
+  harmonic modeling.
 - [`create_map_or_table()`](https://united4surveillance.github.io/signal-detection-tool/reference/create_map_or_table.md)
   : Decider for creating a map or a table based on whether all NUTS_ids
   are found in the shapefile
@@ -133,6 +136,9 @@
   where signals were generated.
 - [`format_table()`](https://united4surveillance.github.io/signal-detection-tool/reference/format_table.md)
   : Format the signal results to an interactive or static table
+- [`get_all_cw_iso()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_all_cw_iso.md)
+  : function to get all iso weeks between \`date_start\` and
+  \`date_end\`
 - [`get_case_id_duplicates()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_case_id_duplicates.md)
   : Checking for duplicates in case_id
 - [`get_data_config_value()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_data_config_value.md)
@@ -182,8 +188,8 @@
 - [`get_signals_glm()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_signals_glm.md)
   : Get signals based on a weigthed GLM quasipoisson regression model
   for the expected case counts The GLM is flexible being able to just
-  fit a mean, add a time trend, fit a harmonic sin/cos model or the
-  seasons from the farringtonflexible.
+  fit a mean, add a time trend, fit a harmonic sin/cos model (one or two
+  seasonal components) or the seasons from the farringtonflexible.
 - [`get_signals_stratified()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_signals_stratified.md)
   : Get Signals Stratified
 - [`get_strata_from_signals_agg()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_strata_from_signals_agg.md)
@@ -229,8 +235,6 @@
   for. This depends on the algorithm and the amount of historic data.
   The already generated signals dataframe is then extended with the
   expectation and threshold into the past
-- [`plot_agegroup_by()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_agegroup_by.md)
-  : Plot age-groups grouped by another variable
 - [`plot_barchart()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_barchart.md)
   : Barplot visualising the number of cases and information about any
   signals
@@ -268,7 +272,7 @@
 - [`run_app()`](https://united4surveillance.github.io/signal-detection-tool/reference/run_app.md)
   : Run the Shiny Application
 - [`run_report()`](https://united4surveillance.github.io/signal-detection-tool/reference/run_report.md)
-  : Renders signal detection report
+  : Renders a signal detection report
 - [`save_signals()`](https://united4surveillance.github.io/signal-detection-tool/reference/save_signals.md)
   : Save signals
 - [`sex_levels()`](https://united4surveillance.github.io/signal-detection-tool/reference/sex_levels.md)
@@ -276,6 +280,8 @@
   all calculations
 - [`sex_raw_levels()`](https://united4surveillance.github.io/signal-detection-tool/reference/sex_raw_levels.md)
   : Allowed levels for sex in raw surveillance data
+- [`shorten_label()`](https://united4surveillance.github.io/signal-detection-tool/reference/shorten_label.md)
+  : Shorten labels for plotting
 - [`transform_required_format()`](https://united4surveillance.github.io/signal-detection-tool/reference/transform_required_format.md)
   : Transform Data to Required Format (Example Implementation)
 - [`yes_no_unknown_levels()`](https://united4surveillance.github.io/signal-detection-tool/reference/yes_no_unknown_levels.md)

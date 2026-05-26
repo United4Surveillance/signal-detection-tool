@@ -6,12 +6,7 @@ any signal was generated in the last n weeks for this stratum
 ## Usage
 
 ``` r
-plot_barchart(
-  signals_agg,
-  interactive = TRUE,
-  toggle_alarms = FALSE,
-  partial = FALSE
-)
+plot_barchart(signals_agg, interactive = TRUE, toggle_alarms = FALSE)
 ```
 
 ## Arguments
@@ -34,10 +29,6 @@ plot_barchart(
   boolean identifying whether the plot should showing number of signals
   explicitly or only when hovering
 
-- partial:
-
-  logical, add partial bundle to plotly
-
 ## Value
 
 either a gg or plotly object
@@ -46,10 +37,13 @@ either a gg or plotly object
 
 ``` r
 if (FALSE) { # \dontrun{
-signals_agg_sex <- input_example %>%
-  preprocess_data() %>%
-  get_signals(stratification = c("sex")) %>%
-  aggregate_signals(number_of_weeks = 12)
-plot_barchart(signals_agg_sex)
+data_preprocessed <- input_example %>% preprocess_data()
+signals <- data_preprocessed %>% get_signals(stratification = c("sex"))
+signals_agg <- signals %>% aggregate_signals(number_of_weeks = 12)
+signals_barchart <- plot_barchart(
+  signals_agg,
+  interactive = FALSE
+)
+signals_barchart
 } # }
 ```

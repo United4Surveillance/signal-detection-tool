@@ -34,7 +34,10 @@ success, a warning, or an error).
 ``` r
 # Save signals with default or custom filepath
 if (FALSE) { # \dontrun{
-data <- preprocess_data(SignalDetectionTool::input_example)
-save_signals(SignalDetectionTool::get_signals(data), data)
+data_preprocessed <- input_example %>% preprocess_data()
+save_signals_data <- data_preprocessed %>%
+  get_signals() %>%
+  save_signals(data_preprocessed)
+save_signals_data
 } # }
 ```

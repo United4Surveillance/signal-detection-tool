@@ -15,8 +15,10 @@ get_signals_stratified(
   stratification_columns,
   date_start = NULL,
   date_end = NULL,
+  date_ext = NULL,
   date_var = "date_report",
-  number_of_weeks = 6
+  number_of_weeks = 6,
+  alpha_upper = 0.05
 )
 ```
 
@@ -62,6 +64,11 @@ get_signals_stratified(
   A date object or character of format yyyy-mm-dd specifying the end
   date to filter the data by. Default is NULL.
 
+- date_ext:
+
+  A date object or character of format yyyy-mm-dd. Extends the
+  aggregated dataset until this date. Default is NULL.
+
 - date_var:
 
   a character specifying the date variable name used for the
@@ -70,6 +77,13 @@ get_signals_stratified(
 - number_of_weeks:
 
   integer, specifying number of weeks to generate signals for.
+
+- alpha_upper:
+
+  numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not
+  use the value; for these, the argument is ignored and internally set
+  to NULL. Specifies the p-value cutoff used to compute the threshold;
+  for example, a value of 0.05 corresponds to using the 0.95 quantile.
 
 ## Value
 
@@ -80,13 +94,12 @@ stratified by the specified columns.
 
 ``` r
 if (FALSE) { # \dontrun{
-data <- read.csv("../data/input/input.csv")
+data_preprocessed <- input_example %>% preprocess_data()
 categories <- c("county", "sex", "age_group") # Replace with actual column names
 results <- get_signals_stratified(
-  data,
+  data_preprocessed,
   fun = get_signals_farringtonflexible,
   stratification_columns = categories
 )
-print(results)
 } # }
 ```

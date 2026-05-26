@@ -1,17 +1,12 @@
 # Plot in how many strata an signal was detected under the detection period
 
 Using the results of signal detection, plot a week-to-week
-representation of strata had higher than expected case numbers
+representation of strata that had alarms
 
 ## Usage
 
 ``` r
-plot_signals_per_week(
-  results,
-  interactive = FALSE,
-  branding = NULL,
-  partial = FALSE
-)
+plot_signals_per_week(results, n_strata, interactive = FALSE, branding = NULL)
 ```
 
 ## Arguments
@@ -21,6 +16,11 @@ plot_signals_per_week(
   dataframe of a single-pathogen signal detection results for a strata
   category
 
+- n_strata:
+
+  integer. Number of stratification levels in category. Usually
+  determined automatically by signals_agg
+
 - interactive:
 
   logical, if TRUE, interactive plot is returned; default, static plot.
@@ -28,10 +28,6 @@ plot_signals_per_week(
 - branding:
 
   named vector with branding colours
-
-- partial:
-
-  logical, add partial bundle to plotly
 
 ## Value
 
@@ -41,9 +37,13 @@ either a ggplot or plotly object
 
 ``` r
 if (FALSE) { # \dontrun{
-dat <- preprocess_data(input_example)
-signals <- get_signals(dat, stratification = "county")
-
-plot_signals_per_week(signals)
+data_preprocessed <- input_example %>% preprocess_data()
+signals <- data_preprocessed %>% get_signals(stratification = "county")
+n.strata <- 9
+signals_week_barchart <- plot_signals_per_week(
+  signals,
+  n_strata = n.strata
+)
+signals_week_barchart
 } # }
 ```

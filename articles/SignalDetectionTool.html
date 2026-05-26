@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>SignalDetectionTool: R Package for signal detection on infectious disease surveillance data • SignalDetectionTool</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="SignalDetectionTool: R Package for signal detection on infectious disease surveillance data">
 </head>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">SignalDetectionTool</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,8 +46,16 @@
 
 
 
-
-<div class="row">
+<link href="SignalDetectionTool_files/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="SignalDetectionTool_files/htmlwidgets-1.6.4/htmlwidgets.js"></script><link href="SignalDetectionTool_files/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+<script src="SignalDetectionTool_files/datatables-binding-0.34.0/datatables.js"></script><link href="SignalDetectionTool_files/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="SignalDetectionTool_files/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
+<script src="SignalDetectionTool_files/dt-core-1.13.6/js/jquery.dataTables.min.js"></script><script src="SignalDetectionTool_files/jszip-1.13.6/jszip.min.js"></script><script src="SignalDetectionTool_files/pdfmake-1.13.6/pdfmake.js"></script><script src="SignalDetectionTool_files/pdfmake-1.13.6/vfs_fonts.js"></script><link href="SignalDetectionTool_files/dt-ext-buttons-1.13.6/css/buttons.dataTables.min.css" rel="stylesheet">
+<script src="SignalDetectionTool_files/dt-ext-buttons-1.13.6/js/dataTables.buttons.min.js"></script><script src="SignalDetectionTool_files/dt-ext-buttons-1.13.6/js/buttons.html5.min.js"></script><script src="SignalDetectionTool_files/dt-ext-buttons-1.13.6/js/buttons.colVis.min.js"></script><script src="SignalDetectionTool_files/dt-ext-buttons-1.13.6/js/buttons.print.min.js"></script><link href="SignalDetectionTool_files/dt-ext-rowgroup-1.13.6/css/rowGroup.dataTables.min.css" rel="stylesheet">
+<script src="SignalDetectionTool_files/dt-ext-rowgroup-1.13.6/js/dataTables.rowGroup.min.js"></script><link href="SignalDetectionTool_files/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet">
+<script src="SignalDetectionTool_files/nouislider-7.0.10/jquery.nouislider.min.js"></script><link href="SignalDetectionTool_files/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet">
+<script src="SignalDetectionTool_files/selectize-0.12.0/selectize.min.js"></script><link href="SignalDetectionTool_files/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+<script src="SignalDetectionTool_files/crosstalk-1.2.2/js/crosstalk.min.js"></script><div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>SignalDetectionTool: R Package for signal detection on infectious disease surveillance data</h1>
@@ -106,7 +114,7 @@ cases.<br>
 To apply different signal detection methods use the parameter method. To
 generate stratified signals use the parameter stratification. Please
 have a look at the function documentation for more details. This is an
-example for signals generated using the default paramters with
+example for signals generated using the default parameters with
 FarringtonFlexible and no stratification:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data_prepro</span> <span class="op">&lt;-</span> <span class="va">input_example</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/preprocess_data.html">preprocess_data</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -195,7 +203,133 @@ For rows with <code>category == "county"</code> the values of
 <div class="section level3">
 <h3 id="create-visualisations-and-tables">Create visualisations and tables<a class="anchor" aria-label="anchor" href="#create-visualisations-and-tables"></a>
 </h3>
-<p>Coming soon…</p>
+<p>To visualise signal detection in your data for the most recent
+<code>number_of_weeks</code>, you first need to preprocess your linelist
+and then apply <code><a href="../reference/get_signals.html">get_signals()</a></code>. To display aggregated signal
+detection results, first aggregate the signals. In the final step, apply
+a function to generate either a plot or a table. The plotting functions
+support both interactive and static outputs; by default, static plots
+are generated. Tables are returned as interactive DataTables by default,
+with options to convert them to data.frame or flextable formats.</p>
+<p>The following example shows how to visualise the time series of
+detected signals using the default parameters of FarringtonFlexible
+without stratification in <code><a href="../reference/plot_time_series.html">plot_time_series()</a></code>:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">data_prepro</span> <span class="op">&lt;-</span> <span class="va">input_example</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/preprocess_data.html">preprocess_data</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">signals</span> <span class="op">&lt;-</span> <span class="va">data_prepro</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/get_signals.html">get_signals</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">signals_time_series</span> <span class="op">&lt;-</span> <span class="va">signals</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/plot_time_series.html">plot_time_series</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">signals_time_series</span></span></code></pre></div>
+<p><img src="SignalDetectionTool_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p>In the time series visualisation, the detection period is shaded in
+blue. The expectation is shown as a black line. The threshold is
+indicated by a blue line. Weekly case counts are displayed as bars. A
+signal is generated for a given week when the number of cases exceeds
+the threshold.</p>
+<p>To create an interactive or a non-interactive map you have to use
+aggregated signals and an appropriate shapefile in a combined sf-object
+which is used in <code><a href="../reference/plot_regional.html">plot_regional()</a></code>. This is an example for
+visualising the specified data as a non-interactive map while using
+“county” as <code>stratum</code> and the internal European shapefile
+(<code>nuts_shp</code>).</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">data_prepro</span> <span class="op">&lt;-</span> <span class="va">input_example</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/preprocess_data.html">preprocess_data</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">signals</span> <span class="op">&lt;-</span> <span class="va">data_prepro</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/get_signals.html">get_signals</a></span><span class="op">(</span>stratification <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"county"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">signals_agg</span> <span class="op">&lt;-</span> <span class="va">signals</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/aggregate_signals.html">aggregate_signals</a></span><span class="op">(</span>number_of_weeks <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span>
+<span><span class="va">nuts_shp</span> <span class="op">&lt;-</span> <span class="va">nuts_shp</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html" class="external-link">st_as_sf</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">LEVL_CODE</span> <span class="op">==</span> <span class="fl">2</span> <span class="op">&amp;</span> <span class="va">CNTR_CODE</span> <span class="op">==</span> <span class="st">"AT"</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">NUTS_NAME</span>, <span class="va">geometry</span><span class="op">)</span></span>
+<span><span class="va">shape_with_signals</span> <span class="op">&lt;-</span> <span class="va">nuts_shp</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">inner_join</a></span><span class="op">(</span></span>
+<span>    <span class="va">signals_agg</span>,</span>
+<span>    by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NUTS_NAME"</span> <span class="op">=</span> <span class="st">"stratum"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html" class="external-link">st_as_sf</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">signals_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_regional.html">plot_regional</a></span><span class="op">(</span></span>
+<span>  <span class="va">shape_with_signals</span>,</span>
+<span>  signals_agg_unknown_region <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  interactive <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  toggle_alarms <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">signals_map</span></span></code></pre></div>
+<p><img src="SignalDetectionTool_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p>In the non-interactive map visualisation, the number of cases per
+region is represented by the shade of blue, with darker shades
+indicating higher case counts. Regions without signals are shown with a
+black border. If at least one signal occurs in a region, the border is
+coloured red and the number of signals is displayed as a label within
+the region.</p>
+<p>To create an interactive or a non-interactive barplot you have to use
+aggregated signals in <code><a href="../reference/plot_barchart.html">plot_barchart()</a></code>. This is an example
+for visualising the specified data using “age group” as
+<code>stratum</code> and for the non-interactive plot using
+<code><a href="../reference/plot_barchart.html">plot_barchart()</a></code>:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">data_prepro</span> <span class="op">&lt;-</span> <span class="va">input_example</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/preprocess_data.html">preprocess_data</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">signals</span> <span class="op">&lt;-</span> <span class="va">data_prepro</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/get_signals.html">get_signals</a></span><span class="op">(</span>stratification <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_group"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">signals_agg</span> <span class="op">&lt;-</span> <span class="va">signals</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/aggregate_signals.html">aggregate_signals</a></span><span class="op">(</span>number_of_weeks <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span>
+<span><span class="va">signals_barchart</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_barchart.html">plot_barchart</a></span><span class="op">(</span></span>
+<span>  <span class="va">signals_agg</span>,</span>
+<span>  interactive <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">signals_barchart</span></span></code></pre></div>
+<p><img src="SignalDetectionTool_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="384" style="display: block; margin: auto;"></p>
+<p>In the non-interactive barplot visualisation, the number of cases is
+represented by the height of the bars. If no signal occurs in a given
+stratum, the bar has no border. If at least one signal is detected, the
+bar is outlined in red. For non-interactive plots, the number of signals
+is additionally displayed as a label above the bar.</p>
+<p>To create an interactive or a non-interactive 100% stacked barplot
+showing a week-to-week representation of strata levels that had alarms
+you have to use signal data and specify the number of stratification
+levels in <code><a href="../reference/plot_signals_per_week.html">plot_signals_per_week()</a></code>. This is an example for
+visualising the specified data using “county” as <code>stratum</code>
+with 9 levels for the non-interactive plot:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">data_prepro</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/preprocess_data.html">preprocess_data</a></span><span class="op">(</span><span class="va">input_example</span><span class="op">)</span></span>
+<span><span class="va">signals</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_signals.html">get_signals</a></span><span class="op">(</span></span>
+<span>  <span class="va">data_prepro</span>,</span>
+<span>  stratification <span class="op">=</span> <span class="st">"county"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">n.strata</span> <span class="op">&lt;-</span> <span class="fl">9</span></span>
+<span><span class="va">signals_week_barchart</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_signals_per_week.html">plot_signals_per_week</a></span><span class="op">(</span></span>
+<span>  <span class="va">signals</span>,</span>
+<span>  n_strata <span class="op">=</span> <span class="va">n.strata</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">signals_week_barchart</span></span></code></pre></div>
+<p><img src="SignalDetectionTool_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="384" style="display: block; margin: auto;"></p>
+<p>In the non-interactive 100% stacked barplot visualisation, the
+proportion of levels with alarms per week is represented by the height
+of the red segment of each bar. If no signal occurs in a given week, the
+bar is shown entirely in grey.</p>
+<p>To create a signals detection results table with different formatting
+options you can use <code><a href="../reference/build_signals_table.html">build_signals_table()</a></code>. This is an
+example for creating a DataTable using age_group as <code>stratum</code>
+and default options:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">data_prepro</span> <span class="op">&lt;-</span> <span class="va">input_example</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/preprocess_data.html">preprocess_data</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">signals</span> <span class="op">&lt;-</span> <span class="va">data_prepro</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/get_signals.html">get_signals</a></span><span class="op">(</span></span>
+<span>  stratification <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_group"</span><span class="op">)</span>,</span>
+<span>  number_of_weeks <span class="op">=</span> <span class="fl">6</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">signals_table</span> <span class="op">&lt;-</span> <span class="va">signals</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/build_signals_table.html">build_signals_table</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">signals_table</span></span></code></pre></div>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"filter":"bottom","vertical":false,"filterHTML":"<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\" disabled=\"\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;age_group&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\" disabled=\"\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;40-44&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\" disabled=\"\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"1\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\" disabled=\"\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"1\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\" disabled=\"\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"1\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\" disabled=\"\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"1\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\" disabled=\"\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"1\" data-scale=\"2\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\" disabled=\"\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"1\" data-scale=\"2\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\" disabled=\"\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"1\" data-scale=\"2\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","extensions":["Buttons","RowGroup"],"fillContainer":true,"data":[["age_group"],["40-44"],[2023],[22],[5],[1],[3.68],[1.29],[0.05]],"container":"<table class=\"cell-border stripe hover fill-container\">\n  <thead>\n    <tr>\n      <th>Category<\/th>\n      <th>Stratum<\/th>\n      <th>Year<\/th>\n      <th>Week<\/th>\n      <th>Cases<\/th>\n      <th>Cases In Outbreak<\/th>\n      <th>Threshold<\/th>\n      <th>Expected<\/th>\n      <th>Alpha_upper<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"rowGroup":{"dataSrc":0},"columnDefs":[{"targets":6,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"},{"targets":7,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"},{"targets":8,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"},{"visible":false,"targets":0},{"className":"dt-right","targets":[2,3,4,5,6,7,8]},{"name":"Category","targets":0},{"name":"Stratum","targets":1},{"name":"Year","targets":2},{"name":"Week","targets":3},{"name":"Cases","targets":4},{"name":"Cases In Outbreak","targets":5},{"name":"Threshold","targets":6},{"name":"Expected","targets":7},{"name":"Alpha_upper","targets":8}],"dom":"tfrBip","buttons":["copy","csv","excel","pdf"],"initComplete":"function(settings, json) {\n$(this.api().table().header()).css({'background-color': '#304794', 'color': '#fff'});\n}","order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"single","selected":null,"target":"row","selectable":null}},"evals":["options.columnDefs.0.render","options.columnDefs.1.render","options.columnDefs.2.render","options.initComplete"],"jsHooks":[]}</script><p>To create an aggregated signal detection results table with different
+formatting options you can use <code><a href="../reference/build_signals_agg_table.html">build_signals_agg_table()</a></code>.
+This is an example for creating a DataTable using age_group as
+<code>stratum</code> and default options:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">data_prepro</span> <span class="op">&lt;-</span> <span class="va">input_example</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/preprocess_data.html">preprocess_data</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">signals</span> <span class="op">&lt;-</span> <span class="va">data_prepro</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/get_signals.html">get_signals</a></span><span class="op">(</span></span>
+<span>  stratification <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_group"</span><span class="op">)</span>,</span>
+<span>  number_of_weeks <span class="op">=</span> <span class="fl">6</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">agg_signals</span> <span class="op">&lt;-</span> <span class="va">signals</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/aggregate_signals.html">aggregate_signals</a></span><span class="op">(</span>number_of_weeks <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span>
+<span><span class="va">agg_signals_table</span> <span class="op">&lt;-</span> <span class="va">agg_signals</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/build_signals_agg_table.html">build_signals_agg_table</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">agg_signals_table</span></span></code></pre></div>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-e5c8c404fe174e4c81bd" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-e5c8c404fe174e4c81bd">{"x":{"filter":"bottom","vertical":false,"filterHTML":"<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\" disabled=\"\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;age_group&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;00-04&quot;,&quot;05-09&quot;,&quot;10-14&quot;,&quot;15-19&quot;,&quot;20-24&quot;,&quot;25-29&quot;,&quot;30-34&quot;,&quot;35-39&quot;,&quot;40-44&quot;,&quot;45-49&quot;,&quot;50-54&quot;,&quot;55-59&quot;,&quot;60-64&quot;,&quot;65-69&quot;,&quot;70-74&quot;,&quot;75-79&quot;,&quot;80-84&quot;,&quot;85-89&quot;,&quot;90-94&quot;,&quot;95-99&quot;,&quot;100-104&quot;,&quot;105-109&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"74\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"logical\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;true&quot;,&quot;false&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"1\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","extensions":["Buttons","RowGroup"],"fillContainer":true,"data":[["age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group","age_group"],["40-44","00-04","05-09","10-14","100-104","105-109","15-19","20-24","25-29","30-34","35-39","45-49","50-54","55-59","60-64","65-69","70-74","75-79","80-84","85-89","90-94","95-99"],[11,74,5,0,0,0,2,0,2,4,6,9,6,5,7,6,1,3,2,0,0,0],[true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],"container":"<table class=\"cell-border stripe hover fill-container\">\n  <thead>\n    <tr>\n      <th>Category<\/th>\n      <th>Stratum<\/th>\n      <th>Cases<\/th>\n      <th>Any_alarms<\/th>\n      <th>N_alarms<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"rowGroup":{"dataSrc":0},"columnDefs":[{"visible":false,"targets":0},{"className":"dt-right","targets":[2,4]},{"name":"Category","targets":0},{"name":"Stratum","targets":1},{"name":"Cases","targets":2},{"name":"Any_alarms","targets":3},{"name":"N_alarms","targets":4}],"dom":"tfrBip","buttons":["copy","csv","excel","pdf"],"initComplete":"function(settings, json) {\n$(this.api().table().header()).css({'background-color': '#304794', 'color': '#fff'});\n}","order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[3]; $(row).css({'background-color':value == true ? \"#ff8282\" : null});\n}"},"selection":{"mode":"single","selected":null,"target":"row","selectable":null}},"evals":["options.initComplete","options.rowCallback"],"jsHooks":[]}</script><p>In the table, rows with a signal are highlighted in red.</p>
 </div>
 <div class="section level3">
 <h3 id="run-the-report">Run the report<a class="anchor" aria-label="anchor" href="#run-the-report"></a>
@@ -210,7 +344,7 @@ your surveillance linelist—structured according to the format defined in
 be preprocessed automatically within the function. The following code
 chunk generates a Word report using EARS without any stratification
 (default) for the past six weeks (default):</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_report.html">run_report</a></span><span class="op">(</span><span class="va">input_example</span>,</span>
 <span>  report_format <span class="op">=</span> <span class="st">"DOCX"</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"EARS"</span></span>
@@ -218,7 +352,7 @@ chunk generates a Word report using EARS without any stratification
 <p>This generates an HTML report (default) with stratification by age
 group, county and sex for the last 2 weeks using FarringtonFlexible
 (default):</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_report.html">run_report</a></span><span class="op">(</span><span class="va">input_example</span>,</span>
 <span>  strata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_group"</span>, <span class="st">"county"</span>, <span class="st">"sex"</span><span class="op">)</span>,</span>
 <span>  number_of_weeks <span class="op">=</span> <span class="fl">2</span></span>
@@ -235,18 +369,18 @@ cases from different pathogens.</p>
 <p>An example line list is available in the package as an internal
 dataset: <code>input_example_multipathogen</code>.</p>
 <p>You can access it with:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"input_example_multipathogen"</span><span class="op">)</span></span></code></pre></div>
 <p>To run an HTML report with the EARS algorithm and stratification by
 age_group and county for all pathogens in the line list you can run:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_report.html">run_report</a></span><span class="op">(</span><span class="va">input_example_multipathogen</span>,</span>
 <span>  strata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_group"</span>, <span class="st">"county"</span><span class="op">)</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"EARS"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>If you want to generate a report for a subset of pathogens in your
 linelist you can specify these using the pathogens parameter:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_report.html">run_report</a></span><span class="op">(</span><span class="va">input_example_multipathogen</span>,</span>
 <span>  pathogens <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Enterobacter"</span>, <span class="st">"Salmonella"</span><span class="op">)</span>,</span>
 <span>  strata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_group"</span>, <span class="st">"county"</span><span class="op">)</span>,</span>
@@ -256,7 +390,7 @@ linelist you can specify these using the pathogens parameter:</p>
 default United4Surveillance logo in the top right corner with your own
 logo. To do this, provide the path to a .png or .svg file using the
 custom_logo parameter.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_report.html">run_report</a></span><span class="op">(</span><span class="va">input_example_multipathogen</span>,</span>
 <span>  pathogens <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Enterobacter"</span>, <span class="st">"Salmonella"</span><span class="op">)</span>,</span>
 <span>  strata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_group"</span>, <span class="st">"county"</span><span class="op">)</span>,</span>
