@@ -1,3 +1,5 @@
+# SignalDetectionTool 0.10.0
+
 * Bug fixes and improvements to the HTML report
   * mark those timeseries widgets in the stratified page that had signals
   * make the text in the overview boxes on the pathogens page uniform and complete
