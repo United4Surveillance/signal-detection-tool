@@ -654,7 +654,6 @@ pad_signals <- function(data,
       result_padding_unstratified
     )
   }
-  browser()
 
   # preparing dataset within actual signal detection period
   results <- signals %>%
