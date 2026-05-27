@@ -15,25 +15,17 @@
 score_seasonal <- function(signals_res){
 
   # select the unstratified
-  ts_pathogen <- signals_res %>%
-    dplyr::filter(is.na(category)) %>% 
-    tidyr::nest(.by = "pathogen")
+  ts_pathogen <- signals_res %>% dplyr::filter(is.na(category))
 
-  # generate scores per month per pathogen
-  tmp <- ts_pathogen %>% 
-   dplyr::mutate(
-     scores = purrr::map(
-       data, function(x){
-         # select years that are complete (52, 53 weeks)
-         sel_years <- x %>% dplyr::count(year) %>% dplyr::filter(n >= 52) %>% dplyr::pull(year)
-         
-         # return scores per month 
-         case_yearly_dist(x, sel_years) %>% dplyr::select(-"cases.dist")
-       }
-     )
-  )
+  # select years that are complete (52, 53 weeks)
+  sel_years <- ts_pathogen %>%
+    dplyr::count(year) %>%
+    dplyr::filter(n >= 52) %>%
+    dplyr::pull(year)
 
-  scores_per_month <- tmp %>% dplyr::select(-data) %>% tidyr::unnest("scores")
+  # generate cases distribution
+  scores_per_month <- case_yearly_dist(ts_pathogen, sel_years) %>%
+    dplyr::select(-"cases.dist")
 
   # score_signals
   signals_res <- signals_res %>%
@@ -43,7 +35,7 @@ score_seasonal <- function(signals_res){
         levels = 1:12
       )
     ) %>%
-    dplyr::left_join(scores_per_month, by = c("pathogen", "month")) %>%
+    dplyr::left_join(scores_per_month, by = c("month")) %>%
     dplyr::mutate(
       score = dplyr::case_when(
         .data$alarms ~ .data$score,
