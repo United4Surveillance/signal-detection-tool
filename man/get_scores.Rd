@@ -17,8 +17,8 @@ be aggregated. Must be either `"mean"` or `"sum"`.}
 }
 \value{
 A tibble containing the original `signal_results` columns plus one
-  additional aggregated `score` column. Rows with `alarms != TRUE` receive
-  `NA`.
+  additional aggregated `score` column. Rows with no non-missing individual
+  score receive `NA_real_`.
 }
 \description{
 Adds an internal row identifier, applies multiple scorer functions to the
@@ -32,7 +32,12 @@ Each scorer must accept `signal_results` including the `.row_id` and
 columns: `.row_id` and `score`.
 
 Scores must be numeric in `[0, 1]` only for rows where `alarms == TRUE`.
-For all other rows, scorers must return `NA`.
+For all other rows, scorers must return `NA`. Missing scores must be encoded
+as `NA`, not `NaN`.
+
+During aggregation, missing individual scores are ignored. Rows for which all
+individual scores are missing receive `NA_real_` as their final aggregated
+score.
 }
 \examples{
 signal_results <- tibble::tibble(

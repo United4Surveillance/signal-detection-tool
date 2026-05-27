@@ -217,7 +217,7 @@ mod_tabpanel_signals_server <- function(
         get_scores(
           scorers = list(
             seasonal = score_seasonal,
-            rarity = score_rarity,
+            recurrence = score_recurrence,
             strength = score_strength,
             specificity = score_specificity_alarm#,
             #specificity_2 = score_specificity_stronger

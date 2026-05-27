@@ -4,16 +4,16 @@
 \alias{score_seasonal}
 \title{Score signals according to seasonal distribution of cases}
 \usage{
-score_seasonal(signals_pad)
+score_seasonal(signals_res)
 }
 \arguments{
-\item{signals_pad, }{signal detection results obtained from get_signals()}
+\item{signals_res, }{signal detection results obtained from get_signals()}
 }
 \value{
 signal detection results scored
 }
 \description{
-Scores each signal in the signals_pad object according to the
+Scores each signal in the signal detection results according to the
 calculated seasonal distribution. See [case_yearly_dist]
 }
 \examples{

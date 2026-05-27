@@ -299,7 +299,7 @@ run_report <- function(
         get_scores(
           list(
             seasonal = score_seasonal,
-            rarity = score_rarity,
+            recurrence = score_recurrence,
             strength = score_strength,
             specificity = score_specificity_alarm
           ),

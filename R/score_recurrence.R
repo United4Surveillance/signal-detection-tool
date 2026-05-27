@@ -1,4 +1,4 @@
-#' @title Score signals based on temporal alarm rarity within strata
+#' @title Score signals based on temporal alarm recurrence within strata
 #' @description Computes a score for each signal based on the frequency of alarms
 #' within the test period of its stratum and category. Higher alarm frequency results in higher scores.
 #'
@@ -6,7 +6,7 @@
 #'
 #' @returns signal detection results scored
 #' @export
-score_rarity<- function(signal_results){
+score_recurrence<- function(signal_results){
 
   # # select only the stratified
   # signal_results <- signal_results %>%

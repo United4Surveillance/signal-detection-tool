@@ -7,7 +7,7 @@
 score_strength(signals_res)
 }
 \arguments{
-\item{signals_res}{}
+\item{signals_res}{dataframe with the results of signal detection}
 }
 \value{
 strength scores for signals
@@ -15,5 +15,6 @@ strength scores for signals
 \description{
 Scores each signal in the signals_res object using the signal size,
 defined by the distance from expected value and upperbound threshold value
-the score follows the formula (1-size)/size
+the score follows the formula (size^3-1)/size^3. For EARS and CUSOUM method, the 
+function returns a score of NA
 }

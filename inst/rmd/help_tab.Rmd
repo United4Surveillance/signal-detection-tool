@@ -150,7 +150,7 @@ The overall score is computed as the mean of several component scores, each rang
   It uses the average monthly proportion of cases and is defined as:  
   1 - percentage.
 
-- **Rarity score**  
+- **Recurrence score**  
   Measures how frequently alarms occur within the same stratum and category during the test period.  
   Higher alarm frequency results in a higher score.
 
