@@ -271,7 +271,7 @@ run_report <- function(
   }
   if (
     isTRUE(exclude_outbreak_cases_from_fitting) &&
-    "outbreak_status" %in% strata
+      "outbreak_status" %in% strata
   ) {
     stop(
       "`exclude_outbreak_cases_from_fitting = TRUE` cannot be used when ",
@@ -283,7 +283,7 @@ run_report <- function(
   # check that outbreak_status has proper values when using exclude_outbreak_cases_from_fitting
   has_outbreak_status_values <-
     "outbreak_status" %in% names(data) &&
-    any(!is.na(data$outbreak_status) & trimws(as.character(data$outbreak_status)) != "")
+      any(!is.na(data$outbreak_status) & trimws(as.character(data$outbreak_status)) != "")
 
   if (isTRUE(exclude_outbreak_cases_from_fitting) && !has_outbreak_status_values) {
     stop(

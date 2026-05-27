@@ -657,7 +657,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
       if (
         !isTRUE(has_outbreak_status()) ||
-        "outbreak_status" %in% strat_vars
+          "outbreak_status" %in% strat_vars
       ) {
         updateCheckboxInput(
           session,
@@ -667,28 +667,31 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }
     })
 
-    observeEvent(input$exclude_outbreak_cases_from_fitting, {
-      strat_vars <- input$strat_vars %||% character(0)
+    observeEvent(input$exclude_outbreak_cases_from_fitting,
+      {
+        strat_vars <- input$strat_vars %||% character(0)
 
-      if (
-        isTRUE(has_outbreak_status()) &&
-        isTRUE(input$exclude_outbreak_cases_from_fitting) &&
-        "outbreak_status" %in% strat_vars
-      ) {
-        strat_vars_new <- setdiff(strat_vars, "outbreak_status")
+        if (
+          isTRUE(has_outbreak_status()) &&
+            isTRUE(input$exclude_outbreak_cases_from_fitting) &&
+            "outbreak_status" %in% strat_vars
+        ) {
+          strat_vars_new <- setdiff(strat_vars, "outbreak_status")
 
-        # if no stratum selected use "None"
-        if (length(strat_vars_new) == 0) {
-          strat_vars_new <- "None"
+          # if no stratum selected use "None"
+          if (length(strat_vars_new) == 0) {
+            strat_vars_new <- "None"
+          }
+
+          updateSelectizeInput(
+            session = session,
+            inputId = "strat_vars",
+            selected = strat_vars_new
+          )
         }
-
-        updateSelectizeInput(
-          session = session,
-          inputId = "strat_vars",
-          selected = strat_vars_new
-        )
-      }
-    }, ignoreNULL = TRUE)
+      },
+      ignoreNULL = TRUE
+    )
 
     # Output (not seen in UI) for FarringtonFlexible p-value output
     algorithm_farrington_chosen <- reactive({
