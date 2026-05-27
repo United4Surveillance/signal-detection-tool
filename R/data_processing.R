@@ -132,11 +132,22 @@ aggregate_data <- function(data,
     checkmate::check_date(lubridate::date(date_end)),
     combine = "or"
   )
+
   checkmate::assert(
     checkmate::check_null(date_ext),
-    checkmate::check_date(lubridate::date(date_ext)),
+    checkmate::check_date(
+      lubridate::date(date_ext),
+      lower = max(lubridate::date(data[[date_var]]), na.rm = TRUE)
+    ),
     combine = "or"
   )
+
+  if (!is.null(date_end) && !is.null(date_ext)) {
+    checkmate::assert_true(
+      lubridate::date(date_ext) >= lubridate::date(date_end),
+      .var.name = "date_ext must be >= date_end"
+    )
+  }
 
   if (!is.null(date_ext)) {
     if (is.null(date_start)) { # TODO check when is this really NULL
