@@ -198,13 +198,13 @@ aggregate_data <- function(data,
     data_agg <- data_agg %>%
       dplyr::select(-cases_in_outbreak)
 
-    if (exclude_outbreak_cases_from_fitting){
+    if (exclude_outbreak_cases_from_fitting) {
       warning(
         "No exclusion of outbreak-associated case counts was performed despite ",
         "exclude_outbreak_cases_from_fitting = TRUE, ",
         "because `outbreak_status` is not present in the data."
       )
-      }
+    }
   }
 
   data_agg %>%
