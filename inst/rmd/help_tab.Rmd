@@ -152,7 +152,7 @@ The overall score is computed as the mean of several component scores, each rang
 
 - **Rarity score**  
   Measures how frequently alarms occur within the same stratum and category during the test period.  
-  Lower alarm frequency results in a higher score.
+  Higher alarm frequency results in a higher score.
 
 - **Strength score**  
   Reflects the magnitude of the signal, defined by the distance from the expected value relative to the upper threshold.

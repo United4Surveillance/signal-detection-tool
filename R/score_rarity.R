@@ -1,6 +1,6 @@
 #' @title Score signals based on temporal alarm rarity within strata
 #' @description Computes a score for each signal based on the frequency of alarms
-#' within the test period of its stratum and category. Lower alarm frequency results in higher scores.
+#' within the test period of its stratum and category. Higher alarm frequency results in higher scores.
 #'
 #' @param signal_results, signal detection results obtained from get_signals()
 #'
@@ -28,8 +28,8 @@ score_rarity<- function(signal_results){
     dplyr::summarise(
       n_weeks = dplyr::n(),
       n_alarms = sum(.data$alarms, na.rm = TRUE),
-      score_stratum = dplyr::if_else(n_alarms > 0, 1 - (n_alarms / n_weeks), NA),
-      score_stratum = dplyr::if_else(n_alarms == 1, 1, score_stratum)
+      score_stratum = dplyr::if_else(n_alarms > 0, n_alarms / n_weeks, NA),
+      score_stratum = dplyr::if_else(n_alarms == 1, 0, score_stratum)
     ) %>%
     dplyr::ungroup()
 
