@@ -208,6 +208,7 @@ get_signals_stratified <- function(data,
           !!rlang::sym(category) := forcats::fct_na_value_to_level(!!rlang::sym(category), level = "NA")
         )
     }
+
     sub_data <- sub_data %>%
       # filter the data
       filter_by_date(date_var = date_var, date_start = date_start, date_end = date_end) %>%
@@ -636,7 +637,7 @@ pad_signals <- function(data,
     result_padding <- result_padding_unstratified
   } else {
     result_padding_stratified <- SignalDetectionTool::get_signals(
-      data = data,
+      data = data_no_signals,
       method = method,
       date_var = "date_report",
       stratification = stratification,
@@ -644,10 +645,7 @@ pad_signals <- function(data,
       alpha_upper = alpha_upper,
       date_ext = date_ext
     ) %>%
-      dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected, category, stratum) %>%
-      dplyr::group_by(category, stratum) %>%
-      dplyr::slice_head(n = -(number_of_weeks - 1)) %>%
-      dplyr::ungroup()
+      dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected, category, stratum)
 
     result_padding <- dplyr::bind_rows(
       result_padding_stratified,
