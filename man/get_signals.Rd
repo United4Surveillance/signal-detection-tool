@@ -55,12 +55,14 @@ specified method.
 }
 \examples{
 \dontrun{
-results <- input_example \%>\%
-  preprocess_data() \%>\%
-  get_signals(
-    method = "farrington",
-    stratification = c("county", "sex")
-  )
+data_preprocessed <- input_example \%>\%
+  preprocess_data()
+results <- get_signals(
+  data_preprocessed,
+  method = "farrington",
+  stratification = c("county", "sex")
+)
+results
 }
 }
 \seealso{

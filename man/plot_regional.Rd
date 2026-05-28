@@ -26,3 +26,27 @@ either a ggplot object if static plot is chosen or a plotly object for the inter
 \description{
 Plot number of cases with number of signals by region
 }
+\examples{
+\dontrun{
+data_preprocessed <- input_example \%>\% preprocess_data()
+signals <- data_preprocessed \%>\% get_signals(stratification = c("county"))
+signals_agg <- signals \%>\% aggregate_signals(number_of_weeks = 6)
+nuts_shp <- nuts_shp \%>\%
+  sf::st_as_sf() \%>\%
+  dplyr::filter(LEVL_CODE == 2 & CNTR_CODE == "AT") \%>\%
+  dplyr::select(NUTS_NAME, geometry)
+shape_with_signals <- nuts_shp \%>\%
+  dplyr::inner_join(
+    signals_agg,
+    by = c("NUTS_NAME" = "stratum")
+  ) \%>\%
+  sf::st_as_sf()
+signals_map <- plot_regional(
+  shape_with_signals,
+  signals_agg_unknown_region = data.frame(),
+  interactive = FALSE,
+  toggle_alarms = FALSE
+)
+signals_map
+}
+}

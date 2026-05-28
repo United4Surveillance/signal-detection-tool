@@ -21,10 +21,13 @@ Bars showing number of cases and coloring around the bar showing whether any sig
 }
 \examples{
 \dontrun{
-signals_agg_sex <- input_example \%>\%
-  preprocess_data() \%>\%
-  get_signals(stratification = c("sex")) \%>\%
-  aggregate_signals(number_of_weeks = 12)
-plot_barchart(signals_agg_sex)
+data_preprocessed <- input_example \%>\% preprocess_data()
+signals <- data_preprocessed \%>\% get_signals(stratification = c("sex"))
+signals_agg <- signals \%>\% aggregate_signals(number_of_weeks = 12)
+signals_barchart <- plot_barchart(
+  signals_agg,
+  interactive = FALSE
+)
+signals_barchart
 }
 }

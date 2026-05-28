@@ -66,8 +66,8 @@ mod_tabpanel_linelist_server <- function(
         return(shiny::tagList(
           bslib::card(
             min_height = "700px",
-            shiny::h1("Investigate signals"),
-            shiny::span("Click into the table to select the signals you want to investigate."),
+            shiny::h1("Signals Overview"),
+            shiny::span("Click into the table to select the signals you want to further investigate."),
             shiny::span(
               paste0(
                 "Detected signals using method '",
@@ -79,8 +79,13 @@ mod_tabpanel_linelist_server <- function(
           ),
           bslib::card(
             min_height = "500px",
-            shiny::h1("Line list of selected signals"),
-            shiny::span("Click any of the buttons below to export the line list in your desired format."),
+            shiny::h1("Signal Investigation"),
+            plotly::plotlyOutput(ns("age_comparison"))
+          ),
+          bslib::card(
+            min_height = "500px",
+            shiny::h1("Case Linelist for Selected Signals"),
+            shiny::span("Export or review cases linked to the selected signals."),
             DT::DTOutput(ns("linelist"))
           )
         ))
@@ -118,60 +123,50 @@ mod_tabpanel_linelist_server <- function(
       }
     })
 
-    # display line lists of selected signals
-    output$linelist <- DT::renderDataTable({
+    # display age distribution graphic
+    output$age_comparison <- plotly::renderPlotly({
+      req(cases_linelist)
+      req(true_signals)
+
+      linelist_cases <- dplyr::bind_rows(
+        cases_linelist()$cases |> dplyr::mutate(signal = T),
+        cases_linelist()$cases_comparison |> dplyr::mutate(signal = F)
+      )
+      cases_agg <- linelist_cases |>
+        dplyr::count(signal, age_group) |>
+        dplyr::group_by(signal) |>
+        dplyr::mutate(
+          total_n = sum(n),
+          perc = round(n / total_n * 100)
+        ) |>
+        dplyr::ungroup()
+
+      plot_agegroup_comparison(cases_agg, unique(true_signals()$number_of_weeks))
+    })
+
+    cases_linelist <- shiny::reactive({
       req(filtered_data)
       req(true_signals)
       # check if any signals are selected for investigation
       req(!is.na(input$show_signals_padded_rows_selected))
+
       # selected rows by user in UI
       selected_signal_ids <- sort(input$show_signals_padded_rows_selected)
 
-      filter_rows <- function(df1_row, df2) {
-        # extract year and week out of df1
-        year <- df1_row$year
-        week <- df1_row$week
-        category <- df1_row$category
-        stratum <- df1_row$stratum
+      build_signal_and_comparison_linelist(
+        selected_signal_ids = selected_signal_ids,
+        true_signals = true_signals(),
+        signals_padded = signals_padded(),
+        filtered_data = filtered_data()
+      )
+    })
 
-        # determine start and end time of detection period
-        start_date <- ISOweek::ISOweek2date(paste0(year, "-W", sprintf("%02d", week), "-1"))
-        end_date <- start_date + lubridate::days(6)
-
-        # Dynamic filtering
-        filtered_df <- df2 %>%
-          dplyr::filter(
-            date_report >= start_date & date_report <= end_date # Filter für das Datum
-          )
-
-        # further filtering if stratification was applied
-        if (!is.na(category) && !is.na(stratum)) {
-          filtered_df <- filtered_df %>%
-            dplyr::filter(!!sym(category) == stratum)
-        }
-
-        return(filtered_df)
-      }
-
-      # Filter rows for each signal ID
-      cases <- purrr::map_dfr(selected_signal_ids, function(ssid) {
-        # Extract the corresponding row from true_signals()
-        signal_row <- true_signals() %>% dplyr::slice(ssid)
-
-        # Apply the filtering function
-        filtered_cases <- filter_rows(signal_row, filtered_data())
-
-        # Add signal_id column
-        filtered_cases <- filtered_cases %>%
-          dplyr::mutate(signal_id = ssid, .before = 1)
-
-        return(filtered_cases)
-      })
-
+    # display line lists of selected signals
+    output$linelist <- DT::renderDataTable({
       filename_download <- "signals_line_list"
 
       DT::datatable(
-        cases,
+        cases_linelist()$cases,
         extensions = "Buttons",
         options = list(
           dom = "Bfrtip",

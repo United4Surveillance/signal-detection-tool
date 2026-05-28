@@ -18,8 +18,8 @@ It uses the age_format_check() and complete_agegrp_arr() functions to create the
 }
 \examples{
 \dontrun{
-# Example usage:
 data_frame <- data.frame(age = c(2, 6, 16), age_group = c("01-05", "6-10", "16-20"))
-create_age_group_levels(data_frame)
+age_group_levels <- create_age_group_levels(data_frame)
+age_group_levels
 }
 }

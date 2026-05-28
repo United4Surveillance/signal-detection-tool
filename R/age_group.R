@@ -12,15 +12,19 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Example usage:
 #' data_frame <- data.frame(age = c(2, 6, 16), age_group = c("01-05", "6-10", "16-20"))
-#' create_age_group_levels(data_frame)
+#' age_group_levels <- create_age_group_levels(data_frame)
+#' age_group_levels
 #' }
 create_age_group_levels <- function(df) {
-  format_check_results <- age_format_check(df)
-  all_agegroups <- complete_agegrp_arr(df, format_check_results)
-  age_group_levels <- stringr::str_sort(all_agegroups, numeric = TRUE)
-
+  # check if only unknown (NA) age groups are present in df. Possible when filtering
+  if (all(is.na(unique(df$age_group)))) {
+    age_group_levels <- factor(NA, levels = NA)
+  } else {
+    format_check_results <- age_format_check(df)
+    all_agegroups <- complete_agegrp_arr(df, format_check_results)
+    age_group_levels <- stringr::str_sort(all_agegroups, numeric = TRUE)
+  }
   age_group_levels
 }
 #' Age Group Format Check
@@ -40,10 +44,8 @@ create_age_group_levels <- function(df) {
 #'
 #' @examples
 #' \dontrun{
-#' # Example usage:
 #' data_frame <- data.frame(age = c(2, 5, 15, 16), age_group = c("01-05", "6-10", "11-15", "16-20"))
-#' check_results <- age_format_check(data_frame)
-#' print(check_results)
+#' age_format_check(data_frame)
 #' }
 age_format_check <- function(df) {
   # setting variables
@@ -132,15 +134,28 @@ age_format_check <- function(df) {
 #' @examples
 #' \dontrun{
 #' # Example usage:
-#' data_frame <- data.frame(age = c(2, 5, 15, 16), age_group = c("01-05", "6-10", "11-15", "16-20"))
-#' format_check_results <- list(equal_sizing = TRUE, agegrp_div = "-", other_punct_char = list(), format_agegrp_xx = 2)
-#' complete_agegrp_arr(data_frame, format_check_results)
+#' data_frame <- data.frame(
+#'   age = c(2, 5, 15, 16),
+#'   age_group = c("01-05", "6-10", "11-15", "16-20")
+#' )
+#' format_check_results <- list(
+#'   equal_sizing = TRUE,
+#'   agegrp_div = "-",
+#'   other_punct_char = list(),
+#'   format_agegrp_xx = 2
+#' )
+#' complete_agegrp_arr <- complete_agegrp_arr(
+#'   data_frame,
+#'   format_check_results
+#' )
+#' complete_agegrp_arr
 #' }
 complete_agegrp_arr <- function(df, format_check_results) {
   # find unique elements of age_group
+  orig_agegrp <- stringr::str_sort(unique(df$age_group), numeric = TRUE)
+
   # remove NA from the unique age_groups for the whole process and add it later again
-  tmp_uniq_agegrp <- stringr::str_sort(unique(df$age_group), numeric = TRUE)
-  tmp_uniq_agegrp <- stats::na.omit(tmp_uniq_agegrp)
+  tmp_uniq_agegrp <- stats::na.omit(orig_agegrp)
 
 
   # check to see if there are any gaps
@@ -167,6 +182,12 @@ complete_agegrp_arr <- function(df, format_check_results) {
     n = 2
   ) %>%
     gsub(pattern = "\\D", replacement = "")
+
+  # remove rows with age >= 115
+  logical_unusual_agegroup <- (splits != "") & (apply(splits, 2, as.numeric) >= 115) # split can be "" when open end group (eg. 100+)
+  unusual_agegroup <- ifelse(any(logical_unusual_agegroup), TRUE, FALSE)
+  splits[logical_unusual_agegroup] <- NA
+  orig_agegrp <- orig_agegrp[!apply(is.na(splits), 1, any)]
 
   # remove rows of only NA or empty
   splits <- splits[!apply(is.na(splits) | splits == "", 1, all), ]
@@ -303,18 +324,20 @@ complete_agegrp_arr <- function(df, format_check_results) {
         dplyr::distinct() %>%
         unlist()
 
-      all_agegrps <- all_agegrps[-rows_to_remove]
+      if (length(rows_to_remove) > 0) {
+        all_agegrps <- all_agegrps[-rows_to_remove]
+      }
     }
   }
   # adding back NAs when there were any
-  if (any(is.na(df$age_group))) {
+  if (any(is.na(df$age_group)) | unusual_agegroup) {
     all_agegrps <- c(all_agegrps, NA_character_)
   }
 
   # checking to see if all agegroups entities are found in the array
   # if not all are present just use the original age_groups in the data
-  if (any(unique(df$age_group) %in% all_agegrps == FALSE)) {
-    all_agegrps <- unique(df$age_group)
+  if (!all(orig_agegrp %in% all_agegrps)) {
+    all_agegrps <- orig_agegrp
   }
 
   return(all_agegrps)
@@ -334,15 +357,14 @@ complete_agegrp_arr <- function(df, format_check_results) {
 #'   reformatted and its levels are completed.
 #' @param break_at An integer vector specifying additional lower bounds of
 #'   age groups (excluding 0, which is always used as the first lower bound).
-#'   If `NULL` (the default), 5-year age groups 00-04, 05-09, ..., 125+ are used.
+#'   If `NULL` (the default), 5-year age groups 00-04, 05-09, ..., 115+ are used.
 #'
 #' @return The input data frame `df` with a factor column `age_group` added
 #'   (or reformatted) and levels stored in `app_cache_env$age_group_levels`.
 #'
 #' @examples
 #' \dontrun{
-#' input_path <- "data/input/input_sample.csv"
-#' data <- read.csv(input_path, header = TRUE, sep = ",")
+#' data <- input_example
 #' data$age <- sample(1:125, 10, replace = TRUE)
 #' age_groups(data) # default age groups
 #' age_groups(data, c(15L, 35L, 65L, 100L)) # custom age groups (lower bounds)
@@ -364,7 +386,7 @@ age_groups <- function(df, break_at = NULL) {
       }
       inner_breaks <- break_at
     } else {
-      inner_breaks <- seq(5L, 125L, 5L)
+      inner_breaks <- seq(5L, 115L, 5L)
     }
 
     # set = all lower bounds including 0, as before

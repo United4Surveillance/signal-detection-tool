@@ -12,7 +12,7 @@
 #' @examples
 #'
 #' data <- data.frame(a = 1:5, b = 1:5, c = 1L:5L)
-#' SignalDetectionTool::get_float_columns(data)
+#' get_float_columns(data)
 #'
 get_float_columns <- function(data) {
   # Create a logical vector indicating whether each column is numeric
@@ -54,20 +54,15 @@ get_float_columns <- function(data) {
 #'   cases = 10:13,
 #'   alarms = c(TRUE, TRUE, TRUE, FALSE),
 #'   threshold = c(15, NA, 14, 14),
+#'   expected_pad = c(NA, NA, NA, NA),
+#'   upperbound_pad = c(NA, NA, NA, NA),
+#'   first_alarm_nonNA = c(NA, NA, NA, NA),
+#'   number_of_weeks = 1,
+#'   method = "glm mean",
 #'   category = c("age_group", "age_group", "sex", "sex"),
 #'   stratum = c("00-05", "30-35", "female", "male")
 #' )
-#' format_table(data)
-#'
-#' data_agg <- data.frame(
-#'   stratum = c("00-04", "05-09", "10-14", "100-104", "105-109", "15-19"),
-#'   cases = c(74, 5, 0, 0, 0, 2),
-#'   any_alarms = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
-#'   n_alarms = c(1, 0, 0, 0, 0, 0),
-#'   category = rep("age_group", 6)
-#' )
-#'
-#' format_table(data_agg)
+#' tbl <- format_table(data)
 #' }
 format_table <- function(data, signals_only = TRUE, interactive = TRUE,
                          dt_selection_type = "single", page_length = 10) {
@@ -273,9 +268,12 @@ prepare_signals_table <- function(data,
 #' \dontrun{
 #' signal_results <- input_example %>%
 #'   preprocess_data() %>%
-#'   get_signals(stratification = c("age_group"), number_of_weeks = 6)
-#' build_signals_table(signal_results)
-#' build_signals_table(signal_results, format = "data.frame")
+#'   get_signals(
+#'     stratification = c("age_group"),
+#'     number_of_weeks = 6
+#'   )
+#' signals_table <- build_signals_table(signal_results, format = "data.frame")
+#' signals_table
 #' }
 build_signals_table <- function(signal_results,
                                 signals_only = TRUE,
@@ -370,8 +368,8 @@ build_empty_datatable <- function(message) {
 #'   get_signals(stratification = c("age_group", "sex")) %>%
 #'   aggregate_signals(number_of_weeks = 6) %>%
 #'   filter(category == "age_group")
-#'
-#' prepare_signals_agg_table(signals_agg)
+#' signals_agg_table <- prepare_signals_agg_table(signals_agg)
+#' signals_agg_table
 #' }
 prepare_signals_agg_table <- function(signals_agg) {
   category <- unique(signals_agg$category)
@@ -408,8 +406,8 @@ prepare_signals_agg_table <- function(signals_agg) {
 #'   get_signals(stratification = c("age_group", "sex")) %>%
 #'   aggregate_signals(number_of_weeks = 6) %>%
 #'   filter(category == "age_group")
-#'
-#' build_signals_agg_table(signals_agg)
+#' signals_agg_table <- build_signals_agg_table(signals_agg, format = "data.frame")
+#' signals_agg_table
 #' }
 build_signals_agg_table <- function(signals_agg,
                                     format = "DataTable",
