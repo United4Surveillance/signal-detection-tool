@@ -612,7 +612,7 @@ pad_signals <- function(data,
 
   if (is.null(date_ext)) {
     cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(number_of_weeks)
-  } else{
+  } else {
     cutoff_date <- date_ext - lubridate::weeks(number_of_weeks)
     date_ext <- cutoff_date
   }
@@ -631,11 +631,11 @@ pad_signals <- function(data,
       number_of_weeks = timeopt + number_of_weeks,
       alpha_upper = alpha_upper,
       date_ext = date_ext
-      )
+    )
 
     if (!is.null(signals_timeopt)) {
       break
-      }
+    }
   }
 
   result_padding_unstratified <- signals_timeopt %>%
