@@ -7,7 +7,8 @@
 #'
 #' @examples
 #' \dontrun{
-#' preprocess_data(input_example)
+#' data_preprocessed <- input_example %>% preprocess_data()
+#' data_preprocessed
 #' }
 preprocess_data <- function(data) {
   # remove completely empty columns from the dataset
@@ -66,9 +67,9 @@ preprocess_data <- function(data) {
       dplyr::across(all_of(factorization_vars), as.factor)
     )
 
-  if ("age" %in% names(data())) {
+  if ("age" %in% names(data)) {
     data <- data %>%
-      dplyr::mutate(dplyr::across(dplyr::all_of("age"), ~ dplyr::if_else(.x < 0, NA_integer_, .x)))
+      dplyr::mutate(dplyr::across(dplyr::all_of("age"), ~ dplyr::if_else(.x < 0 | .x >= 115, NA_integer_, .x)))
   }
   # age or age_group is mandatory thus we need to check whether column present in data
   # or else create age_group from age
@@ -95,9 +96,13 @@ preprocess_data <- function(data) {
 #' @param date_end A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.
 #' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL
 #' @param group A character specifying another grouping variable. Usually used for stratification.
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #' @examples
 #' \dontrun{
-#' data <- preprocess_data(input_example) %>% aggregate_data()
+#' data_aggregated <- input_example %>%
+#'   preprocess_data() %>%
+#'   aggregate_data()
+#' data_aggregated
 #' }
 #' @export
 aggregate_data <- function(data,
@@ -105,7 +110,8 @@ aggregate_data <- function(data,
                            date_start = NULL,
                            date_end = NULL,
                            date_ext = NULL,
-                           group = NULL) {
+                           group = NULL,
+                           time_unit = "weekly") {
   checkmate::check_subset(c(group, date_var), names(data), empty.ok = TRUE)
 
   checkmate::assert(
@@ -123,18 +129,30 @@ aggregate_data <- function(data,
     checkmate::check_date(lubridate::date(date_ext)),
     combine = "or"
   )
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
+  )
 
-  time_unit <- unique(data$time_unit_selected)
-
-  if (length(time_unit) != 1) {
-    stop("time_unit is not identifiable")
+  # add the missing isoweeks to the dataset
+  # inform the user when date_start > min_date that the data is nevertheless extended
+  if (!is.null(date_start) && date_start > min(data[[date_var]])) {
+    message("Notice: Your input date_start is greater than the smallest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the smallest date in the dataset")
+  }
+  if (!is.null(date_end) && date_end < max(data[[date_var]])) {
+    message("Notice: Your input date_end is smaller than the greatest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the greatest date in the dataset")
   }
 
+  data <- add_cw_iso(data = data, date_start = date_start, date_end = date_end, date_var = date_var, time_unit = time_unit)
+
   if (!is.null(date_ext)) {
-    if (is.null(date_start)) { # TODO check when is this really NULL
-      date_start <- min(data[[date_var]], na.rm = TRUE)
+    if (is.null(date_start)) {
+      date_start_ext <- min(data[[date_var]], na.rm = TRUE)
+    } else {
+      date_start_ext <- date_start
     }
-    extended_data_range <- get_all_cw_iso(date_start = date_start, date_end = date_ext, time_unit = time_unit)
+    extended_data_range <- get_all_cw_iso(date_start = date_start_ext, date_end = date_ext, time_unit = time_unit)
     data$cw_iso <- factor(data$cw_iso, levels = extended_data_range)
   }
 
@@ -144,15 +162,6 @@ aggregate_data <- function(data,
   } else {
     data_agg <- data %>%
       dplyr::group_by(cw_iso, !!rlang::sym(group), .drop = FALSE)
-  }
-
-  # add the missing isoweeks to the dataset
-  # inform the user when date_start > min_date that the data is nevertheless extended
-  if (!is.null(date_start) && date_start > min(data[[date_var]])) {
-    message("Notice: Your input date_start is greater than the smallest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the smallest date in the dataset")
-  }
-  if (!is.null(date_end) && date_end < max(data[[date_var]])) {
-    message("Notice: Your input date_end is smaller than the greatest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the greatest date in the dataset")
   }
 
   data_agg <- data_agg %>%
@@ -268,10 +277,11 @@ filter_by_date <- function(data, date_var = "date_report", date_start = NULL, da
 #'
 #' @examples
 #' \dontrun{
-#' input_path <- "data/input/input.csv"
-#' data <- read.csv(input_path, header = TRUE, sep = ",")
-#' data <- preprocess_data(data) %>% aggregate_data()
+#' data <- input_example %>%
+#'   preprocess_data() %>%
+#'   aggregate_data()
 #' sts_cases <- convert_to_sts(data)
+#' sts_cases
 #' }
 convert_to_sts <- function(case_counts, time_unit = "weekly") {
   if (time_unit %in% "monthly") {
@@ -306,6 +316,11 @@ filter_data_last_n_time_units <- function(data_agg,
   checkmate::assert(
     checkmate::check_integerish(number_of_time_units)
   )
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
+  )
 
   if (time_unit %in% c("weekly", "biweekly")) {
     data_agg %>%
@@ -333,12 +348,6 @@ add_cw_iso <- function(data,
                        date_end = NULL,
                        date_var = "date_report",
                        time_unit = "weekly") {
-  checkmate::assert_choice(
-    time_unit,
-    choices = c("weekly", "biweekly", "monthly"),
-    null.ok = FALSE
-  )
-
   # get min and max date of the whole dataset before stratification
   # stratified aggregated data can be filled up with 0s until min and max date
   # of the full dataset
@@ -358,8 +367,7 @@ add_cw_iso <- function(data,
           lubridate::isoyear(!!rlang::sym(date_var)), "-",
           lubridate::isoweek(!!rlang::sym(date_var))
         ),
-        cw_iso = factor(cw_iso, levels = all_cw_iso),
-        time_unit_selected = time_unit
+        cw_iso = factor(cw_iso, levels = all_cw_iso)
       )
   } else if (time_unit == "biweekly") {
     data <- data %>%
@@ -371,8 +379,7 @@ add_cw_iso <- function(data,
           iso_year, "-",
           sprintf("%02d", start_week)
         ),
-        cw_iso = factor(cw_iso, levels = all_cw_iso),
-        time_unit_selected = time_unit
+        cw_iso = factor(cw_iso, levels = all_cw_iso)
       )
   } else if (time_unit == "monthly") {
     data <- data %>%
@@ -381,25 +388,17 @@ add_cw_iso <- function(data,
           lubridate::year(!!rlang::sym(date_var)), "-",
           sprintf("%02d", lubridate::month(!!rlang::sym(date_var)))
         ),
-        cw_iso = factor(cw_iso, levels = all_cw_iso),
-        time_unit_selected = time_unit
+        cw_iso = factor(cw_iso, levels = all_cw_iso)
       )
   }
   data
 }
-
 
 #' function to get all iso weeks between `date_start` and `date_end`
 #' @param date_start date object, starting date of sequence
 #' @param date_end date object, ending date of sequence
 #' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 get_all_cw_iso <- function(date_start, date_end, time_unit = "weekly") {
-  checkmate::assert_choice(
-    time_unit,
-    choices = c("weekly", "biweekly", "monthly"),
-    null.ok = FALSE
-  )
-
   all_dates <- seq.Date(from = date_start, to = date_end, by = "day")
 
   if (time_unit == "weekly") {

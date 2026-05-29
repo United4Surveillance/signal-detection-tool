@@ -53,8 +53,8 @@ The GLM is flexible being able to just fit a mean, add a time trend, fit a harmo
 \dontrun{
 data_aggregated <- input_example \%>\%
   preprocess_data() \%>\%
-  aggregate_data() \%>\%
-  add_rows_missing_dates()
+  aggregate_data()
 results <- get_signals_glm(data_aggregated)
+results
 }
 }

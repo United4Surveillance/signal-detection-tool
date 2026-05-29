@@ -13,8 +13,7 @@ test_that("test basic weekly aggregation works", {
 
   data_agg <- data %>%
     preprocess_data() %>%
-    add_cw_iso(date_var = "date_report") %>%
-    aggregate_data()
+    aggregate_data(date_var = "date_report")
 
   solution <- data.frame(
     year = rep(2023, 3),
@@ -42,8 +41,7 @@ test_that("test basic aggregation works with ISO week 53", {
   # Assuming preprocess_data() and aggregate_data() are defined functions
   data_agg <- data %>%
     preprocess_data() %>%
-    add_cw_iso(date_var = "date_report") %>%
-    aggregate_data()
+    aggregate_data(date_var = "date_report")
 
   # Define the expected aggregation output including week 53 and transition to 2021
   solution <- data.frame(
@@ -114,8 +112,7 @@ test_that("test weekly aggregation with filling missing zeros works", {
 
   data_agg <- data %>%
     preprocess_data() %>%
-    add_cw_iso(date_start = start_date, date_var = "date_report") %>%
-    aggregate_data()
+    aggregate_data(date_start = start_date, date_var = "date_report")
 
   solution <- data.frame(
     year = c(rep(2020, 2), rep(2021, 10)),
@@ -152,13 +149,10 @@ test_that("test aggregation with filling extending with zeros and adding missing
 
   data_agg <- data %>%
     preprocess_data() %>%
-    add_cw_iso(
-      date_start = as.Date("2020-12-17"), #
-      date_end = NULL, # Date extension is done by parameter `date_ext` from aggregate data
-      date_var = "date_report"
-    ) %>%
     aggregate_data(
       date_start = as.Date("2020-12-17"),
+      date_end = NULL, # Date extension is done by parameter `date_ext` from aggregate data
+      date_var = "date_report",
       date_ext = as.Date("2021-11-02")
     )
 
@@ -198,12 +192,9 @@ test_that("test that after aggregation week and years are in the correct order",
 
   data_agg <- data %>%
     preprocess_data() %>%
-    add_cw_iso(
-      date_start = as.Date("2020-12-17"),
-      date_var = "date_report"
-    ) %>%
     aggregate_data(
       date_start = as.Date("2020-12-17"),
+      date_var = "date_report",
       date_ext = as.Date("2021-11-02")
     )
 
@@ -271,13 +262,10 @@ test_that("Aggregation of data is performed correctly using outbreak status", {
 
 
   linelist1_agg <- linelist1 %>%
-    add_cw_iso(date_var = "date_report") %>%
     aggregate_data()
   linelist2_agg <- linelist2 %>%
-    add_cw_iso(date_var = "date_report") %>%
     aggregate_data()
   linelist4_agg <- linelist4 %>%
-    add_cw_iso(date_var = "date_report") %>%
     aggregate_data()
 
 

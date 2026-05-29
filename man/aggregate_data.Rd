@@ -11,7 +11,8 @@ aggregate_data(
   date_start = NULL,
   date_end = NULL,
   date_ext = NULL,
-  group = NULL
+  group = NULL,
+  time_unit = "weekly"
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ aggregate_data(
 \item{date_ext}{A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL}
 
 \item{group}{A character specifying another grouping variable. Usually used for stratification.}
+
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 }
 \description{
 Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek or the month and adds missing isoweeks or months to the aggregated dataset.
@@ -33,6 +36,9 @@ Additionally number of cases part of a known outbreak is added if the variable o
 }
 \examples{
 \dontrun{
-data <- preprocess_data(input_example) \%>\% aggregate_data()
+data_aggregated <- input_example \%>\%
+  preprocess_data() \%>\%
+  aggregate_data()
+data_aggregated
 }
 }

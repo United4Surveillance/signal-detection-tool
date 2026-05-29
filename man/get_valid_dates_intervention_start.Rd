@@ -42,9 +42,9 @@ Get a default and minimum and maximum date for the intervention time point for t
 }
 \examples{
 \dontrun{
-input_prepro <- input_example \%>\% preprocess_data()
-get_valid_dates_intervention_start(input_prepro) # this just gives the default date "2020-03-15" back
-get_valid_dates_intervention_start(input_prepro \%>\% dplyr::filter(date_report >= "2020-04-01")) # this gives the valid_start date back as default date
-get_valid_dates_intervention_start(input_prepro \%>\% dplyr::filter(date_report >= "2020-04-01") \%>\% dplyr::filter(date_report <= "2020-05-01")) # this gives NULL as the timeperiod of date provided is too short to do a intervention
+data_preprocessed <- input_example \%>\% preprocess_data()
+get_valid_dates_intervention_start(data_preprocessed) # this just gives the default date "2020-03-15" back
+get_valid_dates_intervention_start(data_preprocessed \%>\% dplyr::filter(date_report >= "2020-04-01")) # this gives the valid_start date back as default date
+get_valid_dates_intervention_start(data_preprocessed \%>\% dplyr::filter(date_report >= "2020-04-01") \%>\% dplyr::filter(date_report <= "2020-05-01")) # this gives NULL as the timeperiod of date provided is too short to do a intervention
 }
 }

@@ -13,7 +13,7 @@ aggregate_signals(signals, number_of_time_units, time_unit)
 
 \item{number_of_time_units}{integer, specifying the number of time units we want to aggregate the number of cases and the generated signals}
 
-\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "week".}
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 }
 \value{
 tibble, with one line per groups containing the number of cases, any_alarms and n_alarms
@@ -25,9 +25,12 @@ aggregating the number of cases observed, create variable any signal generated a
 }
 \examples{
 \dontrun{
-signals <- input_example \%>\%
-  preprocess_data() \%>\%
-  get_signals(stratification = c("sex", "county_id"))
-signals \%>\% aggregate_signals(number_of_time_units = 6, time_unit == "weekly")
+data_preprocessed <- input_example \%>\% preprocess_data()
+results <- get_signals(
+  data_preprocessed,
+  stratification = c("sex", "county_id")
+)
+results_agg <- results \%>\% aggregate_signals(number_of_time_units = 6, time_unit = "weekly")
+results_agg
 }
 }

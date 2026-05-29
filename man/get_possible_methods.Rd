@@ -76,7 +76,10 @@ data <- data.frame(
   date_report = seq.Date(Sys.Date() - 500, Sys.Date(), by = "day")
 )
 
-mm <- get_min_max_date(data, date_var = "date_report")
+mm <- get_min_max_date(
+  data,
+  date_var = "date_report"
+)
 
 get_possible_methods(
   min_date = mm$min_date,

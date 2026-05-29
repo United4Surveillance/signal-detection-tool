@@ -129,7 +129,7 @@ nuts_shp <- nuts_shp %>%
   dplyr::filter(LEVL_CODE == 2 & CNTR_CODE == "AT") %>%
   dplyr::select(NUTS_NAME, geometry)
 shape_with_signals <- nuts_shp %>%
-  inner_join(
+  dplyr::inner_join(
     signals_agg,
     by = c("NUTS_NAME" = "stratum")
   ) %>%

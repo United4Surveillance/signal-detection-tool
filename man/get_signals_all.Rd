@@ -61,9 +61,9 @@ appends them to the result, ensuring a unified output suitable for visualization
 }
 \examples{
 \dontrun{
-preprocessed <- preprocess_data(input_data)
+data_preprocessed <- input_example \%>\% preprocess_data()
 results_all <- get_signals_all(
-  preprocessed,
+  data_preprocessed,
   method = "farrington",
   stratification = c("sex", "age_group")
 )

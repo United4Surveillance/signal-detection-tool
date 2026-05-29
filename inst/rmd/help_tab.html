@@ -441,21 +441,17 @@ SignalDetectionTool?</a></li>
 <ul>
 <li><a href="#pathogen" id="toc-pathogen">Pathogen</a></li>
 <li><a href="#temporal-aggregation" id="toc-temporal-aggregation">Temporal aggregation</a></li>
+<li><a href="#time-period-extension" id="toc-time-period-extension">Time
+period extension</a></li>
 <li><a href="#filters" id="toc-filters">Filters</a></li>
 <li><a href="#strata" id="toc-strata">Strata</a></li>
 <li><a href="#signal-detection-period" id="toc-signal-detection-period">Signal detection period</a></li>
 <li><a href="#signal-detection-algorithm" id="toc-signal-detection-algorithm">Signal detection algorithm</a></li>
-<li><a href="#multi-seasonal-harmonic" id="toc-multi-seasonal-harmonic">Multi-seasonal harmonic</a></li>
-<li><a href="#alpha_upper-selection" id="toc-alpha_upper-selection">Alpha_upper selection</a></li>
-<li><a href="#covid19-pandemic-correction" id="toc-covid19-pandemic-correction">Covid19 Pandemic
-correction</a></li>
 <li><a href="#references" id="toc-references">References</a></li>
 </ul></li>
-<li><a href="#signals-tab" id="toc-signals-tab">Signals tab</a>
-<ul>
-<li><a href="#stratification-visualisation" id="toc-stratification-visualisation">Stratification
-visualisation</a></li>
-</ul></li>
+<li><a href="#signals-tab" id="toc-signals-tab">Signals tab</a></li>
+<li><a href="#signal-line-list-tab" id="toc-signal-line-list-tab">Signal
+Line List tab</a></li>
 <li><a href="#report-tab" id="toc-report-tab">Report tab</a></li>
 </ul></li>
 <li><a href="#bug-reporting" id="toc-bug-reporting">Bug
@@ -491,8 +487,8 @@ easy to generate reports and figures.</p>
 </div>
 <div id="input-data" class="section level1">
 <h1>Input data</h1>
-<p>This app requires specific input data formatting, which is described
-in detail in MS Teams.</p>
+<p>This app requires specific input data formatting. For full details,
+see the README <code>Data</code> section on <a href="https://github.com/United4Surveillance/signal-detection-tool/blob/main/README.md#data" target="_top">Github</a>.</p>
 </div>
 <div id="workflow-of-the-tool" class="section level1">
 <h1>Workflow of the tool</h1>
@@ -558,6 +554,17 @@ drop-down list.</p>
 <p>Select the time unit for aggregating case counts. Cases can be
 aggregated weekly, biweekly, or monthly.</p>
 </div>
+<div id="time-period-extension" class="section level3">
+<h3>Time period extension</h3>
+<p>By default, the selected time period ranges from the first date of
+the linelist to its end date. If no cases have been reported in the most
+recent weeks, the app automatically uses the last week (or selected time
+unit) with reported cases as the end date. This means that recent weeks
+with zero cases are not included in the analysis by default.</p>
+<p>Using this option, you can extend the time period to a later date
+(e.g. the current date). In this case, the app will include the missing
+recent time units and assign zero cases to them.</p>
+</div>
 <div id="filters" class="section level3">
 <h3>Filters</h3>
 <p>You can choose to investigate a subset of your data according to the
@@ -592,16 +599,17 @@ which is also dependent on whether any filtering is done.</p>
 for and the filters you set, the choice of algorithms is automatically
 updated to those which are possible to apply for your setting, with
 respect to the individual needs for training data of the different
-algorithms. In the following, we call the training period the time
-period which is used to fit the parameters of the algorithms. This time
-period is given by your selection of date_report (Filters section) and
-the Signal detection period. If you select the time period 01-01-2020
-until 31-12-2021 in the Filters section and select six weeks for the
-signal detection period, the training period will be from 01-01-2020
-until 22-11-2021 (six weeks before 31-12-2021). If you do not set any
-filter for date_report in the Filters section, then the full time period
-of your data set minus the Signal Detection Period will be used to fit
-the parameters.</p>
+algorithms.</p>
+<p>In the following, we call the training period the time period which
+is used to fit the parameters of the algorithms. This time period is
+given by your selection of date_report (Filters section) and the Signal
+detection period. If you select the time period 01-01-2020 until
+31-12-2021 in the Filters section and select six weeks for the signal
+detection period, the training period will be from 01-01-2020 until
+22-11-2021 (six weeks before 31-12-2021). If you do not set any filter
+for date_report in the Filters section, then the full time period of
+your data set minus the Signal Detection Period will be used to fit the
+parameters.</p>
 <p>Which signal detection algorithm should you choose? It depends on
 multiple criteria, and they all have their individual weaknesses and
 strengths. The table below provides an overview of key characteristics,
@@ -615,7 +623,7 @@ model seasonality demand more historical data to accurately estimate
 seasonal patterns. As noted above, the app automatically determines
 which methods can be applied based on the amount of historical data
 available in your dataset and only shows you those.</p>
-<div class="tabwid"><style>.cl-09370ed8{}.cl-09275a38{font-family:'Arial';font-size:11pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-09275a56{font-family:'Arial';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-092e6882{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-092e9884{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e9898{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e9899{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98a2{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98ac{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98ad{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98ae{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98b6{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98b7{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98c0{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98c1{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98c2{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98ca{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98cb{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98cc{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98d4{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98de{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98df{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98e8{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98e9{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98f2{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98f3{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e98fc{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-092e9906{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style><table data-quarto-disable-processing="true" class="cl-09370ed8"><thead><tr style="overflow-wrap:break-word;"><th class="cl-092e9884"><p class="cl-092e6882"><span class="cl-09275a38">Signal detection algorithm</span></p></th><th class="cl-092e9898"><p class="cl-092e6882"><span class="cl-09275a38">Time trend</span></p></th><th class="cl-092e9899"><p class="cl-092e6882"><span class="cl-09275a38">Seasonality</span></p></th><th class="cl-092e98a2"><p class="cl-092e6882"><span class="cl-09275a38">Minimum historic data required</span></p></th></tr></thead><tbody><tr style="overflow-wrap:break-word;"><td class="cl-092e98ac"><p class="cl-092e6882"><span class="cl-09275a56">FarringtonFlexible</span></p></td><td class="cl-092e98ad"><p class="cl-092e6882"><span class="cl-09275a56">Yes</span></p></td><td class="cl-092e98ae"><p class="cl-092e6882"><span class="cl-09275a56">Yes</span></p></td><td class="cl-092e98b6"><p class="cl-092e6882"><span class="cl-09275a56">1.5 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-092e98b7"><p class="cl-092e6882"><span class="cl-09275a56">EARS</span></p></td><td class="cl-092e98c0"><p class="cl-092e6882"><span class="cl-09275a56">No</span></p></td><td class="cl-092e98c1"><p class="cl-092e6882"><span class="cl-09275a56">No</span></p></td><td class="cl-092e98c2"><p class="cl-092e6882"><span class="cl-09275a56">7 weeks</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-092e98b7"><p class="cl-092e6882"><span class="cl-09275a56">CUSUM</span></p></td><td class="cl-092e98c0"><p class="cl-092e6882"><span class="cl-09275a56">No</span></p></td><td class="cl-092e98c1"><p class="cl-092e6882"><span class="cl-09275a56">No</span></p></td><td class="cl-092e98c2"><p class="cl-092e6882"><span class="cl-09275a56">1 week</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-092e98ca"><p class="cl-092e6882"><span class="cl-09275a56">Mean</span></p></td><td class="cl-092e98cb"><p class="cl-092e6882"><span class="cl-09275a56">No</span></p></td><td class="cl-092e98cc"><p class="cl-092e6882"><span class="cl-09275a56">No</span></p></td><td class="cl-092e98d4"><p class="cl-092e6882"><span class="cl-09275a56">26 weeks</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-092e98ac"><p class="cl-092e6882"><span class="cl-09275a56">Timetrend</span></p></td><td class="cl-092e98ad"><p class="cl-092e6882"><span class="cl-09275a56">Yes</span></p></td><td class="cl-092e98ae"><p class="cl-092e6882"><span class="cl-09275a56">No</span></p></td><td class="cl-092e98b6"><p class="cl-092e6882"><span class="cl-09275a56">2 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-092e98ac"><p class="cl-092e6882"><span class="cl-09275a56">Harmonic</span></p></td><td class="cl-092e98ad"><p class="cl-092e6882"><span class="cl-09275a56">No</span></p></td><td class="cl-092e98ae"><p class="cl-092e6882"><span class="cl-09275a56">Yes</span></p></td><td class="cl-092e98b6"><p class="cl-092e6882"><span class="cl-09275a56">2 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-092e98ac"><p class="cl-092e6882"><span class="cl-09275a56">Harmonic with timetrend</span></p></td><td class="cl-092e98ad"><p class="cl-092e6882"><span class="cl-09275a56">Yes</span></p></td><td class="cl-092e98ae"><p class="cl-092e6882"><span class="cl-09275a56">Yes</span></p></td><td class="cl-092e98b6"><p class="cl-092e6882"><span class="cl-09275a56">3 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-092e98de"><p class="cl-092e6882"><span class="cl-09275a56">Step harmonic</span></p></td><td class="cl-092e98df"><p class="cl-092e6882"><span class="cl-09275a56">No</span></p></td><td class="cl-092e98e8"><p class="cl-092e6882"><span class="cl-09275a56">Yes</span></p></td><td class="cl-092e98e9"><p class="cl-092e6882"><span class="cl-09275a56">4 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-092e98f2"><p class="cl-092e6882"><span class="cl-09275a56">Step harmonic with timetrend</span></p></td><td class="cl-092e98f3"><p class="cl-092e6882"><span class="cl-09275a56">Yes</span></p></td><td class="cl-092e98fc"><p class="cl-092e6882"><span class="cl-09275a56">Yes</span></p></td><td class="cl-092e9906"><p class="cl-092e6882"><span class="cl-09275a56">4 years</span></p></td></tr></tbody></table></div>
+<div class="tabwid"><style>.cl-3110b022{}.cl-30fa3a40{font-family:'Arial';font-size:11pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-30fa3a5e{font-family:'Arial';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-31026fbc{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-31029b5e{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029b68{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029b69{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029b72{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029b7c{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029b7d{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029b86{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029b87{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029b88{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029b90{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029b91{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029b9a{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029b9b{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029b9c{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029ba4{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029ba5{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029bae{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029baf{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029bb0{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029bb8{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029bb9{width:2.264in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029bc2{width:1.066in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029bc3{width:1.134in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-31029bcc{width:2.56in;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style><table data-quarto-disable-processing="true" class="cl-3110b022"><thead><tr style="overflow-wrap:break-word;"><th class="cl-31029b5e"><p class="cl-31026fbc"><span class="cl-30fa3a40">Signal detection algorithm</span></p></th><th class="cl-31029b68"><p class="cl-31026fbc"><span class="cl-30fa3a40">Time trend</span></p></th><th class="cl-31029b69"><p class="cl-31026fbc"><span class="cl-30fa3a40">Seasonality</span></p></th><th class="cl-31029b72"><p class="cl-31026fbc"><span class="cl-30fa3a40">Minimum historic data required</span></p></th></tr></thead><tbody><tr style="overflow-wrap:break-word;"><td class="cl-31029b7c"><p class="cl-31026fbc"><span class="cl-30fa3a5e">FarringtonFlexible</span></p></td><td class="cl-31029b7d"><p class="cl-31026fbc"><span class="cl-30fa3a5e">Yes</span></p></td><td class="cl-31029b86"><p class="cl-31026fbc"><span class="cl-30fa3a5e">Yes</span></p></td><td class="cl-31029b87"><p class="cl-31026fbc"><span class="cl-30fa3a5e">1.5 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-31029b88"><p class="cl-31026fbc"><span class="cl-30fa3a5e">EARS</span></p></td><td class="cl-31029b90"><p class="cl-31026fbc"><span class="cl-30fa3a5e">No</span></p></td><td class="cl-31029b91"><p class="cl-31026fbc"><span class="cl-30fa3a5e">No</span></p></td><td class="cl-31029b9a"><p class="cl-31026fbc"><span class="cl-30fa3a5e">7 weeks</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-31029b88"><p class="cl-31026fbc"><span class="cl-30fa3a5e">CUSUM</span></p></td><td class="cl-31029b90"><p class="cl-31026fbc"><span class="cl-30fa3a5e">No</span></p></td><td class="cl-31029b91"><p class="cl-31026fbc"><span class="cl-30fa3a5e">No</span></p></td><td class="cl-31029b9a"><p class="cl-31026fbc"><span class="cl-30fa3a5e">1 week</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-31029b9b"><p class="cl-31026fbc"><span class="cl-30fa3a5e">Mean</span></p></td><td class="cl-31029b9c"><p class="cl-31026fbc"><span class="cl-30fa3a5e">No</span></p></td><td class="cl-31029ba4"><p class="cl-31026fbc"><span class="cl-30fa3a5e">No</span></p></td><td class="cl-31029ba5"><p class="cl-31026fbc"><span class="cl-30fa3a5e">26 weeks</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-31029b7c"><p class="cl-31026fbc"><span class="cl-30fa3a5e">Timetrend</span></p></td><td class="cl-31029b7d"><p class="cl-31026fbc"><span class="cl-30fa3a5e">Yes</span></p></td><td class="cl-31029b86"><p class="cl-31026fbc"><span class="cl-30fa3a5e">No</span></p></td><td class="cl-31029b87"><p class="cl-31026fbc"><span class="cl-30fa3a5e">2 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-31029b7c"><p class="cl-31026fbc"><span class="cl-30fa3a5e">Harmonic</span></p></td><td class="cl-31029b7d"><p class="cl-31026fbc"><span class="cl-30fa3a5e">No</span></p></td><td class="cl-31029b86"><p class="cl-31026fbc"><span class="cl-30fa3a5e">Yes</span></p></td><td class="cl-31029b87"><p class="cl-31026fbc"><span class="cl-30fa3a5e">2 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-31029b7c"><p class="cl-31026fbc"><span class="cl-30fa3a5e">Harmonic with timetrend</span></p></td><td class="cl-31029b7d"><p class="cl-31026fbc"><span class="cl-30fa3a5e">Yes</span></p></td><td class="cl-31029b86"><p class="cl-31026fbc"><span class="cl-30fa3a5e">Yes</span></p></td><td class="cl-31029b87"><p class="cl-31026fbc"><span class="cl-30fa3a5e">3 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-31029bae"><p class="cl-31026fbc"><span class="cl-30fa3a5e">Step harmonic</span></p></td><td class="cl-31029baf"><p class="cl-31026fbc"><span class="cl-30fa3a5e">No</span></p></td><td class="cl-31029bb0"><p class="cl-31026fbc"><span class="cl-30fa3a5e">Yes</span></p></td><td class="cl-31029bb8"><p class="cl-31026fbc"><span class="cl-30fa3a5e">4 years</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-31029bb9"><p class="cl-31026fbc"><span class="cl-30fa3a5e">Step harmonic with timetrend</span></p></td><td class="cl-31029bc2"><p class="cl-31026fbc"><span class="cl-30fa3a5e">Yes</span></p></td><td class="cl-31029bc3"><p class="cl-31026fbc"><span class="cl-30fa3a5e">Yes</span></p></td><td class="cl-31029bcc"><p class="cl-31026fbc"><span class="cl-30fa3a5e">4 years</span></p></td></tr></tbody></table></div>
 <p>For more details about the individual algorithms, we recommend
 reading the texts below.</p>
 <div id="cusum" class="section level4">
@@ -703,16 +711,19 @@ with sine and cosine regressors to model seasonality in the data.</p>
 <p>The same as the Harmonic method but with fitted timetrend to account
 for the underlying trend in the data.</p>
 </div>
-</div>
-<div id="multi-seasonal-harmonic" class="section level3">
-<h3>Multi-seasonal harmonic</h3>
+<div id="multi-seasonal-harmonic" class="section level4">
+<h4>Multi-seasonal harmonic</h4>
 <p>This method extends the Harmonic method by incorporating two pairs of
 sine and cosine terms to capture multiple seasonal components. By
 default, it models one and two cycles per year (annual and semiannual
 seasonality). A fitted timetrend is included to account for the
-underlying trend in the data. However, the timetrend is removed and the
-model is refitted if any predicted value in the test period exceeds
-twice the maximum observed count in the training period.</p>
+underlying trend in the data. To ensure stable and realistic results,
+the model checks whether the trend leads to unusually large predictions.
+If any predicted value in the signal detection period is more than twice
+as high as the maximum observed value in the historical data, the trend
+is considered unreliable and is automatically removed. The model is then
+refitted without the trend.</p>
+</div>
 <div id="step-harmonic" class="section level4">
 <h4>Step harmonic</h4>
 <p>This method models the expected number of cases using the season
@@ -727,9 +738,8 @@ following a rise, but it requires more data for accurate fitting.</p>
 <p>The same as the Step harmonic method but with fitted timetrend to
 account for the underlying trend in the data.</p>
 </div>
-</div>
-<div id="alpha_upper-selection" class="section level3">
-<h3>Alpha_upper selection</h3>
+<div id="alpha_upper-selection" class="section level4">
+<h4>Alpha_upper selection</h4>
 <p>Here you can specify the p-value cutoff, denoted as the one-sided
 significance level alpha_upper, which is used by several signal
 detection algorithms to define the corresponding signal threshold. The
@@ -747,8 +757,8 @@ the correction to the following algorithms: FarringtonFlexible, Mean,
 Timetrend, Harmonic, Harmonic with timetrend, Step harmonic, Step
 harmonic with timetrend.</p>
 </div>
-<div id="covid19-pandemic-correction" class="section level3">
-<h3>Covid19 Pandemic correction</h3>
+<div id="covid19-pandemic-correction" class="section level4">
+<h4>Covid19 Pandemic correction</h4>
 <p>The “Covid19 Pandemic Correction” feature, accessible via an
 additional button, applies an interrupted time series analysis to the
 outbreak detection methods. It is possible to apply the correction to
@@ -765,6 +775,16 @@ may emerge afterward. A critical assumption behind these models is that
 the current case counts are represented by the model applied after the
 intervention, meaning it models the case counts which occurred during
 and following the pandemic.</p>
+</div>
+<div id="show-expectation-and-threshold-for-historic-data" class="section level4">
+<h4>Show expectation and threshold for historic data</h4>
+<p>The “Show expectation and threshold for historic data” feature,
+accessible via an additional button, extends the expectation and/or
+threshold to historic data. The feature can only be used with
+FarringtonFlexible, EARS and CUSUM. For the other algorithms, expected
+values are computed and displayed by default for historical data, since
+this is less computationally intensive.</p>
+</div>
 </div>
 <div id="references" class="section level3">
 <h3>References</h3>
@@ -815,8 +835,6 @@ series with additional historical data. As each new time unit of the
 signal detection period is included, more past time units are
 incorporated into the fitting process, causing the mean expectation to
 change over time during the blue signal detection period.</p>
-<div id="stratification-visualisation" class="section level3">
-<h3>Stratification visualisation</h3>
 <p>When one of the strata about regions (state, county or community) is
 selected in the <code>Input</code> tab the app tries to provide a map
 visualisation. This currently only works if there are NUTS codes
@@ -829,6 +847,13 @@ case you did not provide NUTS ids or some NUTS ids are not matching no
 map visualisation is currently possible and you will see a table with
 the results instead of a map.</p>
 </div>
+<div id="signal-line-list-tab" class="section level2">
+<h2>Signal Line List tab</h2>
+<p>The <code>Signal Line List</code> tab allows to retrieve the linelist
+of cases corresponding to a signal. All signals are displayed in a
+table. You can select one or multiple signals for further investigation.
+The linelist of cases belonging to the signal(s) are shown in a separate
+table.</p>
 </div>
 <div id="report-tab" class="section level2">
 <h2>Report tab</h2>
@@ -843,8 +868,7 @@ produced in two different formats: HTML or DOCX.</p>
 <div id="bug-reporting" class="section level1">
 <h1>Bug reporting</h1>
 <p>If you encounter any technical issues or bugs when using the
-SignalDetectionTool, please report them on <a href="https://github.com/United4Surveillance/signal-detection-evaluation-tool/issues/new/choose">Github</a>
-by creating an issue. Thank you in advance!</p>
+SignalDetectionTool, please report them on <a href="https://github.com/United4Surveillance/signal-detection-evaluation-tool/issues/new/choose" target="_top">Github</a> by creating an issue. Thank you in advance!</p>
 </div>
 
 

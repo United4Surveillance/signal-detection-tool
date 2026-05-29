@@ -30,9 +30,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' preprocessed <- preprocess_data(input_data)
+#' data_preprocessed <- input_example %>% preprocess_data()
 #' results_all <- get_signals_all(
-#'   preprocessed,
+#'   data_preprocessed,
 #'   method = "farrington",
 #'   stratification = c("sex", "age_group")
 #' )
@@ -109,14 +109,13 @@ get_signals_all <- function(preprocessed_data,
 #'
 #' @examples
 #' \dontrun{
-#' data <- read.csv("../data/input/input.csv")
+#' data_preprocessed <- input_example %>% preprocess_data()
 #' categories <- c("county", "sex", "age_group") # Replace with actual column names
 #' results <- get_signals_stratified(
-#'   data,
+#'   data_preprocessed,
 #'   fun = get_signals_farringtonflexible,
 #'   stratification_columns = categories
 #' )
-#' print(results)
 #' }
 get_signals_stratified <- function(data,
                                    fun,
@@ -224,7 +223,7 @@ get_signals_stratified <- function(data,
       # filter the data
       filter_by_date(date_var = date_var, date_start = date_start, date_end = date_end) %>%
       # aggregate data
-      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext, group = category)
+      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext, group = category, time_unit = time_unit)
 
     # add extension date information if available
     if (!is.null(date_ext)) {
@@ -318,12 +317,14 @@ get_signals_stratified <- function(data,
 #'
 #' @examples
 #' \dontrun{
-#' results <- input_example %>%
-#'   preprocess_data() %>%
-#'   get_signals(
-#'     method = "farrington",
-#'     stratification = c("county", "sex")
-#'   )
+#' data_preprocessed <- input_example %>%
+#'   preprocess_data()
+#' results <- get_signals(
+#'   data_preprocessed,
+#'   method = "farrington",
+#'   stratification = c("county", "sex")
+#' )
+#' results
 #' }
 get_signals <- function(data,
                         method = "farrington",
@@ -430,16 +431,12 @@ get_signals <- function(data,
     }
   }
 
-  data <- data %>%
-    add_cw_iso(date_start = date_start, date_end = date_end, date_var = date_var, time_unit = time_unit)
-
-
   if (is.null(stratification)) {
     data_agg <- data %>%
       # filter the data
       filter_by_date(date_start = date_start, date_end = date_end, date_var = date_var) %>%
       # aggregate and complete the data
-      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext)
+      aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext, time_unit = time_unit)
 
     if (grepl("glm", method)) {
       results <- fun(data_agg, number_of_time_units, model = model, time_trend = time_trend, intervention_date = intervention_date, alpha_upper = alpha_upper)
@@ -522,8 +519,19 @@ get_signals <- function(data,
 #'
 #' @examples
 #' \dontrun{
-#' results <- get_signals(preprocessed_data, method = "farrington")
-#' output <- aggregate_pad_signals(results, number_of_time_units = 6, time_unit = "weekly", method = "farrington")
+#' data_preprocessed <- input_example %>%
+#'   preprocess_data()
+#' results <- get_signals(
+#'   data_preprocessed,
+#'   method = "farrington"
+#' )
+#' output <- aggregate_pad_signals(
+#'   signal_results = results,
+#'   preprocessed = data_preprocessed,
+#'   number_of_time_units = 6,
+#'   time_unit = "weekly",
+#'   method = "farrington"
+#' )
 #' output$signals_agg
 #' output$signals_padded
 #' }
@@ -558,14 +566,17 @@ aggregate_pad_signals <- function(signal_results,
 
 #' @param signals tibble, output of the \code{\link{get_signals}} function with number of cases and signal per time unit, year
 #' @param number_of_time_units integer, specifying the number of time units we want to aggregate the number of cases and the generated signals
-#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "week".
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #' @returns tibble, with one line per groups containing the number of cases, any_alarms and n_alarms
 #' @examples
 #' \dontrun{
-#' signals <- input_example %>%
-#'   preprocess_data() %>%
-#'   get_signals(stratification = c("sex", "county_id"))
-#' signals %>% aggregate_signals(number_of_time_units = 6, time_unit == "weekly")
+#' data_preprocessed <- input_example %>% preprocess_data()
+#' results <- get_signals(
+#'   data_preprocessed,
+#'   stratification = c("sex", "county_id")
+#' )
+#' results_agg <- results %>% aggregate_signals(number_of_time_units = 6, time_unit = "weekly")
+#' results_agg
 #' }
 #' @export
 aggregate_signals <- function(signals, number_of_time_units, time_unit) {
@@ -589,11 +600,10 @@ aggregate_signals <- function(signals, number_of_time_units, time_unit) {
 #' @returns tibble, with padded signals
 #' @examples
 #' \dontrun{
-#' input_example_prepro <- input_example %>%
-#'   preprocess_data()
-#' signals <- input_example_prepro %>%
-#'   get_signals(stratification = c("sex", "county_id"))
-#' pad_signals(input_example_prepro, signals)
+#' data_preprocessed <- input_example %>% preprocess_data()
+#' results <- data_preprocessed %>% get_signals(stratification = c("sex", "county_id"))
+#' results_padded <- pad_signals(data_preprocessed, results)
+#' results_padded
 #' }
 #' @export
 pad_signals <- function(data,

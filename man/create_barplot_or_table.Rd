@@ -40,6 +40,9 @@ signals <- input_example \%>\%
   preprocess_data() \%>\%
   get_signals(stratification = c("sex", "age_group"))
 signals_agg <- signals \%>\% aggregate_signals(number_of_time_units = 6)
-create_barplot_or_table(signals_agg, "age_group")
+create_barplot_or_table(
+  signals_agg,
+  "age_group"
+)
 }
 }

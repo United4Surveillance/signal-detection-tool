@@ -115,11 +115,10 @@ isoweek_to_date <- function(week, year) {
 #' @param data_aggregated data.frame, aggregated data with case counts
 #' @return integer row number of data_aggregated where the isoweek and isoyear of the given date are
 #' @examples \dontrun{
-#' data_agg <- input_example %>%
+#' data_aggregated <- input_example %>%
 #'   preprocess_data() %>%
-#'   aggregate_data() %>%
-#'   add_rows_missing_dates()
-#' get_intervention_timepoint("2020-03-04", data_agg)
+#'   aggregate_data()
+#' get_intervention_timepoint("2020-03-04", data_aggregated)
 #' }
 get_intervention_timepoint <- function(date, data_aggregated) {
   # check if data_aggregated is calculated with isoyear and isoweek data or year and month data

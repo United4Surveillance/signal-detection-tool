@@ -20,7 +20,12 @@
 #'   preprocess_data() %>%
 #'   get_signals(stratification = c("sex", "county"))
 #' signals_agg <- signals %>% aggregate_signals(number_of_time_units = 6)
-#' create_map_or_table(signals_agg, input_example, "county", nuts_shp)
+#' create_map_or_table(
+#'   signals_agg,
+#'   input_example,
+#'   "county",
+#'   nuts_shp
+#' )
 #' }
 create_map_or_table <- function(signals_agg,
                                 data_surveillance,
@@ -153,7 +158,10 @@ create_map_or_table <- function(signals_agg,
 #'   preprocess_data() %>%
 #'   get_signals(stratification = c("sex", "age_group"))
 #' signals_agg <- signals %>% aggregate_signals(number_of_time_units = 6)
-#' create_barplot_or_table(signals_agg, "age_group")
+#' create_barplot_or_table(
+#'   signals_agg,
+#'   "age_group"
+#' )
 #' }
 create_barplot_or_table <- function(signals_agg,
                                     category_selected,

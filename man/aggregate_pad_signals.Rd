@@ -47,8 +47,19 @@ before the signal detection window, which is useful for plotting full time serie
 }
 \examples{
 \dontrun{
-results <- get_signals(preprocessed_data, method = "farrington")
-output <- aggregate_pad_signals(results, number_of_time_units = 6, time_unit = "weekly", method = "farrington")
+data_preprocessed <- input_example \%>\%
+  preprocess_data()
+results <- get_signals(
+  data_preprocessed,
+  method = "farrington"
+)
+output <- aggregate_pad_signals(
+  signal_results = results,
+  preprocessed = data_preprocessed,
+  number_of_time_units = 6,
+  time_unit = "weekly",
+  method = "farrington"
+)
 output$signals_agg
 output$signals_padded
 }
