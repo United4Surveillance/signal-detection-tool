@@ -37,11 +37,10 @@ algorithms using the farrington framework can only be used with weekly aggregate
 }
 \details{
 Historic data is defined as the period from \code{min_date} to
-\code{max_date - number_of_time_units}. The number of available time units is computed
-on this interval, counting partial time units as full time_units to match the time unit
-aggregation used by the algorithms. Per default weeks are used as time unit.
+\code{max_date - number_of_time_units}. The number of available weeks is computed
+on this interval, counting partial weeks as full weeks.
 
-The method selection criteria are approximately (for the default setting):
+The method selection criteria are approximately:
 \itemize{
   \item If 4 years (about 208 weeks) or more of historic data are available:
         all methods are possible.
@@ -66,9 +65,9 @@ The method selection criteria are approximately (for the default setting):
 
 The function computes
 \code{max_date_fit = max_date - number_of_time_units} and then calculates the
-number of time units between \code{min_date} and \code{max_date_fit}. Partial
-time units are counted as full time units to align with the time unit aggregation of the
-data. Based on this number of historic time unit data, suitable algorithms are
+number of weeks between \code{min_date} and \code{max_date_fit}. Partial
+weeks are counted as full weeks to align with the aggregation of the
+data. Based on this number of historic week data, suitable algorithms are
 selected using \code{\link{available_algorithms}}.
 }
 \examples{
