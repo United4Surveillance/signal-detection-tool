@@ -137,6 +137,22 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
               shiny::column(
                 width = 12,
                 shiny::conditionalPanel(
+                  condition = sprintf(
+                    "output['%s'] == 'TRUE' && output['%s'] == 'TRUE'",
+                    ns("algorithm_glm"),
+                    ns("has_outbreak_status")
+                  ),
+                  checkboxInput(ns("exclude_outbreak_cases_from_fitting"), "Exclude outbreak-assigned cases from baseline fitting",
+                    value = get_data_config_value(
+                      "params:exclude_outbreak_cases_from_fitting",
+                      FALSE, c(TRUE, FALSE)
+                    )
+                  )
+                )
+              ),
+              shiny::column(
+                width = 12,
+                shiny::conditionalPanel(
                   condition = sprintf("output['%s'] == 'FALSE'", ns("algorithm_glm")),
                   checkboxInput(ns("pad_signals_choice"), "Show expectation and threshold for historic data (computation intensive)")
                 )
@@ -601,6 +617,79 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }
     })
 
+    # Observe changes in algorithm_choice to reset exclude_outbreak_cases_from_fitting checkbox to FALSE when other algorithm is selected
+    observeEvent(input$algorithm_choice, {
+      if (!algorithm_glm()) {
+        updateCheckboxInput(session, "exclude_outbreak_cases_from_fitting", value = FALSE)
+      }
+    })
+
+    # Check if outbreak_status is in dataset: If not do not show option to exclude cases in outbreaks
+    has_outbreak_status <- reactive({
+      dat <- data()
+
+      "outbreak_status" %in% names(dat) &&
+        any(!is.na(dat$outbreak_status) & trimws(as.character(dat$outbreak_status)) != "")
+    })
+
+    output$has_outbreak_status <- renderText({
+      if (isTRUE(has_outbreak_status())) "TRUE" else "FALSE"
+    })
+
+    outputOptions(output, "has_outbreak_status", suspendWhenHidden = FALSE)
+
+    observe({
+      if (!isTRUE(has_outbreak_status())) {
+        updateCheckboxInput(
+          session,
+          "exclude_outbreak_cases_from_fitting",
+          value = FALSE
+        )
+      }
+    })
+
+    # do not allow usage of stratum "outbreak_status" while using "has_outbreak_status=TRUE" and choose the latest selection
+    observe({
+      strat_vars <- input$strat_vars %||% character(0)
+
+      if (
+        !isTRUE(has_outbreak_status()) ||
+          "outbreak_status" %in% strat_vars
+      ) {
+        updateCheckboxInput(
+          session,
+          "exclude_outbreak_cases_from_fitting",
+          value = FALSE
+        )
+      }
+    })
+
+    observeEvent(input$exclude_outbreak_cases_from_fitting,
+      {
+        strat_vars <- input$strat_vars %||% character(0)
+
+        if (
+          isTRUE(has_outbreak_status()) &&
+            isTRUE(input$exclude_outbreak_cases_from_fitting) &&
+            "outbreak_status" %in% strat_vars
+        ) {
+          strat_vars_new <- setdiff(strat_vars, "outbreak_status")
+
+          # if no stratum selected use "None"
+          if (length(strat_vars_new) == 0) {
+            strat_vars_new <- "None"
+          }
+
+          updateSelectizeInput(
+            session = session,
+            inputId = "strat_vars",
+            selected = strat_vars_new
+          )
+        }
+      },
+      ignoreNULL = TRUE
+    )
+
     # Output (not seen in UI) for FarringtonFlexible p-value output
     algorithm_farrington_chosen <- reactive({
       shiny::req(!errors_detected())
@@ -687,7 +776,8 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       intervention_date = shiny::reactive(intervention_date()),
       pad_signals_choice = shiny::reactive(input$pad_signals_choice),
       min_cases_signals = shiny::reactive(input$min_cases_signals),
-      selected_filter_vars = shiny::reactive(selected_filter_vars())
+      selected_filter_vars = shiny::reactive(selected_filter_vars()),
+      exclude_outbreak_cases_from_fitting = shiny::reactive(input$exclude_outbreak_cases_from_fitting)
     ))
   })
 }

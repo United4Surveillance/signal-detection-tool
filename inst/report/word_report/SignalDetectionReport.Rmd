@@ -20,6 +20,7 @@ params:
   signals_agg: NULL
   intervention_date: NULL
   title: "Signal Detection Report"
+  exclude_outbreak_cases_from_fitting: false
 
 ---
 
