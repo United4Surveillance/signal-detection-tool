@@ -627,9 +627,6 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     # Check if outbreak_status is in dataset: If not do not show option to exclude cases in outbreaks
     has_outbreak_status <- reactive({
       dat <- data()
-      if (is.null(dat)) {
-        return(FALSE)
-      }
 
       "outbreak_status" %in% names(dat) &&
         any(!is.na(dat$outbreak_status) & trimws(as.character(dat$outbreak_status)) != "")

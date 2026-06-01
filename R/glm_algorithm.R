@@ -316,12 +316,12 @@ get_signals_glm <- function(data_aggregated,
   }
 
   # add cases_not_in_outbreak-column if necessary
-  if (exclude_outbreak_cases_from_fitting == TRUE && "cases_not_in_outbreak" %in% names(data_aggregated)) {
+  if (exclude_outbreak_cases_from_fitting && "cases_not_in_outbreak" %in% names(data_aggregated)) {
     cases_not_in_outbreak <- data_aggregated %>%
       dplyr::arrange(year, week) %>%
       dplyr::select(cases_not_in_outbreak)
     model_data <- dplyr::bind_cols(cases_not_in_outbreak, model_data)
-  } else if (exclude_outbreak_cases_from_fitting == TRUE && !("cases_not_in_outbreak" %in% names(data_aggregated))) {
+  } else if (exclude_outbreak_cases_from_fitting && !("cases_not_in_outbreak" %in% names(data_aggregated))) {
     stop(
       "`exclude_outbreak_cases_from_fitting = TRUE` requires `cases_not_in_outbreak` ",
       "to be in `data_aggregated`.",
@@ -337,9 +337,10 @@ get_signals_glm <- function(data_aggregated,
   pred_data <- model_data %>% tail(number_of_weeks)
 
   # adjust cases if outbreak related cases should be excluded in the training data (only used for fitting not graphical display)
-  if (exclude_outbreak_cases_from_fitting == TRUE) {
+  if (exclude_outbreak_cases_from_fitting) {
     fit_data <- fit_data %>%
-      dplyr::mutate(cases = cases_not_in_outbreak)
+      dplyr::mutate(cases = cases_not_in_outbreak) %>% # cases equals not outbreak related cases
+      dplyr::select(-cases_not_in_outbreak)
   }
 
   # fit a glm based on formula and data provided
@@ -439,7 +440,7 @@ get_signals_glm <- function(data_aggregated,
     )
   }
 
-  if (exclude_outbreak_cases_from_fitting == TRUE) {
+  if (exclude_outbreak_cases_from_fitting) {
     data_aggregated <- data_aggregated %>%
       dplyr::select(-c(cases_not_in_outbreak))
     data_aggregated
