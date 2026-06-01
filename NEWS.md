@@ -1,3 +1,5 @@
+* fix missing display of expectation and/or threshold for historic data when using an extension date with FarringtonFlexible, EARS and CUSUM
+
 # SignalDetectionTool 0.10.0
 
 * Bug fixes and improvements to the HTML report
