@@ -643,19 +643,19 @@ pad_signals <- function(data,
   stopifnot(length(time_unit) == 1)
   stopifnot(is.null(date_ext) || length(date_ext) == 1)
 
-  if (!is.null(date_ext)){
+  if (!is.null(date_ext)) {
     max_date_df <- date_ext
-  } else if (is.null(date_ext)){
+  } else if (is.null(date_ext)) {
     max_date_df <- max(data[[date_var]], na.rm = TRUE)
   }
 
   if (time_unit %in% "weekly") {
     cutoff_date <- lubridate::floor_date(max_date_df - lubridate::weeks(number_of_time_units - 1),
-                                        week_start = 1, unit = "week"
+      week_start = 1, unit = "week"
     ) - lubridate::days(1)
   } else if (time_unit %in% "biweekly") {
     cutoff_date <- lubridate::floor_date(max_date_df - lubridate::weeks(2 * number_of_time_units) + lubridate::weeks(1),
-                                        week_start = 1, unit = "week"
+      week_start = 1, unit = "week"
     ) - lubridate::days(1)
   } else if (time_unit %in% "monthly") {
     cutoff_date <- lubridate::floor_date(

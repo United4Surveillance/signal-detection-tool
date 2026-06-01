@@ -92,7 +92,7 @@ plot_signals_per_time_unit <- function(results, n_strata, interactive = FALSE, b
         )
       ) +
       ggplot2::labs(
-        x = if (time_unit=="weekly") "Week" else if (time_unit=="biweekly") "Two-week period, starting week" else if (time_unit=="monthly") "Month",
+        x = if (time_unit == "weekly") "Week" else if (time_unit == "biweekly") "Two-week period, starting week" else if (time_unit == "monthly") "Month",
         y = "Strata with signals (%)"
       ) +
       ggplot2::scale_fill_manual(

@@ -106,7 +106,6 @@ test_that("build_signal_and_comparison_linelist deduplicates cases and combines 
 })
 
 test_that("build_signal_and_comparison_linelist excludes selected signal cases from comparison linelist", {
-
   true_signals <- data.frame(
     year = rep(2024, 3),
     week = c(1, 2, 1),

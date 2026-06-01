@@ -65,20 +65,20 @@ filter_rows_past_time_units <- function(signals_padded, linelist) {
     return(linelist[0, ])
   }
 
-  if (time_unit %in% c("weekly", "biweekly")){
-  signals_padded_n_time_units <- signals_padded %>%
-    dplyr::filter(!is.na(alarms)) %>%
-    dplyr::mutate(
-      week_start = ISOweek::ISOweek2date(
-        paste0(year, "-W", sprintf("%02d", week), "-1")
+  if (time_unit %in% c("weekly", "biweekly")) {
+    signals_padded_n_time_units <- signals_padded %>%
+      dplyr::filter(!is.na(alarms)) %>%
+      dplyr::mutate(
+        week_start = ISOweek::ISOweek2date(
+          paste0(year, "-W", sprintf("%02d", week), "-1")
+        )
       )
-    )
-  start_date <- min(signals_padded_n_time_units$week_start)
-  if (time_unit == "weekly") {
-    end_date <- max(signals_padded_n_time_units$week_start) + lubridate::days(6)
-  } else {
-    end_date <- max(signals_padded_n_time_units$week_start) + lubridate::days(13)
-  }
+    start_date <- min(signals_padded_n_time_units$week_start)
+    if (time_unit == "weekly") {
+      end_date <- max(signals_padded_n_time_units$week_start) + lubridate::days(6)
+    } else {
+      end_date <- max(signals_padded_n_time_units$week_start) + lubridate::days(13)
+    }
   } else if (time_unit == "monthly") {
     signals_padded_n_time_units <- signals_padded %>%
       dplyr::filter(!is.na(alarms)) %>%
@@ -132,7 +132,6 @@ filter_rows_signal_time_unit <- function(signal_row, linelist) {
     } else {
       end_date <- start_date + lubridate::days(13)
     }
-
   } else if (time_unit == "monthly") {
     start_date <- lubridate::make_date(
       year = signal_row$year,
@@ -142,7 +141,6 @@ filter_rows_signal_time_unit <- function(signal_row, linelist) {
 
     end_date <- lubridate::ceiling_date(start_date, unit = "month") -
       lubridate::days(1)
-
   }
 
   filter_linelist_by_period_and_stratum(linelist, start_date, end_date, signal_row)
