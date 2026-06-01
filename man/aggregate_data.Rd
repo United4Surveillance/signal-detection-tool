@@ -11,7 +11,8 @@ aggregate_data(
   date_start = NULL,
   date_end = NULL,
   date_ext = NULL,
-  group = NULL
+  group = NULL,
+  exclude_outbreak_cases_from_fitting = FALSE
 )
 }
 \arguments{
@@ -26,6 +27,11 @@ aggregate_data(
 \item{date_ext}{A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL}
 
 \item{group}{A character specifying another grouping variable. Usually used for stratification.}
+
+\item{exclude_outbreak_cases_from_fitting}{A boolean specifying whether outbreak-associated case counts should be excluded only when fitting the baseline.
+If `data` does not contain an `outbreak_status` column indicating the number of cases associated with outbreaks,
+the number of cases not in outbreaks is not calculated, even when `exclude_outbreak_cases_from_fitting = TRUE`.
+Default is `FALSE`. The default should only be changed if it is planned to use a GLM-based algorithm.}
 }
 \description{
 Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek and adds missing isoweeks to the aggregated dataset.

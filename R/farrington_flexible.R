@@ -40,7 +40,7 @@ get_signals_farringtonflexible <- function(data_aggregated,
       "Your data/stratification covers ",
       num_weeks_total,
       " number of weeks in total and you want to generate alarms for ", number_of_weeks, ". ",
-      "FarringtonFlexible needs at least 1.5 years (78 weeks) of data to calibrate an epidemiological basline. ",
+      "FarringtonFlexible needs at least 1.5 years (78 weeks) of data to calibrate an epidemiological baseline. ",
       "You have ", num_weeks_for_calibration, " weeks for calibration left in your data/stratification."
     ))
     return(NULL)
