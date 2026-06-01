@@ -4,14 +4,16 @@
 \alias{plot_agegroup_comparison}
 \title{Age group comparison plot for signal detection}
 \usage{
-plot_agegroup_comparison(data_agg, number_of_time_units)
+plot_agegroup_comparison(data_agg, number_of_time_units, time_unit)
 }
 \arguments{
 \item{data_agg}{A data frame containing aggregated case counts. Must include at least
-the variables `signal`, `age_group`,`n`,`perc` and `total_n`. Typically created using `dplyr::count()`.}
+the variables `signal`, `age_group`, `n`, `perc` and `total_n`. Typically created using `dplyr::count()`.}
 
-\item{number_of_time_units}{Integer scalar. Number of weeks signal detection was applied for, which defines the time window or cases used for the comparison.
+\item{number_of_time_units}{Integer scalar. Number of time units signal detection was applied for, which defines the time window or cases used for the comparison.
 Must be a single positive integer (>= 1).}
+
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 }
 \value{
 A Plotly object representing a grouped bar chart of case counts by age group and signal status.

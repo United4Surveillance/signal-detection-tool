@@ -7,13 +7,14 @@
 #' and returns a Plotly interactive visualization with a minimal dashboard-style theme.
 #'
 #' @param data_agg A data frame containing aggregated case counts. Must include at least
-#'   the variables `signal`, `age_group`,`n`,`perc` and `total_n`. Typically created using `dplyr::count()`.
+#'   the variables `signal`, `age_group`, `n`, `perc` and `total_n`. Typically created using `dplyr::count()`.
 #'
-#' @param number_of_time_units Integer scalar. Number of weeks signal detection was applied for, which defines the time window or cases used for the comparison.
+#' @param number_of_time_units Integer scalar. Number of time units signal detection was applied for, which defines the time window or cases used for the comparison.
 #'   Must be a single positive integer (>= 1).
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #'
 #' @return A Plotly object representing a grouped bar chart of case counts by age group and signal status.
-plot_agegroup_comparison <- function(data_agg, number_of_time_units) {
+plot_agegroup_comparison <- function(data_agg, number_of_time_units, time_unit) {
   checkmate::assert_data_frame(
     data_agg,
     min.rows = 1,
@@ -26,10 +27,26 @@ plot_agegroup_comparison <- function(data_agg, number_of_time_units) {
     len = 1
   )
 
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
+  )
+
+  # Use time unit labels
+  time_unit_label <- dplyr::case_when(
+    time_unit == "weekly" && number_of_time_units == 1 ~ "week",
+    time_unit == "weekly" && number_of_time_units > 1 ~ "weeks",
+    time_unit == "biweekly" && number_of_time_units == 1 ~ "biweekly period",
+    time_unit == "biweekly" && number_of_time_units > 1  ~ "biweekly periods",
+    time_unit == "monthly" && number_of_time_units == 1 ~ "month",
+    time_unit == "monthly" && number_of_time_units > 1  ~ "months"
+  )
+
   data_agg <- data_agg |>
     dplyr::mutate(signal = factor(signal,
       levels = c(TRUE, FALSE),
-      labels = c("Signal cases", paste0("All cases excluding signal cases (last ", number_of_time_units, " time units)"))
+      labels = c("Signal cases", paste0("All cases excluding signal cases (last ", number_of_time_units, " ", time_unit_label,")"))
     )) |>
     tidyr::complete(age_group, signal, fill = list(n = 0))
 

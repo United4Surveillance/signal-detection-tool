@@ -319,7 +319,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
       shiny::dateInput(
         ns("date_ext"),
-        "Choose a date to extend the time period beyond the end of the linelist. Note that when the selected maximum date is earlier than the time extension end date, observed wtime units (including time units with cases) beyond the time unit of the selected maximum date are removed and replaced with artificially added zero-case time units.",
+        "Choose a date to extend the time period beyond the end of the linelist. Note that when the selected maximum date is earlier than the time extension end date, observed time units (including time units with cases) beyond the time unit of the selected maximum date are removed and replaced with artificially added zero-case time units.",
         value = default_date_ext_config,
         min   = max_date,
         max   = Sys.Date(),

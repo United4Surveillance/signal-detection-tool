@@ -141,7 +141,7 @@ mod_tabpanel_linelist_server <- function(
         ) |>
         dplyr::ungroup()
 
-      plot_agegroup_comparison(cases_agg, unique(true_signals()$number_of_weeks))
+      plot_agegroup_comparison(cases_agg, unique(true_signals()$number_of_time_units), unique(true_signals()$time_unit))
     })
 
     cases_linelist <- shiny::reactive({

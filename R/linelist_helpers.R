@@ -56,18 +56,45 @@ filter_linelist_by_period_and_stratum <- function(linelist, start_date, end_date
 #'
 #' @return A filtered linelist containing cases reported during the signal
 #'   detection period.
-filter_rows_past_weeks <- function(signals_padded, linelist) {
+filter_rows_past_time_units <- function(signals_padded, linelist) {
   number_of_time_units <- unique(signals_padded$number_of_time_units)
-  signals_padded_n_time_units <- signals_padded |>
-    dplyr::filter(!is.na(alarms)) |>
+  time_unit <- unique(signals_padded$time_unit)
+
+  # solve zero signals (entails zero time_unit-values) problem
+  if (length(time_unit) != 1 || is.na(time_unit)) {
+    return(linelist[0, ])
+  }
+
+  if (time_unit %in% c("weekly", "biweekly")){
+  signals_padded_n_time_units <- signals_padded %>%
+    dplyr::filter(!is.na(alarms)) %>%
     dplyr::mutate(
       week_start = ISOweek::ISOweek2date(
         paste0(year, "-W", sprintf("%02d", week), "-1")
       )
     )
-
   start_date <- min(signals_padded_n_time_units$week_start)
-  end_date <- max(signals_padded_n_time_units$week_start) + lubridate::days(6)
+  if (time_unit == "weekly") {
+    end_date <- max(signals_padded_n_time_units$week_start) + lubridate::days(6)
+  } else {
+    end_date <- max(signals_padded_n_time_units$week_start) + lubridate::days(13)
+  }
+  } else if (time_unit == "monthly") {
+    signals_padded_n_time_units <- signals_padded %>%
+      dplyr::filter(!is.na(alarms)) %>%
+      dplyr::mutate(
+        month_start = lubridate::make_date(
+          year = year,
+          month = month,
+          day = 1
+        )
+      )
+
+    start_date <- min(signals_padded_n_time_units$month_start)
+
+    end_date <- max(signals_padded_n_time_units$month_start) %>%
+      lubridate::ceiling_date(unit = "month") - lubridate::days(1)
+  }
 
   filter_linelist_by_period_and_stratum(linelist, start_date, end_date)
 }
@@ -79,7 +106,7 @@ filter_rows_past_weeks <- function(signals_padded, linelist) {
 #' linelist is additionally restricted to that stratum.
 #'
 #' @param signal_row A one-row data frame from weekly aggregated signal results
-#'   containing at least `year` and `week`. May also contain `category` and
+#'   containing at least `year` and `week`/`month`. May also contain `category` and
 #'   `stratum` for stratified signals.
 #' @param linelist A data frame containing a linelist of surveillance data. Must contain
 #'   a `date_report` column and, for stratified signals, the column named in
@@ -87,11 +114,36 @@ filter_rows_past_weeks <- function(signals_padded, linelist) {
 #'
 #' @return A filtered linelist containing cases reported during the selected
 #'   signal week and, if applicable, matching the selected stratum.
-filter_rows_signal_week <- function(signal_row, linelist) {
-  start_date <- ISOweek::ISOweek2date(
-    paste0(signal_row$year, "-W", sprintf("%02d", signal_row$week), "-1")
-  )
-  end_date <- start_date + lubridate::days(6)
+filter_rows_signal_time_unit <- function(signal_row, linelist) {
+  time_unit <- unique(signal_row$time_unit)
+
+  # solve zero signals (entails zero time_unit-values) problem
+  if (length(time_unit) != 1 || is.na(time_unit)) {
+    return(linelist[0, ])
+  }
+
+  if (time_unit %in% c("weekly", "biweekly")) {
+    start_date <- ISOweek::ISOweek2date(
+      paste0(signal_row$year, "-W", sprintf("%02d", signal_row$week), "-1")
+    )
+
+    if (time_unit == "weekly") {
+      end_date <- start_date + lubridate::days(6)
+    } else {
+      end_date <- start_date + lubridate::days(13)
+    }
+
+  } else if (time_unit == "monthly") {
+    start_date <- lubridate::make_date(
+      year = signal_row$year,
+      month = signal_row$month,
+      day = 1
+    )
+
+    end_date <- lubridate::ceiling_date(start_date, unit = "month") -
+      lubridate::days(1)
+
+  }
 
   filter_linelist_by_period_and_stratum(linelist, start_date, end_date, signal_row)
 }
@@ -106,10 +158,10 @@ filter_rows_signal_week <- function(signal_row, linelist) {
 #' @param selected_signal_ids Integer vector of row positions in `true_signals`
 #'   identifying the signal rows selected by the user.
 #' @param true_signals A data frame containing signal rows, typically filtered
-#'   to true or selected signals. Must contain `year` and `week`, and may contain
+#'   to true or selected signals. Must contain `year` and `week`/`month`, and may contain
 #'   `category` and `stratum`.
 #' @param signals_padded A data frame containing padded signal detection results.
-#'   Used to determine the full comparison period. Must contain `year`, `week`,
+#'   Used to determine the full comparison period. Must contain `year`, `week`/`month`,
 #'   and `alarms`.
 #' @param filtered_data A case linelist after applying the current app filters.
 #'   Must contain `case_id` and `date_report`.
@@ -123,24 +175,24 @@ filter_rows_signal_week <- function(signal_row, linelist) {
 #' }
 build_signal_and_comparison_linelist <- function(selected_signal_ids, true_signals, signals_padded, filtered_data) {
   cases <- purrr::map_dfr(selected_signal_ids, function(ssid) {
-    signal_row <- true_signals |> dplyr::slice(ssid)
+    signal_row <- true_signals %>% dplyr::slice(ssid)
 
-    filter_rows_signal_week(signal_row, filtered_data) |>
+    filter_rows_signal_time_unit(signal_row, filtered_data) %>%
       dplyr::mutate(signal_id = ssid, .before = 1)
   })
 
   # deduplicate cases, add both signal_id numbers to those cases occuring in two signals
-  cases <- cases |>
-    dplyr::group_by(case_id) |>
+  cases <- cases %>%
+    dplyr::group_by(case_id) %>%
     dplyr::summarise(
       signal_id = paste(sort(unique(signal_id)), collapse = ","),
       dplyr::across(-signal_id, dplyr::first),
       .groups = "drop"
-    ) |>
+    ) %>%
     dplyr::relocate(signal_id, .before = 1)
 
 
-  cases_comparison <- filter_rows_past_weeks(signals_padded, filtered_data) |>
+  cases_comparison <- filter_rows_past_time_units(signals_padded, filtered_data) %>%
     dplyr::anti_join(cases, by = "case_id")
 
   list(
