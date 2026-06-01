@@ -141,9 +141,13 @@ aggregate_data <- function(data,
     checkmate::check_date(lubridate::date(date_end)),
     combine = "or"
   )
+
   checkmate::assert(
     checkmate::check_null(date_ext),
-    checkmate::check_date(lubridate::date(date_ext)),
+    checkmate::check_date(
+      lubridate::date(date_ext),
+      lower = max(lubridate::date(data[[date_var]]), na.rm = TRUE)
+    ),
     combine = "or"
   )
   checkmate::assert(
@@ -152,6 +156,12 @@ aggregate_data <- function(data,
     combine = "or"
   )
 
+  if (!is.null(date_end) && !is.null(date_ext)) {
+    checkmate::assert_true(
+      lubridate::date(date_ext) >= lubridate::date(date_end),
+      .var.name = "date_ext must be >= date_end"
+    )
+  }
   # add the missing isoweeks to the dataset
   # inform the user when date_start > min_date that the data is nevertheless extended
   if (!is.null(date_start) && date_start > min(data[[date_var]])) {
