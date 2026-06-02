@@ -714,7 +714,7 @@ pad_signals <- function(data,
   } else {
     cutoff_date <- date_ext - test_period_parameter
     date_ext <- cutoff_date
-    }
+  }
 
   data_no_signals <- data %>%
     dplyr::filter(date_report <= cutoff_date)
@@ -742,22 +742,22 @@ pad_signals <- function(data,
   if (time_unit %in% c("weekly", "biweekly")) {
     result_padding_unstratified <- signals_timeopt %>%
       dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
-  # preparing dataset with padding
-  if (is.null(stratification)) {
-    result_padding <- result_padding_unstratified
-  } else {
-    result_padding_stratified <- SignalDetectionTool::get_signals(
-      data = data_no_signals,
-      method = method,
-      date_var = "date_report",
-      stratification = stratification,
-      number_of_time_units = max_time_opt + number_of_time_units,
-      alpha_upper = alpha_upper,
-      date_ext = date_ext,
-      time_unit = time_unit,
-      exclude_outbreak_cases_from_fitting = FALSE # no filtering used in CUSUM, EARS, FarringtonFlexible
-    ) %>%
-      dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected, category, stratum)
+    # preparing dataset with padding
+    if (is.null(stratification)) {
+      result_padding <- result_padding_unstratified
+    } else {
+      result_padding_stratified <- SignalDetectionTool::get_signals(
+        data = data_no_signals,
+        method = method,
+        date_var = "date_report",
+        stratification = stratification,
+        number_of_time_units = max_time_opt + number_of_time_units,
+        alpha_upper = alpha_upper,
+        date_ext = date_ext,
+        time_unit = time_unit,
+        exclude_outbreak_cases_from_fitting = FALSE # no filtering used in CUSUM, EARS, FarringtonFlexible
+      ) %>%
+        dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected, category, stratum)
 
       result_padding <- dplyr::bind_rows(
         result_padding_stratified,
