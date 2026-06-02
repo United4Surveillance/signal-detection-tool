@@ -73,12 +73,8 @@ test_that("run_report() works with pre-computed signals_agg and signals_pad", {
     preprocessed,
     method = "ears",
     stratification = "age_group",
-<<<<<<< HEAD
-    number_of_time_units = 6
-=======
-    number_of_weeks = 6,
+    number_of_time_units = 6,
     exclude_outbreak_cases_from_fitting = FALSE
->>>>>>> d416f3011a185a75b77ace5d935b16e65590af99
   )
 
   signals_agg_pad <- aggregate_pad_signals(
