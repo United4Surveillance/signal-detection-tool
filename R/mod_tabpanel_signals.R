@@ -49,7 +49,8 @@ mod_tabpanel_signals_server <- function(
   intervention_date,
   pad_signals_choice,
   min_cases_signals,
-  alpha_upper
+  alpha_upper,
+  exclude_outbreak_cases_from_fitting
 ) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -213,7 +214,8 @@ mod_tabpanel_signals_server <- function(
         time_unit = time_unit(),
         number_of_time_units = number_of_time_units(),
         date_ext = date_ext(),
-        alpha_upper = alpha_upper()
+        alpha_upper = alpha_upper(),
+        exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting()
       )
       results %>% dplyr::mutate(
         alarms = dplyr::if_else(alarms & cases < min_cases_signals(),

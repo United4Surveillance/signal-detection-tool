@@ -37,6 +37,7 @@ time_unit_label_plural <- dplyr::case_when(
 - Intervention date: `r params$intervention_date`
 `r ifelse(grepl("glm|farrington", params$method) && !is.null(params$alpha_upper), paste0("- P-value cutoff: ", params$alpha_upper), paste0(""))`
 - Filters applied in the application: `r paste0(ifelse(length(params$selected_filter_vars) != 0, paste(params$selected_filter_vars, collapse = ", "), "None"))`
+`r ifelse(params$exclude_outbreak_cases_from_fitting == TRUE && grepl("glm", params$method), paste0("- Only cases not associated with outbreaks are used for training"), paste0(""))`
 
 
 ```{r}
@@ -51,7 +52,8 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
     number_of_time_units = params$number_of_time_units,
     time_unit = params$time_unit,
     alpha_upper = params$alpha_upper,
-    intervention_date = params$intervention_date
+    intervention_date = params$intervention_date,
+    exclude_outbreak_cases_from_fitting = params$exclude_outbreak_cases_from_fitting
   )
 
   if (!is.null(params$strata)) {
@@ -62,7 +64,8 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
       number_of_time_units = params$number_of_time_units,
       time_unit = params$time_unit,
       alpha_upper = params$alpha_upper,
-      intervention_date = params$intervention_date
+      intervention_date = params$intervention_date,
+      exclude_outbreak_cases_from_fitting = params$exclude_outbreak_cases_from_fitting
     )
 
     signal_results <- signal_results %>%

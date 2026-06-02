@@ -215,6 +215,8 @@ Defines key variables for analysis and signal detection.
 
 - `time_unit`: *(Scalar: String)* - Choose a time unit (weekly, biweekly, monthly) for case count aggregation
 
+- `exclude_outbreak_cases_from_fitting`: *(Scalar: Boolean)* - Exclude outbreak-associated cases from baseline fitting, only used for GLM-based algorithms.
+
 ##### **Post-Processing Parameters (`post-processing`)** *(Mapping)* 
 Defines key variables for post-processing.
 

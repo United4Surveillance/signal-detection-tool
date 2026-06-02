@@ -12,7 +12,8 @@ aggregate_data(
   date_end = NULL,
   date_ext = NULL,
   group = NULL,
-  time_unit = "weekly"
+  time_unit = "weekly",
+  exclude_outbreak_cases_from_fitting = FALSE
 )
 }
 \arguments{
@@ -29,6 +30,11 @@ aggregate_data(
 \item{group}{A character specifying another grouping variable. Usually used for stratification.}
 
 \item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
+
+\item{exclude_outbreak_cases_from_fitting}{A boolean specifying whether outbreak-associated case counts should be excluded only when fitting the baseline.
+If `data` does not contain an `outbreak_status` column indicating the number of cases associated with outbreaks,
+the number of cases not in outbreaks is not calculated, even when `exclude_outbreak_cases_from_fitting = TRUE`.
+Default is `FALSE`. The default should only be changed if it is planned to use a GLM-based algorithm.}
 }
 \description{
 Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek or the month and adds missing isoweeks or months to the aggregated dataset.

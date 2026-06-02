@@ -75,6 +75,10 @@
 #' @param alpha_upper Numeric between 0.001 and 0.2. Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to
 #'   using the 0.95 quantile. `alpha_upper` is only used for methods that require it (currently "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend"), for which a default value of 0.05 is applied.
 #'   Ears and cusum do not use the value; for these, the argument is ignored and internally set to NULL.
+#' @param exclude_outbreak_cases_from_fitting A boolean specifying whether outbreak-associated case counts should be excluded only when fitting the baseline.
+#'   `TRUE` can only be applied when GLM-based outbreak detection models are used and `data` contains an `outbreak_status` column
+#'   indicating the number of cases associated with outbreaks. For other specifications only `FALSE` is a valid input.
+#'   Default is `FALSE`. `TRUE` can not be combined with using `outbreak_status` in `strata`.
 #'
 #' @return Returns the path to the rendered output written to disk. For DOCX
 #'   output this is the Word document; for HTML output this is the ZIP archive
@@ -160,7 +164,8 @@ run_report <- function(
   custom_theme = NULL,
   min_cases_signals = 1,
   title = NULL,
-  alpha_upper = 0.05
+  alpha_upper = 0.05,
+  exclude_outbreak_cases_from_fitting = FALSE
 ) {
   # Currently multi pathogen report is only supported for HTML
   if ((report_format == "DOCX" & length(unique(data$pathogen)) > 1) | report_format == "DOCX" & is.data.frame(strata)) {
@@ -263,6 +268,42 @@ run_report <- function(
   checkmate::assert(
     checkmate::check_string(title, null.ok = TRUE)
   )
+  if (!grepl("cusum", method, ignore.case = TRUE) && !grepl("ears", method, ignore.case = TRUE) &&
+    !grepl("farringtonflexible", method, ignore.case = TRUE) &&
+    "outbreak_status" %in% names(data)) {
+    checkmate::assert(
+      checkmate::check_true(exclude_outbreak_cases_from_fitting),
+      checkmate::check_false(exclude_outbreak_cases_from_fitting),
+      combine = "or"
+    )
+  } else {
+    checkmate::assert(
+      checkmate::check_false(exclude_outbreak_cases_from_fitting)
+    )
+  }
+  if (
+    isTRUE(exclude_outbreak_cases_from_fitting) &&
+      "outbreak_status" %in% strata
+  ) {
+    stop(
+      "`exclude_outbreak_cases_from_fitting = TRUE` cannot be used when ",
+      "`outbreak_status` is selected in `strata`.",
+      call. = FALSE
+    )
+  }
+
+  # check that outbreak_status has proper values when using exclude_outbreak_cases_from_fitting
+  has_outbreak_status_values <-
+    "outbreak_status" %in% names(data) &&
+      any(!is.na(data$outbreak_status) & trimws(as.character(data$outbreak_status)) != "")
+
+  if (isTRUE(exclude_outbreak_cases_from_fitting) && !has_outbreak_status_values) {
+    stop(
+      "`exclude_outbreak_cases_from_fitting = TRUE` requires `outbreak_status` ",
+      "to contain at least one non-missing value.",
+      call. = FALSE
+    )
+  }
 
   # Preparation for reporting ---------------------------------------------------------------
   # transform the method name used in the app to the method names in the background
@@ -308,13 +349,14 @@ run_report <- function(
       signals <- get_signals_all(preprocessed_data_pat,
         method = method,
         intervention_date = intervention_date,
-        stratification = strata_per_path, # hier auch Erregerspezifisches Stratum verwenden
+        stratification = strata_per_path,
         date_start = NULL,
         date_end = NULL,
         date_var = "date_report",
         number_of_time_units = number_of_time_units,
         time_unit = time_unit,
-        alpha_upper = alpha_upper
+        alpha_upper = alpha_upper,
+        exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting
       ) %>%
         dplyr::mutate(
           pathogen = pat,
@@ -362,7 +404,8 @@ run_report <- function(
     signals_agg = signals_agg,
     intervention_date = intervention_date,
     title = title,
-    alpha_upper = alpha_upper
+    alpha_upper = alpha_upper,
+    exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting
   )
 
   if (report_format == "DOCX") {

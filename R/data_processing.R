@@ -97,6 +97,10 @@ preprocess_data <- function(data) {
 #' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL
 #' @param group A character specifying another grouping variable. Usually used for stratification.
 #' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
+#' @param exclude_outbreak_cases_from_fitting A boolean specifying whether outbreak-associated case counts should be excluded only when fitting the baseline.
+#'   If `data` does not contain an `outbreak_status` column indicating the number of cases associated with outbreaks,
+#'   the number of cases not in outbreaks is not calculated, even when `exclude_outbreak_cases_from_fitting = TRUE`.
+#'   Default is `FALSE`. The default should only be changed if it is planned to use a GLM-based algorithm.
 #' @examples
 #' \dontrun{
 #' data_aggregated <- input_example %>%
@@ -111,7 +115,8 @@ aggregate_data <- function(data,
                            date_end = NULL,
                            date_ext = NULL,
                            group = NULL,
-                           time_unit = "weekly") {
+                           time_unit = "weekly",
+                           exclude_outbreak_cases_from_fitting = FALSE) {
   checkmate::check_subset(c(group, date_var), names(data), empty.ok = TRUE)
 
   checkmate::assert(
@@ -124,9 +129,18 @@ aggregate_data <- function(data,
     checkmate::check_date(lubridate::date(date_end)),
     combine = "or"
   )
+
   checkmate::assert(
     checkmate::check_null(date_ext),
-    checkmate::check_date(lubridate::date(date_ext)),
+    checkmate::check_date(
+      lubridate::date(date_ext),
+      lower = max(lubridate::date(data[[date_var]]), na.rm = TRUE)
+    ),
+    combine = "or"
+  )
+  checkmate::assert(
+    checkmate::check_true(exclude_outbreak_cases_from_fitting),
+    checkmate::check_false(exclude_outbreak_cases_from_fitting),
     combine = "or"
   )
   checkmate::assert_choice(
@@ -135,6 +149,12 @@ aggregate_data <- function(data,
     null.ok = FALSE
   )
 
+  if (!is.null(date_end) && !is.null(date_ext)) {
+    checkmate::assert_true(
+      lubridate::date(date_ext) >= lubridate::date(date_end),
+      .var.name = "date_ext must be >= date_end"
+    )
+  }
   # add the missing isoweeks to the dataset
   # inform the user when date_start > min_date that the data is nevertheless extended
   if (!is.null(date_start) && date_start > min(data[[date_var]])) {
@@ -156,34 +176,38 @@ aggregate_data <- function(data,
     data$cw_iso <- factor(data$cw_iso, levels = extended_data_range)
   }
 
-  if (is.null(group)) {
-    data_agg <- data %>%
-      dplyr::group_by(cw_iso, .drop = FALSE)
-  } else {
-    data_agg <- data %>%
-      dplyr::group_by(cw_iso, !!rlang::sym(group), .drop = FALSE)
+  group_vars <- c("cw_iso", group)
+
+  data_agg <- data %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_vars)), .drop = FALSE) %>%
+    dplyr::summarize(
+      cases = dplyr::n(),
+      cases_in_outbreak = if ("outbreak_status" %in% names(data)) {
+        sum(outbreak_status == "yes", na.rm = TRUE)
+      } else {
+        0L
+      },
+      .groups = "drop"
+    )
+
+  if ("outbreak_status" %in% names(data) && exclude_outbreak_cases_from_fitting) {
+    data_agg <- data_agg %>%
+      dplyr::mutate(
+        cases_not_in_outbreak = cases - cases_in_outbreak
+      )
   }
 
-  data_agg <- data_agg %>%
-    dplyr::summarize(cases = dplyr::n(), .groups = "drop")
-
-  if ("outbreak_status" %in% names(data)) {
-    if (is.null(group)) {
-      data_outbreak_agg <- data %>%
-        dplyr::group_by(cw_iso, .drop = FALSE)
-    } else {
-      data_outbreak_agg <- data %>%
-        dplyr::group_by(cw_iso, !!rlang::sym(group), .drop = FALSE)
-    }
-    data_outbreak_agg <- data_outbreak_agg %>%
-      dplyr::summarize(
-        cases_in_outbreak = sum(outbreak_status == "yes", na.rm = TRUE),
-        .groups = "drop"
-      )
-
+  if (!("outbreak_status" %in% names(data))) {
     data_agg <- data_agg %>%
-      dplyr::left_join(data_outbreak_agg, by = c("cw_iso", group)) %>%
-      dplyr::mutate(cases_in_outbreak = dplyr::if_else(is.na(cases_in_outbreak), 0, cases_in_outbreak))
+      dplyr::select(-cases_in_outbreak)
+
+    if (exclude_outbreak_cases_from_fitting) {
+      warning(
+        "No exclusion of outbreak-associated case counts was performed despite ",
+        "exclude_outbreak_cases_from_fitting = TRUE, ",
+        "because `outbreak_status` is not present in the data."
+      )
+    }
   }
 
   if (time_unit %in% c("weekly", "biweekly")) {

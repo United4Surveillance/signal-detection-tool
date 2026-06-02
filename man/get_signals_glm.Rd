@@ -15,7 +15,8 @@ get_signals_glm(
   intervention_date = NULL,
   min_timepoints_baseline = 12,
   min_timepoints_trend = 12,
-  past_time_units_not_included = 4
+  past_time_units_not_included = 4,
+  exclude_outbreak_cases_from_fitting = FALSE
 )
 }
 \arguments{
@@ -41,6 +42,11 @@ Specifies the p-value cutoff used to compute the threshold; for example, a value
 \item{past_time_units_not_included}{An integer specifying the number of past time units to exclude from
 the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 Default is `4`.}
+
+\item{exclude_outbreak_cases_from_fitting}{A boolean specifying whether outbreak-associated cases should be excluded from case counts.
+If `data_aggregated` does not contain a `cases_not_in_outbreak` column indicating the number of cases not associated with outbreaks,
+no exclusion is applied, even when `exclude_outbreak_cases_from_fitting = TRUE`.
+Default is `FALSE`.}
 }
 \value{
 data.frame aggregated data with case counts and additional columns alarms, upperbound and expected obtained from the signal detection algorithm. If return_full_model == TRUE then expected_pad is also added as a column to data_aggregated.
