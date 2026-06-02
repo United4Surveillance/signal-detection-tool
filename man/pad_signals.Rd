@@ -11,8 +11,6 @@ pad_signals(data, signals)
 \item{data}{A data frame containing the surveillance data preprocessed with [preprocess_data()].}
 
 \item{signals}{tibble, output of the \code{\link{get_signals}} function with number of cases and signal per time unit, year}
-
-\item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 }
 \value{
 tibble, with padded signals

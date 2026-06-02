@@ -643,7 +643,6 @@ aggregate_signals <- function(signals, number_of_time_units, time_unit) {
 #' Inside the function it is computed what the maximum number of timepoints is the signal detection algorithms can be applied for. This depends on the algorithm and the amount of historic data. The already generated signals dataframe is then extended with the expectation and threshold into the past
 #' @param data A data frame containing the surveillance data preprocessed with [preprocess_data()].
 #' @param signals tibble, output of the \code{\link{get_signals}} function with number of cases and signal per time unit, year
-#' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
 #' @returns tibble, with padded signals
 #' @examples
 #' \dontrun{
@@ -694,12 +693,6 @@ pad_signals <- function(data,
   stopifnot(length(method) == 1)
   stopifnot(length(time_unit) == 1)
   stopifnot(is.null(date_ext) || length(date_ext) == 1)
-
-  if (!is.null(date_ext)) {
-    max_date_df <- date_ext
-  } else if (is.null(date_ext)) {
-    max_date_df <- max(data[[date_var]], na.rm = TRUE)
-  }
 
   if (time_unit %in% "weekly") {
     test_period_parameter <- lubridate::weeks(number_of_time_units)
