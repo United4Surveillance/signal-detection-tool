@@ -122,8 +122,8 @@ mod_tabpanel_signals_server <- function(
           bslib::card(
             full_screen = TRUE,
             shiny::h1(paste0(
-              "Timeseries of cases per ",  time_unit_label_singular() ," with signal detection applied to the last ",
-              number_of_time_units(), " ", time_unit_label(),"."
+              "Timeseries of cases per ", time_unit_label_singular(), " with signal detection applied to the last ",
+              number_of_time_units(), " ", time_unit_label(), "."
             )),
             shiny::uiOutput(ns("ts_filter_var")),
             shiny::uiOutput(ns("ts_filter_val")),

@@ -38,15 +38,15 @@ plot_agegroup_comparison <- function(data_agg, number_of_time_units, time_unit) 
     time_unit == "weekly" && number_of_time_units == 1 ~ "week",
     time_unit == "weekly" && number_of_time_units > 1 ~ "weeks",
     time_unit == "biweekly" && number_of_time_units == 1 ~ "biweekly period",
-    time_unit == "biweekly" && number_of_time_units > 1  ~ "biweekly periods",
+    time_unit == "biweekly" && number_of_time_units > 1 ~ "biweekly periods",
     time_unit == "monthly" && number_of_time_units == 1 ~ "month",
-    time_unit == "monthly" && number_of_time_units > 1  ~ "months"
+    time_unit == "monthly" && number_of_time_units > 1 ~ "months"
   )
 
   data_agg <- data_agg |>
     dplyr::mutate(signal = factor(signal,
       levels = c(TRUE, FALSE),
-      labels = c("Signal cases", paste0("All cases excluding signal cases (last ", number_of_time_units, " ", time_unit_label,")"))
+      labels = c("Signal cases", paste0("All cases excluding signal cases (last ", number_of_time_units, " ", time_unit_label, ")"))
     )) |>
     tidyr::complete(age_group, signal, fill = list(n = 0))
 

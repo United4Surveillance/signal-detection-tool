@@ -695,6 +695,12 @@ pad_signals <- function(data,
   stopifnot(length(time_unit) == 1)
   stopifnot(is.null(date_ext) || length(date_ext) == 1)
 
+  if (!is.null(date_ext)) {
+    max_date_df <- date_ext
+  } else if (is.null(date_ext)) {
+    max_date_df <- max(data[[date_var]], na.rm = TRUE)
+  }
+
   if (time_unit %in% "weekly") {
     test_period_parameter <- lubridate::weeks(number_of_time_units)
   } else if (time_unit %in% "biweekly") {
@@ -708,7 +714,7 @@ pad_signals <- function(data,
   } else {
     cutoff_date <- date_ext - test_period_parameter
     date_ext <- cutoff_date
-  }
+    }
 
   data_no_signals <- data %>%
     dplyr::filter(date_report <= cutoff_date)
