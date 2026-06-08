@@ -213,6 +213,15 @@ mod_tabpanel_signals_server <- function(
         date_ext = date_ext()
       )
 
+      # post-processing
+      results %>% dplyr::mutate(
+        alarms = dplyr::if_else(alarms & cases < min_cases_signals(),
+          FALSE, alarms, missing = alarms
+        )) %>%
+          dplyr::mutate(
+            alarms = dplyr::if_else(score < min_score_signals(), FALSE, alarms, missing = alarms)
+          )
+      # score signals
       results <- results %>%
         get_scores(
           scorers = list(
@@ -221,17 +230,9 @@ mod_tabpanel_signals_server <- function(
             strength = score_strength,
             specificity = score_specificity_alarm#,
             #specificity_2 = score_specificity_stronger
-            ),
+          ),
           aggregation = "mean"
-          )
-
-      results %>% dplyr::mutate(
-        alarms = dplyr::if_else(alarms & cases < min_cases_signals(),
-          FALSE, alarms, missing = alarms
-        )) %>%
-          dplyr::mutate(
-            alarms = dplyr::if_else(score < min_score_signals(), FALSE, alarms, missing = alarms)
-          )
+        )
     })
 
     signals_agg <- shiny::reactive({

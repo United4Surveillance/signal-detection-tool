@@ -296,6 +296,14 @@ run_report <- function(
         date_var = "date_report",
         number_of_weeks = number_of_weeks
       ) %>%
+        dplyr::mutate(
+          pathogen = pat,
+          alarms = dplyr::if_else(alarms & cases < min_cases_signals,
+            FALSE, alarms, missing = alarms
+          )) %>%
+            dplyr::mutate(
+              alarms = dplyr::if_else(score >= min_score_signals(), alarms, FALSE, missing = alarms)
+            ) %>%
         get_scores(
           list(
             seasonal = score_seasonal,
@@ -304,15 +312,7 @@ run_report <- function(
             specificity = score_specificity_alarm
           ),
           aggregation = "mean"
-        ) %>%
-        dplyr::mutate(
-          pathogen = pat,
-          alarms = dplyr::if_else(alarms & cases < min_cases_signals,
-            FALSE, alarms, missing = alarms
-          )) %>%
-            dplyr::mutate(
-              alarms = dplyr::if_else(score >= min_score_signals(), alarms, FALSE, missing = alarms)
-            )
+        )
 
 
       signals_agg_pad <- aggregate_pad_signals(
