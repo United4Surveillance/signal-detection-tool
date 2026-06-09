@@ -42,7 +42,7 @@ get_signals_cusum <- function(data_aggregated,
   }
 
   # cusum not posible if there are no cases in the calibration weeks
-  if(sum(sts_cases@observed[1:num_weeks_for_calibration]) <= 0){
+  if (sum(sts_cases@observed[1:num_weeks_for_calibration]) <= 0) {
     return(NULL)
   }
 
