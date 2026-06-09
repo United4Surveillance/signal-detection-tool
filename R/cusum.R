@@ -41,6 +41,11 @@ get_signals_cusum <- function(data_aggregated,
     return(NULL)
   }
 
+  # cusum not posible if there are no cases in the calibration weeks
+  if(sum(sts_cases@observed[1:num_weeks_for_calibration]) <= 0){
+    return(NULL)
+  }
+
   control <- list(
     range = ((num_weeks_total - number_of_weeks + 1):num_weeks_total),
     k = 1.04,
