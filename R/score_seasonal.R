@@ -81,8 +81,16 @@ case_yearly_dist <- function(dat_ts, selected_years){
     dplyr::group_by(.data$month) %>%
     dplyr::summarise(
       cases.dist = mean(.data$cases_perc),
-      score = 1 - .data$cases.dist,
       .groups = "drop")
-
+  
+  # scale distribution
+  # If no seasonal, expected proportion each month should be 1/12
+  # proportions are scaled with an s-curve, where score(p = 1/12) = 0.5
+  cases_dist <- cases_dist %>% 
+    dplyr::mutate(
+      cases.dist.scaled = (.data$cases.dist^2)/(1/12^2 + .data$cases.dist^2),
+      score = 1 - .data$cases.dist.scaled
+    )
+  
   return(cases_dist)
 }
