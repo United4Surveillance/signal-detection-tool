@@ -623,8 +623,7 @@ aggregate_signals <- function(signals, number_of_weeks) {
 #' results_padded
 #' }
 #' @export
-pad_signals <- function(data,
-                        signals) {
+pad_signals <- function(signals) {
   # get the stratification, method and number_of_weeks from the signals data
   stratification <- if (all(is.na(signals$category))) {
     NULL
@@ -656,29 +655,43 @@ pad_signals <- function(data,
   stopifnot(length(method) == 1)
   stopifnot(is.null(date_ext) || length(date_ext) == 1)
 
-  if (is.null(date_ext)) {
-    cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(number_of_weeks)
-  } else {
-    cutoff_date <- date_ext - lubridate::weeks(number_of_weeks)
-    date_ext <- cutoff_date
-  }
+  # if (is.null(date_ext)) {
+  #   cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(number_of_weeks)
+  # } else {
+  #   cutoff_date <- date_ext - lubridate::weeks(number_of_weeks)
+  #   date_ext <- cutoff_date
+  # }
 
-  data_no_signals <- data %>%
-    dplyr::filter(date_report <= cutoff_date)
+  # remove test period from signals object as this is essentially the aggregated data
+  data_no_signals <- signals %>%
+    dplyr::filter(is.na(alarms)) %>% 
+    dplyr::select(year, week, cases, cases_in_outbreak, category, stratum)
+
+  # getting necessary functions and options for method
+  method_list <- get_method_func_parameters(method)
+  
+  # testing paddings for unstratified agg data
+  data_agg <- data_no_signals %>% 
+    dplyr::filter(is.na(category))
 
   available_thresholds <- c(26, 20, 14, 8, 2)
-
   for (timeopt in available_thresholds) {
     max_time_opt <- timeopt
 
-    signals_timeopt <- SignalDetectionTool::get_signals(
-      data_no_signals,
-      method = method,
-      number_of_weeks = timeopt + number_of_weeks,
+    signals_timeopt <- run_method_parameters(method_list, data_agg, timeopt + number_of_weeks,
+      intervention_date = NULL, #intervention_date,
       alpha_upper = alpha_upper,
-      date_ext = date_ext,
-      exclude_outbreak_cases_from_fitting = FALSE # no filtering used in CUSUM, EARS, FarringtonFlexible
+      exclude_outbreak_cases_from_fitting = FALSE #exclude_outbreak_cases_from_fitting
     )
+
+    # signals_timeopt <- SignalDetectionTool::get_signals(
+    #   data_no_signals,
+    #   method = method,
+    #   number_of_weeks = timeopt + number_of_weeks,
+    #   alpha_upper = alpha_upper,
+    #   date_ext = date_ext,
+    #   exclude_outbreak_cases_from_fitting = FALSE # no filtering used in CUSUM, EARS, FarringtonFlexible
+    # )
 
     if (!is.null(signals_timeopt)) {
       break
@@ -692,17 +705,48 @@ pad_signals <- function(data,
   if (is.null(stratification)) {
     result_padding <- result_padding_unstratified
   } else {
-    result_padding_stratified <- SignalDetectionTool::get_signals(
-      data = data_no_signals,
-      method = method,
-      date_var = "date_report",
-      stratification = stratification,
-      number_of_weeks = max_time_opt + number_of_weeks,
-      alpha_upper = alpha_upper,
-      date_ext = date_ext,
-      exclude_outbreak_cases_from_fitting = FALSE # no filtering used in CUSUM, EARS, FarringtonFlexible
-    ) %>%
-      dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected, category, stratum)
+    # loop for each category
+    signals_category <- list()
+    for(category_i in stratification){
+      strata <- data_no_signals %>% 
+        dplyr::filter(category == category_i) %>% 
+        dplyr::distinct(stratum) %>% dplyr::pull(stratum)
+
+      # loop for each stratum
+      signals_strata <- list()
+      for(stratum_i in strata){
+        data_agg <- data_no_signals %>% 
+          dplyr::filter(category == category_i, stratum == stratum_i)
+
+        # run signal method
+        signals_stratum_i <- run_method_parameters(method_list, data_agg, max_time_opt + number_of_weeks,
+          intervention_date = NULL, #intervention_date,
+          alpha_upper = alpha_upper,
+          exclude_outbreak_cases_from_fitting = FALSE #exclude_outbreak_cases_from_fitting
+        )
+
+        signals_strata[[stratum_i]] <- signals_stratum_i %>%
+          dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
+      }
+      
+      # join all strata results and save in category list
+      signals_category[[category_i]] <- dplyr::bind_rows(signals_strata)
+    }
+    
+    # join all category results
+    result_padding_stratified <- dplyr::bind_rows(signals_category)
+    
+    # result_padding_stratified <- SignalDetectionTool::get_signals(
+    #   data = data_no_signals,
+    #   method = method,
+    #   date_var = "date_report",
+    #   stratification = stratification,
+    #   number_of_weeks = max_time_opt + number_of_weeks,
+    #   alpha_upper = alpha_upper,
+    #   date_ext = date_ext,
+    #   exclude_outbreak_cases_from_fitting = FALSE # no filtering used in CUSUM, EARS, FarringtonFlexible
+    # ) %>%
+    #   dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected, category, stratum)
 
     result_padding <- dplyr::bind_rows(
       result_padding_stratified,
@@ -730,6 +774,74 @@ pad_signals <- function(data,
 
 
   return(results)
+}
+
+get_method_func_parameters <- function(method){ 
+
+  fun <- switch(method,
+    "farrington" = get_signals_farringtonflexible,
+    "aeddo" = get_signals_aeddo,
+    "ears" = get_signals_ears,
+    "cusum" = get_signals_cusum,
+    "glm mean" = get_signals_glm,
+    "glm timetrend" = get_signals_glm, 
+    "glm harmonic" = get_signals_glm,
+    "glm harmonic with timetrend" = get_signals_glm,
+    "glm harmonic multi" = get_signals_glm,
+    "glm farrington" = get_signals_glm,
+    "glm farrington with timetrend" = get_signals_glm 
+  )
+
+  model_sp <- switch(method,
+    "glm mean" = "mean",
+    "glm timetrend" = "mean",
+    "glm harmonic" = "sincos",
+    "glm harmonic with timetrend" = "sincos",
+    "glm harmonic multi" = "sincos_multiS",
+    "glm farrington" = "FN",
+    "glm farrington with timetrend" = "FN"    
+  )
+
+  time_trend <- switch(method,
+    "glm mean" = FALSE,
+    "glm timetrend" = TRUE,
+    "glm harmonic" = FALSE,
+    "glm harmonic with timetrend" = TRUE,
+    "glm harmonic multi" = TRUE,
+    "glm farrington" = FALSE,
+    "glm farrington with timetrend" = TRUE    
+  )
+
+  return(list(method= method, fun = fun, model = model_sp, trend = time_trend))
+}
+
+run_method_parameters <- function(method_list, data_aggregated, time_units, ...){
+  # extract function, model, and timetrend parameter
+  method <- method_list[["method"]]
+  fun <- method_list[["fun"]]
+  model <- method_list[["model"]]
+  time_trend <- method_list[["trend"]]
+
+  # extract extra parameters
+  extra_params <- list(...) 
+
+  # run method
+  if (grepl("glm", method)) {
+    method_results <- fun(data_aggregated,
+      time_units, model = model,
+      alpha_upper = extra_params$alpha_upper, time_trend = time_trend,
+      intervention_date = extra_params$intervention_date, 
+      exclude_outbreak_cases_from_fitting = extra_params$exclude_outbreak_cases_from_fitting
+    )
+  } else if (grepl("farrington", method)) {
+    method_results <- fun(data_aggregated, 
+      time_units, alpha_upper = extra_params$alpha_upper
+    )
+  } else {
+    method_results <- fun(data_aggregated, time_units)
+  }
+
+  return(method_results)
 }
 
 #' Extract strata from precomputed signals_agg
