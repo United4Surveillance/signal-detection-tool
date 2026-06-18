@@ -354,7 +354,6 @@ run_report <- function(
 
       signals_agg_pad <- aggregate_pad_signals(
         signals,
-        preprocessed_data_pat,
         number_of_weeks,
         method
       )

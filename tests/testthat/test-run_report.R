@@ -79,7 +79,6 @@ test_that("run_report() works with pre-computed signals_agg and signals_pad", {
 
   signals_agg_pad <- aggregate_pad_signals(
     signal_results,
-    preprocessed,
     number_of_weeks = 6,
     method = "ears"
   )
@@ -175,7 +174,6 @@ test_that("run_report() works with multiple pathogens using precomputed signals_
 
     signals_agg_pad <- aggregate_pad_signals(
       signals,
-      preprocessed_data_pat,
       number_of_weeks = 6,
       method = "ears"
     )

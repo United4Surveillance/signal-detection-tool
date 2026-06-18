@@ -518,7 +518,6 @@ get_signals <- function(data,
 #'
 #' @param signal_results A tibble returned by [get_signals()], containing weekly
 #'   signal detection results (cases, alarms, upperbound, expected, etc.).
-#' @param preprocessed A data frame containing the surveillance data preprocessed with [preprocess_data()].
 #' @param number_of_weeks Integer specifying how many weeks to include in the aggregation.
 #' @param method A character string specifying the method used to generate the signals.
 #'   Determines whether padding is necessary. For `"glm"` methods, padding is skipped
@@ -548,7 +547,6 @@ get_signals <- function(data,
 #' )
 #' output <- aggregate_pad_signals(
 #'   signal_results = results,
-#'   preprocessed = data_preprocessed,
 #'   number_of_weeks = 6,
 #'   method = "farrington"
 #' )
@@ -557,7 +555,6 @@ get_signals <- function(data,
 #' }
 #' @export
 aggregate_pad_signals <- function(signal_results,
-                                  preprocessed,
                                   number_of_weeks,
                                   method) {
   signals_agg <- aggregate_signals(signal_results, number_of_weeks = number_of_weeks)
@@ -566,7 +563,7 @@ aggregate_pad_signals <- function(signal_results,
     if (grepl("glm", method)) {
       return(signal_results)
     }
-    pad_signals(preprocessed, signal_results)
+    pad_signals(signal_results)
   }
 
   signals_padded <- logic_apply_padding()
@@ -612,7 +609,6 @@ aggregate_signals <- function(signals, number_of_weeks) {
 #' Extend the computed threshold and expectation of the signal detection method to the past for visualisation purposes but not for signal generation
 
 #' Inside the function it is computed what the maximum number of timepoints is the signal detection algorithms can be applied for. This depends on the algorithm and the amount of historic data. The already generated signals dataframe is then extended with the expectation and threshold into the past
-#' @param data A data frame containing the surveillance data preprocessed with [preprocess_data()].
 #' @param signals tibble, output of the \code{\link{get_signals}} function with number of cases and signal per week, year
 #' @returns tibble, with padded signals
 #' @examples

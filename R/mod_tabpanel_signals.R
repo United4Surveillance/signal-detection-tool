@@ -317,7 +317,7 @@ mod_tabpanel_signals_server <- function(
         # for those the results are already padded
         signal_results()
       } else if (isTRUE(pad_signals_choice())) {
-        pad_signals(filtered_data(), signal_results())
+        pad_signals(signal_results())
       } else {
         signal_results() %>% dplyr::mutate(upperbound_pad = NA_real_, expected_pad = NA_real_)
       }
