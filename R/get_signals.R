@@ -660,14 +660,14 @@ pad_signals <- function(signals) {
 
   # remove test period from signals object as this is essentially the aggregated data
   data_no_signals <- signals %>%
-    dplyr::filter(is.na(alarms)) %>% 
+    dplyr::filter(is.na(alarms)) %>%
     dplyr::select(year, week, cases, cases_in_outbreak, category, stratum)
 
   # getting necessary functions and options for method
   method_list <- get_method_func_parameters(method)
-  
+
   # testing paddings for unstratified agg data
-  data_agg <- data_no_signals %>% 
+  data_agg <- data_no_signals %>%
     dplyr::filter(is.na(category))
 
   available_thresholds <- c(26, 20, 14, 8, 2)
@@ -675,9 +675,9 @@ pad_signals <- function(signals) {
     max_time_opt <- timeopt
 
     signals_timeopt <- run_method_parameters(method_list, data_agg, timeopt + number_of_weeks,
-      intervention_date = NULL, #intervention_date,
+      intervention_date = NULL, # intervention_date,
       alpha_upper = alpha_upper,
-      exclude_outbreak_cases_from_fitting = FALSE #exclude_outbreak_cases_from_fitting
+      exclude_outbreak_cases_from_fitting = FALSE # exclude_outbreak_cases_from_fitting
     )
 
     # signals_timeopt <- SignalDetectionTool::get_signals(
@@ -703,35 +703,36 @@ pad_signals <- function(signals) {
   } else {
     # loop for each category
     signals_category <- list()
-    for(category_i in stratification){
-      strata <- data_no_signals %>% 
-        dplyr::filter(category == category_i) %>% 
-        dplyr::distinct(stratum) %>% dplyr::pull(stratum)
+    for (category_i in stratification) {
+      strata <- data_no_signals %>%
+        dplyr::filter(category == category_i) %>%
+        dplyr::distinct(stratum) %>%
+        dplyr::pull(stratum)
 
       # loop for each stratum
       signals_strata <- list()
-      for(stratum_i in strata){
-        data_agg <- data_no_signals %>% 
+      for (stratum_i in strata) {
+        data_agg <- data_no_signals %>%
           dplyr::filter(category == category_i, stratum == stratum_i)
 
         # run signal method
         signals_stratum_i <- run_method_parameters(method_list, data_agg, max_time_opt + number_of_weeks,
-          intervention_date = NULL, #intervention_date,
+          intervention_date = NULL, # intervention_date,
           alpha_upper = alpha_upper,
-          exclude_outbreak_cases_from_fitting = FALSE #exclude_outbreak_cases_from_fitting
+          exclude_outbreak_cases_from_fitting = FALSE # exclude_outbreak_cases_from_fitting
         )
 
         signals_strata[[stratum_i]] <- signals_stratum_i %>%
           dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
       }
-      
+
       # join all strata results and save in category list
       signals_category[[category_i]] <- dplyr::bind_rows(signals_strata)
     }
-    
+
     # join all category results
     result_padding_stratified <- dplyr::bind_rows(signals_category)
-    
+
     # result_padding_stratified <- SignalDetectionTool::get_signals(
     #   data = data_no_signals,
     #   method = method,
@@ -776,21 +777,20 @@ pad_signals <- function(signals) {
 #'
 #' @param method String. Method for singal detection. See [available_algorithms()].
 #'
-#' @returns list containing function object, model specification, and time trend boolean specific for the selected method 
-get_method_func_parameters <- function(method){ 
-
+#' @returns list containing function object, model specification, and time trend boolean specific for the selected method
+get_method_func_parameters <- function(method) {
   fun <- switch(method,
     "farrington" = get_signals_farringtonflexible,
     "aeddo" = get_signals_aeddo,
     "ears" = get_signals_ears,
     "cusum" = get_signals_cusum,
     "glm mean" = get_signals_glm,
-    "glm timetrend" = get_signals_glm, 
+    "glm timetrend" = get_signals_glm,
     "glm harmonic" = get_signals_glm,
     "glm harmonic with timetrend" = get_signals_glm,
     "glm harmonic multi" = get_signals_glm,
     "glm farrington" = get_signals_glm,
-    "glm farrington with timetrend" = get_signals_glm 
+    "glm farrington with timetrend" = get_signals_glm
   )
 
   model_sp <- switch(method,
@@ -800,7 +800,7 @@ get_method_func_parameters <- function(method){
     "glm harmonic with timetrend" = "sincos",
     "glm harmonic multi" = "sincos_multiS",
     "glm farrington" = "FN",
-    "glm farrington with timetrend" = "FN"    
+    "glm farrington with timetrend" = "FN"
   )
 
   time_trend <- switch(method,
@@ -810,19 +810,19 @@ get_method_func_parameters <- function(method){
     "glm harmonic with timetrend" = TRUE,
     "glm harmonic multi" = TRUE,
     "glm farrington" = FALSE,
-    "glm farrington with timetrend" = TRUE    
+    "glm farrington with timetrend" = TRUE
   )
 
-  return(list(method= method, fun = fun, model = model_sp, trend = time_trend))
+  return(list(method = method, fun = fun, model = model_sp, trend = time_trend))
 }
 
 #' Run method for signal detection using aggregated data
-#' 
+#'
 #' Wrapper for running different signal detection algorithms using already aggregated data.
 #' Used in combination with [get_method_func_parameters()].
 #'
 #' @param method_list List with method specification generated with [get_method_func_parameters()]
-#' @param data_aggregated data.frame with timeseries of cases of one single stratification. 
+#' @param data_aggregated data.frame with timeseries of cases of one single stratification.
 #' @param time_units Integer. Time units of the Signal detection test period.
 #' @param ... additional arguments for each specific method
 #'
@@ -831,16 +831,16 @@ get_method_func_parameters <- function(method){
 #' @export
 #' @examples
 #' \dontrun{
-#'   dat <- input_example %>% preprocess_data()
-#'   dat_agg <- aggregate_data(dat)
-#'   
-#'   run_method_parameters(get_method_func_parameters("farrington"),
-#'     data_aggregated = dat_agg,
-#'     time_units = 6,
-#'     alpha_upper = 0.05
-#'   )
+#' dat <- input_example %>% preprocess_data()
+#' dat_agg <- aggregate_data(dat)
+#'
+#' run_method_parameters(get_method_func_parameters("farrington"),
+#'   data_aggregated = dat_agg,
+#'   time_units = 6,
+#'   alpha_upper = 0.05
+#' )
 #' }
-run_method_parameters <- function(method_list, data_aggregated, time_units, ...){
+run_method_parameters <- function(method_list, data_aggregated, time_units, ...) {
   # extract function, model, and timetrend parameter
   method <- method_list[["method"]]
   fun <- method_list[["fun"]]
@@ -848,19 +848,21 @@ run_method_parameters <- function(method_list, data_aggregated, time_units, ...)
   time_trend <- method_list[["trend"]]
 
   # extract extra parameters
-  extra_params <- list(...) 
+  extra_params <- list(...)
 
   # run method
   if (grepl("glm", method)) {
     method_results <- fun(data_aggregated,
-      time_units, model = model,
+      time_units,
+      model = model,
       alpha_upper = extra_params$alpha_upper, time_trend = time_trend,
-      intervention_date = extra_params$intervention_date, 
+      intervention_date = extra_params$intervention_date,
       exclude_outbreak_cases_from_fitting = extra_params$exclude_outbreak_cases_from_fitting
     )
   } else if (grepl("farrington", method)) {
-    method_results <- fun(data_aggregated, 
-      time_units, alpha_upper = extra_params$alpha_upper
+    method_results <- fun(data_aggregated,
+      time_units,
+      alpha_upper = extra_params$alpha_upper
     )
   } else {
     method_results <- fun(data_aggregated, time_units)
