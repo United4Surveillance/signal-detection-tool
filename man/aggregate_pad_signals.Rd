@@ -4,13 +4,11 @@
 \alias{aggregate_pad_signals}
 \title{Aggregate and Pad Signals for Reporting}
 \usage{
-aggregate_pad_signals(signal_results, preprocessed, number_of_weeks, method)
+aggregate_pad_signals(signal_results, number_of_weeks, method)
 }
 \arguments{
 \item{signal_results}{A tibble returned by [get_signals()], containing weekly
 signal detection results (cases, alarms, upperbound, expected, etc.).}
-
-\item{preprocessed}{A data frame containing the surveillance data preprocessed with [preprocess_data()].}
 
 \item{number_of_weeks}{Integer specifying how many weeks to include in the aggregation.}
 
@@ -47,7 +45,6 @@ results <- get_signals(
 )
 output <- aggregate_pad_signals(
   signal_results = results,
-  preprocessed = data_preprocessed,
   number_of_weeks = 6,
   method = "farrington"
 )

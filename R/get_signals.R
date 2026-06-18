@@ -772,6 +772,11 @@ pad_signals <- function(signals) {
   return(results)
 }
 
+#' Get necessary functions and parameters for selected method
+#'
+#' @param method String. Method for singal detection. See [available_algorithms()].
+#'
+#' @returns list containing function object, model specification, and time trend boolean specific for the selected method 
 get_method_func_parameters <- function(method){ 
 
   fun <- switch(method,
@@ -811,6 +816,30 @@ get_method_func_parameters <- function(method){
   return(list(method= method, fun = fun, model = model_sp, trend = time_trend))
 }
 
+#' Run method for signal detection using aggregated data
+#' 
+#' Wrapper for running different signal detection algorithms using already aggregated data.
+#' Used in combination with [get_method_func_parameters()].
+#'
+#' @param method_list List with method specification generated with [get_method_func_parameters()]
+#' @param data_aggregated data.frame with timeseries of cases of one single stratification. 
+#' @param time_units Integer. Time units of the Signal detection test period.
+#' @param ... additional arguments for each specific method
+#'
+#' @returns data.frame with signal detection results
+#'
+#' @export
+#' @examples
+#' \dontrun{
+#'   dat <- input_example %>% preprocess_data()
+#'   dat_agg <- aggregate_data(dat)
+#'   
+#'   run_method_parameters(get_method_func_parameters("farrington"),
+#'     data_aggregated = dat_agg,
+#'     time_units = 6,
+#'     alpha_upper = 0.05
+#'   )
+#' }
 run_method_parameters <- function(method_list, data_aggregated, time_units, ...){
   # extract function, model, and timetrend parameter
   method <- method_list[["method"]]
