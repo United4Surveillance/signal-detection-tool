@@ -142,7 +142,7 @@ This method extends the Harmonic method by incorporating two pairs of sine and c
 
 #### Step harmonic
 
-This method models the expected number of cases using the season groups defined in the Farrington outbreak detection algorithm. The year is divided into 10 seasonal windows, each with a constant expected case count within its respective season group. This approach offers flexibility in capturing seasonal patterns, such as a faster decline following a rise, but it requires more data for accurate fitting. 
+This method models the expected number of cases using the season groups defined in the Farrington outbreak detection algorithm. The year is divided into 10 seasonal windows, each with a constant expected case count within its respective season group. This approach offers flexibility in capturing seasonal patterns, such as a faster decline following a rise, but it requires more data for accurate fitting. The algorithm is set to only work with "weekly" - time unit aggregation data.
 
 #### Step harmonic with timetrend
 

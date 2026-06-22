@@ -107,7 +107,7 @@ get_signals_all <- function(preprocessed_data,
 #' @param date_end A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.
 #' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL.
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
-#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly". Algorithms using the farrington framework can only be used with weekly aggregated data.
 #' @param number_of_time_units integer, specifying number of time units to generate signals for.
 #' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
 #'   and internally set to NULL.
@@ -335,7 +335,7 @@ get_signals_stratified <- function(data,
 #' @param date_end A date object or character of format yyyy-mm-dd specifying the end date to filter the data by. Default is NULL.
 #' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL
 #' @param date_var a character specifying the date variable name used for the aggregation. Default is "date_report".
-#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly". Algorithms using the farrington framework can only be used with weekly aggregated data.
 #' @param number_of_time_units integer, specifying number of time units to generate signals for.
 #' @param alpha_upper numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
 #'   and internally set to NULL.
@@ -419,9 +419,9 @@ get_signals <- function(data,
     null.ok = FALSE
   )
 
-  # if (grepl("farrington", method, ignore.case = TRUE)) {
-  #   checkmate::assert_choice(time_unit, choices = "weekly")
-  # }
+  if (grepl("farrington", method, ignore.case = TRUE)) {
+    checkmate::assert_choice(time_unit, choices = "weekly")
+  }
 
   checkmate::assert(
     checkmate::check_integerish(number_of_time_units)

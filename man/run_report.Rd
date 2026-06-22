@@ -42,7 +42,7 @@ Use [names(available_algorithms())] to retrieve the full list.}
 
 \item{number_of_time_units}{integer, number of time units for which signals are generated}
 
-\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly". Algorithms using the farrington framework can only be used with weekly aggregated data.}
 
 \item{pathogens}{Character vector specifying which pathogens to include in
 the report. If `NULL`, all pathogens present in `data` are used when

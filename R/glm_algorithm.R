@@ -69,7 +69,7 @@ create_fourier_terms <- function(ts_len, freq = 52, S_1 = 1, S_2 = 2) {
 #' @param ts_len integer, specifying the length of the aggregated timeseries of case counts
 #' @param model character, default "mean" one of c("mean", "sincos", "sincos_multiS", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.
 #' @param time_trend boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.
-#' @param time_unit character, specifying the time units to aggreagte case data on
+#' @param time_unit character, specifying the time units to aggregate case data on
 #' @param intervention_start integer, specifying the rownumber in the aggregated timeseries which corresponds to the intervention date.
 #' @param min_timepoints_baseline integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new baseline after the intervention.
 #' @param min_timepoints_trend integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.
@@ -285,6 +285,27 @@ get_signals_glm <- function(data_aggregated,
     checkmate::check_false(exclude_outbreak_cases_from_fitting),
     combine = "or"
   )
+
+  if (grepl("fn", model, ignore.case = TRUE)) {
+    if (!"week" %in% names(data_aggregated)) {
+      stop(
+        "The algorithm selected requires that the case aggregation is performed on consecutive weeks.",
+        call. = FALSE
+      )
+    }
+
+    invalid <- with(
+      data_aggregated,
+      year == dplyr::lag(year) & week != dplyr::lag(week) + 1L
+    )
+
+    if (any(invalid, na.rm = TRUE)) {
+      stop(
+        "The algorithm selected requires that the case aggregation is performed on consecutive weeks.",
+        call. = FALSE
+      )
+    }
+  }
 
   ts_len <- nrow(data_aggregated)
   if (!is.null(intervention_date)) {

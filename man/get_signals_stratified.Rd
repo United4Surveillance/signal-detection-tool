@@ -43,7 +43,7 @@ stratify the data by.}
 
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
 
-\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly". Algorithms using the farrington framework can only be used with weekly aggregated data.}
 
 \item{number_of_time_units}{integer, specifying number of time units to generate signals for.}
 

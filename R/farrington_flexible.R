@@ -22,6 +22,25 @@ get_signals_farringtonflexible <- function(data_aggregated,
     checkmate::check_number(alpha_upper, lower = 0.001, upper = 0.2)
   )
 
+  if (!"week" %in% names(data_aggregated)) {
+      stop(
+        "The algorithm selected requires that the case aggregation is performed on consecutive weeks.",
+        call. = FALSE
+      )
+    }
+
+    invalid <- with(
+      data_aggregated,
+      year == dplyr::lag(year) & week != dplyr::lag(week) + 1L
+    )
+
+    if (any(invalid, na.rm = TRUE)) {
+      stop(
+        "The algorithm selected requires that the case aggregation is performed on consecutive weeks.",
+        call. = FALSE
+      )
+    }
+
   sts_cases <- convert_to_sts(data_aggregated, time_unit = "weekly")
 
   num_time_units_total <- length(sts_cases@observed)

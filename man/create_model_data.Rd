@@ -22,7 +22,7 @@ create_model_data(
 
 \item{time_trend}{boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.}
 
-\item{time_unit}{character, specifying the time units to aggreagte case data on}
+\item{time_unit}{character, specifying the time units to aggregate case data on}
 
 \item{intervention_start}{integer, specifying the rownumber in the aggregated timeseries which corresponds to the intervention date.}
 
