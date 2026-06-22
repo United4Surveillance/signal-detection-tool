@@ -201,8 +201,8 @@ run_report <- function(
   )
 
   if (grepl("farrington", method, ignore.case = TRUE) || grepl("^step harmonic\\b", method, ignore.case = TRUE)) {
-      checkmate::assert_choice(time_unit, choices = "weekly")
-    }
+    checkmate::assert_choice(time_unit, choices = "weekly")
+  }
 
   # assert pathogens is NULL (default includes all pathogens) or exist in dataframe or padded signals
   checkmate::assert(
