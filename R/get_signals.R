@@ -627,11 +627,6 @@ pad_signals <- function(signals) {
     unique(signals$category)[!is.na(unique(signals$category))]
   }
 
-  # data_signals <- signals %>%
-  #   dplyr::filter(!is.na(alarms)) %>%
-  #   dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
-
-
   number_of_weeks <- unique(signals$number_of_weeks)
   method <- unique(signals$method)
 
@@ -650,13 +645,6 @@ pad_signals <- function(signals) {
   stopifnot(length(number_of_weeks) == 1)
   stopifnot(length(method) == 1)
   stopifnot(is.null(date_ext) || length(date_ext) == 1)
-
-  # if (is.null(date_ext)) {
-  #   cutoff_date <- max(data$date_report, na.rm = TRUE) - lubridate::weeks(number_of_weeks)
-  # } else {
-  #   cutoff_date <- date_ext - lubridate::weeks(number_of_weeks)
-  #   date_ext <- cutoff_date
-  # }
 
   # remove test period from signals object as this is essentially the aggregated data
   data_no_signals <- signals %>%
@@ -679,15 +667,6 @@ pad_signals <- function(signals) {
       alpha_upper = alpha_upper,
       exclude_outbreak_cases_from_fitting = FALSE # exclude_outbreak_cases_from_fitting
     )
-
-    # signals_timeopt <- SignalDetectionTool::get_signals(
-    #   data_no_signals,
-    #   method = method,
-    #   number_of_weeks = timeopt + number_of_weeks,
-    #   alpha_upper = alpha_upper,
-    #   date_ext = date_ext,
-    #   exclude_outbreak_cases_from_fitting = FALSE # no filtering used in CUSUM, EARS, FarringtonFlexible
-    # )
 
     if (!is.null(signals_timeopt)) {
       break
@@ -732,18 +711,6 @@ pad_signals <- function(signals) {
 
     # join all category results
     result_padding_stratified <- dplyr::bind_rows(signals_category)
-
-    # result_padding_stratified <- SignalDetectionTool::get_signals(
-    #   data = data_no_signals,
-    #   method = method,
-    #   date_var = "date_report",
-    #   stratification = stratification,
-    #   number_of_weeks = max_time_opt + number_of_weeks,
-    #   alpha_upper = alpha_upper,
-    #   date_ext = date_ext,
-    #   exclude_outbreak_cases_from_fitting = FALSE # no filtering used in CUSUM, EARS, FarringtonFlexible
-    # ) %>%
-    #   dplyr::select(year, week, upperbound_pad = upperbound, expected_pad = expected, category, stratum)
 
     result_padding <- dplyr::bind_rows(
       result_padding_stratified,
