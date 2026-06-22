@@ -2,8 +2,8 @@
 % Please edit documentation in R/data_processing.R
 \name{filter_data_last_n_time_units}
 \alias{filter_data_last_n_time_units}
-\title{Filter the data so that only the data of the last n weeks are returned
-This function can be used to filter for those last n weeks where signals were generated.}
+\title{Filter the data so that only the data of the last n time units are returned
+This function can be used to filter for those last n time units where signals were generated.}
 \usage{
 filter_data_last_n_time_units(
   data_agg,
@@ -16,12 +16,12 @@ filter_data_last_n_time_units(
 
 \item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 
-\item{number_of_time_units}{integer, specifying the number of weeks from the most recent week we want to filter the data for}
+\item{number_of_time_units}{integer, specifying the number of time units from the most recent time unit we want to filter the data for}
 }
 \value{
-data.frame, aggregated data of last n weeks
+data.frame, aggregated data of last n time units
 }
 \description{
-Filter the data so that only the data of the last n weeks are returned
-This function can be used to filter for those last n weeks where signals were generated.
+Filter the data so that only the data of the last n time units are returned
+This function can be used to filter for those last n time units where signals were generated.
 }

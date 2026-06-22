@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_processing.R
 \name{get_all_cw_iso}
 \alias{get_all_cw_iso}
-\title{function to get all iso weeks between `date_start` and `date_end`}
+\title{function to get all time units between `date_start` and `date_end`}
 \usage{
 get_all_cw_iso(date_start, date_end, time_unit = "weekly")
 }
@@ -14,5 +14,5 @@ get_all_cw_iso(date_start, date_end, time_unit = "weekly")
 \item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 }
 \description{
-function to get all iso weeks between `date_start` and `date_end`
+function to get all time units between `date_start` and `date_end`
 }

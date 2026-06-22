@@ -699,7 +699,7 @@ pad_signals <- function(data,
   } else if (time_unit %in% "biweekly") {
     test_period_parameter <- lubridate::weeks(2 * number_of_time_units)
   } else if (time_unit %in% "monthly") {
-    test_period_parameter <- months(number_of_time_units)
+    test_period_parameter <- lubridate::period(number_of_time_units, "months")
   }
 
   if (is.null(date_ext)) {

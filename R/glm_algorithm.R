@@ -315,7 +315,7 @@ get_signals_glm <- function(data_aggregated,
   sort_cols <- c("year", "month", "week")
   sort_cols <- sort_cols[sort_cols %in% names(data_aggregated)]
   data_aggregated <- data_aggregated %>%
-    dplyr::arrange(across(all_of(sort_cols)))
+    dplyr::arrange(dplyr::across(dplyr::all_of(sort_cols)))
   # take cases from the first signal detection time unit
   cases <- data_aggregated %>%
     dplyr::select(cases)

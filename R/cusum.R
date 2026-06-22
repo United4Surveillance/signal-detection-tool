@@ -48,6 +48,11 @@ get_signals_cusum <- function(data_aggregated,
     return(NULL)
   }
 
+  # cusum not posible if there are no cases in the calibration time units
+  if (sum(sts_cases@observed[1:num_time_units_for_calibration]) <= 0) {
+    return(NULL)
+  }
+
   control <- list(
     range = ((num_time_units_total - number_of_time_units + 1):num_time_units_total),
     k = 1.04,
