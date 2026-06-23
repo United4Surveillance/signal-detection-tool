@@ -284,7 +284,7 @@ get_signals_stratified <- function(data,
           )
       } else {
         if (model != "") {
-          results <- fun(sub_data_agg, number_of_time_units, model = model, time_trend = time_trend, intervention_date = intervention_date, alpha_upper = alpha_upper, exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting)
+          results <- fun(sub_data_agg, number_of_time_units, model = model, time_trend = time_trend, intervention_date = intervention_date, alpha_upper = alpha_upper, exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting, time_unit = time_unit)
         } else if (identical(fun, get_signals_ears) || identical(fun, get_signals_cusum)) {
           results <- fun(sub_data_agg, number_of_time_units, time_unit = time_unit)
         } else if (identical(fun, get_signals_farringtonflexible)) {
@@ -485,7 +485,7 @@ get_signals <- function(data,
       aggregate_data(date_var = date_var, date_start = date_start, date_end = date_end, date_ext = date_ext, time_unit = time_unit, exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting)
 
     if (grepl("glm", method)) {
-      results <- fun(data_agg, number_of_time_units, model = model, time_trend = time_trend, intervention_date = intervention_date, alpha_upper = alpha_upper, exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting)
+      results <- fun(data_agg, number_of_time_units, model = model, time_trend = time_trend, intervention_date = intervention_date, alpha_upper = alpha_upper, exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting, time_unit = time_unit)
     } else if (grepl("cusum", method, ignore.case = TRUE) || grepl("ears", method, ignore.case = TRUE)) {
       results <- fun(data_agg, number_of_time_units, time_unit = time_unit)
     } else {

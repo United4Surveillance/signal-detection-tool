@@ -16,7 +16,8 @@ get_signals_glm(
   min_timepoints_baseline = 12,
   min_timepoints_trend = 12,
   past_time_units_not_included = 4,
-  exclude_outbreak_cases_from_fitting = FALSE
+  exclude_outbreak_cases_from_fitting = FALSE,
+  time_unit = "weekly"
 )
 }
 \arguments{
@@ -47,6 +48,8 @@ Default is `4`.}
 If `data_aggregated` does not contain a `cases_not_in_outbreak` column indicating the number of cases not associated with outbreaks,
 no exclusion is applied, even when `exclude_outbreak_cases_from_fitting = TRUE`.
 Default is `FALSE`.}
+
+\item{time_unit}{character, specifying the time units to aggregate case data on. Default is "weekly". Algorithms using the farrington framework can only be used with weekly aggregated data.}
 }
 \value{
 data.frame aggregated data with case counts and additional columns alarms, upperbound and expected obtained from the signal detection algorithm. If return_full_model == TRUE then expected_pad is also added as a column to data_aggregated.

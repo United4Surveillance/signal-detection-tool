@@ -792,7 +792,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
 
     # get default, min and max dates for intervention date
     valid_dates_intervention <- shiny::reactive({
-      get_valid_dates_intervention_start(filtered_data(), number_of_time_units = input$n_time_units, time_trend = time_trend())
+      get_valid_dates_intervention_start(filtered_data(), number_of_time_units = input$n_time_units, time_trend = time_trend(), time_unit = input$time_unit)
     })
 
     # Return list of subsetted data and parameters

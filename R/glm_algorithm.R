@@ -251,6 +251,7 @@ create_formula <- function(model_data) {
 #'   If `data_aggregated` does not contain a `cases_not_in_outbreak` column indicating the number of cases not associated with outbreaks,
 #'   no exclusion is applied, even when `exclude_outbreak_cases_from_fitting = TRUE`.
 #'   Default is `FALSE`.
+#' @param time_unit character, specifying the time units to aggregate case data on. Default is "weekly". Algorithms using the farrington framework can only be used with weekly aggregated data.
 #' @return data.frame aggregated data with case counts and additional columns alarms, upperbound and expected obtained from the signal detection algorithm. If return_full_model == TRUE then expected_pad is also added as a column to data_aggregated.
 #'
 #' @examples
@@ -271,7 +272,8 @@ get_signals_glm <- function(data_aggregated,
                             min_timepoints_baseline = 12,
                             min_timepoints_trend = 12,
                             past_time_units_not_included = 4,
-                            exclude_outbreak_cases_from_fitting = FALSE) {
+                            exclude_outbreak_cases_from_fitting = FALSE,
+                            time_unit = "weekly") {
   checkmate::assert(
     checkmate::check_choice(model, choices = c("mean", "sincos", "sincos_multiS", "FN"))
   )
@@ -286,25 +288,19 @@ get_signals_glm <- function(data_aggregated,
     combine = "or"
   )
 
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
+  )
+
+  # algorithms using the farrington framework should only be used with weekly aggregated data
   if (grepl("fn", model, ignore.case = TRUE)) {
-    if (!"week" %in% names(data_aggregated)) {
-      stop(
-        "The algorithm selected requires that the case aggregation is performed on consecutive weeks.",
-        call. = FALSE
-      )
-    }
-
-    invalid <- with(
-      data_aggregated,
-      year == dplyr::lag(year) & week != dplyr::lag(week) + 1L
+    checkmate::assert_choice(
+      time_unit,
+      choices = "weekly",
+      null.ok = FALSE
     )
-
-    if (any(invalid, na.rm = TRUE)) {
-      stop(
-        "The algorithm selected requires that the case aggregation is performed on consecutive weeks.",
-        call. = FALSE
-      )
-    }
   }
 
   ts_len <- nrow(data_aggregated)
@@ -327,7 +323,8 @@ get_signals_glm <- function(data_aggregated,
     time_trend = time_trend,
     intervention_start = intervention_start,
     min_timepoints_baseline = min_timepoints_baseline,
-    min_timepoints_trend = min_timepoints_trend
+    min_timepoints_trend = min_timepoints_trend,
+    time_unit = time_unit
   )
 
   formula <- as.formula(create_formula(model_data))
@@ -474,7 +471,8 @@ get_signals_glm <- function(data_aggregated,
         min_timepoints_baseline = min_timepoints_baseline,
         min_timepoints_trend = min_timepoints_trend,
         past_time_units_not_included = past_time_units_not_included,
-        exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting
+        exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting,
+        time_unit = time_unit
       )
     )
   }
