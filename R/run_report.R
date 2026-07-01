@@ -358,7 +358,8 @@ run_report <- function(
           pathogen = pat,
           alarms = dplyr::if_else(alarms & cases < min_cases_signals,
             FALSE, alarms, missing = alarms
-          )) %>%
+          )
+        ) %>%
         get_scores(
           list(
             seasonal = score_seasonal,

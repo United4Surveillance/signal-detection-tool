@@ -8,11 +8,14 @@
 #' @export
 #'
 #' @examples \dontrun{
-#' signals <- input_example %>% preprocess_data() %>% get_signals_all() %>% dplyr::mutate(pathogen = "Pertussis")
+#' signals <- input_example %>%
+#'   preprocess_data() %>%
+#'   get_signals_all() %>%
+#'   dplyr::mutate(pathogen = "Pertussis")
 #'
 #' score_specififcity_stronger(signals)
 #' }
-score_specificity_stronger <- function(signal_results){
+score_specificity_stronger <- function(signal_results) {
   signal_scores <- signal_results %>%
     filter(!is.na(expected)) %>%
     group_by(category, year, week) %>%
@@ -42,11 +45,14 @@ score_specificity_stronger <- function(signal_results){
 #' @export
 #'
 #' @examples \dontrun{
-#' signals <- input_example %>% preprocess_data() %>% get_signals_all() %>% dplyr::mutate(pathogen = "Pertussis")
+#' signals <- input_example %>%
+#'   preprocess_data() %>%
+#'   get_signals_all() %>%
+#'   dplyr::mutate(pathogen = "Pertussis")
 #'
 #' score_specififcity_alarm(signals)
 #' }
-score_specificity_alarm <- function(signal_results){
+score_specificity_alarm <- function(signal_results) {
   signal_scores <- signal_results %>%
     filter(!is.na(expected)) %>%
     # in category

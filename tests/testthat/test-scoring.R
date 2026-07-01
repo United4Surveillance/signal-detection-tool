@@ -228,7 +228,7 @@ testthat::test_that("get_scores() returns original columns plus aggregated score
   )
 
   testthat::expect_s3_class(result, "tbl_df")
-  testthat::expect_identical(names(result), c("signal_id","alarms", "value", "score"))
+  testthat::expect_identical(names(result), c("signal_id", "alarms", "value", "score"))
   testthat::expect_equal(result$signal_id, signal_results$signal_id)
   testthat::expect_equal(result$value, signal_results$value)
   testthat::expect_equal(result$score, c(0.5, 0.5, 0.5))

@@ -8,12 +8,14 @@
 #' @export
 #'
 #' @examples \dontrun{
-#' signals <- input_example %>% preprocess_data() %>% get_signals() %>% dplyr::mutate(pathogen = "Pertussis")
+#' signals <- input_example %>%
+#'   preprocess_data() %>%
+#'   get_signals() %>%
+#'   dplyr::mutate(pathogen = "Pertussis")
 #'
 #' score_seasonal(signals)
 #' }
-score_seasonal <- function(signals_res){
-
+score_seasonal <- function(signals_res) {
   # select the unstratified
   ts_pathogen <- signals_res %>% dplyr::filter(is.na(category))
 
@@ -57,7 +59,7 @@ score_seasonal <- function(signals_res){
 #' @returns dataframe with the empirical distribution of cases in the year and its corresponding score
 #' @export
 #'
-case_yearly_dist <- function(dat_ts, selected_years){
+case_yearly_dist <- function(dat_ts, selected_years) {
   # per year, group total cases in month, normalize against total cases in year,
   # calculate mean cases across years for every month
   # score is 1 - cases.percentage
@@ -77,20 +79,21 @@ case_yearly_dist <- function(dat_ts, selected_years){
     ) %>%
     tidyr::complete(.data$month, fill = list(cases = 0, cases_in_outbreak = 0)) %>%
     dplyr::group_by(.data$year) %>%
-    dplyr::mutate(cases_perc = .data$cases/sum(.data$cases)) %>%
+    dplyr::mutate(cases_perc = .data$cases / sum(.data$cases)) %>%
     dplyr::group_by(.data$month) %>%
     dplyr::summarise(
       cases.dist = mean(.data$cases_perc),
-      .groups = "drop")
-  
+      .groups = "drop"
+    )
+
   # scale distribution
   # If no seasonal, expected proportion each month should be 1/12
   # proportions are scaled with an s-curve, where score(p = 1/12) = 0.5
-  cases_dist <- cases_dist %>% 
+  cases_dist <- cases_dist %>%
     dplyr::mutate(
-      cases.dist.scaled = (.data$cases.dist^2)/(1/12^2 + .data$cases.dist^2),
+      cases.dist.scaled = (.data$cases.dist^2) / (1 / 12^2 + .data$cases.dist^2),
       score = 1 - .data$cases.dist.scaled
     )
-  
+
   return(cases_dist)
 }

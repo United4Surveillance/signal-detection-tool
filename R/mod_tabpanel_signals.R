@@ -221,7 +221,8 @@ mod_tabpanel_signals_server <- function(
       results %>% dplyr::mutate(
         alarms = dplyr::if_else(alarms & cases < min_cases_signals(),
           FALSE, alarms, missing = alarms
-        ))
+        )
+      )
 
       # score signals
       results <- results %>%
@@ -230,8 +231,8 @@ mod_tabpanel_signals_server <- function(
             seasonal = score_seasonal,
             recurrence = score_recurrence,
             strength = score_strength,
-            specificity = score_specificity_alarm#,
-            #specificity_2 = score_specificity_stronger
+            specificity = score_specificity_alarm # ,
+            # specificity_2 = score_specificity_stronger
           ),
           aggregation = "mean"
         ) %>% # apply post-processing to scores

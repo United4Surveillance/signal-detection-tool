@@ -20,7 +20,8 @@
 validate_scorer_output <- function(score_tbl, signal_results, scorer_name = "<unknown>") {
   if (!is.data.frame(score_tbl)) {
     stop(sprintf("Scorer '%s' must return a data.frame or tibble.", scorer_name),
-         call. = FALSE)
+      call. = FALSE
+    )
   }
 
   expected_names <- c(".row_id", "score")
@@ -47,7 +48,8 @@ validate_scorer_output <- function(score_tbl, signal_results, scorer_name = "<un
 
   if (anyDuplicated(score_tbl$.row_id)) {
     stop(sprintf("Scorer '%s' contains duplicated `.row_id` values.", scorer_name),
-         call. = FALSE)
+      call. = FALSE
+    )
   }
 
   if (!setequal(score_tbl$.row_id, signal_results$.row_id)) {
@@ -72,7 +74,8 @@ validate_scorer_output <- function(score_tbl, signal_results, scorer_name = "<un
 
   if (!is.numeric(score_tbl$score)) {
     stop(sprintf("Scorer '%s': `score` must be numeric.", scorer_name),
-         call. = FALSE)
+      call. = FALSE
+    )
   }
 
   if (any(is.nan(score_tbl$score))) {
@@ -109,7 +112,8 @@ validate_scorer_output <- function(score_tbl, signal_results, scorer_name = "<un
 
   if (any(score_tbl$score[is_alarm] < 0 | score_tbl$score[is_alarm] > 1)) {
     stop(sprintf("Scorer '%s': `score` must be in the interval [0, 1].", scorer_name),
-         call. = FALSE)
+      call. = FALSE
+    )
   }
 
   invisible(score_tbl)
@@ -155,8 +159,7 @@ aggregate_scores <- function(score_df, aggregation = c("mean", "sum")) {
 
   n_observed_scores <- rowSums(!is.na(score_matrix))
 
-  aggregated_score <- switch(
-    aggregation,
+  aggregated_score <- switch(aggregation,
     mean = rowMeans(score_matrix, na.rm = TRUE),
     sum  = rowSums(score_matrix, na.rm = TRUE)
   )

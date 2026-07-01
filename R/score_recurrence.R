@@ -6,8 +6,7 @@
 #'
 #' @returns signal detection results scored
 #' @export
-score_recurrence<- function(signal_results){
-
+score_recurrence <- function(signal_results) {
   # # select only the stratified
   # signal_results <- signal_results %>%
   #   dplyr::filter(!is.na(.data$category))
@@ -16,7 +15,7 @@ score_recurrence<- function(signal_results){
   ts_pathogen_strat <- signal_results %>%
     dplyr::group_by(.data$category, .data$stratum) %>%
     dplyr::arrange(.data$year, .data$week, .by_group = TRUE) %>%
-    dplyr::group_modify(~{
+    dplyr::group_modify(~ {
       n <- dplyr::first(.x$number_of_weeks)
       dplyr::slice_tail(.x, n = n)
     }) %>%
@@ -44,4 +43,3 @@ score_recurrence<- function(signal_results){
 
   return(score_tbl)
 }
-
