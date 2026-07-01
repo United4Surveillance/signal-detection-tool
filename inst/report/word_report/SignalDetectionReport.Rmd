@@ -12,12 +12,15 @@ params:
   country: "Austria"
   number_of_weeks: 6
   method: "farrington"
-  strata: NULL
+  alpha_upper: 0.05
+  strata: NULL 
+  selected_filter_vars: NULL
   tables: true
   signals_padded: NULL
   signals_agg: NULL
   intervention_date: NULL
   title: "Signal Detection Report"
+  exclude_outbreak_cases_from_fitting: false
 
 ---
 

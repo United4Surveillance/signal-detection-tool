@@ -6,9 +6,9 @@
 #' \dontrun{
 #' data_aggregated <- input_example %>%
 #'   preprocess_data() %>%
-#'   aggregate_data() %>%
-#'   add_rows_missing_dates()
+#'   aggregate_data()
 #' results <- get_signals_cusum(data_aggregated)
+#' results
 #' }
 get_signals_cusum <- function(data_aggregated,
                               number_of_weeks = 52) {
@@ -38,6 +38,11 @@ get_signals_cusum <- function(data_aggregated,
       "Cusum uses 1 week for calibrating an epidemiological baseline. You have ", num_weeks_for_calibration,
       " weeks left in your data/stratification."
     ))
+    return(NULL)
+  }
+
+  # cusum not posible if there are no cases in the calibration weeks
+  if (sum(sts_cases@observed[1:num_weeks_for_calibration]) <= 0) {
     return(NULL)
   }
 

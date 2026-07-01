@@ -18,13 +18,13 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/United4Surveillance/signal-detection-tool/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/United4Surveillance/signal-detection-tool/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
-## Overview
 
+## Overview
 A shiny app for automated detection of signals in infectious disease surveillance data. A signal is an anomaly in an infectious disease surveillance time series.  
 This app allows the user to investigate generated signals and corresponding surveillance time series. It includes upload of csv or Excel files, data checks, possibility to set parameters for signal detection, visualisation of results and generation of reports. The tool is interactive and flexible so that it can be used in different contexts and customised to the user’s needs.
 
 ## Installation and running the app
- You can install the most recent release of the SignalDetectionTool from [GitHub](https://github.com/United4Surveillance/signal-detection-tool) with:
+You can install the most recent release of the SignalDetectionTool from [GitHub](https://github.com/United4Surveillance/signal-detection-tool) with:
 
 ``` r
 # install.packages("devtools")
@@ -129,8 +129,7 @@ Another way to install the tool is downloading the appropriate file found under 
 
 
 ## Usage
-
-The shiny application is structured into a **Help**, **Data**, **Input parameters**, **Signals** and **Report** tab.  
+The shiny application is structured into a **Help**, **Data**, **Input parameters**, **Signals**, **Signal Line List** and **Report** tab.  
 You can try the shiny application yourself using [test data](https://github.com/United4Surveillance/signal-detection-tool/blob/main/dev/data/input/input.csv) provided with the package.
 
 ### Help
@@ -155,8 +154,111 @@ The Signals tab can look like this when using the test data and stratification b
 ![](man/figures/README-timeseries.PNG)
 ![](man/figures/README-signal_detection_table.PNG)
 
+### Signal Line List
+The Signal Line List tab retrieves the line list of cases corresponding to a signal selected by the user.
+
 ### Report
 In the Report tab HTML and Word reports can be generated showing the results of the Signals Tab. Reports can also be generated using the `run_report()` function.
+
+## Data Configuration File
+There is the possibility to start the app with a predefined configuration. This means you don't have to go through all the manual steps like selecting an input file, specifying stratification or choosing an algorithm.
+To use this functionality simply alter the command to start the app.
+Instead of `run_app()` you can use `run_app(path_to_yaml="./path/config_file.yaml")`.
+An example yaml file is part of the external data of the SignalDetectionTool package and can also be found here: [data config example](https://raw.githubusercontent.com/United4Surveillance/signal-detection-tool/refs/heads/main/inst/extdata/data_config_example.yml).
+
+The YAML file needs to adhere to a particular structure and parameter values. It consists of mappings, sequences, and scalars that configure data sources, analytical settings, and pathogen-specific overrides.  
+
+### Config File Structure  
+The YAML document is organized into **root keys**, each representing a distinct configuration profile.  
+
+#### 1. **Default Configuration (`default`)**  
+The `default` root key provides global settings applied unless overridden by pathogen-specific mappings.  
+
+##### **Data Source (`datasource`)** *(Mapping)*  
+Specifies how input data is retrieved. Currently only supports file based data sources out of the box.
+
+- `file` *(Scalar: Boolean)*  
+  - `TRUE` → Use an external file (CSV or Excel).  
+  - `FALSE` → Use a database.  
+
+- `filepath` *(Scalar: String)* Path to the external file, applicable when `file: TRUE`.  
+
+- `db` *(Nested Mapping)* Child elements define database connection details (used when `file: FALSE`).  
+  - `host` *(Scalar: String)* – Database server address (e.g., `localhost`).  
+  - `port` *(Scalar: Integer)* – Database port (e.g., `5432`).  
+  - `database` *(Scalar: String)* – Name of the database.  
+  
+Do note that there is no true database support right now! The DB related parameters are merely placeholders at the moment.
+To actually connect your own database to the tool, you will need to [define custom functions and apply monkey patching](https://gist.github.com/mlbach/0a75ffa695f81e0d777973d3928d9013).
+We plan to add full database support in the future.
+
+##### **Analysis Parameters (`params`)** *(Mapping)*  
+Defines key variables for analysis and signal detection.  
+
+- `pathogen` *(Scalar: String)* – Default pathogen under analysis (e.g., *Pertussis*).
+
+- `date_ext_enabled` *(Scalar: Boolean)* - Use an end date for the analysis period that differs from the line list end date.
+
+- `date_ext_date` *(Scalar: String, Date format `YYYY-MM-DD`)* - Custom end date for the analysis period
+
+- `strata` *(Sequence of Scalars: List of Strings)* – Categories used to stratify the analysis (e.g., `age_group`, `community`).
+
+- `signal_detection_period` *(Scalar: Integer)* – Time period (in weeks or months) for detecting signals.  
+
+- `signal_detection_algorithm` *(Scalar: String)* – Method used for signal detection (e.g., `ears`). 
+
+- `alpha_upper`: *(Scalar: Numeric)* – Adjust the p-value cutoff used to compute the threshold, only used in FarringtonFlexible and GLM algorithms.
+
+- `pandemic_correction`: *(Scalar: Boolean)* - Correct for the effects of the COVID-19 pandemic, only used in GLM algorithms.
+
+- `intervention_date`: *(Scalar: String, Date format `YYYY-MM-DD`)* - Date for the intervention in the pandemic correction models.
+
+- `exclude_outbreak_cases_from_fitting`: *(Scalar: Boolean)* - Exclude outbreak-associated cases from baseline fitting, only used for GLM-based algorithms.
+
+##### **Post-Processing Parameters (`post-processing`)** *(Mapping)* 
+Defines key variables for post-processing.
+
+- `min_cases_signals` *(Scalar: Integer)* - Minimum number of cases required for a signal to be shown.
+
+##### **Shapefile Path (`shapefile_path`)** *(Scalar: Null or String)*  
+Specifies the file path for geographic boundary data. The `~` value indicates that no shapefile is provided.  
+
+---
+
+#### 2. **Pathogen-Specific Mappings**  
+In addition to the default configuration, you can also define pathogen-specific configurations as another root key. 
+These mappings inherit values from `default` unless explicitly overridden.  
+This way it is possible to adjust parameters and algorithm choice to the pathogen of interest.
+
+---
+
+Note that the tool might only recognize and use certain values supplied via the config file.
+Currently, there is a limited set of valid values for stratification and algorithm choice.
+
+Possible strata values:
+
+* None
+* age_group
+* state
+* country
+* county
+* community
+* sex
+
+Possible algorithm values:
+
+* farrington
+* ears
+* cusum
+* glm mean 
+* glm timetrend
+* glm harmonic
+* glm harmonic with timetrend
+* glm harmonic multi
+* glm farrington
+* glm farrington with timetrend 
+
+In the future we will strive to make the tool even more flexible and convenient.
 
 ## Development Process and Contribution
 The tool development is an open source development process.

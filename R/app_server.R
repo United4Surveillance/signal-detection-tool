@@ -27,6 +27,7 @@ app_server <- function(input, output, session) {
     filtered_data = datinput$filtered_data,
     number_of_weeks = datinput$n_weeks,
     number_of_weeks_input_valid = datinput$weeks_input_valid,
+    alpha_upper = datinput$alpha_upper,
     strat_vars = datinput$strat_vars,
     errors_detected = data_load_check_result$errors_detected,
     method = datinput$method,
@@ -35,7 +36,8 @@ app_server <- function(input, output, session) {
     date_ext = datinput$date_ext,
     pad_signals_choice = datinput$pad_signals_choice,
     min_cases_signals = datinput$min_cases_signals,
-    min_score_signals = datinput$min_score_signals
+    min_score_signals = datinput$min_score_signals,
+    exclude_outbreak_cases_from_fitting = datinput$exclude_outbreak_cases_from_fitting
   )
 
   mod_tabpanel_report_server("report",
@@ -44,10 +46,13 @@ app_server <- function(input, output, session) {
     pathogen_vars = datinput$pathogen_vars,
     errors_detected = data_load_check_result$errors_detected,
     datinput$no_algorithm_possible,
+    alpha_upper = datinput$alpha_upper,
     number_of_weeks_input_valid = datinput$weeks_input_valid,
     signals_padded = signals_output$signals_padded,
     signals_agg = signals_output$signals_agg,
-    intervention_date = datinput$intervention_date
+    intervention_date = datinput$intervention_date,
+    selected_filter_vars = datinput$selected_filter_vars,
+    exclude_outbreak_cases_from_fitting = datinput$exclude_outbreak_cases_from_fitting
   )
 
   mod_tabpanel_linelist_server("linelist",

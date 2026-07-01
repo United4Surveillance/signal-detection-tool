@@ -11,6 +11,7 @@ run_report(
   number_of_weeks = 6,
   pathogens = NULL,
   strata = NULL,
+  selected_filter_vars = NULL,
   tables = TRUE,
   output_file = NULL,
   output_dir = ".",
@@ -21,7 +22,9 @@ run_report(
   custom_theme = NULL,
   min_cases_signals = 1,
   min_score_signals = 0,
-  title = NULL
+  title = NULL,
+  alpha_upper = 0.05,
+  exclude_outbreak_cases_from_fitting = FALSE
 )
 }
 \arguments{
@@ -33,7 +36,7 @@ Supported values are `"HTML"` and `"DOCX"`.}
 
 \item{method}{Character scalar specifying the signal detection method.
 Must be one of `"FarringtonFlexible"`, `"EARS"`, `"CUSUM"`, `"Mean"`,
-`"Timetrend"`, `"Harmonic"`, `"Harmonic with timetrend"`,
+`"Timetrend"`, `"Harmonic"`, `"Harmonic with timetrend"`, `Multi-seasonal harmonic`,
 `"Step harmonic"`, or `"Step harmonic with timetrend"`.
 Use [names(available_algorithms())] to retrieve the full list.}
 
@@ -54,6 +57,8 @@ contain one entry for each pathogen included in the report; all referenced
 columns must exist in `data`. Pathogen-specific strata are supported only
 for HTML output. When precomputed signals are supplied, `strata` is not
 inferred from them and is still used to control report rendering.}
+
+\item{selected_filter_vars}{A character vector for printing the variables used for filtering. If `NULL` either no filter is used or the filter is applied outside the app. Custom strings may be included.}
 
 \item{tables}{Logical scalar; if `TRUE`, include signal detection tables in
 the report. Used only for DOCX output and ignored for HTML output.}
@@ -82,9 +87,9 @@ is `NULL`, both are recomputed from `data`.}
 \item{intervention_date}{Date object, character string in `"yyyy-mm-dd"`
 format, or `NULL` specifying the intervention date for interrupted time
 series analysis. Supported only by the methods `"Mean"`, `"Timetrend"`,
-`"Harmonic"`, `"Harmonic with timetrend"`, `"Step harmonic"`, and
-`"Step harmonic with timetrend"`. The default `NULL` disables the
-intervention analysis.}
+`"Harmonic"`, `"Harmonic with timetrend"`, `Multi-seasonal harmonic`,
+`"Step harmonic"`, and `"Step harmonic with timetrend"`. The default `NULL`
+disables the intervention analysis.}
 
 \item{custom_logo}{Character scalar giving the path to a PNG or SVG logo
 that replaces the default United4Surveillance logo. Used only for HTML
@@ -109,6 +114,15 @@ i.e. when `signals_agg` or `signals_padded` is `NULL`.}
 \item{title}{`NULL` or a character scalar specifying the report title. If
 `NULL` or an empty string, a default title of the form
 `"Signal Detection Report - <country>"` is used.}
+
+\item{alpha_upper}{Numeric between 0.001 and 0.2. Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to
+using the 0.95 quantile. `alpha_upper` is only used for methods that require it (currently "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend"), for which a default value of 0.05 is applied.
+Ears and cusum do not use the value; for these, the argument is ignored and internally set to NULL.}
+
+\item{exclude_outbreak_cases_from_fitting}{A boolean specifying whether outbreak-associated case counts should be excluded only when fitting the baseline.
+`TRUE` can only be applied when GLM-based outbreak detection models are used and `data` contains an `outbreak_status` column
+indicating the number of cases associated with outbreaks. For other specifications only `FALSE` is a valid input.
+Default is `FALSE`. `TRUE` can not be combined with using `outbreak_status` in `strata`.}
 }
 \value{
 Returns the path to the rendered output written to disk. For DOCX
@@ -130,7 +144,7 @@ performed beforehand. This function is also invoked within the app.
 # Example 1: Run a report with specified parameters and HTML output
 run_report(
   report_format = "HTML",
-  data = SignalDetectionTool::input_example,
+  data = input_example,
   method = "FarringtonFlexible",
   strata = c("county", "sex"),
   number_of_weeks = 6
@@ -151,7 +165,7 @@ run_report(
 # Example 4: Do not use stratification
 run_report(
   report_format = "HTML",
-  data = SignalDetectionTool::input_example,
+  data = input_example,
   method = "EARS",
   strata = NULL
 )
@@ -159,14 +173,14 @@ run_report(
 # Example 5: Create an HTML report for multiple pathogens
 run_report(
   report_format = "HTML",
-  data = SignalDetectionTool::input_example_multipathogen,
+  data = input_example_multipathogen,
   method = "Harmonic"
 )
 
 # Example 6: Restrict a multi-pathogen HTML report to a subset of pathogens
 run_report(
   report_format = "HTML",
-  data = SignalDetectionTool::input_example_multipathogen,
+  data = input_example_multipathogen,
   pathogens = c("Enterobacter", "Salmonella"),
   method = "Harmonic"
 )
@@ -178,7 +192,7 @@ pathogen_strata <- tibble::tibble(
 )
 run_report(
   report_format = "HTML",
-  data = SignalDetectionTool::input_example_multipathogen,
+  data = input_example_multipathogen,
   pathogens = c("Enterobacter", "Salmonella"),
   strata = pathogen_strata,
   method = "Harmonic"

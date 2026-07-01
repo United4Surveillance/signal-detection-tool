@@ -14,7 +14,7 @@
 #'   Supported values are `"HTML"` and `"DOCX"`.
 #' @param method Character scalar specifying the signal detection method.
 #'   Must be one of `"FarringtonFlexible"`, `"EARS"`, `"CUSUM"`, `"Mean"`,
-#'   `"Timetrend"`, `"Harmonic"`, `"Harmonic with timetrend"`,
+#'   `"Timetrend"`, `"Harmonic"`, `"Harmonic with timetrend"`, `Multi-seasonal harmonic`,
 #'   `"Step harmonic"`, or `"Step harmonic with timetrend"`.
 #'   Use [names(available_algorithms())] to retrieve the full list.
 #' @param number_of_weeks Integer scalar giving the number of weeks for which
@@ -32,6 +32,7 @@
 #'   columns must exist in `data`. Pathogen-specific strata are supported only
 #'   for HTML output. When precomputed signals are supplied, `strata` is not
 #'   inferred from them and is still used to control report rendering.
+#' @param selected_filter_vars A character vector for printing the variables used for filtering. If `NULL` either no filter is used or the filter is applied outside the app. Custom strings may be included.
 #' @param tables Logical scalar; if `TRUE`, include signal detection tables in
 #'   the report. Used only for DOCX output and ignored for HTML output.
 #' @param output_file Character scalar specifying the output file name without a
@@ -54,9 +55,9 @@
 #' @param intervention_date Date object, character string in `"yyyy-mm-dd"`
 #'   format, or `NULL` specifying the intervention date for interrupted time
 #'   series analysis. Supported only by the methods `"Mean"`, `"Timetrend"`,
-#'   `"Harmonic"`, `"Harmonic with timetrend"`, `"Step harmonic"`, and
-#'   `"Step harmonic with timetrend"`. The default `NULL` disables the
-#'   intervention analysis.
+#'   `"Harmonic"`, `"Harmonic with timetrend"`, `Multi-seasonal harmonic`,
+#'   `"Step harmonic"`, and `"Step harmonic with timetrend"`. The default `NULL`
+#'   disables the intervention analysis.
 #' @param custom_logo Character scalar giving the path to a PNG or SVG logo
 #'   that replaces the default United4Surveillance logo. Used only for HTML
 #'   output.
@@ -76,6 +77,13 @@
 #' @param title `NULL` or a character scalar specifying the report title. If
 #'   `NULL` or an empty string, a default title of the form
 #'   `"Signal Detection Report - <country>"` is used.
+#' @param alpha_upper Numeric between 0.001 and 0.2. Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to
+#'   using the 0.95 quantile. `alpha_upper` is only used for methods that require it (currently "Mean", "Timetrend", "Harmonic", "Harmonic with timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic with timetrend"), for which a default value of 0.05 is applied.
+#'   Ears and cusum do not use the value; for these, the argument is ignored and internally set to NULL.
+#' @param exclude_outbreak_cases_from_fitting A boolean specifying whether outbreak-associated case counts should be excluded only when fitting the baseline.
+#'   `TRUE` can only be applied when GLM-based outbreak detection models are used and `data` contains an `outbreak_status` column
+#'   indicating the number of cases associated with outbreaks. For other specifications only `FALSE` is a valid input.
+#'   Default is `FALSE`. `TRUE` can not be combined with using `outbreak_status` in `strata`.
 #'
 #' @return Returns the path to the rendered output written to disk. For DOCX
 #'   output this is the Word document; for HTML output this is the ZIP archive
@@ -88,7 +96,7 @@
 #' # Example 1: Run a report with specified parameters and HTML output
 #' run_report(
 #'   report_format = "HTML",
-#'   data = SignalDetectionTool::input_example,
+#'   data = input_example,
 #'   method = "FarringtonFlexible",
 #'   strata = c("county", "sex"),
 #'   number_of_weeks = 6
@@ -109,7 +117,7 @@
 #' # Example 4: Do not use stratification
 #' run_report(
 #'   report_format = "HTML",
-#'   data = SignalDetectionTool::input_example,
+#'   data = input_example,
 #'   method = "EARS",
 #'   strata = NULL
 #' )
@@ -117,14 +125,14 @@
 #' # Example 5: Create an HTML report for multiple pathogens
 #' run_report(
 #'   report_format = "HTML",
-#'   data = SignalDetectionTool::input_example_multipathogen,
+#'   data = input_example_multipathogen,
 #'   method = "Harmonic"
 #' )
 #'
 #' # Example 6: Restrict a multi-pathogen HTML report to a subset of pathogens
 #' run_report(
 #'   report_format = "HTML",
-#'   data = SignalDetectionTool::input_example_multipathogen,
+#'   data = input_example_multipathogen,
 #'   pathogens = c("Enterobacter", "Salmonella"),
 #'   method = "Harmonic"
 #' )
@@ -136,7 +144,7 @@
 #' )
 #' run_report(
 #'   report_format = "HTML",
-#'   data = SignalDetectionTool::input_example_multipathogen,
+#'   data = input_example_multipathogen,
 #'   pathogens = c("Enterobacter", "Salmonella"),
 #'   strata = pathogen_strata,
 #'   method = "Harmonic"
@@ -149,6 +157,7 @@ run_report <- function(
   number_of_weeks = 6,
   pathogens = NULL,
   strata = NULL,
+  selected_filter_vars = NULL,
   tables = TRUE,
   output_file = NULL,
   output_dir = ".",
@@ -159,7 +168,9 @@ run_report <- function(
   custom_theme = NULL,
   min_cases_signals = 1,
   min_score_signals = 0,
-  title = NULL
+  title = NULL,
+  alpha_upper = 0.05,
+  exclude_outbreak_cases_from_fitting = FALSE
 ) {
   # Currently multi pathogen report is only supported for HTML
   if ((report_format == "DOCX" & length(unique(data$pathogen)) > 1) | report_format == "DOCX" & is.data.frame(strata)) {
@@ -175,6 +186,15 @@ run_report <- function(
   checkmate::assert(
     checkmate::check_choice(method, choices = names(available_algorithms()))
   )
+
+  if (!grepl("cusum", method, ignore.case = TRUE) && !grepl("ears", method, ignore.case = TRUE)) {
+    checkmate::assert(
+      checkmate::check_number(alpha_upper, lower = 0.001, upper = 0.2)
+    )
+  } else {
+    alpha_upper <- NULL
+  }
+
   checkmate::assert(
     checkmate::check_integerish(number_of_weeks, lower = 1)
   )
@@ -245,6 +265,42 @@ run_report <- function(
   checkmate::assert(
     checkmate::check_string(title, null.ok = TRUE)
   )
+  if (!grepl("cusum", method, ignore.case = TRUE) && !grepl("ears", method, ignore.case = TRUE) &&
+    !grepl("farringtonflexible", method, ignore.case = TRUE) &&
+    "outbreak_status" %in% names(data)) {
+    checkmate::assert(
+      checkmate::check_true(exclude_outbreak_cases_from_fitting),
+      checkmate::check_false(exclude_outbreak_cases_from_fitting),
+      combine = "or"
+    )
+  } else {
+    checkmate::assert(
+      checkmate::check_false(exclude_outbreak_cases_from_fitting)
+    )
+  }
+  if (
+    isTRUE(exclude_outbreak_cases_from_fitting) &&
+      "outbreak_status" %in% strata
+  ) {
+    stop(
+      "`exclude_outbreak_cases_from_fitting = TRUE` cannot be used when ",
+      "`outbreak_status` is selected in `strata`.",
+      call. = FALSE
+    )
+  }
+
+  # check that outbreak_status has proper values when using exclude_outbreak_cases_from_fitting
+  has_outbreak_status_values <-
+    "outbreak_status" %in% names(data) &&
+      any(!is.na(data$outbreak_status) & trimws(as.character(data$outbreak_status)) != "")
+
+  if (isTRUE(exclude_outbreak_cases_from_fitting) && !has_outbreak_status_values) {
+    stop(
+      "`exclude_outbreak_cases_from_fitting = TRUE` requires `outbreak_status` ",
+      "to contain at least one non-missing value.",
+      call. = FALSE
+    )
+  }
 
   # Preparation for reporting ---------------------------------------------------------------
   # transform the method name used in the app to the method names in the background
@@ -290,11 +346,13 @@ run_report <- function(
       signals <- get_signals_all(preprocessed_data_pat,
         method = method,
         intervention_date = intervention_date,
-        stratification = strata_per_path, # hier auch Erregerspezifisches Stratum verwenden
+        stratification = strata_per_path,
         date_start = NULL,
         date_end = NULL,
         date_var = "date_report",
-        number_of_weeks = number_of_weeks
+        number_of_weeks = number_of_weeks,
+        alpha_upper = alpha_upper,
+        exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting
       ) %>%
         dplyr::mutate(
           pathogen = pat,
@@ -347,10 +405,13 @@ run_report <- function(
     disease = pathogens,
     number_of_weeks = number_of_weeks,
     method = method,
+    selected_filter_vars = selected_filter_vars,
     signals_padded = signals_padded,
     signals_agg = signals_agg,
     intervention_date = intervention_date,
-    title = title
+    title = title,
+    alpha_upper = alpha_upper,
+    exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting
   )
 
   if (report_format == "DOCX") {

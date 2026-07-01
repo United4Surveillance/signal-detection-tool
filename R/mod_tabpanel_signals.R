@@ -48,7 +48,9 @@ mod_tabpanel_signals_server <- function(
   intervention_date,
   pad_signals_choice,
   min_cases_signals,
-  min_score_signals
+  min_score_signals,
+  alpha_upper,
+  exclude_outbreak_cases_from_fitting
 ) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -210,7 +212,9 @@ mod_tabpanel_signals_server <- function(
         stratification = strat_vars_tidy(),
         date_var = "date_report",
         number_of_weeks = number_of_weeks(),
-        date_ext = date_ext()
+        date_ext = date_ext(),
+        alpha_upper = alpha_upper(),
+        exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting()
       )
 
       # post-processing

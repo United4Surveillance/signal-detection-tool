@@ -101,7 +101,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
             shiny::span("Select up to 3 variables you want to stratify by. Signals and visualisations will be generated for each stratum."),
             shiny::uiOutput(ns("strat_choices")),
             shiny::br(),
-            shiny::h2("Signal detection deriod"),
+            shiny::h2("Signal detection period"),
             shiny::span("Set the number of weeks you want to generate signals for. The signals are generated for the most recent weeks."),
             shiny::uiOutput(ns("weeks_selection")),
             shiny::textOutput(ns("text_weeks_selection")),
@@ -116,6 +116,14 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
               shiny::column(
                 width = 12,
                 shiny::conditionalPanel(
+                  condition = sprintf("output['%s'] == 'TRUE' || output['%s'] == 'TRUE'", ns("algorithm_glm"), ns("algorithm_farrington_chosen")),
+                  shiny::span("Set a p-value cutoff used for computing the threshold"),
+                  shiny::uiOutput(ns("alpha_upper_ui"))
+                )
+              ),
+              shiny::column(
+                width = 12,
+                shiny::conditionalPanel(
                   condition = sprintf("output['%s'] == 'TRUE'", ns("algorithm_glm")),
                   checkboxInput(ns("pandemic_correction"), "Covid19 Pandemic Correction",
                     value = get_data_config_value(
@@ -125,6 +133,22 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                   )
                 ),
                 shiny::uiOutput(ns("conditional_date_input"))
+              ),
+              shiny::column(
+                width = 12,
+                shiny::conditionalPanel(
+                  condition = sprintf(
+                    "output['%s'] == 'TRUE' && output['%s'] == 'TRUE'",
+                    ns("algorithm_glm"),
+                    ns("has_outbreak_status")
+                  ),
+                  checkboxInput(ns("exclude_outbreak_cases_from_fitting"), "Exclude outbreak-assigned cases from baseline fitting",
+                    value = get_data_config_value(
+                      "params:exclude_outbreak_cases_from_fitting",
+                      FALSE, c(TRUE, FALSE)
+                    )
+                  )
+                )
               ),
               shiny::column(
                 width = 12,
@@ -181,6 +205,21 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       ) # TODO: make this dynamic
     })
 
+    output$alpha_upper_ui <- shiny::renderUI({
+      shiny::req(!errors_detected())
+      shiny::numericInput(
+        inputId = ns("alpha_upper"),
+        label = NULL,
+        value = as.numeric(
+          sub(",", ".", get_data_config_value("params:alpha_upper", 0.05))
+        ),
+        min = 0.001,
+        max = 0.2,
+        step = 0.001,
+        width = "40%"
+      )
+    })
+
     output$filter_min_cases_signals <- shiny::renderUI({
       shiny::req(!errors_detected())
       shiny::numericInput(
@@ -216,6 +255,11 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     iv_weeks$add_rule("n_weeks", shinyvalidate::sv_between(1, 12))
     iv_weeks$enable()
 
+    iv_alpha_upper <- shinyvalidate::InputValidator$new()
+    iv_alpha_upper$add_rule("alpha_upper", shinyvalidate::sv_numeric())
+    iv_alpha_upper$add_rule("alpha_upper", shinyvalidate::sv_between(0.001, 0.2))
+    iv_alpha_upper$enable()
+
     iv_min_cases <- shinyvalidate::InputValidator$new()
     iv_min_cases$add_rule("min_cases_signals", shinyvalidate::sv_integer())
     iv_min_cases$add_rule("min_cases_signals", shinyvalidate::sv_gte(1))
@@ -232,11 +276,18 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       shiny::req(input$n_weeks)
       shiny::req(iv_weeks$is_valid())
 
+      # Use extension date if available, otherwise latest date in filtered data
+      max_date_dataset <- if (!is.null(date_ext())) {
+        date_ext()
+      } else {
+        max(filtered_data()$date_report, na.rm = TRUE)
+      }
+
       # subtracting 1 from input$n_weeks to get correct dates for flooring (issue #256)
-      date_floor <- lubridate::floor_date(max(filtered_data()$date_report) - lubridate::weeks(input$n_weeks - 1),
+      date_floor <- lubridate::floor_date(max_date_dataset - lubridate::weeks(input$n_weeks - 1),
         week_start = 1, unit = "week"
       )
-      date_ceil <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 7)
+      date_ceil <- lubridate::ceiling_date(max(filtered_data()$date_report), unit = "week", week_start = 1) - lubridate::days(1)
       paste("Chosen signal detection period from", date_floor, "to", date_ceil)
     })
 
@@ -426,6 +477,32 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       df
     })
 
+    # Extract filter variables
+    selected_filter_vars <- shiny::reactive({
+      vars <- c()
+      n_filters()
+
+      filters <- reactiveValuesToList(all_filters)
+
+      for (filter in names(filters)) {
+        params <- filters[[filter]]
+
+        var <- params$filter_var()
+        val <- params$filter_val()
+
+        if (var == "None" || is.null(val)) next
+
+        if (length(val) > 1) {
+          val_str <- paste0('"', val, '"', collapse = " - ")
+        } else {
+          val_str <- paste0('"', val, '"')
+        }
+
+        vars <- c(vars, paste0(var, ": ", val_str))
+      }
+
+      vars
+    })
 
     output$strat_choices <- shiny::renderUI({
       shiny::req(!errors_detected())
@@ -578,6 +655,99 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }
     })
 
+    # Observe changes in algorithm_choice to reset exclude_outbreak_cases_from_fitting checkbox to FALSE when other algorithm is selected
+    observeEvent(input$algorithm_choice, {
+      if (!algorithm_glm()) {
+        updateCheckboxInput(session, "exclude_outbreak_cases_from_fitting", value = FALSE)
+      }
+    })
+
+    # Check if outbreak_status is in dataset: If not do not show option to exclude cases in outbreaks
+    has_outbreak_status <- reactive({
+      dat <- data()
+
+      "outbreak_status" %in% names(dat) &&
+        any(!is.na(dat$outbreak_status) & trimws(as.character(dat$outbreak_status)) != "")
+    })
+
+    output$has_outbreak_status <- renderText({
+      if (isTRUE(has_outbreak_status())) "TRUE" else "FALSE"
+    })
+
+    outputOptions(output, "has_outbreak_status", suspendWhenHidden = FALSE)
+
+    observe({
+      if (!isTRUE(has_outbreak_status())) {
+        updateCheckboxInput(
+          session,
+          "exclude_outbreak_cases_from_fitting",
+          value = FALSE
+        )
+      }
+    })
+
+    # do not allow usage of stratum "outbreak_status" while using "has_outbreak_status=TRUE" and choose the latest selection
+    observe({
+      strat_vars <- input$strat_vars %||% character(0)
+
+      if (
+        !isTRUE(has_outbreak_status()) ||
+          "outbreak_status" %in% strat_vars
+      ) {
+        updateCheckboxInput(
+          session,
+          "exclude_outbreak_cases_from_fitting",
+          value = FALSE
+        )
+      }
+    })
+
+    observeEvent(input$exclude_outbreak_cases_from_fitting,
+      {
+        strat_vars <- input$strat_vars %||% character(0)
+
+        if (
+          isTRUE(has_outbreak_status()) &&
+            isTRUE(input$exclude_outbreak_cases_from_fitting) &&
+            "outbreak_status" %in% strat_vars
+        ) {
+          strat_vars_new <- setdiff(strat_vars, "outbreak_status")
+
+          # if no stratum selected use "None"
+          if (length(strat_vars_new) == 0) {
+            strat_vars_new <- "None"
+          }
+
+          updateSelectizeInput(
+            session = session,
+            inputId = "strat_vars",
+            selected = strat_vars_new
+          )
+        }
+      },
+      ignoreNULL = TRUE
+    )
+
+    # Output (not seen in UI) for FarringtonFlexible p-value output
+    algorithm_farrington_chosen <- reactive({
+      shiny::req(!errors_detected())
+      shiny::req(input$algorithm_choice)
+
+      if (grepl("farrington", input$algorithm_choice, ignore.case = TRUE)) {
+        TRUE
+      } else {
+        FALSE
+      }
+    })
+
+    output$algorithm_farrington_chosen <- renderText({
+      algorithm_farrington_chosen() # This will return "TRUE" or "FALSE" as a string
+    })
+
+    # Force the output to be sent to the client even if not rendered in UI
+    # this needs to be here otherwise the conditionalPanel for the input box is not evaluated!
+    outputOptions(output, "algorithm_farrington_chosen", suspendWhenHidden = FALSE)
+
     # Conditional UI for date input
     output$conditional_date_input <- shiny::renderUI({
       if (isTRUE(input$pandemic_correction)) {
@@ -635,6 +805,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       }),
       n_weeks = shiny::reactive(input$n_weeks),
       weeks_input_valid = shiny::reactive(iv_weeks$is_valid()),
+      alpha_upper = shiny::reactive(input$alpha_upper),
       strat_vars = shiny::reactive(input$strat_vars),
       pathogen_vars = shiny::reactive(input$pathogen_vars),
       date_ext = shiny::reactive(date_ext()),
@@ -643,7 +814,9 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       intervention_date = shiny::reactive(intervention_date()),
       pad_signals_choice = shiny::reactive(input$pad_signals_choice),
       min_cases_signals = shiny::reactive(input$min_cases_signals),
-      min_score_signals = shiny::reactive(input$min_score_signals)
+      min_score_signals = shiny::reactive(input$min_score_signals),
+      selected_filter_vars = shiny::reactive(selected_filter_vars()),
+      exclude_outbreak_cases_from_fitting = shiny::reactive(input$exclude_outbreak_cases_from_fitting)
     ))
   })
 }

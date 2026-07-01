@@ -1,3 +1,11 @@
+* Fix padding of signals with cusum. Strata with very low number of cases would have no cases in the training period, which caused the signal function to find an error.
+* fix missing display of expectation and/or threshold for historic data when using an extension date with FarringtonFlexible, EARS and CUSUM
+* Added option to exclude outbreak-associated cases from baseline fitting for GLM-based algorithms
+* Added visualisation of age group comparison of cases in signal vs. cases from the signal detection period in the linelist tab
+* Introduced a post-processing score for alarms to support priority-based filtering
+
+# SignalDetectionTool 0.10.0
+
 * Bug fixes and improvements to the HTML report
   * mark those timeseries widgets in the stratified page that had signals
   * make the text in the overview boxes on the pathogens page uniform and complete
@@ -6,12 +14,16 @@
   * fix signals tables being scrollable again 
   * fix stratification by sex after reloading the app in some configurations
   * fix positions of signals not appearing outside other regions 
-* Shortening of long x axis labels in barcharts and adding complete axis text to tooltip
-* Rewrite vignette to include visualization functions
+* Shortening of long x axis labels in interactive barchart and adding complete axis text to tooltip
+* Added an adjustable p-value cutoff parameter (alpha_upper) for signal detection when using FarringtonFlexible or GLM-based algorithms
+* Reports now include a description of filter variables applied via the UI
+* run_report() now supports pathogen-specific stratification in multi-pathogen reports
+* Add visualisation and tables section to vignette
+* Fix issue of overlapping signal stars in map visualisation
 * Export plot_regional(), plot_barchart(), and plot_signals_per_week(); remove plot_agegroup_by()
-* Added option to extend the dataset up to the current day
+* Added option to extend the linelist up to the current day
 * Added new multi-seasonal harmonic method with annual and semiannual components and optional timetrend
-* Introduced a post-processing score for alarms to support priority-based filtering
+* Added handling for ages and age-group bounds greater than or equal to 115 to avoid unplausible ages in linelist
 
 # SignalDetectionTool 0.9.0
 

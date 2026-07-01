@@ -15,7 +15,8 @@ get_signals_glm(
   intervention_date = NULL,
   min_timepoints_baseline = 12,
   min_timepoints_trend = 12,
-  past_weeks_not_included = 4
+  past_weeks_not_included = 4,
+  exclude_outbreak_cases_from_fitting = FALSE
 )
 }
 \arguments{
@@ -29,7 +30,8 @@ get_signals_glm(
 
 \item{return_full_model}{boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_weeks should be returned and attached to data_aggregated as well.}
 
-\item{alpha_upper}{decimal between 0 and 1, default 0.05 specifying the pvalue cutoff used for computing the threshold, when set to 0.05 the 95 percent quantile is used.}
+\item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05).
+Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
 
 \item{intervention_date}{A date object or character of format yyyy-mm-dd or NULL specifying the date for the intervention in the pandemic correction models. Default is NULL which indicates that no intervention is done, i.e. no additional intercept and possibly new time trend is fitted. When a date is given a new intercept and possibly time_trend (if time_trend == TRUE) is fitted.}
 
@@ -40,6 +42,11 @@ get_signals_glm(
 \item{past_weeks_not_included}{An integer specifying the number of past weeks to exclude from
 the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 Default is `4`.}
+
+\item{exclude_outbreak_cases_from_fitting}{A boolean specifying whether outbreak-associated cases should be excluded from case counts.
+If `data_aggregated` does not contain a `cases_not_in_outbreak` column indicating the number of cases not associated with outbreaks,
+no exclusion is applied, even when `exclude_outbreak_cases_from_fitting = TRUE`.
+Default is `FALSE`.}
 }
 \value{
 data.frame aggregated data with case counts and additional columns alarms, upperbound and expected obtained from the signal detection algorithm. If return_full_model == TRUE then expected_pad is also added as a column to data_aggregated.
@@ -52,8 +59,8 @@ The GLM is flexible being able to just fit a mean, add a time trend, fit a harmo
 \dontrun{
 data_aggregated <- input_example \%>\%
   preprocess_data() \%>\%
-  aggregate_data() \%>\%
-  add_rows_missing_dates()
+  aggregate_data()
 results <- get_signals_glm(data_aggregated)
+results
 }
 }

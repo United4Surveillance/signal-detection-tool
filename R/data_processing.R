@@ -7,7 +7,8 @@
 #'
 #' @examples
 #' \dontrun{
-#' preprocess_data(input_example)
+#' data_preprocessed <- input_example %>% preprocess_data()
+#' data_preprocessed
 #' }
 preprocess_data <- function(data) {
   # remove completely empty columns from the dataset
@@ -80,9 +81,9 @@ preprocess_data <- function(data) {
       )
     )
 
-  if ("age" %in% names(data())) {
+  if ("age" %in% names(data)) {
     data <- data %>%
-      dplyr::mutate(dplyr::across(dplyr::all_of("age"), ~ dplyr::if_else(.x < 0, NA_integer_, .x)))
+      dplyr::mutate(dplyr::across(dplyr::all_of("age"), ~ dplyr::if_else(.x < 0 | .x >= 115, NA_integer_, .x)))
   }
   # age or age_group is mandatory thus we need to check whether column present in data
   # or else create age_group from age
@@ -109,9 +110,16 @@ preprocess_data <- function(data) {
 #' @param date_end A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.
 #' @param date_ext A date object or character of format yyyy-mm-dd. Extends the aggregated dataset until this date. Default is NULL
 #' @param group A character specifying another grouping variable. Usually used for stratification.
+#' @param exclude_outbreak_cases_from_fitting A boolean specifying whether outbreak-associated case counts should be excluded only when fitting the baseline.
+#'   If `data` does not contain an `outbreak_status` column indicating the number of cases associated with outbreaks,
+#'   the number of cases not in outbreaks is not calculated, even when `exclude_outbreak_cases_from_fitting = TRUE`.
+#'   Default is `FALSE`. The default should only be changed if it is planned to use a GLM-based algorithm.
 #' @examples
 #' \dontrun{
-#' data <- preprocess_data(input_example) %>% aggregate_data()
+#' data_aggregated <- input_example %>%
+#'   preprocess_data() %>%
+#'   aggregate_data()
+#' data_aggregated
 #' }
 #' @export
 aggregate_data <- function(data,
@@ -119,7 +127,8 @@ aggregate_data <- function(data,
                            date_start = NULL,
                            date_end = NULL,
                            date_ext = NULL,
-                           group = NULL) {
+                           group = NULL,
+                           exclude_outbreak_cases_from_fitting = FALSE) {
   checkmate::check_subset(c(group, date_var), names(data), empty.ok = TRUE)
 
   checkmate::assert(
@@ -132,28 +141,27 @@ aggregate_data <- function(data,
     checkmate::check_date(lubridate::date(date_end)),
     combine = "or"
   )
+
   checkmate::assert(
     checkmate::check_null(date_ext),
-    checkmate::check_date(lubridate::date(date_ext)),
+    checkmate::check_date(
+      lubridate::date(date_ext),
+      lower = max(lubridate::date(data[[date_var]]), na.rm = TRUE)
+    ),
+    combine = "or"
+  )
+  checkmate::assert(
+    checkmate::check_true(exclude_outbreak_cases_from_fitting),
+    checkmate::check_false(exclude_outbreak_cases_from_fitting),
     combine = "or"
   )
 
-  if (!is.null(date_ext)) {
-    if (is.null(date_start)) { # TODO check when is this really NULL
-      date_start <- min(data[[date_var]], na.rm = TRUE)
-    }
-    extended_data_range <- get_all_cw_iso(date_start = date_start, date_end = date_ext)
-    data$cw_iso <- factor(data$cw_iso, levels = extended_data_range)
+  if (!is.null(date_end) && !is.null(date_ext)) {
+    checkmate::assert_true(
+      lubridate::date(date_ext) >= lubridate::date(date_end),
+      .var.name = "date_ext must be >= date_end"
+    )
   }
-
-  if (is.null(group)) {
-    data_agg <- data %>%
-      dplyr::group_by(cw_iso, .drop = FALSE)
-  } else {
-    data_agg <- data %>%
-      dplyr::group_by(cw_iso, !!rlang::sym(group), .drop = FALSE)
-  }
-
   # add the missing isoweeks to the dataset
   # inform the user when date_start > min_date that the data is nevertheless extended
   if (!is.null(date_start) && date_start > min(data[[date_var]])) {
@@ -163,27 +171,52 @@ aggregate_data <- function(data,
     message("Notice: Your input date_end is smaller than the greatest date in the dataset. Missing weeks (weeks with 0 cases) will nevertheless be filled until the greatest date in the dataset")
   }
 
-  data_agg <- data_agg %>%
-    dplyr::summarize(cases = dplyr::n(), .groups = "drop")
+  data <- add_cw_iso(data = data, date_start = date_start, date_end = date_end, date_var = date_var)
 
-  if ("outbreak_status" %in% names(data)) {
-    if (is.null(group)) {
-      data_outbreak_agg <- data %>%
-        dplyr::group_by(cw_iso, .drop = FALSE)
+  if (!is.null(date_ext)) {
+    if (is.null(date_start)) {
+      date_start_ext <- min(data[[date_var]], na.rm = TRUE)
     } else {
-      data_outbreak_agg <- data %>%
-        dplyr::group_by(cw_iso, !!rlang::sym(group), .drop = FALSE)
+      date_start_ext <- date_start
     }
-    data_outbreak_agg <- data_outbreak_agg %>%
-      dplyr::summarize(
-        cases_in_outbreak = sum(outbreak_status == "yes", na.rm = TRUE),
-        .groups = "drop"
-      )
-
-    data_agg <- data_agg %>%
-      dplyr::left_join(data_outbreak_agg, by = c("cw_iso", group)) %>%
-      dplyr::mutate(cases_in_outbreak = dplyr::if_else(is.na(cases_in_outbreak), 0, cases_in_outbreak))
+    extended_data_range <- get_all_cw_iso(date_start = date_start_ext, date_end = date_ext)
+    data$cw_iso <- factor(data$cw_iso, levels = extended_data_range)
   }
+
+  group_vars <- c("cw_iso", group)
+
+  data_agg <- data %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_vars)), .drop = FALSE) %>%
+    dplyr::summarize(
+      cases = dplyr::n(),
+      cases_in_outbreak = if ("outbreak_status" %in% names(data)) {
+        sum(outbreak_status == "yes", na.rm = TRUE)
+      } else {
+        0L
+      },
+      .groups = "drop"
+    )
+
+  if ("outbreak_status" %in% names(data) && exclude_outbreak_cases_from_fitting) {
+    data_agg <- data_agg %>%
+      dplyr::mutate(
+        cases_not_in_outbreak = cases - cases_in_outbreak
+      )
+  }
+
+  if (!("outbreak_status" %in% names(data))) {
+    data_agg <- data_agg %>%
+      dplyr::select(-cases_in_outbreak)
+
+    if (exclude_outbreak_cases_from_fitting) {
+      warning(
+        "No exclusion of outbreak-associated case counts was performed despite ",
+        "exclude_outbreak_cases_from_fitting = TRUE, ",
+        "because `outbreak_status` is not present in the data."
+      )
+    }
+  }
+
   data_agg %>%
     tidyr::separate_wider_delim(cw_iso, delim = "-", names = c("year", "week")) %>%
     dplyr::mutate(
@@ -263,10 +296,11 @@ filter_by_date <- function(data, date_var = "date_report", date_start = NULL, da
 #'
 #' @examples
 #' \dontrun{
-#' input_path <- "data/input/input.csv"
-#' data <- read.csv(input_path, header = TRUE, sep = ",")
-#' data <- preprocess_data(data) %>% aggregate_data()
+#' data <- input_example %>%
+#'   preprocess_data() %>%
+#'   aggregate_data()
 #' sts_cases <- convert_to_sts(data)
+#' sts_cases
 #' }
 convert_to_sts <- function(case_counts) {
   # create sts object
@@ -318,7 +352,7 @@ add_cw_iso <- function(data,
 
   # add cw_iso (isoweeks) as factor levels
   all_cw_iso <- get_all_cw_iso(date_start = date_start, date_end = date_end)
-  data <- data %>%
+  data %>%
     dplyr::mutate(
       cw_iso = paste0(
         lubridate::isoyear(!!rlang::sym(date_var)), "-",
@@ -326,9 +360,7 @@ add_cw_iso <- function(data,
       ),
       cw_iso = factor(cw_iso, levels = all_cw_iso)
     )
-  data
 }
-
 
 #' function to get all iso weeks between `date_start` and `date_end`
 #' @param date_start date object, starting date of sequence

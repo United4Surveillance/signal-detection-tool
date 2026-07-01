@@ -18,6 +18,7 @@ Preprocessing of linelist surveillance data with or without outbreak_ids
 }
 \examples{
 \dontrun{
-preprocess_data(input_example)
+data_preprocessed <- input_example \%>\% preprocess_data()
+data_preprocessed
 }
 }

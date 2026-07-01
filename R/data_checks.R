@@ -444,7 +444,7 @@ is_last_age_group_format <- function(col) {
 #' @returns boolean, when TRUE all values of date_col are in the required format, when FALSE at least one is not in required format
 #' @examples
 #' \dontrun{
-#' is_ISO8601(c("2023-04-01", "2022-12-31"))
+#' is_ISO8601(c("2023-04-01", "2022-12-31")) # Should return TRUE
 #' }
 is_ISO8601 <- function(date_col) {
   # need to allow empty entries inside the data variable

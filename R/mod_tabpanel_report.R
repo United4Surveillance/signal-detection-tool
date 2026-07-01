@@ -43,7 +43,10 @@ mod_tabpanel_report_server <- function(id,
                                        number_of_weeks_input_valid,
                                        signals_padded,
                                        signals_agg,
-                                       intervention_date) {
+                                       intervention_date,
+                                       alpha_upper,
+                                       selected_filter_vars,
+                                       exclude_outbreak_cases_from_fitting) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -116,12 +119,14 @@ mod_tabpanel_report_server <- function(id,
 
     # Download generated report
     output$report_text <- shiny::renderText({
-      paste(
-        "Generates report for", pathogen_vars(), " stratified ",
-        "by ", paste0(strat_vars(), collapse = ", "), "for the last",
+      paste0(
+        "Generates report for ", pathogen_vars(), " stratified ",
+        "by ", paste0(strat_vars(), collapse = ", "), " for the last ",
         number_of_weeks(), " weeks using ",
         names(available_algorithms())[available_algorithms() == method()],
-        " as outbreak detection algorithm."
+        " as outbreak detection algorithm.", ifelse(grepl("glm|farrington", method()) && !is.null(alpha_upper()), paste(" A p-value cutoff of", alpha_upper(), "is used."), ""),
+        " The following filters were applied: ", ifelse(length(selected_filter_vars()) != 0, paste0(selected_filter_vars(), collapse = ", "), paste0("None")), ".",
+        ifelse(exclude_outbreak_cases_from_fitting() == TRUE && grepl("glm", method()), " Only cases not associated with outbreaks are used for training.", "")
       )
     })
 
@@ -143,13 +148,16 @@ mod_tabpanel_report_server <- function(id,
           number_of_weeks = number_of_weeks(),
           pathogens = pathogen_vars(),
           strata = strat_vars(),
+          selected_filter_vars = selected_filter_vars(),
           tables = tables(),
           output_file = con,
           output_dir = NULL,
           signals_padded = signals_padded() %>% dplyr::mutate(pathogen = pathogen_vars()),
           signals_agg = signals_agg() %>% dplyr::mutate(pathogen = pathogen_vars()),
           intervention_date = intervention_date(),
-          title = input$report_title
+          title = input$report_title,
+          alpha_upper = alpha_upper(),
+          exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting()
         )
       }
     )

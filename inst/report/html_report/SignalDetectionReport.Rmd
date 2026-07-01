@@ -10,11 +10,14 @@ params:
   country: "Austria"
   number_of_weeks: 6
   method: "farrington"
+  alpha_upper: 0.05
   strata: !r c("county_id", "community_id", "sex", "age_group") 
+  selected_filter_vars: NULL
   signals_padded: NULL
   signals_agg: NULL
   intervention_date: NULL
   title: "Signal Detection Report"
+  exclude_outbreak_cases_from_fitting: false
 
 ---
 ```{css, echo = FALSE}
@@ -84,7 +87,7 @@ text_diseases <- ifelse(
 
 ```
 
-This report contains an overview of signals observed for the period `r head(records$yearweek, 1)` to `r tail(records$yearweek, 1)` for `r text_diseases` in `r params$country`. The signals were calculated using the `r params$method` algorithm.
+This report contains an overview of signals observed for the period `r head(records$yearweek, 1)` to `r tail(records$yearweek, 1)` for `r text_diseases` in `r params$country`. The signals were calculated using the `r params$method` algorithm`r ifelse(grepl("glm|farrington", params$method) && !is.null(params$alpha_upper), paste0(" with a p-value cutoff of ", params$alpha_upper, "."), paste0("."))` The following filters were applied in the application: `r paste0(ifelse(length(params$selected_filter_vars) != 0, paste(params$selected_filter_vars, collapse = ", "), "None"))`. `r ifelse(params$exclude_outbreak_cases_from_fitting == TRUE && grepl("glm", params$method), paste0(" Only cases not associated with outbreaks are used for training."), paste0(""))`
 
 For each disease, an unstratified overview of the observed signals is provided, as well as stratified analyses by relevant characteristics.
 The stratification may differ by disease.
