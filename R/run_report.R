@@ -301,9 +301,6 @@ run_report <- function(
           alarms = dplyr::if_else(alarms & cases < min_cases_signals,
             FALSE, alarms, missing = alarms
           )) %>%
-            dplyr::mutate(
-              alarms = dplyr::if_else(score >= min_score_signals(), alarms, FALSE, missing = alarms)
-            ) %>%
         get_scores(
           list(
             seasonal = score_seasonal,
@@ -312,6 +309,9 @@ run_report <- function(
             specificity = score_specificity_alarm
           ),
           aggregation = "mean"
+        ) %>% # apply post-processing to scores
+        dplyr::mutate(
+          alarms = dplyr::if_else(score < min_score_signals(), FALSE, alarms, missing = alarms)
         )
 
 
