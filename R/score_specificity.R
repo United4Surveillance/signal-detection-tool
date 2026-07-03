@@ -17,10 +17,10 @@
 #' }
 score_specificity_stronger <- function(signal_results) {
   signal_scores <- signal_results %>%
-    filter(!is.na(expected)) %>%
-    group_by(category, year, week) %>%
-    mutate(
-      num_other_cat = n() - 1,
+    dplyr::filter(!is.na(expected)) %>%
+    dplyr::group_by(category, year, week) %>%
+    dplyr::mutate(
+      num_other_cat = dplyr::n() - 1,
       num_stronger_cat = sapply(score, function(x) sum(score > x, na.rm = TRUE)),
       score = ifelse(
         num_other_cat == 0,
@@ -28,9 +28,10 @@ score_specificity_stronger <- function(signal_results) {
         1 - (num_stronger_cat / num_other_cat)
       )
     ) %>%
-    ungroup()
+    dplyr::ungroup()
 
-  signal_results <- left_join(signal_results, signal_scores) %>% mutate(score = if_else(alarms, score, NA))
+  signal_results <- dplyr::left_join(signal_results, signal_scores) %>%
+    dplyr::mutate(score = dplyr::if_else(alarms, score, NA))
 
   signal_results %>% dplyr::select(.row_id, score)
 }
@@ -54,25 +55,26 @@ score_specificity_stronger <- function(signal_results) {
 #' }
 score_specificity_alarm <- function(signal_results) {
   signal_scores <- signal_results %>%
-    filter(!is.na(expected)) %>%
+    dplyr::filter(!is.na(expected)) %>%
     # in category
-    group_by(category, year, week) %>%
-    mutate(
-      n_strata_cat = n(),
+    dplyr::group_by(category, year, week) %>%
+    dplyr::mutate(
+      n_strata_cat = dplyr::n(),
       n_alarms_cat = sum(alarms, na.rm = TRUE)
     ) %>%
-    ungroup() %>%
-    mutate(
+    dplyr::ungroup() %>%
+    dplyr::mutate(
       num_other_strata_cat = n_strata_cat - 1,
       num_other_alarms_cat = pmax(n_alarms_cat - alarms, 0),
-      score = if_else(
+      score = dplyr::if_else(
         num_other_strata_cat == 0,
         1,
         1 - (num_other_alarms_cat / num_other_strata_cat)
       )
     )
 
-  signal_results <- left_join(signal_results, signal_scores) %>% mutate(score = if_else(alarms, score, NA))
+  signal_results <- dplyr::left_join(signal_results, signal_scores) %>%
+    dplyr::mutate(score = dplyr::if_else(alarms, score, NA))
 
   signal_results %>% dplyr::select(.row_id, score)
 }
