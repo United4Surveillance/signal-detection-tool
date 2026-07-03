@@ -30,7 +30,9 @@ score_specificity_stronger <- function(signal_results) {
     ) %>%
     dplyr::ungroup()
 
-  signal_results <- dplyr::left_join(signal_results, signal_scores) %>%
+  signal_results <- dplyr::left_join(signal_results,
+                                     signal_scores %>% dplyr::select(.row_id, score),
+                                     by=".row_id") %>%
     dplyr::mutate(score = dplyr::if_else(alarms, score, NA))
 
   signal_results %>% dplyr::select(.row_id, score)
@@ -73,7 +75,9 @@ score_specificity_alarm <- function(signal_results) {
       )
     )
 
-  signal_results <- dplyr::left_join(signal_results, signal_scores) %>%
+  signal_results <- dplyr::left_join(signal_results,
+                                     signal_scores %>% dplyr::select(.row_id, score),
+                                     by=".row_id") %>%
     dplyr::mutate(score = dplyr::if_else(alarms, score, NA))
 
   signal_results %>% dplyr::select(.row_id, score)
