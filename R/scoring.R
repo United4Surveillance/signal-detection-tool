@@ -208,7 +208,10 @@ aggregate_scores <- function(score_df, aggregation = c("mean", "sum")) {
 #'
 #' set.seed(123)
 #' scorers <- list(
-#'   random = score_randomly
+#'   seasonal = score_seasonal,
+#'   recurrence = score_recurrence,
+#'   strength = score_strength,
+#'   specificity = score_specificity_alarm
 #' )
 #'
 #' get_scores(
@@ -274,3 +277,24 @@ get_scores <- function(signal_results, scorers, aggregation = c("mean", "sum")) 
     ) %>%
     dplyr::select(-.row_id)
 }
+
+# # example of a random scorer (keep for reference of light weight best practice)
+# score_randomly <- function(signal_results) {
+#   if (!".row_id" %in% names(signal_results)) {
+#     stop("`signal_results` must contain a `.row_id` column.", call. = FALSE)
+#   }
+#
+#   if (!"alarms" %in% names(signal_results)) {
+#     stop("`signal_results` must contain an `alarms` column.", call. = FALSE)
+#   }
+#
+#   is_alarm <- signal_results$alarms %in% TRUE
+#
+#   score <- rep(NA_real_, nrow(signal_results))
+#   score[is_alarm] <- runif(sum(is_alarm), min = 0, max = 1)
+#
+#   tibble::tibble(
+#     .row_id = signal_results$.row_id,
+#     score = score
+#   )
+# }
