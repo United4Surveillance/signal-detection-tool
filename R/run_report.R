@@ -69,7 +69,7 @@
 #'   number of cases, `alarms` is set to `FALSE` in a post-processing step.
 #'   This is applied only when signals are recomputed inside `run_report()`,
 #'   i.e. when `signals_agg` or `signals_padded` is `NULL`.
-#' @param min_score_signals Integer scalar giving the minimum score an
+#' @param min_score_signals Numeric scalar in the interval [0, 1] giving the minimum score an
 #'   alarm must have to remain flagged. For signals below this score,
 #'   `alarms` is set to `FALSE` in a post-processing step.
 #'   This is applied only when signals are recomputed inside `run_report()`,
@@ -370,7 +370,7 @@ run_report <- function(
           aggregation = "mean"
         ) %>% # apply post-processing to scores
         dplyr::mutate(
-          alarms = dplyr::if_else(score < min_score_signals(), FALSE, alarms, missing = alarms)
+          alarms = dplyr::if_else(score < min_score_signals, FALSE, alarms, missing = alarms)
         )
 
 
