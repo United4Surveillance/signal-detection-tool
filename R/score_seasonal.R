@@ -26,14 +26,14 @@ score_seasonal <- function(signals_res) {
     dplyr::pull(year)
 
   # if no complete years, seasonal score is skipped and returns NA
-  if(length(sel_years) == 0){
-    signals_res <- signals_res %>% 
+  if (length(sel_years) == 0) {
+    signals_res <- signals_res %>%
       dplyr::mutate(score = NA)
   } else {
     # generate cases distribution
     scores_per_month <- case_yearly_dist(ts_pathogen, sel_years) %>%
       dplyr::select(-"cases.dist")
-  
+
     # score_signals
     signals_res <- signals_res %>%
       dplyr::mutate(
@@ -49,16 +49,16 @@ score_seasonal <- function(signals_res) {
           .default = NA
         )
       )
-    }
-    
-    return(signals_res %>% dplyr::select(c(".row_id", "score")))
+  }
+
+  return(signals_res %>% dplyr::select(c(".row_id", "score")))
 }
 
 
 #' @title Calculate case seasonal distribution for scoring
 #' @description For each year of complete data, it calculates the average percentage of
 #' cases that happen each month. The score is defined by 1 - scaled percentage,
-#' were scaled percentage is given by an s-curve \eqn{f(x)=x^2/(1/12^2 + x^2)}  
+#' were scaled percentage is given by an s-curve \eqn{f(x)=x^2/(1/12^2 + x^2)}
 #'
 #' @param dat_ts timeseries dataframe. Must include the columns year, week, and cases
 #' @param selected_years vector of years to filter the data
