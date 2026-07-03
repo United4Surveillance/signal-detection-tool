@@ -100,16 +100,6 @@ validate_scorer_output <- function(score_tbl, signal_results, scorer_name = "<un
     )
   }
 
-  if (anyNA(score_tbl$score[is_alarm])) {
-    stop(
-      sprintf(
-        "Scorer '%s': `score` must not be missing when `alarms` is TRUE.",
-        scorer_name
-      ),
-      call. = FALSE
-    )
-  }
-
   if (any(score_tbl$score[is_alarm] < 0 | score_tbl$score[is_alarm] > 1)) {
     stop(sprintf("Scorer '%s': `score` must be in the interval [0, 1].", scorer_name),
       call. = FALSE
