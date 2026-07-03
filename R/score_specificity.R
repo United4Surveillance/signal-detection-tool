@@ -2,7 +2,7 @@
 #' @description Scores each signal in the signal_results object according to the
 #' fraction of other alarms that are stronger in the category in the same week
 #'
-#' @param signal_results, signal detection results obtained from get_signals_all()
+#' @param signal_results signal detection results obtained from get_signals_all()
 #'
 #' @returns signal detection results scored
 #' @export

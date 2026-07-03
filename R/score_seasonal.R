@@ -2,7 +2,7 @@
 #' @description Scores each signal in the signal detection results according to the
 #' calculated seasonal distribution. See [case_yearly_dist]
 #'
-#' @param signals_res, signal detection results obtained from get_signals()
+#' @param signals_res signal detection results obtained from get_signals()
 #'
 #' @returns signal detection results scored
 #' @export
