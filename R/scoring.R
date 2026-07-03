@@ -184,7 +184,7 @@ aggregate_scores <- function(score_df, aggregation = c("mean", "sum")) {
 #' @param aggregation A character string specifying how individual scores should
 #'   be aggregated. Must be either `"mean"` or `"sum"`.
 #'
-#' @return A tibble containing the original `signal_results` columns plus one
+#' @return A tibble or dataframe containing the original `signal_results` columns plus one
 #'   additional aggregated `score` column. Rows with no non-missing individual
 #'   score receive `NA_real_`.
 #'
