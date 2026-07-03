@@ -2,7 +2,7 @@
 #' @description Computes a score for each signal based on the frequency of alarms
 #' within the test period of its stratum and category. Higher alarm frequency results in higher scores.
 #'
-#' @param signal_results, signal detection results obtained from get_signals()
+#' @param signal_results signal detection results obtained from get_signals()
 #'
 #' @returns signal detection results scored
 #' @export
