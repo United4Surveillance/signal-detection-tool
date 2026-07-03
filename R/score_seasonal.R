@@ -11,7 +11,7 @@
 #' signals <- input_example %>%
 #'   preprocess_data() %>%
 #'   get_signals() %>%
-#'   dplyr::mutate(pathogen = "Pertussis")
+#'   dplyr::mutate(pathogen = "Pertussis", .row_id = dplyr::row_number())
 #'
 #' score_seasonal(signals)
 #' }
@@ -25,35 +25,42 @@ score_seasonal <- function(signals_res) {
     dplyr::filter(n >= 52) %>%
     dplyr::pull(year)
 
-  # generate cases distribution
-  scores_per_month <- case_yearly_dist(ts_pathogen, sel_years) %>%
-    dplyr::select(-"cases.dist")
-
-  # score_signals
-  signals_res <- signals_res %>%
-    dplyr::mutate(
-      month = factor(
-        lubridate::month(isoweek_to_date(.data$week, .data$year)),
-        levels = 1:12
+  # if no complete years, seasonal score is skipped and returns NA
+  if(length(sel_years) == 0){
+    signals_res <- signals_res %>% 
+      dplyr::mutate(score = NA)
+  } else {
+    # generate cases distribution
+    scores_per_month <- case_yearly_dist(ts_pathogen, sel_years) %>%
+      dplyr::select(-"cases.dist")
+  
+    # score_signals
+    signals_res <- signals_res %>%
+      dplyr::mutate(
+        month = factor(
+          lubridate::month(isoweek_to_date(.data$week, .data$year)),
+          levels = 1:12
+        )
+      ) %>%
+      dplyr::left_join(scores_per_month, by = c("month")) %>%
+      dplyr::mutate(
+        score = dplyr::case_when(
+          .data$alarms ~ .data$score,
+          .default = NA
+        )
       )
-    ) %>%
-    dplyr::left_join(scores_per_month, by = c("month")) %>%
-    dplyr::mutate(
-      score = dplyr::case_when(
-        .data$alarms ~ .data$score,
-        .default = NA
-      )
-    )
-
-  return(signals_res %>% dplyr::select(c(".row_id", "score")))
+    }
+    
+    return(signals_res %>% dplyr::select(c(".row_id", "score")))
 }
 
 
 #' @title Calculate case seasonal distribution for scoring
 #' @description For each year of complete data, it calculates the average percentage of
-#' cases that happen each month. The score is defined by 1 - percentage
+#' cases that happen each month. The score is defined by 1 - scaled percentage,
+#' were scaled percentage is given by an s-curve \eqn{f(x)=x^2/(1/12^2 + x^2)}  
 #'
-#' @param dat_ts timeseries dataframe. Must include the columns pathogen, year, and week
+#' @param dat_ts timeseries dataframe. Must include the columns year, week, and cases
 #' @param selected_years vector of years to filter the data
 #'
 #' @returns dataframe with the empirical distribution of cases in the year and its corresponding score
@@ -62,7 +69,9 @@ score_seasonal <- function(signals_res) {
 case_yearly_dist <- function(dat_ts, selected_years) {
   # per year, group total cases in month, normalize against total cases in year,
   # calculate mean cases across years for every month
-  # score is 1 - cases.percentage
+  # score is 1 - cases.scaledpercentage
+
+  checkmate::assert_numeric(selected_years)
 
   cases_dist <- dat_ts %>%
     dplyr::filter(.data$year %in% selected_years) %>%
@@ -77,7 +86,7 @@ case_yearly_dist <- function(dat_ts, selected_years) {
       cases = sum(.data$cases),
       .groups = "drop"
     ) %>%
-    tidyr::complete(.data$month, fill = list(cases = 0, cases_in_outbreak = 0)) %>%
+    tidyr::complete(.data$year, .data$month, fill = list(cases = 0)) %>%
     dplyr::group_by(.data$year) %>%
     dplyr::mutate(cases_perc = .data$cases / sum(.data$cases)) %>%
     dplyr::group_by(.data$month) %>%

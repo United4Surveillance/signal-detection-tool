@@ -7,7 +7,7 @@
 score_seasonal(signals_res)
 }
 \arguments{
-\item{signals_res, }{signal detection results obtained from get_signals()}
+\item{signals_res}{signal detection results obtained from get_signals()}
 }
 \value{
 signal detection results scored
@@ -18,7 +18,10 @@ calculated seasonal distribution. See [case_yearly_dist]
 }
 \examples{
 \dontrun{
-signals <- input_example \%>\% preprocess_data() \%>\% get_signals() \%>\% dplyr::mutate(pathogen = "Pertussis")
+signals <- input_example \%>\%
+  preprocess_data() \%>\%
+  get_signals() \%>\%
+  dplyr::mutate(pathogen = "Pertussis", .row_id = dplyr::row_number())
 
 score_seasonal(signals)
 }
