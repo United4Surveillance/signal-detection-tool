@@ -7,9 +7,6 @@
 #' @returns signal detection results scored
 #' @export
 score_recurrence <- function(signal_results) {
-  # # select only the stratified
-  # signal_results <- signal_results %>%
-  #   dplyr::filter(!is.na(.data$category))
 
   # select test period per stratum
   ts_pathogen_strat <- signal_results %>%
