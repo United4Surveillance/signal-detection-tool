@@ -30,12 +30,12 @@ score_recurrence <- function(signal_results) {
 
   # add row_id
   score_tbl <- signal_results %>%
-    dplyr::select(.data$.row_id, .data$category, .data$stratum, .data$alarms) %>%
+    dplyr::select(".row_id", "category", "stratum", "alarms") %>%
     dplyr::left_join(score_stratum, by = c("category", "stratum")) %>%
     dplyr::mutate(
       score = dplyr::if_else(.data$alarms %in% TRUE, .data$score_stratum, NA)
     ) %>%
-    dplyr::select(.data$.row_id, .data$score)
+    dplyr::select(".row_id", "score")
 
   return(score_tbl)
 }
