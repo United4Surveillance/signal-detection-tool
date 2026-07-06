@@ -7,7 +7,6 @@
 #' @returns signal detection results scored
 #' @export
 score_recurrence <- function(signal_results) {
-
   # select test period per stratum
   ts_pathogen_strat <- signal_results %>%
     dplyr::group_by(.data$category, .data$stratum) %>%
