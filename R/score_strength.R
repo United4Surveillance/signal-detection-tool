@@ -8,7 +8,7 @@
 #'
 #' @returns strength scores for signals
 #' @export
-#' 
+#'
 #' @examples \dontrun{
 #' signals <- input_example %>%
 #'   preprocess_data() %>%

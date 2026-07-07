@@ -6,7 +6,7 @@
 #'
 #' @returns signal detection results scored
 #' @export
-#' 
+#'
 #' @examples \dontrun{
 #' signals <- input_example %>%
 #'   preprocess_data() %>%
