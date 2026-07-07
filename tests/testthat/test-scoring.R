@@ -40,7 +40,7 @@ testthat::test_that("validate_scorer_output() rejects non-data-frame output", {
 testthat::test_that("validate_scorer_output() rejects wrong column names", {
   signal_results <- tibble::tibble(
     .row_id = 1:3,
-    alarms = c(TRUE, TRUE, TRUE),
+    alarms = c(TRUE, TRUE, TRUE)
   )
 
   score_tbl <- tibble::tibble(

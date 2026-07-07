@@ -16,7 +16,7 @@ including an `alarms` column.}
 be aggregated. Must be either `"mean"` or `"sum"`.}
 }
 \value{
-A tibble containing the original `signal_results` columns plus one
+A tibble or dataframe containing the original `signal_results` columns plus one
   additional aggregated `score` column. Rows with no non-missing individual
   score receive `NA_real_`.
 }
@@ -40,16 +40,16 @@ individual scores are missing receive `NA_real_` as their final aggregated
 score.
 }
 \examples{
-signal_results <- tibble::tibble(
-  signal_id = 1:5,
-  alarms = c(FALSE, TRUE, TRUE, FALSE, TRUE),
-  cases = c(5, 20, 50, 10, 100),
-  p_value = c(0.80, 0.30, 0.01, 0.60, 0.05)
-)
+\dontrun{
+signal_results <- input_example \%>\% 
+  preprocess_data() \%>\% 
+  get_signals_all()
 
-set.seed(123)
 scorers <- list(
-  random = score_randomly
+  seasonal = score_seasonal,
+  recurrence = score_recurrence,
+  strength = score_strength,
+  specificity = score_specificity_alarm
 )
 
 get_scores(
@@ -57,5 +57,5 @@ get_scores(
   scorers = scorers,
   aggregation = "mean"
 )
-
+}
 }

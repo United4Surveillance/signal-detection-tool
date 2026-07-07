@@ -7,7 +7,7 @@
 score_specificity_alarm(signal_results)
 }
 \arguments{
-\item{signal_results, }{signal detection results obtained from get_signals_all()}
+\item{signal_results}{signal detection results obtained from get_signals_all()}
 }
 \value{
 signal detection results scored
@@ -18,8 +18,11 @@ fraction of other alarms in the category in the same week
 }
 \examples{
 \dontrun{
-signals <- input_example \%>\% preprocess_data() \%>\% get_signals_all() \%>\% dplyr::mutate(pathogen = "Pertussis")
+signals <- input_example \%>\%
+  preprocess_data() \%>\%
+  get_signals_all() \%>\%
+  dplyr::mutate(pathogen = "Pertussis")
 
-score_specififcity_alarm(signals)
+get_scores(signals, scorers = list(specificity = score_specificity_alarm))
 }
 }

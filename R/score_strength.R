@@ -8,6 +8,15 @@
 #'
 #' @returns strength scores for signals
 #' @export
+#' 
+#' @examples \dontrun{
+#' signals <- input_example %>%
+#'   preprocess_data() %>%
+#'   get_signals_all() %>%
+#'   dplyr::mutate(pathogen = "Pertussis")
+#'
+#' get_scores(signals, scorers = list(strength = score_strength))
+#' }
 score_strength <- function(signals_res) {
   method <- unique(signals_res$method)
 

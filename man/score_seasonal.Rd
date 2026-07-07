@@ -21,8 +21,8 @@ calculated seasonal distribution. See [case_yearly_dist]
 signals <- input_example \%>\%
   preprocess_data() \%>\%
   get_signals() \%>\%
-  dplyr::mutate(pathogen = "Pertussis", .row_id = dplyr::row_number())
+  dplyr::mutate(pathogen = "Pertussis")
 
-score_seasonal(signals)
+get_scores(signals, scorers = list(seasonal = score_seasonal))
 }
 }

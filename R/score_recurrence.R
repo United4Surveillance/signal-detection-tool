@@ -6,6 +6,15 @@
 #'
 #' @returns signal detection results scored
 #' @export
+#' 
+#' @examples \dontrun{
+#' signals <- input_example %>%
+#'   preprocess_data() %>%
+#'   get_signals_all() %>%
+#'   dplyr::mutate(pathogen = "Pertussis")
+#'
+#' get_scores(signals, scorers = list(recurrence = score_recurrence))
+#' }
 score_recurrence <- function(signal_results) {
   # select test period per stratum
   ts_pathogen_strat <- signal_results %>%

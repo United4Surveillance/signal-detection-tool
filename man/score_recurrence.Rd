@@ -7,7 +7,7 @@
 score_recurrence(signal_results)
 }
 \arguments{
-\item{signal_results, }{signal detection results obtained from get_signals()}
+\item{signal_results}{signal detection results obtained from get_signals()}
 }
 \value{
 signal detection results scored
@@ -15,4 +15,14 @@ signal detection results scored
 \description{
 Computes a score for each signal based on the frequency of alarms
 within the test period of its stratum and category. Higher alarm frequency results in higher scores.
+}
+\examples{
+\dontrun{
+signals <- input_example \%>\%
+  preprocess_data() \%>\%
+  get_signals_all() \%>\%
+  dplyr::mutate(pathogen = "Pertussis")
+
+get_scores(signals, scorers = list(recurrence = score_recurrence))
+}
 }

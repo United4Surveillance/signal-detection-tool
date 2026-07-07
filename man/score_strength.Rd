@@ -15,6 +15,16 @@ strength scores for signals
 \description{
 Scores each signal in the signals_res object using the signal size,
 defined by the distance from expected value and upperbound threshold value
-the score follows the formula (size^3-1)/size^3. For EARS and CUSOUM method, the 
+the score follows the formula (size^3-1)/size^3. For EARS and CUSUM method, the
 function returns a score of NA
+}
+\examples{
+\dontrun{
+signals <- input_example \%>\%
+  preprocess_data() \%>\%
+  get_signals_all() \%>\%
+  dplyr::mutate(pathogen = "Pertussis")
+
+get_scores(signals, scorers = list(strength = score_strength))
+}
 }

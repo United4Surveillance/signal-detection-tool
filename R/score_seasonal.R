@@ -11,9 +11,9 @@
 #' signals <- input_example %>%
 #'   preprocess_data() %>%
 #'   get_signals() %>%
-#'   dplyr::mutate(pathogen = "Pertussis", .row_id = dplyr::row_number())
+#'   dplyr::mutate(pathogen = "Pertussis")
 #'
-#' score_seasonal(signals)
+#' get_scores(signals, scorers = list(seasonal = score_seasonal))
 #' }
 score_seasonal <- function(signals_res) {
   # select the unstratified
@@ -64,8 +64,8 @@ score_seasonal <- function(signals_res) {
 #' @param selected_years vector of years to filter the data
 #'
 #' @returns dataframe with the empirical distribution of cases in the year and its corresponding score
-#' @export
-#'
+#' @noRd
+#' 
 case_yearly_dist <- function(dat_ts, selected_years) {
   # per year, group total cases in month, normalize against total cases in year,
   # calculate mean cases across years for every month

@@ -13,7 +13,7 @@
 #'   get_signals_all() %>%
 #'   dplyr::mutate(pathogen = "Pertussis")
 #'
-#' score_specififcity_stronger(signals)
+#' get_scores(signals, scorers = list(specificity = score_specificity_stronger))
 #' }
 score_specificity_stronger <- function(signal_results) {
   signal_scores <- signal_results %>%
@@ -54,7 +54,7 @@ score_specificity_stronger <- function(signal_results) {
 #'   get_signals_all() %>%
 #'   dplyr::mutate(pathogen = "Pertussis")
 #'
-#' score_specififcity_alarm(signals)
+#' get_scores(signals, scorers = list(specificity = score_specificity_alarm))
 #' }
 score_specificity_alarm <- function(signal_results) {
   signal_scores <- signal_results %>%
