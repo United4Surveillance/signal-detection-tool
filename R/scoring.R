@@ -100,7 +100,7 @@ validate_scorer_output <- function(score_tbl, signal_results, scorer_name = "<un
     )
   }
 
-  if (any(score_tbl$score[is_alarm] < 0 | score_tbl$score[is_alarm] > 1)) {
+  if (isTRUE(any(score_tbl$score[is_alarm] < 0 | score_tbl$score[is_alarm] > 1))) {
     stop(sprintf("Scorer '%s': `score` must be in the interval [0, 1].", scorer_name),
       call. = FALSE
     )
@@ -188,15 +188,11 @@ aggregate_scores <- function(score_df, aggregation = c("mean", "sum")) {
 #'   additional aggregated `score` column. Rows with no non-missing individual
 #'   score receive `NA_real_`.
 #'
-#' @examples
-#' signal_results <- tibble::tibble(
-#'   signal_id = 1:5,
-#'   alarms = c(FALSE, TRUE, TRUE, FALSE, TRUE),
-#'   cases = c(5, 20, 50, 10, 100),
-#'   p_value = c(0.80, 0.30, 0.01, 0.60, 0.05)
-#' )
+#' @examples \dontrun{
+#' signal_results <- input_example %>% 
+#'   preprocess_data() %>% 
+#'   get_signals_all()
 #'
-#' set.seed(123)
 #' scorers <- list(
 #'   seasonal = score_seasonal,
 #'   recurrence = score_recurrence,
@@ -209,7 +205,7 @@ aggregate_scores <- function(score_df, aggregation = c("mean", "sum")) {
 #'   scorers = scorers,
 #'   aggregation = "mean"
 #' )
-#'
+#' }
 #' @export
 get_scores <- function(signal_results, scorers, aggregation = c("mean", "sum")) {
   aggregation <- match.arg(aggregation)
