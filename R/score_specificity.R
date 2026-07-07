@@ -17,7 +17,7 @@
 #' }
 score_specificity_stronger <- function(signal_results) {
   signal_scores <- signal_results %>%
-    dplyr::filter(!is.na(expected)) %>%
+    dplyr::filter(!is.na(alarms)) %>%
     dplyr::group_by(category, year, week) %>%
     dplyr::mutate(
       num_other_cat = dplyr::n() - 1,
@@ -58,7 +58,7 @@ score_specificity_stronger <- function(signal_results) {
 #' }
 score_specificity_alarm <- function(signal_results) {
   signal_scores <- signal_results %>%
-    dplyr::filter(!is.na(expected)) %>%
+    dplyr::filter(!is.na(alarms)) %>%
     # in category
     dplyr::group_by(category, year, week) %>%
     dplyr::mutate(
