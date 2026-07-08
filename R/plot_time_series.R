@@ -27,6 +27,9 @@ plot_time_series <- function(results, interactive = FALSE,
   padding_expected <- "expected_pad" %in% colnames(results)
   padding <- any(padding_expected, padding_upperbound)
 
+  # check if signals are scored
+  has_scores <- "score" %in% colnames(results)
+
   # round up and change data types
   results <- results %>%
     dplyr::mutate(
@@ -294,17 +297,45 @@ plot_time_series <- function(results, interactive = FALSE,
         )
     }
 
-    plt <- plt %>%
-      plotly::add_trace( # Signals
-        name = "Signal",
-        type = "scatter",
-        mode = "markers",
-        x = results$date[!is.na(results$alarms) & results$alarms == T],
-        y = results$cases[!is.na(results$alarms) & results$alarms == T],
-        marker = list(symbol = "star", size = 15),
-        color = I(col.alarm),
-        hovertemplate = "Signal<extra></extra>"
-      )
+    if (has_scores) {
+      signals_df <- results %>% dplyr::filter(!is.na(alarms), alarms == T)
+      score_colors <- colorRamp(colors = c("#FFEEEE", col.alarm)) 
+
+      plt <- plt %>% 
+        plotly::add_trace(
+          name = "Signal",
+          type = "scatter",
+          mode = "markers",
+          data = signals_df,
+          x = signals_df$date,
+          y = signals_df$cases,
+          customdata = signals_df$score,
+          marker = list(
+            symbol = "star",
+            size = 15,
+            color = rgb(score_colors(signals_df$score), maxColorValue = 255),
+            cmin = 0,
+            cmax = 1,
+            showscale = TRUE,
+            colorbar = list(
+              title = list(text = "Score")
+            )
+          ),
+          hovertemplate = "Signal score: %{customdata:.2f}<extra></extra>"
+        )
+    } else {
+      plt <- plt %>%
+        plotly::add_trace( # Signals
+          name = "Signal",
+          type = "scatter",
+          mode = "markers",
+          x = results$date[!is.na(results$alarms) & results$alarms == T],
+          y = results$cases[!is.na(results$alarms) & results$alarms == T],
+          marker = list(symbol = "star", size = 15),
+          color = I(col.alarm),
+          hovertemplate = "Signal<extra></extra>"
+        )
+    }
 
     plt <- plt %>%
       plotly::layout(
