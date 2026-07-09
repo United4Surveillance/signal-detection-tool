@@ -183,7 +183,9 @@ The overall score is computed as the mean of several component scores, each rang
 
 - **Recurrence score**  
   Measures how frequently alarms occur within the same stratum and category during the test period.  
-  Higher alarm frequency results in a higher score.
+  The score is set to `NA` when recurrence cannot be assessed, such as when the test period consists of only one week..  
+  A single alarm across multiple observed weeks receives a score of 0, because it does not indicate recurrence.  
+  If more than one alarm occurs, the score is calculated as `n_alarms / n_weeks`; higher alarm frequency results in a higher score.
 
 - **Strength score**  
   Scores each signal using the signal size $s$, which is defined by the distance from expected value and upperbound threshold value.  The score follows the formula:

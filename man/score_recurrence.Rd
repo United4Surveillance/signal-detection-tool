@@ -15,6 +15,9 @@ signal detection results scored
 \description{
 Computes a score for each signal based on the frequency of alarms
 within the test period of its stratum and category. Higher alarm frequency results in higher scores.
+The score is set to `NA` when recurrence cannot be assessed, such as when the test period consists of only one week.
+A single alarm across multiple observed weeks is assigned a score of 0, because it does not indicate recurrence.
+If more than one alarm occurs, the score is calculated as `n_alarms / n_weeks`.
 }
 \examples{
 \dontrun{
