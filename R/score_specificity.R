@@ -5,7 +5,6 @@
 #' @param signal_results signal detection results obtained from get_signals_all()
 #'
 #' @returns signal detection results scored
-#' @export
 #'
 #' @examples \dontrun{
 #' signals <- input_example %>%
