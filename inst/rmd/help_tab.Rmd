@@ -193,7 +193,7 @@ The overall score is computed as the mean of several component scores, each rang
   Scores each signal using the signal size s, which is defined by the distance from expected value and upperbound threshold value.  The score follows the formula:
   (s^3 - 1)/(s^3)
 
-  Currently, this score is implemented all methods except CUSUM and EARS. For these methods it returns `NA`.
+  Currently, this score is implemented for all methods except CUSUM and EARS. For these methods it returns `NA`.
 
 - **Specificity score**  
   Compares a signal to the fraction of other alarms in the same category and week.  
