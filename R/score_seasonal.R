@@ -1,6 +1,8 @@
 #' @title Score signals according to seasonal distribution of cases
 #' @description Scores each signal in the signal detection results according to the
-#' calculated seasonal distribution. See [case_yearly_dist]
+#' calculated seasonal distribution. This distribution is calculated by the average percentage of
+#' cases that happen each month for each year of complete data. The score is defined by 1 - scaled percentage,
+#' were scaled percentage is given by an s-curve \eqn{f(x)=x^2/(1/12^2 + x^2)}
 #'
 #' @param signals_res signal detection results obtained from get_signals()
 #'
