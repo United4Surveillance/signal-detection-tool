@@ -24,9 +24,9 @@ score_seasonal <- function(signals_res) {
   # select years that are complete
   time_unit <- unique(signals_res$time_unit)
   required_time_units <- dplyr::case_when(
-    length(time_unit) == 1L && time_unit == "weekly"   ~ 52L,
+    length(time_unit) == 1L && time_unit == "weekly" ~ 52L,
     length(time_unit) == 1L && time_unit == "biweekly" ~ 26L,
-    length(time_unit) == 1L && time_unit == "monthly"  ~ 12L,
+    length(time_unit) == 1L && time_unit == "monthly" ~ 12L,
     TRUE ~ NA_integer_
   )
 
@@ -54,19 +54,19 @@ score_seasonal <- function(signals_res) {
     # score_signals
     # Assign each weekly or biweekly period to the month of its reference week.
     # Periods spanning two months are not split proportionally between months.
-    if (time_unit %in% c("weekly", "biweekly")){
-    signals_res <- signals_res %>%
-      dplyr::mutate(
-        month = factor(
-          lubridate::month(isoweek_to_date(.data$week, .data$year)),
-          levels = 1:12
-        )
-      )
-    } else if (time_unit == "monthly"){
+    if (time_unit %in% c("weekly", "biweekly")) {
       signals_res <- signals_res %>%
         dplyr::mutate(
-        month = factor(.data$month, levels = 1:12)
-      )
+          month = factor(
+            lubridate::month(isoweek_to_date(.data$week, .data$year)),
+            levels = 1:12
+          )
+        )
+    } else if (time_unit == "monthly") {
+      signals_res <- signals_res %>%
+        dplyr::mutate(
+          month = factor(.data$month, levels = 1:12)
+        )
     }
 
     signals_res <- signals_res %>%
@@ -107,13 +107,13 @@ case_yearly_dist <- function(dat_ts, selected_years) {
     dplyr::filter(.data$year %in% selected_years)
 
   if (all(time_unit %in% c("weekly", "biweekly"))) {
-  cases_dist <- cases_dist %>%
-    dplyr::mutate(
-      month = factor(
-        lubridate::month(isoweek_to_date(.data$week, .data$year)),
-        levels = 1:12
+    cases_dist <- cases_dist %>%
+      dplyr::mutate(
+        month = factor(
+          lubridate::month(isoweek_to_date(.data$week, .data$year)),
+          levels = 1:12
+        )
       )
-    )
   } else if (all(time_unit == "monthly")) {
     cases_dist <- cases_dist %>%
       dplyr::mutate(

@@ -19,7 +19,6 @@
 #' get_scores(signals, scorers = list(recurrence = score_recurrence))
 #' }
 score_recurrence <- function(signal_results) {
-
   time_unit <- unique(signal_results$time_unit)
 
   if (all(time_unit %in% c("weekly", "biweekly"))) {
