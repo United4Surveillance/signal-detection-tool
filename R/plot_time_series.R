@@ -162,6 +162,12 @@ plot_time_series <- function(results, interactive = FALSE,
   col.test <- "#304794"
   col.intervention <- "#ff8c00"
 
+  if( has_scores ){
+    #custom color ramp from viridis pakage (inferno scale)
+      colors_ramp <- c("#170C3AFF", "#170C3AFF", "#170C3AFF", "#5B116EFF", "#9B2964FF", "#D74B3FFF", "#F8880DFF", "#F6D645FF", "#FCFFA4FF")
+      score_colors <- colorRamp(colors = colors_ramp) 
+  }
+
   legend_values <- c(
     "Expected" = col.expected,
     "Threshold" = col.threshold
@@ -299,8 +305,7 @@ plot_time_series <- function(results, interactive = FALSE,
 
     if (has_scores) {
       signals_df <- results %>% dplyr::filter(!is.na(alarms), alarms == T)
-      score_colors <- colorRamp(colors = c("#FFEEEE", col.alarm)) 
-
+      
       plt <- plt %>% 
         plotly::add_trace(
           name = "Signal",
@@ -316,10 +321,7 @@ plot_time_series <- function(results, interactive = FALSE,
             color = rgb(score_colors(signals_df$score), maxColorValue = 255),
             cmin = 0,
             cmax = 1,
-            showscale = TRUE,
-            colorbar = list(
-              title = list(text = "Score")
-            )
+            showscale = FALSE
           ),
           hovertemplate = "Signal score: %{customdata:.2f}<extra></extra>"
         )
