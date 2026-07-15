@@ -41,8 +41,8 @@ score.
 }
 \examples{
 \dontrun{
-signal_results <- input_example \%>\% 
-  preprocess_data() \%>\% 
+signal_results <- input_example \%>\%
+  preprocess_data() \%>\%
   get_signals_all()
 
 scorers <- list(

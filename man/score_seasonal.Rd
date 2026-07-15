@@ -14,7 +14,9 @@ signal detection results scored
 }
 \description{
 Scores each signal in the signal detection results according to the
-calculated seasonal distribution. See [case_yearly_dist]
+calculated seasonal distribution. This distribution is calculated by the average percentage of
+cases that happen each month for each year of complete data. The score is defined by 1 - scaled percentage,
+were scaled percentage is given by an s-curve \eqn{f(x)=x^2/(1/12^2 + x^2)}. Then it is rounded to the 2nd decimal point.
 }
 \examples{
 \dontrun{

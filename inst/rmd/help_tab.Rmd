@@ -178,17 +178,22 @@ The overall score is computed as the mean of several component scores, each rang
 
 - **Seasonal score**  
   Evaluates signals based on the seasonal distribution of cases.  
-  It uses the average monthly proportion of cases $d$ and is defined as:  
- $1 - \frac{d^2}{\frac{1}{12^2} + d^2}$
+  It uses the average monthly proportion of cases d and is defined as:  
+  1 - d^2/(1/12^2 + d^2)
+
+  This score requires data of complete years to estimate how cases are monthly distributed. Otherwise it returns `NA`.
 
 - **Recurrence score**  
   Measures how frequently alarms occur within the same stratum and category during the test period.  
-  Higher alarm frequency results in a higher score.
+  The score is set to `NA` when recurrence cannot be assessed, such as when the test period consists of only one week..  
+  A single alarm across multiple observed weeks receives a score of 0, because it does not indicate recurrence.  
+  If more than one alarm occurs, the score is calculated as `n_alarms / n_weeks`; higher alarm frequency results in a higher score.
 
 - **Strength score**  
-  Scores each signal using the signal size $s$, which is defined by the distance from expected value and upperbound threshold value.  The score follows the formula:
-  
-  $\frac{s^3 - 1}{s^3}$
+  Scores each signal using the signal size s, which is defined by the distance from expected value and upperbound threshold value.  The score follows the formula:
+  (s^3 - 1)/(s^3)
+
+  Currently, this score is implemented for all methods except CUSUM and EARS. For these methods it returns `NA`.
 
 - **Specificity score**  
   Compares a signal to the fraction of other alarms in the same category and week.  

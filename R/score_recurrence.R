@@ -1,6 +1,9 @@
 #' @title Score signals based on temporal alarm recurrence within strata
 #' @description Computes a score for each signal based on the frequency of alarms
 #' within the test period of its stratum and category. Higher alarm frequency results in higher scores.
+#' The score is set to `NA` when recurrence cannot be assessed, such as when the test period consists of only one week.
+#' A single alarm across multiple observed weeks is assigned a score of 0, because it does not indicate recurrence.
+#' If more than one alarm occurs, the score is calculated as `n_alarms / n_weeks`.
 #'
 #' @param signal_results signal detection results obtained from get_signals()
 #'
@@ -33,7 +36,8 @@ score_recurrence <- function(signal_results) {
       n_weeks = dplyr::n(),
       n_alarms = sum(.data$alarms, na.rm = TRUE),
       score_stratum = dplyr::if_else(n_alarms > 0, n_alarms / n_weeks, NA),
-      score_stratum = dplyr::if_else(n_alarms == 1, 0, score_stratum)
+      score_stratum = dplyr::if_else(n_alarms == 1, 0, score_stratum),
+      score_stratum = dplyr::if_else(n_weeks == 1, NA, score_stratum)
     ) %>%
     dplyr::ungroup()
 
