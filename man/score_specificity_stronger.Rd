@@ -14,15 +14,5 @@ signal detection results scored
 }
 \description{
 Scores each signal in the signal_results object according to the
-fraction of other alarms that are stronger in the category in the same week
-}
-\examples{
-\dontrun{
-signals <- input_example \%>\%
-  preprocess_data() \%>\%
-  get_signals_all() \%>\%
-  dplyr::mutate(pathogen = "Pertussis")
-
-get_scores(signals, scorers = list(specificity = score_specificity_stronger))
-}
+fraction of other alarms that are stronger in the category in the same time unit
 }

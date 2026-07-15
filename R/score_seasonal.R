@@ -21,10 +21,25 @@ score_seasonal <- function(signals_res) {
   # select the unstratified
   ts_pathogen <- signals_res %>% dplyr::filter(is.na(category))
 
-  # select years that are complete (52, 53 weeks)
+  # select years that are complete
+  time_unit <- unique(signals_res$time_unit)
+  required_time_units <- dplyr::case_when(
+    length(time_unit) == 1L && time_unit == "weekly"   ~ 52L,
+    length(time_unit) == 1L && time_unit == "biweekly" ~ 26L,
+    length(time_unit) == 1L && time_unit == "monthly"  ~ 12L,
+    TRUE ~ NA_integer_
+  )
+
+  if (is.na(required_time_units)) {
+    stop(
+      "`time_unit` must contain exactly one of: ",
+      "`weekly`, `biweekly`, or `monthly`."
+    )
+  }
+
   sel_years <- ts_pathogen %>%
     dplyr::count(year) %>%
-    dplyr::filter(n >= 52) %>%
+    dplyr::filter(n >= required_time_units) %>%
     dplyr::pull(year)
 
   # if no complete years, seasonal score is skipped and returns NA
@@ -37,13 +52,24 @@ score_seasonal <- function(signals_res) {
       dplyr::select(-"cases.dist")
 
     # score_signals
+    # Assign each weekly or biweekly period to the month of its reference week.
+    # Periods spanning two months are not split proportionally between months.
+    if (time_unit %in% c("weekly", "biweekly")){
     signals_res <- signals_res %>%
       dplyr::mutate(
         month = factor(
           lubridate::month(isoweek_to_date(.data$week, .data$year)),
           levels = 1:12
         )
-      ) %>%
+      )
+    } else if (time_unit == "monthly"){
+      signals_res <- signals_res %>%
+        dplyr::mutate(
+        month = factor(.data$month, levels = 1:12)
+      )
+    }
+
+    signals_res <- signals_res %>%
       dplyr::left_join(scores_per_month, by = c("month")) %>%
       dplyr::mutate(
         score = dplyr::case_when(
@@ -62,7 +88,7 @@ score_seasonal <- function(signals_res) {
 #' cases that happen each month. The score is defined by 1 - scaled percentage,
 #' were scaled percentage is given by an s-curve \eqn{f(x)=x^2/(1/12^2 + x^2)}
 #'
-#' @param dat_ts timeseries dataframe. Must include the columns year, week, and cases
+#' @param dat_ts timeseries dataframe. Must include the columns year, week/month, and cases
 #' @param selected_years vector of years to filter the data
 #'
 #' @returns dataframe with the empirical distribution of cases in the year and its corresponding score
@@ -75,14 +101,27 @@ case_yearly_dist <- function(dat_ts, selected_years) {
 
   checkmate::assert_numeric(selected_years)
 
+  time_unit <- unique(dat_ts$time_unit)
+
   cases_dist <- dat_ts %>%
-    dplyr::filter(.data$year %in% selected_years) %>%
+    dplyr::filter(.data$year %in% selected_years)
+
+  if (all(time_unit %in% c("weekly", "biweekly"))) {
+  cases_dist <- cases_dist %>%
     dplyr::mutate(
       month = factor(
         lubridate::month(isoweek_to_date(.data$week, .data$year)),
         levels = 1:12
       )
-    ) %>%
+    )
+  } else if (all(time_unit == "monthly")) {
+    cases_dist <- cases_dist %>%
+      dplyr::mutate(
+        month = factor(.data$month, levels = 1:12)
+      )
+  }
+
+  cases_dist <- cases_dist %>%
     dplyr::group_by(.data$year, .data$month) %>%
     dplyr::summarise(
       cases = sum(.data$cases),

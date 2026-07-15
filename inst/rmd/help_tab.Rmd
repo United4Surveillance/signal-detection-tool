@@ -191,8 +191,8 @@ The overall score is computed as the mean of several component scores, each rang
 - **Recurrence score**  
   Measures how frequently alarms occur within the same stratum and category during the test period.  
   The score is set to `NA` when recurrence cannot be assessed, such as when the test period consists of only one week..  
-  A single alarm across multiple observed weeks receives a score of 0, because it does not indicate recurrence.  
-  If more than one alarm occurs, the score is calculated as `n_alarms / n_weeks`; higher alarm frequency results in a higher score.
+  A single alarm across multiple observed time units receives a score of 0, because it does not indicate recurrence.  
+  If more than one alarm occurs, the score is calculated as `n_alarms / n_time_units`; higher alarm frequency results in a higher score.
 
 - **Strength score**  
   Scores each signal using the signal size s, which is defined by the distance from expected value and upperbound threshold value.  The score follows the formula:
@@ -201,7 +201,7 @@ The overall score is computed as the mean of several component scores, each rang
   Currently, this score is implemented for all methods except CUSUM and EARS. For these methods it returns `NA`.
 
 - **Specificity score**  
-  Compares a signal to the fraction of other alarms in the same category and week.  
+  Compares a signal to the fraction of other alarms in the same category and time unit.  
   A higher fraction of stronger concurrent signals reduces the score.
 
 ### References

@@ -15,12 +15,12 @@ cusum_with_reset(
 \arguments{
 \item{sts}{surveillance::sts() format of aggregated timeseries of case counts}
 
-\item{control}{control object:
+\item{control}{control object: 
             \describe{
             \item{\code{range}}{determines the desired time points which should be evaluated}
             \item{\code{k}}{is the reference value}
             \item{\code{h}}{the decision boundary}
-            \item{\code{m}}{how to determine the expected number of cases --
+            \item{\code{m}}{how to determine the expected number of cases -- 
                 the following arguments are possible
                 \describe{
                 \item{\code{numeric}}{a vector of values having the

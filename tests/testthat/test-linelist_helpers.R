@@ -122,7 +122,7 @@ test_that("build_signal_and_comparison_linelist excludes selected signal cases f
     week = c(seq(1, 52, 1), 1, 2),
     cases = c(rep(5, 52), 18, 12),
     alarms = c(rep(NA, 52), TRUE, TRUE),
-    number_of_weeks = rep(3, 54),
+    number_of_time_units = rep(3, 54),
     time_unit = c("weekly", "weekly", "weekly")
   )
 
