@@ -161,6 +161,44 @@ If this option is set to TRUE, cases that are already assigned to a known outbre
 
 The "Show expectation and threshold for historic data" feature, accessible via an additional button, extends the expectation and/or threshold to historic data. The feature can only be used with FarringtonFlexible, EARS and CUSUM. For the other algorithms, expected values are computed and displayed by default for historical data, since this is less computationally intensive.
 
+### Post-processing filter
+
+Post-processing filters are applied after signal detection. They refine which signals are ultimately flagged as alarms.
+
+#### Minimum number of cases per signal 
+Defines the minimum number of cases required for a signal to be considered.  
+Default: `1` (no alarms are excluded).
+
+#### Minimum score accepted for signal inclusion
+Specifies the threshold below which signals are not flagged. The score reflects the priority of a signal.  
+Scores range from `0` (least restrictive) to `1` (most restrictive).  
+Default: `0` (no alarms are excluded).
+
+The overall score is computed as the mean of several component scores, each ranging from 0 to 1:
+
+- **Seasonal score**  
+  Evaluates signals based on the seasonal distribution of cases.  
+  It uses the average monthly proportion of cases d and is defined as:  
+  1 - d^2/(1/12^2 + d^2)
+
+  This score requires data of complete years to estimate how cases are monthly distributed. Otherwise it returns `NA`.
+
+- **Recurrence score**  
+  Measures how frequently alarms occur within the same stratum and category during the test period.  
+  The score is set to `NA` when recurrence cannot be assessed, such as when the test period consists of only one week..  
+  A single alarm across multiple observed weeks receives a score of 0, because it does not indicate recurrence.  
+  If more than one alarm occurs, the score is calculated as `n_alarms / n_weeks`; higher alarm frequency results in a higher score.
+
+- **Strength score**  
+  Scores each signal using the signal size s, which is defined by the distance from expected value and upperbound threshold value.  The score follows the formula:
+  (s^3 - 1)/(s^3)
+
+  Currently, this score is implemented for all methods except CUSUM and EARS. For these methods it returns `NA`.
+
+- **Specificity score**  
+  Compares a signal to the fraction of other alarms in the same category and week.  
+  A higher fraction of stronger concurrent signals reduces the score.
+
 ### References
 
 - Farrington, C. P., Andrews, N. J., Beale, A. D., & Catchpole, M. A. (1996). A statistical algorithm for the early detection of outbreaks of infectious disease. *Journal of the Royal Statistical Society: Series A (Statistics in Society)*, 159(3), 547–563.

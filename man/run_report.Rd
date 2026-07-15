@@ -21,6 +21,7 @@ run_report(
   custom_logo = NULL,
   custom_theme = NULL,
   min_cases_signals = 1,
+  min_score_signals = 0,
   title = NULL,
   alpha_upper = 0.05,
   exclude_outbreak_cases_from_fitting = FALSE
@@ -101,6 +102,12 @@ United4Surveillance theme. This is mainly used to change colors. Use
 \item{min_cases_signals}{Integer scalar giving the minimum number of cases an
 alarm must have to remain flagged. For observations with fewer than this
 number of cases, `alarms` is set to `FALSE` in a post-processing step.
+This is applied only when signals are recomputed inside `run_report()`,
+i.e. when `signals_agg` or `signals_padded` is `NULL`.}
+
+\item{min_score_signals}{Numeric scalar in the interval [0, 1] giving the minimum score an
+alarm must have to remain flagged. For signals below this score,
+`alarms` is set to `FALSE` in a post-processing step.
 This is applied only when signals are recomputed inside `run_report()`,
 i.e. when `signals_agg` or `signals_padded` is `NULL`.}
 

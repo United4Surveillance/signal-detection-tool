@@ -48,6 +48,7 @@ mod_tabpanel_signals_server <- function(
   intervention_date,
   pad_signals_choice,
   min_cases_signals,
+  min_score_signals,
   alpha_upper,
   exclude_outbreak_cases_from_fitting
 ) {
@@ -215,11 +216,29 @@ mod_tabpanel_signals_server <- function(
         alpha_upper = alpha_upper(),
         exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting()
       )
+
+      # post-processing
       results %>% dplyr::mutate(
         alarms = dplyr::if_else(alarms & cases < min_cases_signals(),
           FALSE, alarms, missing = alarms
         )
       )
+
+      # score signals
+      results <- results %>%
+        get_scores(
+          scorers = list(
+            seasonal = score_seasonal,
+            recurrence = score_recurrence,
+            strength = score_strength,
+            specificity = score_specificity_alarm # ,
+            # specificity_2 = score_specificity_stronger
+          ),
+          aggregation = "mean"
+        ) %>% # apply post-processing to scores
+        dplyr::mutate(
+          alarms = dplyr::if_else(score < min_score_signals(), FALSE, alarms, missing = alarms)
+        )
     })
 
     signals_agg <- shiny::reactive({

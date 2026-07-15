@@ -36,6 +36,7 @@ app_server <- function(input, output, session) {
     date_ext = datinput$date_ext,
     pad_signals_choice = datinput$pad_signals_choice,
     min_cases_signals = datinput$min_cases_signals,
+    min_score_signals = datinput$min_score_signals,
     exclude_outbreak_cases_from_fitting = datinput$exclude_outbreak_cases_from_fitting
   )
 

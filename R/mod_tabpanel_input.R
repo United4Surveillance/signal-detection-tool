@@ -174,6 +174,17 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
                   style = "margin-top:0px, padding-top:0px",
                   shiny::uiOutput(ns("filter_min_cases_signals"))
                 )
+              ),
+              shiny::column(
+                width = 12,
+                shiny::span(
+                  style = "font-weight: bold; display:block; margin-top:12px; margin-bottom:4px;",
+                  "Minimum score accepted for signal inclusion"
+                ),
+                shiny::div(
+                  style = "margin-top:0px, padding-top:0px",
+                  shiny::uiOutput(ns("filter_min_score_signals"))
+                )
               )
             )
           )
@@ -221,6 +232,20 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       )
     })
 
+    output$filter_min_score_signals <- shiny::renderUI({
+      shiny::req(!errors_detected())
+      shiny::sliderInput(
+        inputId = ns("min_score_signals"),
+        label = NULL,
+        value = get_data_config_value("post-processing:min_score_signals", 0),
+        min = 0,
+        max = 1,
+        ticks = TRUE,
+        step = 0.01,
+        width = "40%"
+      )
+    })
+
     # using shinyvalidate to ensure value between min and max
     iv_weeks <- shinyvalidate::InputValidator$new()
     iv_weeks$add_rule("n_weeks", shinyvalidate::sv_required(
@@ -239,6 +264,12 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
     iv_min_cases$add_rule("min_cases_signals", shinyvalidate::sv_integer())
     iv_min_cases$add_rule("min_cases_signals", shinyvalidate::sv_gte(1))
     iv_min_cases$enable()
+
+    iv_min_signal <- shinyvalidate::InputValidator$new()
+    iv_min_signal$add_rule("min_score_signals", shinyvalidate::sv_numeric())
+    iv_min_signal$add_rule("min_score_signals", shinyvalidate::sv_gte(0))
+    iv_min_signal$add_rule("min_score_signals", shinyvalidate::sv_lte(1))
+    iv_min_signal$enable()
 
     output$text_weeks_selection <- shiny::renderText({
       shiny::req(!errors_detected())
@@ -783,6 +814,7 @@ mod_tabpanel_input_server <- function(id, data, errors_detected) {
       intervention_date = shiny::reactive(intervention_date()),
       pad_signals_choice = shiny::reactive(input$pad_signals_choice),
       min_cases_signals = shiny::reactive(input$min_cases_signals),
+      min_score_signals = shiny::reactive(input$min_score_signals),
       selected_filter_vars = shiny::reactive(selected_filter_vars()),
       exclude_outbreak_cases_from_fitting = shiny::reactive(input$exclude_outbreak_cases_from_fitting)
     ))
