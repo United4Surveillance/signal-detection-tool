@@ -17,6 +17,7 @@ default:
   shapefile_path: ~
   post-processing:
         min_cases_signals: 4
+        min_score_signals: 0.5
   report:
     title: "My Signal Report"
 

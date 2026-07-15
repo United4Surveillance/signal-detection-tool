@@ -222,6 +222,8 @@ Defines key variables for post-processing.
 
 - `min_cases_signals` *(Scalar: Integer)* - Minimum number of cases required for a signal to be shown.
 
+- `min_score_signals` *(Scalar: Numeric)* - The score reflects the priority of a signal and specifies the threshold below which signals are not flagged. 
+
 ##### **Shapefile Path (`shapefile_path`)** *(Scalar: Null or String)*  
 Specifies the file path for geographic boundary data. The `~` value indicates that no shapefile is provided.  
 

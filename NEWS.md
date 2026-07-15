@@ -3,6 +3,7 @@
 * fix missing display of expectation and/or threshold for historic data when using an extension date with FarringtonFlexible, EARS and CUSUM
 * Added option to exclude outbreak-associated cases from baseline fitting for GLM-based algorithms
 * Added visualisation of age group comparison of cases in signal vs. cases from the signal detection period in the linelist tab
+* Introduced a post-processing score for alarms to support priority-based filtering
 
 # SignalDetectionTool 0.10.0
 

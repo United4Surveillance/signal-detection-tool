@@ -69,6 +69,11 @@
 #'   number of cases, `alarms` is set to `FALSE` in a post-processing step.
 #'   This is applied only when signals are recomputed inside `run_report()`,
 #'   i.e. when `signals_agg` or `signals_padded` is `NULL`.
+#' @param min_score_signals Numeric scalar in the interval [0, 1] giving the minimum score an
+#'   alarm must have to remain flagged. For signals below this score,
+#'   `alarms` is set to `FALSE` in a post-processing step.
+#'   This is applied only when signals are recomputed inside `run_report()`,
+#'   i.e. when `signals_agg` or `signals_padded` is `NULL`.
 #' @param title `NULL` or a character scalar specifying the report title. If
 #'   `NULL` or an empty string, a default title of the form
 #'   `"Signal Detection Report - <country>"` is used.
@@ -163,6 +168,7 @@ run_report <- function(
   custom_logo = NULL,
   custom_theme = NULL,
   min_cases_signals = 1,
+  min_score_signals = 0,
   title = NULL,
   alpha_upper = 0.05,
   exclude_outbreak_cases_from_fitting = FALSE
@@ -266,6 +272,9 @@ run_report <- function(
     checkmate::check_integerish(min_cases_signals, lower = 1)
   )
   checkmate::assert(
+    checkmate::check_numeric(min_score_signals, lower = 0, upper = 1)
+  )
+  checkmate::assert(
     checkmate::check_string(title, null.ok = TRUE)
   )
   if (!grepl("cusum", method, ignore.case = TRUE) && !grepl("ears", method, ignore.case = TRUE) &&
@@ -363,7 +372,20 @@ run_report <- function(
           alarms = dplyr::if_else(alarms & cases < min_cases_signals,
             FALSE, alarms, missing = alarms
           )
+        ) %>%
+        get_scores(
+          list(
+            seasonal = score_seasonal,
+            recurrence = score_recurrence,
+            strength = score_strength,
+            specificity = score_specificity_alarm
+          ),
+          aggregation = "mean"
+        ) %>% # apply post-processing to scores
+        dplyr::mutate(
+          alarms = dplyr::if_else(score < min_score_signals, FALSE, alarms, missing = alarms)
         )
+
 
       signals_agg_pad <- aggregate_pad_signals(
         signals,
