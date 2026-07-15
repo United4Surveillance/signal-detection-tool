@@ -162,10 +162,10 @@ plot_time_series <- function(results, interactive = FALSE,
   col.test <- "#304794"
   col.intervention <- "#ff8c00"
 
-  if( has_scores ){
-    #custom color ramp from viridis pakage (inferno scale)
-      colors_ramp <- c("#170C3AFF", "#170C3AFF", "#170C3AFF", "#5B116EFF", "#9B2964FF", "#D74B3FFF", "#F8880DFF", "#F6D645FF", "#FCFFA4FF")
-      score_colors <- colorRamp(colors = colors_ramp) 
+  if (has_scores) {
+    # custom color ramp from viridis pakage (inferno scale)
+    colors_ramp <- c("#170C3AFF", "#170C3AFF", "#170C3AFF", "#5B116EFF", "#9B2964FF", "#D74B3FFF", "#F8880DFF", "#F6D645FF", "#FCFFA4FF")
+    score_colors <- colorRamp(colors = colors_ramp)
   }
 
   legend_values <- c(
@@ -305,8 +305,8 @@ plot_time_series <- function(results, interactive = FALSE,
 
     if (has_scores) {
       signals_df <- results %>% dplyr::filter(!is.na(alarms), alarms == T)
-      
-      plt <- plt %>% 
+
+      plt <- plt %>%
         plotly::add_trace(
           name = "Signal",
           type = "scatter",
