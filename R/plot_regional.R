@@ -55,6 +55,16 @@ plot_regional <- function(shape_with_signals,
       any_alarms = factor(any_alarms, levels = c("No signals", "At least 1 signal")) # level ordering determines render ordering: black < red
     )
 
+  shape_with_signals <- shape_with_signals %>%
+    sf::st_zm(drop = TRUE, what = "ZM") %>%
+    sf::st_make_valid()
+
+  # Plotly uses Cartesian axes here. For lon/lat data, transform to a metric CRS first.
+  # EPSG:3035 = ETRS89 / LAEA Europe, suitable for European NUTS maps.
+  if (isTRUE(sf::st_is_longlat(shape_with_signals))) {
+    shape_with_signals <- sf::st_transform(shape_with_signals, 3035)
+  }
+
   lower_th <- ceiling(max(shape_with_signals$cases) * 0.40)
   col_alarm_text <- shape_with_signals %>%
     dplyr::mutate(col_var = dplyr::case_when(
@@ -77,6 +87,7 @@ plot_regional <- function(shape_with_signals,
       ),
       lwd = 1.2
     ) +
+    ggplot2::coord_sf() +
     ggplot2::theme_void() +
     ggplot2::scale_fill_gradientn(
       colours = grDevices::colorRampPalette(c("#eaecf4", "#304794", "#1c2a58"))(8),
@@ -132,94 +143,118 @@ plot_regional <- function(shape_with_signals,
   }
 
   if (interactive) {
+    if (is.na(sf::st_crs(shape_with_signals))) {
+      stop("shape_with_signals needs a valid CRS for interactive map plotting.")
+    }
+
     shape_areas_sf <- shape_with_signals %>%
       dplyr::filter(!sf::st_is_empty(geometry)) %>%
       sf::st_make_valid() %>%
       sf::st_collection_extract("POLYGON", warn = FALSE) %>%
       sf::st_cast("MULTIPOLYGON", warn = FALSE) %>%
-      # remove any possible Z/M-dimensions
-      sf::st_zm(drop = TRUE, what = "ZM")
-
-    plot <- plotly::plotly_empty() %>%
-      plotly::add_sf( # add geometries and colours by cases
-        type = "scatter",
-        data = shape_areas_sf,
-        split = ~NUTS_ID,
-        color = ~cases,
-        colors = grDevices::colorRampPalette(c("#eaecf4", "#304794", "#1c2a58"))(8),
-        stroke = I("black"),
-        alpha = 1,
-        text = ~ paste(
+      sf::st_zm(drop = TRUE, what = "ZM") %>%
+      sf::st_transform(4326) %>%
+      dplyr::mutate(
+        NUTS_ID = as.character(NUTS_ID),
+        hover_text = paste0(
           NUTS_NAME,
-          "\nNumber of cases:", cases,
-          "\nNumber of signals:", n_alarms
-        ),
-        hoverinfo = "text",
-        hoveron = "fills",
-        hoverlabel = list(bgcolor = "white"),
-        showlegend = FALSE,
-        inherit = FALSE
+          "<br>Number of cases: ", round(cases, 0),
+          "<br>Number of signals: ", n_alarms
+        )
       )
 
-    stars_sf <- shape_with_signals %>%
+    if (any(!sf::st_is_valid(shape_areas_sf))) {
+      stop("Invalid geometries remain after st_make_valid().")
+    }
+
+    if (anyDuplicated(shape_areas_sf$NUTS_ID)) {
+      stop("NUTS_ID must be unique for the choropleth GeoJSON mapping.")
+    }
+
+    geojson_text <- geojsonsf::sf_geojson(
+      shape_areas_sf %>%
+        dplyr::select(NUTS_ID, NUTS_NAME),
+      atomise = FALSE
+    )
+
+    geojson <- jsonlite::fromJSON(
+      geojson_text,
+      simplifyVector = FALSE
+    )
+
+    plot <- plotly::plot_ly(
+      data = shape_areas_sf,
+      type = "choropleth",
+      geojson = geojson,
+      locations = ~NUTS_ID,
+      featureidkey = "properties.NUTS_ID",
+      z = ~cases,
+      text = ~hover_text,
+      hovertemplate = "%{text}<extra></extra>",
+      colorscale = list(
+        list(0.00, "#eaecf4"),
+        list(0.50, "#304794"),
+        list(1.00, "#1c2a58")
+      ),
+      marker = list(
+        line = list(
+          color = "black",
+          width = 1
+        )
+      ),
+      colorbar = list(
+        title = "Cases",
+        tickformat = ".0f"
+      ),
+      showscale = nrow(shape_areas_sf) >= 2
+    ) %>%
+      plotly::layout(
+        geo = list(
+          projection = list(type = "mercator"),
+          fitbounds = "geojson",
+          visible = FALSE,
+          showframe = FALSE,
+          showcoastlines = FALSE,
+          showcountries = FALSE,
+          showland = FALSE,
+          showlakes = FALSE,
+          bgcolor = "rgba(0,0,0,0)"
+        ),
+        margin = list(l = 0, r = 0, t = 0, b = 0)
+      )
+
+    stars_sf <- shape_areas_sf %>%
       dplyr::filter(any_alarms == "At least 1 signal")
-    nrow_stars_before <- nrow(stars_sf)
 
     if (nrow(stars_sf) > 0) {
-      #  temporarily disable s2: can help avoid spherical edge cases at coasts
-      old_s2 <- sf::sf_use_s2()
-      sf::sf_use_s2(FALSE)
+      stars_points_sf <- stars_sf %>%
+        sf::st_transform(3035) %>%
+        sf::st_point_on_surface() %>%
+        sf::st_transform(4326)
 
-      # calculate centre robustly
-      stars_sf <- stars_sf %>%
-        sf::st_make_valid() %>%
-        sf::st_centroid(of_largest_polygon = TRUE) %>%
-        sf::st_collection_extract("POINT") %>% # only keep points
-        dplyr::filter(!sf::st_is_empty(geometry)) # remove empty ones
+      coords <- sf::st_coordinates(stars_points_sf)
 
-      stars_sf <- stars_sf %>%
-        dplyr::rowwise() %>%
+      stars_points_df <- stars_points_sf %>%
+        sf::st_drop_geometry() %>%
         dplyr::mutate(
-          geometry = {
-            pt <- geometry
-            self <- shape_areas_sf[shape_areas_sf$NUTS_ID == NUTS_ID, ]
-            other <- shape_areas_sf[shape_areas_sf$NUTS_ID != NUTS_ID, ]
+          lon = coords[, "X"],
+          lat = coords[, "Y"]
+        )
 
-            hit_other <- lengths(sf::st_intersects(pt, other)) > 0
-
-            if (!hit_other) {
-              pt
-            } else {
-              safe <- sf::st_difference(sf::st_geometry(self), sf::st_union(sf::st_geometry(other)))
-              if (length(safe) == 0 || sf::st_is_empty(safe)) {
-                sf::st_point_on_surface(self)
-              } else {
-                if (length(safe) > 1) safe <- safe[which.max(sf::st_area(safe))]
-                sf::st_point_on_surface(safe)
-              }
-            }
-          }
-        ) %>%
-        dplyr::ungroup()
-
-      sf::sf_use_s2(old_s2)
-
-      if (nrow(stars_sf) < nrow_stars_before) {
-        stop("Empty geometry would silently remove signal marker(s).
-             Please fix your supplied shapefile.")
-      }
-
-      # explicitly add points
-      coords <- sf::st_coordinates(stars_sf)
       plot <- plot %>%
-        plotly::add_markers(
-          x = coords[, 1], y = coords[, 2],
-          marker = list(symbol = "star", size = 10, color = "red"),
-          text = paste(
-            stars_sf$NUTS_NAME, "\nNumber of cases:", stars_sf$cases,
-            "\nNumber of signals:", stars_sf$n_alarms
+        plotly::add_trace(
+          data = stars_points_df,
+          type = "scattergeo",
+          mode = "markers",
+          lon = ~lon,
+          lat = ~lat,
+          marker = list(
+            symbol = "star",
+            size = 10,
+            color = "red"
           ),
-          hoverinfo = "text",
+          text = ~hover_text,
+          hovertemplate = "%{text}<extra></extra>",
           showlegend = FALSE,
           inherit = FALSE
         )
@@ -227,16 +262,20 @@ plot_regional <- function(shape_with_signals,
 
     if (!is.null(text_region_missing)) {
       plot <- plot %>%
-        plotly::layout(annotations = list(
-          text = text_region_missing,
-          x = 0.5, y = 0,
-          xref = "paper", yref = "paper",
-          showarrow = FALSE,
-          align = "center"
-        ))
+        plotly::layout(
+          annotations = list(
+            text = text_region_missing,
+            x = 0.5,
+            y = 0,
+            xref = "paper",
+            yref = "paper",
+            showarrow = FALSE,
+            align = "center"
+          )
+        )
     }
+
     plot <- plot %>%
-      plotly::layout(xaxis = list(autorange = TRUE), yaxis = list(autorange = TRUE)) %>%
       plotly::config(modeBarButtonsToRemove = c(
         "autoScale2d",
         "resetScale2d",
