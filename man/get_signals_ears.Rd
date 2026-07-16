@@ -4,14 +4,21 @@
 \alias{get_signals_ears}
 \title{Get signals of surveillance's EARS algorithm}
 \usage{
-get_signals_ears(data_aggregated, number_of_weeks = 52, method = "C1")
+get_signals_ears(
+  data_aggregated,
+  number_of_time_units = 52,
+  method = "C1",
+  time_unit = "weekly"
+)
 }
 \arguments{
 \item{data_aggregated}{data.frame, aggregated data with case counts}
 
-\item{number_of_weeks}{integer, specifying number of weeks to generate signals for}
+\item{number_of_time_units}{integer, specifying number of time units to generate signals for. The default is weeks}
 
 \item{method}{string indicating which method to use: one of "C1", "C2", "C3"}
+
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 }
 \description{
 Get signals of surveillance's EARS algorithm

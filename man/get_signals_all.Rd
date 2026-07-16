@@ -13,7 +13,8 @@ get_signals_all(
   date_end = NULL,
   date_ext = NULL,
   date_var = "date_report",
-  number_of_weeks = 6,
+  time_unit = "weekly",
+  number_of_time_units = 6,
   alpha_upper = 0.05,
   exclude_outbreak_cases_from_fitting = FALSE
 )
@@ -40,7 +41,9 @@ the end of the analysis period.}
 \item{date_var}{A character string specifying the column name of the date variable to use.
 Default is "date_report".}
 
-\item{number_of_weeks}{Integer specifying how many weeks to generate signals for.}
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
+
+\item{number_of_time_units}{Integer specifying how many time units to generate signals for.}
 
 \item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
 and internally set to NULL.

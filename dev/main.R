@@ -22,7 +22,7 @@ check_input_data(data)
 # plot timeseries
 results <- get_signals_farringtonflexible(data)
 plot_time_series(results, interactive = T)
-plot_time_series(results, number_of_weeks = 10)
+plot_time_series(results, number_of_time_units = 10)
 
 # run signal detection on data
 # results <- get_signals(data)  # no stratification

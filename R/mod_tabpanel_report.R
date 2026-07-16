@@ -36,11 +36,12 @@ mod_tabpanel_report_ui <- function(id) {
 #' @noRd
 mod_tabpanel_report_server <- function(id,
                                        filtered_data,
+                                       time_unit,
                                        strat_vars,
                                        pathogen_vars,
                                        errors_detected,
                                        no_algorithm_possible,
-                                       number_of_weeks_input_valid,
+                                       number_of_time_units_input_valid,
                                        signals_padded,
                                        signals_agg,
                                        intervention_date,
@@ -55,8 +56,8 @@ mod_tabpanel_report_server <- function(id,
     output$report_tab_ui <- shiny::renderUI({
       if (errors_detected() == TRUE) {
         datacheck_error_message
-      } else if (!number_of_weeks_input_valid()) {
-        nweeks_error_message
+      } else if (!number_of_time_units_input_valid()) {
+        ntime_units_error_message
       } else if (no_algorithm_possible() == TRUE) {
         algorithm_error_message
       } else {
@@ -113,8 +114,20 @@ mod_tabpanel_report_server <- function(id,
       unique(signals_padded()$method)
     })
 
-    number_of_weeks <- shiny::reactive({
-      unique(signals_padded()$number_of_weeks)
+    number_of_time_units <- shiny::reactive({
+      unique(signals_padded()$number_of_time_units)
+    })
+
+    # calculate time unit labels
+    time_unit_label <- reactive({
+      dplyr::case_when(
+        time_unit() == "weekly" && number_of_time_units() == 1 ~ "week",
+        time_unit() == "weekly" && number_of_time_units() > 1 ~ "weeks",
+        time_unit() == "biweekly" && number_of_time_units() == 1 ~ "biweekly period",
+        time_unit() == "biweekly" && number_of_time_units() > 1 ~ "biweekly periods",
+        time_unit() == "monthly" && number_of_time_units() == 1 ~ "month",
+        time_unit() == "monthly" && number_of_time_units() > 1 ~ "months"
+      )
     })
 
     # Download generated report
@@ -122,7 +135,7 @@ mod_tabpanel_report_server <- function(id,
       paste0(
         "Generates report for ", pathogen_vars(), " stratified ",
         "by ", paste0(strat_vars(), collapse = ", "), " for the last ",
-        number_of_weeks(), " weeks using ",
+        number_of_time_units(), " selected ", time_unit_label(), " using ",
         names(available_algorithms())[available_algorithms() == method()],
         " as outbreak detection algorithm.", ifelse(grepl("glm|farrington", method()) && !is.null(alpha_upper()), paste(" A p-value cutoff of", alpha_upper(), "is used."), ""),
         " The following filters were applied: ", ifelse(length(selected_filter_vars()) != 0, paste0(selected_filter_vars(), collapse = ", "), paste0("None")), ".",
@@ -145,7 +158,8 @@ mod_tabpanel_report_server <- function(id,
           report_format = input$format,
           data = filtered_data(),
           method = names(available_algorithms()[which(available_algorithms() == method())]),
-          number_of_weeks = number_of_weeks(),
+          number_of_time_units = number_of_time_units(),
+          time_unit = time_unit(),
           pathogens = pathogen_vars(),
           strata = strat_vars(),
           selected_filter_vars = selected_filter_vars(),

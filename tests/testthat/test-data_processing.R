@@ -1,4 +1,4 @@
-test_that("test basic aggregation works", {
+test_that("test basic weekly aggregation works", {
   # Set a starting ISO week and year
   start_date <- ISOweek::ISOweek2date("2023-W10-1") # Start from ISO week 10 of 2023
 
@@ -86,7 +86,7 @@ test_that("test basic aggregation works with ISO week 53", {
 #   expect_equal(data_agg_complete, solution)
 # })
 
-test_that("test aggregation with filling missing zeros works", {
+test_that("test weekly aggregation with filling missing zeros works", {
   start_date <- ISOweek::ISOweek2date("2020-W52-1") # Start from ISO week 52 of 2020
 
   # Generate sample data over ISO weeks 52, 53, and 1 (transition to 2021)

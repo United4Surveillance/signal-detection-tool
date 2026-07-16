@@ -28,7 +28,7 @@ algorithm_error_message <- shiny::tagList(
 )
 
 
-nweeks_error_message <- shiny::tagList(
+ntime_units_error_message <- shiny::tagList(
   shiny::br(),
   shiny::p("The input given to the Signal Detection Period is invalid."),
   shiny::p("Please correct it according to the specification given in the input tab."),

@@ -6,14 +6,16 @@ test_that("build_signal_and_comparison_linelist deduplicates cases and combines 
     category = c(NA_character_, "sex", "sex"),
     stratum = c(NA_character_, "male", "male"),
     alarms = c(TRUE, TRUE, TRUE),
-    signal_id = c(1, 2, 3)
+    signal_id = c(1, 2, 3),
+    time_unit = c("weekly", "weekly", "weekly")
   )
 
   signals_padded <- data.frame(
     year = c(rep(2023, 52), 2024, 2024),
     week = c(seq(1, 52, 1), 1, 2),
     cases = c(rep(5, 52), 18, 12),
-    alarms = c(rep(NA, 52), TRUE, TRUE)
+    alarms = c(rep(NA, 52), TRUE, TRUE),
+    time_unit = c("weekly", "weekly", "weekly")
   )
 
   filtered_data <- filtered_data <- data.frame(
@@ -111,7 +113,8 @@ test_that("build_signal_and_comparison_linelist excludes selected signal cases f
     category = c(NA_character_, "sex", "sex"),
     stratum = c(NA_character_, "male", "male"),
     alarms = c(TRUE, TRUE, TRUE),
-    signal_id = c(1, 2, 3)
+    signal_id = c(1, 2, 3),
+    time_unit = c("weekly", "weekly", "weekly")
   )
 
   signals_padded <- data.frame(
@@ -119,7 +122,8 @@ test_that("build_signal_and_comparison_linelist excludes selected signal cases f
     week = c(seq(1, 52, 1), 1, 2),
     cases = c(rep(5, 52), 18, 12),
     alarms = c(rep(NA, 52), TRUE, TRUE),
-    number_of_weeks = rep(3, 54)
+    number_of_time_units = rep(3, 54),
+    time_unit = c("weekly", "weekly", "weekly")
   )
 
   filtered_data <- data.frame(

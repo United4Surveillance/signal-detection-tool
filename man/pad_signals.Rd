@@ -10,7 +10,7 @@ pad_signals(data, signals)
 \arguments{
 \item{data}{A data frame containing the surveillance data preprocessed with [preprocess_data()].}
 
-\item{signals}{tibble, output of the \code{\link{get_signals}} function with number of cases and signal per week, year}
+\item{signals}{tibble, output of the \code{\link{get_signals}} function with number of cases and signal per time unit, year}
 }
 \value{
 tibble, with padded signals

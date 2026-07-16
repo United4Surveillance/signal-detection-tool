@@ -44,7 +44,7 @@ mod_tabpanel_linelist_server <- function(
   id,
   filtered_data,
   errors_detected,
-  number_of_weeks_input_valid,
+  number_of_time_units_input_valid,
   method,
   no_algorithm_possible,
   intervention_date,
@@ -58,8 +58,8 @@ mod_tabpanel_linelist_server <- function(
     output$signal_linelist_tab_ui <- shiny::renderUI({
       if (errors_detected() == TRUE) {
         return(datacheck_error_message)
-      } else if (!number_of_weeks_input_valid()) {
-        return(nweeks_error_message)
+      } else if (!number_of_time_units_input_valid()) {
+        return(ntime_units_error_message)
       } else if (no_algorithm_possible() == TRUE) {
         return(algorithm_error_message)
       } else {
@@ -141,7 +141,7 @@ mod_tabpanel_linelist_server <- function(
         ) |>
         dplyr::ungroup()
 
-      plot_agegroup_comparison(cases_agg, unique(true_signals()$number_of_weeks))
+      plot_agegroup_comparison(cases_agg, unique(true_signals()$number_of_time_units), unique(true_signals()$time_unit))
     })
 
     cases_linelist <- shiny::reactive({

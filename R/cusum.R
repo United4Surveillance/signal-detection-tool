@@ -1,6 +1,7 @@
 #' Get signals of CUSUM algorithm with reset
 #' @param data_aggregated data.frame, aggregated data with case counts
-#' @param number_of_weeks integer, specifying number of weeks to generate signals for
+#' @param number_of_time_units integer, specifying number of time units to generate signals for.
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
 #'
 #' @examples
 #' \dontrun{
@@ -11,43 +12,49 @@
 #' results
 #' }
 get_signals_cusum <- function(data_aggregated,
-                              number_of_weeks = 52) {
+                              number_of_time_units = 52,
+                              time_unit = "weekly") {
   checkmate::assert(
-    checkmate::check_integerish(number_of_weeks)
+    checkmate::check_integerish(number_of_time_units)
+  )
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
   )
 
-  sts_cases <- convert_to_sts(data_aggregated)
+  sts_cases <- convert_to_sts(data_aggregated, time_unit = time_unit)
 
-  num_weeks_total <- length(sts_cases@observed)
-  num_weeks_for_calibration <- num_weeks_total - number_of_weeks
+  num_time_units_total <- length(sts_cases@observed)
+  num_time_units_for_calibration <- num_time_units_total - number_of_time_units
 
-  if (num_weeks_for_calibration < 0) {
+  if (num_time_units_for_calibration < 0) {
     warning(paste0(
-      "The number of weeks you want to generate alarms for (n = ", number_of_weeks, ")",
-      " is higher than the number of weeks you have in your data (n = ", num_weeks_total, ")."
+      "The number of time units you want to generate alarms for (n = ", number_of_time_units, ")",
+      " is higher than the number of time units you have in your data (n = ", num_time_units_total, ")."
     ))
     return(NULL)
   }
 
-  # TODO discuss what the minimum num_weeks_for_calibration should be
-  else if (num_weeks_for_calibration == 0) {
+  # TODO discuss what the minimum num_time_units_for_calibration should be
+  else if (num_time_units_for_calibration == 0) {
     warning(paste0(
       "Your data/stratification covers ",
-      num_weeks_total,
-      " number of weeks in total and you want to generate alarms for ", number_of_weeks, ". ",
-      "Cusum uses 1 week for calibrating an epidemiological baseline. You have ", num_weeks_for_calibration,
-      " weeks left in your data/stratification."
+      num_time_units_total,
+      " number of time units in total and you want to generate alarms for ", number_of_time_units, ". ",
+      "Cusum uses 1 time unit for calibrating an epidemiological baseline. You have ", num_time_units_for_calibration,
+      " time units left in your data/stratification."
     ))
     return(NULL)
   }
 
-  # cusum not posible if there are no cases in the calibration weeks
-  if (sum(sts_cases@observed[1:num_weeks_for_calibration]) <= 0) {
+  # cusum not posible if there are no cases in the calibration time units
+  if (sum(sts_cases@observed[1:num_time_units_for_calibration]) <= 0) {
     return(NULL)
   }
 
   control <- list(
-    range = ((num_weeks_total - number_of_weeks + 1):num_weeks_total),
+    range = ((num_time_units_total - number_of_time_units + 1):num_time_units_total),
     k = 1.04,
     h = 2.26,
     m = NULL
@@ -56,7 +63,7 @@ get_signals_cusum <- function(data_aggregated,
   # run CUSUM on data
   results <- cusum_with_reset(sts_cases, control)
 
-  pad <- rep(NA, num_weeks_total - number_of_weeks)
+  pad <- rep(NA, num_time_units_total - number_of_time_units)
   alarms <- c(pad, results@alarm)
   upperbound <- c(pad, results@upperbound)
 

@@ -14,7 +14,7 @@ signal detection results scored
 }
 \description{
 Scores each signal in the signal_results object according to the
-fraction of other alarms in the category in the same week
+fraction of other alarms in the category in the same time unit
 }
 \examples{
 \dontrun{
