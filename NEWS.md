@@ -4,6 +4,7 @@
 * Added option to exclude outbreak-associated cases from baseline fitting for GLM-based algorithms
 * Added visualisation of age group comparison of cases in signal vs. cases from the signal detection period in the linelist tab
 * Introduced a post-processing score for alarms to support priority-based filtering
+* Added an interactive epidemic curve to the linelist tab with optional stratification and consistent colour handling for categorical variables, age groups, and unknown values
 
 # SignalDetectionTool 0.10.0
 
