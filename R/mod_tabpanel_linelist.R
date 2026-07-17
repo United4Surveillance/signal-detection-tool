@@ -84,6 +84,11 @@ mod_tabpanel_linelist_server <- function(
           ),
           bslib::card(
             min_height = "500px",
+            shiny::h1("Comparisons table"),
+            DT::DTOutput(ns("comparisons_tbl"))
+          ),
+          bslib::card(
+            min_height = "500px",
             shiny::h1("Case Linelist for Selected Signals"),
             shiny::span("Export or review cases linked to the selected signals."),
             DT::DTOutput(ns("linelist"))
@@ -159,6 +164,22 @@ mod_tabpanel_linelist_server <- function(
         signals_padded = signals_padded(),
         filtered_data = filtered_data()
       )
+    })
+
+    output$comparisons_tbl <- DT::renderDT({
+      req(cases_linelist)
+      
+      dplyr::bind_rows(cases_linelist(), .id = "signal") %>% 
+        dplyr::mutate(signal = dplyr::if_else(signal == "cases", "Cases in selected signals", "Rest of cases")) %>%
+        dplyr::group_by(signal) %>% 
+        dplyr::summarise(
+          `Median age` = as.character(median(age, na.rm = TRUE)),
+          `Male/Female ratio` = as.character(MASS::fractions(sum(sex == "male", na.rm =TRUE)/sum(sex == "female", na.rm = TRUE))),
+          .groups = "drop"
+        ) %>% 
+        tidyr::pivot_longer(-signal, names_to = "Measure") %>%
+        tidyr::pivot_wider(id_cols = Measure, names_from = signal) %>% 
+        DT::datatable(rownames = FALSE)
     })
 
     # display line lists of selected signals
