@@ -84,7 +84,6 @@ mod_tabpanel_linelist_server <- function(
           ),
           bslib::layout_columns(
             col_widths = c(9, 3),
-
             bslib::card(
               min_height = "500px",
               bslib::card_title("Epicurve"),

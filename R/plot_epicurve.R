@@ -12,8 +12,8 @@
 #'
 #' @return A Plotly object representing an epicurve of case counts by selected stratum for each reporting day for each selected signal.
 plot_epicurve <- function(
-    data_cases,
-    stratum = NULL
+  data_cases,
+  stratum = NULL
 ) {
   checkmate::assert_data_frame(
     data_cases,
@@ -36,7 +36,7 @@ plot_epicurve <- function(
   # Save the original age-group order before aggregation
   age_group_levels <- if (
     identical(stratum, "age_group") &&
-    is.factor(data_cases[[stratum]])
+      is.factor(data_cases[[stratum]])
   ) {
     levels(data_cases[[stratum]])
   } else {
@@ -68,8 +68,8 @@ plot_epicurve <- function(
           "unknown"
         )
       },
-  n = 1L
-  )
+      n = 1L
+    )
 
   stratum_levels <- unique(data_cases$plot_stratum)
   has_unknown <- "unknown" %in% stratum_levels
@@ -81,7 +81,6 @@ plot_epicurve <- function(
     fill_colors <- c(
       "All cases" = "#304898"
     )
-
   } else if (identical(stratum, "age_group")) {
     known_levels <- if (!is.null(age_group_levels)) {
       age_group_levels[
@@ -111,7 +110,6 @@ plot_epicurve <- function(
     }
 
     plot_levels <- names(fill_colors)
-
   } else {
     known_levels <- stratum_levels[
       stratum_levels != "unknown"
@@ -173,11 +171,12 @@ plot_epicurve <- function(
       text = tooltip
     )
   ) +
-    ggplot2::geom_col(position = "stack",
-                      colour = "white",
-                      linewidth = 0.35,
-                      width = 1
-                      ) +
+    ggplot2::geom_col(
+      position = "stack",
+      colour = "white",
+      linewidth = 0.35,
+      width = 1
+    ) +
     ggplot2::scale_y_continuous(
       breaks = scales::breaks_pretty()
     ) +
@@ -214,14 +213,14 @@ plot_epicurve <- function(
       axis.title.x = ggplot2::element_text(face = "bold"),
       axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5),
       axis.title.y = ggplot2::element_text(face = "bold")
-    )+
+    ) +
     ggplot2::guides(
       fill = if (is.null(stratum)) {
         "none"
       } else {
         "legend"
       }
-    )+
+    ) +
     ggplot2::scale_x_date(
       date_labels = "%Y-%m-%d"
     )
