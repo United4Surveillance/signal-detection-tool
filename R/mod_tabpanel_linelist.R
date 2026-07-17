@@ -82,6 +82,20 @@ mod_tabpanel_linelist_server <- function(
             shiny::h1("Signal Investigation"),
             plotly::plotlyOutput(ns("age_comparison"))
           ),
+          bslib::layout_columns(
+            col_widths = c(9, 3),
+
+            bslib::card(
+              min_height = "500px",
+              bslib::card_title("Epicurve"),
+              plotly::plotlyOutput(ns("epicurve"))
+            ),
+            bslib::card(
+              min_height = "500px",
+              bslib::card_title("Select stratum epicurve"),
+              shiny::uiOutput(ns("epicurve_stratum_ui"))
+            )
+          ),
           bslib::card(
             min_height = "500px",
             shiny::h1("Case Linelist for Selected Signals"),
@@ -94,7 +108,7 @@ mod_tabpanel_linelist_server <- function(
 
 
     true_signals <- shiny::reactive({
-      shiny::req(signals_padded)
+      shiny::req(signals_padded())
 
       signals <- signals_padded() %>% dplyr::filter(alarms == TRUE)
       if (nrow(signals) > 0) {
@@ -105,8 +119,8 @@ mod_tabpanel_linelist_server <- function(
 
     # output padded signal data in table
     output$show_signals_padded <- DT::renderDT({
-      req(!errors_detected())
-      req(true_signals)
+      shiny::req(!errors_detected())
+      shiny::req(true_signals)
 
       signals <- true_signals()
 
@@ -125,8 +139,8 @@ mod_tabpanel_linelist_server <- function(
 
     # display age distribution graphic
     output$age_comparison <- plotly::renderPlotly({
-      req(cases_linelist)
-      req(true_signals)
+      shiny::req(cases_linelist())
+      shiny::req(true_signals())
 
       linelist_cases <- dplyr::bind_rows(
         cases_linelist()$cases |> dplyr::mutate(signal = T),
@@ -144,20 +158,87 @@ mod_tabpanel_linelist_server <- function(
       plot_agegroup_comparison(cases_agg, unique(true_signals()$number_of_time_units), unique(true_signals()$time_unit))
     })
 
-    cases_linelist <- shiny::reactive({
-      req(filtered_data)
-      req(true_signals)
-      # check if any signals are selected for investigation
-      req(!is.na(input$show_signals_padded_rows_selected))
+    # display epicurve graphic
+    output$epicurve <- plotly::renderPlotly({
+      shiny::req(cases_linelist())
+      shiny::req(input$epicurve_stratum)
 
-      # selected rows by user in UI
+      cases_agg <- dplyr::bind_rows(
+        cases_linelist()$cases |> dplyr::mutate(signal = T),
+        cases_linelist()$cases_comparison |> dplyr::mutate(signal = F)
+      )
+
+      selected_stratum <- if (input$epicurve_stratum == "None") {
+        NULL
+      } else {
+        input$epicurve_stratum
+      }
+
+      plot_epicurve(
+        cases_agg,
+        stratum = selected_stratum
+      )
+    })
+
+    # make selection of stratum possible
+    output$epicurve_stratum_ui <- shiny::renderUI({
+      shiny::req(cases_linelist())
+
+      dat <- dplyr::bind_rows(
+        cases_linelist()$cases,
+        cases_linelist()$cases_comparison
+      )
+
+      stratum_choices <- dat |>
+        dplyr::select(where(is.character) | where(is.factor)) |>
+        dplyr::select(
+          -dplyr::any_of(c("pathogen")),
+          -dplyr::ends_with("_id")
+        ) |>
+        names() |>
+        sort()
+
+      shiny::selectInput(
+        inputId = ns("epicurve_stratum"),
+        label = "Select a stratum to display in the epicurve",
+        choices = c("None", stratum_choices),
+        selected = "None",
+        multiple = FALSE,
+        width = "100%"
+      )
+    })
+
+    cases_linelist <- shiny::reactive({
+      shiny::req(filtered_data())
+      shiny::req(true_signals())
+      shiny::req(signals_padded())
+      shiny::req(!is.na(input$show_signals_padded_rows_selected))
+
       selected_signal_ids <- sort(input$show_signals_padded_rows_selected)
+
+      # fix problem with displaying all values when signals with stratum category "unknown" are selected
+      replace_unknown <- function(data) {
+        data |>
+          dplyr::mutate(
+            dplyr::across(
+              where(is.character),
+              \(x) tidyr::replace_na(x, "unknown")
+            ),
+            dplyr::across(
+              where(is.factor),
+              \(x) forcats::fct_na_value_to_level(
+                x,
+                level = "unknown"
+              )
+            )
+          )
+      }
 
       build_signal_and_comparison_linelist(
         selected_signal_ids = selected_signal_ids,
-        true_signals = true_signals(),
-        signals_padded = signals_padded(),
-        filtered_data = filtered_data()
+        true_signals = replace_unknown(true_signals()),
+        signals_padded = replace_unknown(signals_padded()),
+        filtered_data = replace_unknown(filtered_data())
       )
     })
 
