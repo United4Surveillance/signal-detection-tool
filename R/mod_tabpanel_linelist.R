@@ -176,7 +176,7 @@ mod_tabpanel_linelist_server <- function(
       req(comparisons_table)
       
       comparisons_table() %>% 
-        DT::datatable(rownames = FALSE)
+        DT::datatable(rownames = FALSE, colnames = c("Measure", "Cases in selected signals", "Rest of cases"))
     })
 
     # display line lists of selected signals

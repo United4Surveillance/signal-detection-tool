@@ -209,3 +209,29 @@ test_that("build_signal_and_comparison_linelist excludes selected signal cases f
     279:290
   )
 })
+
+test_that("build_comparison_summary returns correct summary statistics", {
+  cases <- data.frame(
+    case_id = 1:10,
+    age = seq(20, 65, by = 5),
+    sex = rep(c("male", "female"), 5)
+  )
+
+  cases_comparison <- data.frame(
+    case_id = 11:20,
+    age = seq(10, 28, by = 2),
+    sex = c(rep("male", 9), "female")
+  )
+
+  comparison_linelist <- list(cases = cases, cases_comparison = cases_comparison)
+
+  summary_stats <- build_comparison_summary(comparison_linelist)
+  result <- tibble::tibble(
+    measure = c("Q1 age", "Median age", "Q3 age", "Male/Female ratio"),
+    cases.in.selected.signals = c("31.25", "42.5", "53.75", "1"),
+    rest.of.cases = c("14.5", "19", "23.5", "9")
+  )
+
+  expect_equal(summary_stats, result)
+
+})

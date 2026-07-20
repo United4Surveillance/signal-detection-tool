@@ -208,7 +208,7 @@ build_signal_and_comparison_linelist <- function(selected_signal_ids, true_signa
 build_comparison_summary <- function(comparison_linelist){
   comparison_linelist %>% 
     dplyr::bind_rows(.id = "signal") %>%
-    dplyr::mutate(signal = dplyr::if_else(signal == "cases", "Cases in selected signals", "Rest of cases")) %>%
+    dplyr::mutate(signal = dplyr::if_else(signal == "cases", "cases.in.selected.signals", "rest.of.cases")) %>%
     dplyr::group_by(signal) %>% 
     dplyr::summarise(
       `Q1 age` = as.character(quantile(age, 0.25, na.rm = TRUE)),
@@ -217,6 +217,6 @@ build_comparison_summary <- function(comparison_linelist){
       `Male/Female ratio` = as.character(MASS::fractions(sum(sex == "male", na.rm =TRUE)/sum(sex == "female", na.rm = TRUE))),
       .groups = "drop"
     ) %>% 
-    tidyr::pivot_longer(-signal, names_to = "Measure") %>%
-    tidyr::pivot_wider(id_cols = Measure, names_from = signal) 
+    tidyr::pivot_longer(-signal, names_to = "measure") %>%
+    tidyr::pivot_wider(id_cols = measure, names_from = signal) 
 }
