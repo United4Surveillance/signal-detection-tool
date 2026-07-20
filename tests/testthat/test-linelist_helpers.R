@@ -233,5 +233,4 @@ test_that("build_comparison_summary returns correct summary statistics", {
   )
 
   expect_equal(summary_stats, result)
-
 })

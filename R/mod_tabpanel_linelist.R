@@ -174,8 +174,8 @@ mod_tabpanel_linelist_server <- function(
 
     output$comparisons_tbl <- DT::renderDT({
       req(comparisons_table)
-      
-      comparisons_table() %>% 
+
+      comparisons_table() %>%
         DT::datatable(rownames = FALSE, colnames = c("Measure", "Cases in selected signals", "Rest of cases"))
     })
 
