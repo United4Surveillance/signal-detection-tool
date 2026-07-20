@@ -28,7 +28,12 @@ plot_time_series <- function(results, interactive = FALSE,
   padding <- any(padding_expected, padding_upperbound)
 
   # check if signals are scored
-  has_scores <- "score" %in% colnames(results)
+  if("score" %in% colnames(results)) {
+    # if the column exists, check if there are values different to NA
+    has_scores <- any(!is.na(results$score))
+  } else {
+    has_scores <- FALSE
+  }
 
   # round up and change data types
   results <- results %>%
@@ -164,7 +169,7 @@ plot_time_series <- function(results, interactive = FALSE,
 
   if (has_scores) {
     # custom color ramp from viridis pakage (inferno scale)
-    colors_ramp <- c("#170C3AFF", "#170C3AFF", "#170C3AFF", "#5B116EFF", "#9B2964FF", "#D74B3FFF", "#F8880DFF", "#F6D645FF", "#FCFFA4FF")
+    colors_ramp <- c("#FCFFA4FF", "#FCFFA4FF","#FCFFA4FF", "#FBBE22FF", "#F3771AFF", "#CC4248FF", "#932667FF", "#56106EFF", "#170C3AFF")
     score_colors <- colorRamp(colors = colors_ramp)
   }
 
