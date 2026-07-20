@@ -198,3 +198,25 @@ build_signal_and_comparison_linelist <- function(selected_signal_ids, true_signa
     cases_comparison = cases_comparison
   )
 }
+
+#' Build table with summary statistics for selected signals vs rest
+#' Calculates the median and quantiles for age, and the male/female ratio, for cases in the selected signals and for the rest of the cases 
+#'
+#' @param comparison_linelist list containing two linelist data frames: `cases` and `cases_comparison`, as returned by `build_signal_and_comparison_linelist()`.
+#'
+#' @returns data frame with summary statistics for selected signals and rest of cases, formatted as strings.
+build_comparison_summary <- function(comparison_linelist){
+  comparison_linelist %>% 
+    dplyr::bind_rows(.id = "signal") %>%
+    dplyr::mutate(signal = dplyr::if_else(signal == "cases", "Cases in selected signals", "Rest of cases")) %>%
+    dplyr::group_by(signal) %>% 
+    dplyr::summarise(
+      `Q1 age` = as.character(quantile(age, 0.25, na.rm = TRUE)),
+      `Median age` = as.character(median(age, na.rm = TRUE)),
+      `Q3 age` = as.character(quantile(age, 0.75, na.rm = TRUE)),
+      `Male/Female ratio` = as.character(MASS::fractions(sum(sex == "male", na.rm =TRUE)/sum(sex == "female", na.rm = TRUE))),
+      .groups = "drop"
+    ) %>% 
+    tidyr::pivot_longer(-signal, names_to = "Measure") %>%
+    tidyr::pivot_wider(id_cols = Measure, names_from = signal) 
+}

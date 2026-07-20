@@ -166,19 +166,16 @@ mod_tabpanel_linelist_server <- function(
       )
     })
 
-    output$comparisons_tbl <- DT::renderDT({
+    comparisons_table <- shiny::reactive({
       req(cases_linelist)
+
+      build_comparison_summary(cases_linelist())
+    })
+
+    output$comparisons_tbl <- DT::renderDT({
+      req(comparisons_table)
       
-      dplyr::bind_rows(cases_linelist(), .id = "signal") %>% 
-        dplyr::mutate(signal = dplyr::if_else(signal == "cases", "Cases in selected signals", "Rest of cases")) %>%
-        dplyr::group_by(signal) %>% 
-        dplyr::summarise(
-          `Median age` = as.character(median(age, na.rm = TRUE)),
-          `Male/Female ratio` = as.character(MASS::fractions(sum(sex == "male", na.rm =TRUE)/sum(sex == "female", na.rm = TRUE))),
-          .groups = "drop"
-        ) %>% 
-        tidyr::pivot_longer(-signal, names_to = "Measure") %>%
-        tidyr::pivot_wider(id_cols = Measure, names_from = signal) %>% 
+      comparisons_table() %>% 
         DT::datatable(rownames = FALSE)
     })
 
