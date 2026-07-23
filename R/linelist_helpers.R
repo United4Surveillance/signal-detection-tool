@@ -200,7 +200,8 @@ build_signal_and_comparison_linelist <- function(selected_signal_ids, true_signa
 }
 
 #' Build table with summary statistics for selected signals vs rest
-#' Calculates the median and quantiles for age, and the male/female ratio, for cases in the selected signals and for the rest of the cases within the signal detection period.
+#' Calculates the median and quantiles for age, and the male/female ratio, if present in linelist,
+#' for cases in the selected signals and for the rest of the cases within the signal detection period.
 #'
 #' @param comparison_linelist list containing two linelist data frames: `cases` and `cases_comparison`, as returned by `build_signal_and_comparison_linelist()`.
 #'
