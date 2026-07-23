@@ -234,3 +234,34 @@ test_that("build_comparison_summary returns correct summary statistics", {
 
   expect_equal(summary_stats, result)
 })
+
+test_that("build_comparison_summary returns NA when no sex and age columns in data", {
+  # only sex in linelist
+  comparison_linelist <- list(
+    cases = data.frame(case_id = 1:10, sex = rep(c("male", "female"), 5)),
+    cases_comparison = data.frame(case_id = 11:20, sex = c(rep("male", 9), "female"))
+  )
+  
+  summary_stats <- build_comparison_summary(comparison_linelist)
+  result <- tibble::tibble(
+    measure = c("Q1 age", "Median age", "Q3 age"),
+    cases.in.selected.signals = c("31.25", "42.5", "53.75"),
+    rest.of.cases = c("14.5", "19", "23.5")
+  )
+  
+  # No sex or age in linelist 
+  comparison_linelist <- list(
+    cases = data.frame(case_id = 1:10, foo = runif(10)),
+    cases_comparison = data.frame(case_id = 11:20, foo = runif(10))
+  )
+
+  summary_stats <- build_comparison_summary(comparison_linelist)
+  
+  result <- tibble::tibble(
+    measure = character(0),
+    cases.in.selected.signals = character(0),
+    rest.of.cases = character(0)
+  )
+
+  expect_equal(summary_stats, result)
+})
