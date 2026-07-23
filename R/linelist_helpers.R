@@ -208,14 +208,14 @@ build_signal_and_comparison_linelist <- function(selected_signal_ids, true_signa
 #' @returns data frame with summary statistics for selected signals and rest of cases, formatted as strings.
 build_comparison_summary <- function(comparison_linelist) {
   comparison_linelist <- comparison_linelist %>%
-      dplyr::bind_rows(.id = "signal") %>%
-      dplyr::mutate(signal = dplyr::if_else(signal == "cases", "cases.in.selected.signals", "rest.of.cases")) %>%
-      dplyr::group_by(signal) 
-  
+    dplyr::bind_rows(.id = "signal") %>%
+    dplyr::mutate(signal = dplyr::if_else(signal == "cases", "cases.in.selected.signals", "rest.of.cases")) %>%
+    dplyr::group_by(signal)
+
   comparison_summary <- tibble::tibble(signal = c("cases.in.selected.signals", "rest.of.cases"))
 
   # checks age exist in dataframes
-  if(checkmate::test_choice("age", names(comparison_linelist))){
+  if (checkmate::test_choice("age", names(comparison_linelist))) {
     comparison_summary <- dplyr::left_join(
       comparison_summary,
       comparison_linelist %>%
@@ -224,38 +224,39 @@ build_comparison_summary <- function(comparison_linelist) {
           `Median age` = as.character(median(age, na.rm = TRUE)),
           `Q3 age` = as.character(quantile(age, 0.75, na.rm = TRUE)),
           .groups = "drop"
-        ), 
-      by = "signal" 
+        ),
+      by = "signal"
     )
-  } 
+  }
 
   # checks sex exist in dataframes
-  if(checkmate::test_choice("sex", names(comparison_linelist))
-  ){
+  if (checkmate::test_choice("sex", names(comparison_linelist))
+  ) {
     comparison_summary <- dplyr::left_join(
-      comparison_summary, 
-      comparison_linelist %>% 
+      comparison_summary,
+      comparison_linelist %>%
         dplyr::summarise(
           `Male/Female ratio` = as.character(MASS::fractions(sum(sex == "male", na.rm = TRUE) / sum(sex == "female", na.rm = TRUE))),
           .groups = "drop"
-        ), 
+        ),
       by = "signal"
     )
-  } 
+  }
 
-  # ungroup and rearrange 
-  if(ncol(comparison_summary) > 1){
-      comparison_summary <- comparison_summary  %>%
-      dplyr::ungroup() %>% 
-      tidyr::pivot_longer(-signal, names_to = "measure") %>% 
+  # ungroup and rearrange
+  if (ncol(comparison_summary) > 1) {
+    comparison_summary <- comparison_summary %>%
+      dplyr::ungroup() %>%
+      tidyr::pivot_longer(-signal, names_to = "measure") %>%
       tidyr::pivot_wider(id_cols = measure, names_from = signal)
   } else {
     comparison_summary <- tibble::tibble(
       measure = character(0),
       cases.in.selected.signals = character(0),
-      rest.of.cases = character(0))
+      rest.of.cases = character(0)
+    )
   }
 
-  
+
   return(comparison_summary)
 }
