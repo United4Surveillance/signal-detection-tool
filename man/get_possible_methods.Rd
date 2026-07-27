@@ -2,9 +2,14 @@
 % Please edit documentation in R/get_possible_methods.R
 \name{get_possible_methods}
 \alias{get_possible_methods}
-\title{Determine Possible Outbreak Detection Methods Based on Available Historic Data}
+\title{Determine Possible Outbreak Detection Methods Based on Available Historic Data and Selected Time Unit}
 \usage{
-get_possible_methods(min_date, max_date, number_of_weeks = 6)
+get_possible_methods(
+  min_date,
+  max_date,
+  time_unit = "weekly",
+  number_of_time_units = 6
+)
 }
 \arguments{
 \item{min_date}{A \code{Date} object, the minimum date in the time series
@@ -13,7 +18,9 @@ used for fitting a model.}
 \item{max_date}{A \code{Date} object, the maximum date in the time series
 used for fitting a model.}
 
-\item{number_of_weeks}{Integer. Number of weeks at the end of the time series
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
+
+\item{number_of_time_units}{Integer. Number of time units at the end of the time series
 that are reserved for detection / monitoring and therefore not counted as
 historic data for model fitting. Default is \code{6}.}
 }
@@ -25,13 +32,13 @@ A character vector of possible algorithm names. Returns \code{NULL}
 This function identifies which algorithms can be applied for outbreak detection
 depending on the amount of historic data available for model fitting. The
 decision is based on the minimum and maximum dates of the time series and the
-number of weeks reserved at the end of the series (e.g. for current detection).
+number of time units reserved at the end of the series (e.g. for current detection). Furthermore
+algorithms using the farrington framework can only be used with weekly aggregated data.
 }
 \details{
 Historic data is defined as the period from \code{min_date} to
-\code{max_date - number_of_weeks}. The number of available weeks is computed
-on this interval, counting partial weeks as full weeks to match the weekly
-aggregation used by the algorithms.
+\code{max_date - number_of_time_units}. The number of available weeks is computed
+on this interval, counting partial weeks as full weeks.
 
 The method selection criteria are approximately:
 \itemize{
@@ -57,10 +64,10 @@ The method selection criteria are approximately:
 
 
 The function computes
-\code{max_date_fit = max_date - number_of_weeks} and then calculates the
+\code{max_date_fit = max_date - number_of_time_units} and then calculates the
 number of weeks between \code{min_date} and \code{max_date_fit}. Partial
-weeks are counted as full weeks to align with the weekly aggregation of the
-data. Based on this number of historic weeks, suitable algorithms are
+weeks are counted as full weeks to align with the aggregation of the
+data. Based on this number of historic week data, suitable algorithms are
 selected using \code{\link{available_algorithms}}.
 }
 \examples{
@@ -77,7 +84,7 @@ mm <- get_min_max_date(
 get_possible_methods(
   min_date = mm$min_date,
   max_date = mm$max_date,
-  number_of_weeks = 6
+  number_of_time_units = 6
 )
 }
 

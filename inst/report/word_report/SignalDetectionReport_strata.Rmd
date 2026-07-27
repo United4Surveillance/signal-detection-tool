@@ -4,6 +4,13 @@ strat_text <- dplyr::case_when(
   strat == "age_group" ~ "agegroup",
   TRUE ~ strat
 )
+
+# Use time unit labels avoiding singular
+time_unit_label_plural <- dplyr::case_when(
+  params$time_unit == "weekly" ~ "weeks",
+  params$time_unit == "biweekly" ~ "biweekly periods",
+  params$time_unit == "monthly" ~ "months"
+)
 ```
 
 
@@ -50,13 +57,13 @@ txt <- NULL
 
 
 ```{r, results='asis'}
-#| fig.cap=paste0("Number of ", params$disease, " cases by week and signals stratified by ", strat_text, ", ", params$country),
+#| fig.cap=paste0("Number of ", params$disease, " cases by ", time_unit_label_plural ," and signals stratified by ", strat_text, ", ", params$country),
 #| fig.dim = c(8, p_height),
 #| fig.fullwidth=TRUE
 
 for (i in seq_len(pages)) {
   p <- plot_time_series(df,
-    number_of_weeks = 52,
+    number_of_time_units = 52,
     intervention_date = params$intervention_date,
     interactive = FALSE
   ) +

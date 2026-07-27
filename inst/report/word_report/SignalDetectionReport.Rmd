@@ -10,7 +10,8 @@ params:
   data: NULL
   disease: "Pertussis"
   country: "Austria"
-  number_of_weeks: 6
+  number_of_time_units: 6
+  time_unit: "weekly"
   method: "farrington"
   alpha_upper: 0.05
   strata: NULL 

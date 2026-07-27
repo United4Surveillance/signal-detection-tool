@@ -6,14 +6,14 @@
 \usage{
 get_signals_farringtonflexible(
   data_aggregated,
-  number_of_weeks = 52,
+  number_of_time_units = 52,
   alpha_upper = 0.05
 )
 }
 \arguments{
 \item{data_aggregated}{data.frame, aggregated data with case counts}
 
-\item{number_of_weeks}{integer, specifying number of weeks to generate signals for}
+\item{number_of_time_units}{integer, specifying number of time units to generate signals for. The default is weeks and should not be changed.}
 
 \item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05).
 Specifies the p-value cutoff used to define the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}

@@ -121,8 +121,21 @@ isoweek_to_date <- function(week, year) {
 #' get_intervention_timepoint("2020-03-04", data_aggregated)
 #' }
 get_intervention_timepoint <- function(date, data_aggregated) {
-  iso_week_year <- get_iso_week_year(date)
-  which(data_aggregated$year == iso_week_year$iso_year & data_aggregated$week == iso_week_year$iso_week)
+  # check if data_aggregated is calculated with isoyear and isoweek data or year and month data
+  if ("week" %in% names(data_aggregated)) {
+    iso_week_year <- get_iso_week_year(date)
+
+    which(data_aggregated$year == iso_week_year$iso_year & data_aggregated$week == iso_week_year$iso_week)
+  } else if ("month" %in% names(data_aggregated)) {
+    date <- as.Date(date)
+
+    calendar_month <- lubridate::month(date)
+    calendar_year <- lubridate::year(date)
+
+    calendar_month_year <- list(calendar_month = calendar_month, calendar_year = calendar_year)
+
+    which(data_aggregated$year == calendar_month_year$calendar_year & data_aggregated$month == calendar_month_year$calendar_month)
+  }
 }
 
 #' Get minimum and maximum date in the linelist

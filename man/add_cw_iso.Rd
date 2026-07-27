@@ -4,7 +4,13 @@
 \alias{add_cw_iso}
 \title{Adds a column `cw_iso` to the data.frame `data`.}
 \usage{
-add_cw_iso(data, date_start = NULL, date_end = NULL, date_var = "date_report")
+add_cw_iso(
+  data,
+  date_start = NULL,
+  date_end = NULL,
+  date_var = "date_report",
+  time_unit = "weekly"
+)
 }
 \arguments{
 \item{data}{data.frame, linelist of cases to be aggregated}
@@ -14,8 +20,10 @@ add_cw_iso(data, date_start = NULL, date_end = NULL, date_var = "date_report")
 \item{date_end}{A date object or character of format yyyy-mm-dd. Default is NULL which means that missing isoweeks are added until the maximum date of the dataset. This can be used when the dataset should be extended further than the minimum date of the dataset.}
 
 \item{date_var}{a character specifying the date variable name used for the aggregation. Default is "date_report".}
+
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly".}
 }
 \description{
-Uses `date_var`to create a factor column of isoweeks. Factor levels are all
-weeks between `date_start` and `date_end`.
+Uses `date_var`to create a factor column of time units. Factor levels are all
+time units between `date_start` and `date_end`.
 }

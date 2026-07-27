@@ -1,3 +1,4 @@
+* Added support for selecting different time units for case aggregation
 * Fix padding of signals with cusum. Strata with very low number of cases would have no cases in the training period, which caused the signal function to find an error.
 * fix missing display of expectation and/or threshold for historic data when using an extension date with FarringtonFlexible, EARS and CUSUM
 * Added option to exclude outbreak-associated cases from baseline fitting for GLM-based algorithms

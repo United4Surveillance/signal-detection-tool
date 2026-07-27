@@ -1,14 +1,14 @@
-#' Determine Possible Outbreak Detection Methods Based on Available Historic Data
+#' Determine Possible Outbreak Detection Methods Based on Available Historic Data and Selected Time Unit
 #'
 #' This function identifies which algorithms can be applied for outbreak detection
 #' depending on the amount of historic data available for model fitting. The
 #' decision is based on the minimum and maximum dates of the time series and the
-#' number of weeks reserved at the end of the series (e.g. for current detection).
+#' number of time units reserved at the end of the series (e.g. for current detection). Furthermore
+#' algorithms using the farrington framework can only be used with weekly aggregated data.
 #'
 #' Historic data is defined as the period from \code{min_date} to
-#' \code{max_date - number_of_weeks}. The number of available weeks is computed
-#' on this interval, counting partial weeks as full weeks to match the weekly
-#' aggregation used by the algorithms.
+#' \code{max_date - number_of_time_units}. The number of available weeks is computed
+#' on this interval, counting partial weeks as full weeks.
 #'
 #' The method selection criteria are approximately:
 #' \itemize{
@@ -36,16 +36,17 @@
 #'   used for fitting a model.
 #' @param max_date A \code{Date} object, the maximum date in the time series
 #'   used for fitting a model.
-#' @param number_of_weeks Integer. Number of weeks at the end of the time series
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly".
+#' @param number_of_time_units Integer. Number of time units at the end of the time series
 #'   that are reserved for detection / monitoring and therefore not counted as
 #'   historic data for model fitting. Default is \code{6}.
 #'
 #' @details
 #' The function computes
-#' \code{max_date_fit = max_date - number_of_weeks} and then calculates the
+#' \code{max_date_fit = max_date - number_of_time_units} and then calculates the
 #' number of weeks between \code{min_date} and \code{max_date_fit}. Partial
-#' weeks are counted as full weeks to align with the weekly aggregation of the
-#' data. Based on this number of historic weeks, suitable algorithms are
+#' weeks are counted as full weeks to align with the aggregation of the
+#' data. Based on this number of historic week data, suitable algorithms are
 #' selected using \code{\link{available_algorithms}}.
 #'
 #' @return A character vector of possible algorithm names. Returns \code{NULL}
@@ -65,7 +66,7 @@
 #' get_possible_methods(
 #'   min_date = mm$min_date,
 #'   max_date = mm$max_date,
-#'   number_of_weeks = 6
+#'   number_of_time_units = 6
 #' )
 #' }
 #'
@@ -73,13 +74,29 @@
 #' @export
 get_possible_methods <- function(min_date,
                                  max_date,
-                                 number_of_weeks = 6) {
+                                 time_unit = "weekly",
+                                 number_of_time_units = 6) {
   checkmate::check_date(min_date)
   checkmate::check_date(max_date)
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
+  )
 
-  max_date_fit <- max_date - lubridate::weeks(number_of_weeks)
+  if (time_unit == "weekly") {
+    time_units_test <- lubridate::weeks(number_of_time_units)
+  } else if (time_unit == "biweekly") {
+    time_units_test <- lubridate::weeks(number_of_time_units) * 2
+  } else if (time_unit == "monthly") {
+    time_units_test <- months(number_of_time_units)
+  }
+
+  max_date_fit <- max_date - time_units_test
+
   # we subtract 1 day because otherwise the time difference between the dates is computed and e.g. difftime("2020-01-08","2020-01-01", units = "weeks) gives 1 week we want to count end and start date in as well thus the number of days for this example is 8
   # furthermore result is rounded to the next integer as e.g. 1.3 weeks are 2 weeks in the aggregation
+
   number_of_weeks_available_fitting <- ceiling(as.numeric(difftime(max_date_fit, min_date - lubridate::days(1), units = "weeks")))
 
   algos <- available_algorithms()
@@ -92,7 +109,7 @@ get_possible_methods <- function(min_date,
     not_possible <- c("glm farrington with timetrend", "glm farrington")
     methods_possible <- algos[!algos %in% not_possible]
   } else if (number_of_weeks_available_fitting >= 2 * 52) {
-    # All possible except FN, Harmonic with timetrend and Harmonic multi
+    # All possible except FN and Harmonic with timetrend and Harmonic multi
     not_possible <- c(
       "glm farrington with timetrend", "glm farrington",
       "glm harmonic with timetrend", "glm harmonic multi"
@@ -106,6 +123,11 @@ get_possible_methods <- function(min_date,
     methods_possible <- algos[c("CUSUM")]
   } else {
     methods_possible <- NULL
+  }
+
+  # restrict FarringtonFlexible usage to weekly aggregation level
+  if (time_unit != "weekly") {
+    methods_possible <- methods_possible[!grepl("farrington", methods_possible, ignore.case = TRUE)]
   }
 
   methods_possible

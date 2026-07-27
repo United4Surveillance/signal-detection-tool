@@ -7,7 +7,7 @@ The GLM is flexible being able to just fit a mean, add a time trend, fit a harmo
 \usage{
 get_signals_glm(
   data_aggregated,
-  number_of_weeks = 6,
+  number_of_time_units = 6,
   model = "mean",
   time_trend = TRUE,
   return_full_model = TRUE,
@@ -15,20 +15,21 @@ get_signals_glm(
   intervention_date = NULL,
   min_timepoints_baseline = 12,
   min_timepoints_trend = 12,
-  past_weeks_not_included = 4,
-  exclude_outbreak_cases_from_fitting = FALSE
+  past_time_units_not_included = 4,
+  exclude_outbreak_cases_from_fitting = FALSE,
+  time_unit = "weekly"
 )
 }
 \arguments{
 \item{data_aggregated}{data.frame, aggregated data with case counts.}
 
-\item{number_of_weeks}{integer, specifying number of weeks to generate signals for.}
+\item{number_of_time_units}{integer, specifying number of time units to generate signals for.}
 
 \item{model}{character, default "mean" one of c("mean", "sincos", "sincos_multiS", "FN") specifying which kind of model the glm is fitting. "mean" fits an intercept model, "sincos" a harmonic sincos model, "FN" uses the seasgroups from farrington to fit parameters for seasonality.}
 
 \item{time_trend}{boolean, default TRUE, when TRUE a timetrend is fitted in the glm describing the expected number of cases.}
 
-\item{return_full_model}{boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_weeks should be returned and attached to data_aggregated as well.}
+\item{return_full_model}{boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_time_units should be returned and attached to data_aggregated as well.}
 
 \item{alpha_upper}{numeric between 0.001 and 0.2 (default: 0.05).
 Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.}
@@ -39,7 +40,7 @@ Specifies the p-value cutoff used to compute the threshold; for example, a value
 
 \item{min_timepoints_trend}{integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.}
 
-\item{past_weeks_not_included}{An integer specifying the number of past weeks to exclude from
+\item{past_time_units_not_included}{An integer specifying the number of past time units to exclude from
 the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 Default is `4`.}
 
@@ -47,6 +48,8 @@ Default is `4`.}
 If `data_aggregated` does not contain a `cases_not_in_outbreak` column indicating the number of cases not associated with outbreaks,
 no exclusion is applied, even when `exclude_outbreak_cases_from_fitting = TRUE`.
 Default is `FALSE`.}
+
+\item{time_unit}{character, specifying the time units to aggregate case data on. Default is "weekly". Algorithms using the farrington framework can only be used with weekly aggregated data.}
 }
 \value{
 data.frame aggregated data with case counts and additional columns alarms, upperbound and expected obtained from the signal detection algorithm. If return_full_model == TRUE then expected_pad is also added as a column to data_aggregated.
