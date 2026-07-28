@@ -11,9 +11,9 @@
 #' @param end_date End date of the reporting period. Rows with
 #'   `date_report <= end_date` are retained.
 #' @param signal_row Optional one-row data frame from the signal results
-#'   containing the columns `category` and `stratum`. If provided and both
-#'   values are not `NA`, the linelist is filtered to rows where the column
-#'   named in `category` equals `stratum`
+#'   containing the columns `category` and `stratum`. If provided, and the value
+#'   of `category` is not NA, the linelist is filtered to rows where the
+#'   column named in `category` equals `stratum`.
 #'
 #' @return A filtered data frame containing linelist rows within the selected
 #'   reporting period and, if applicable, the selected stratum.
