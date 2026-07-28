@@ -145,9 +145,14 @@ mod_tabpanel_linelist_server <- function(
           )
 
         # further filtering if stratification was applied
-        if (!is.na(category) && !is.na(stratum)) {
-          filtered_df <- filtered_df %>%
-            dplyr::filter(!!sym(category) == stratum)
+        if (!is.na(category)) {
+          if (!is.na(stratum)) {
+            filtered_df <- filtered_df %>%
+              dplyr::filter(!!sym(category) == stratum)
+          } else { # unknown stratum can be NA for sex
+            filtered_df <- filtered_df %>%
+              dplyr::filter(is.na(!!sym(category)))
+          }
         }
 
         return(filtered_df)
