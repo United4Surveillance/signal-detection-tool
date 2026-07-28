@@ -165,7 +165,6 @@ mod_tabpanel_linelist_server <- function(
       cases_agg <- dplyr::bind_rows(
         linelist$cases %>%
           dplyr::mutate(signal = TRUE),
-
         linelist$cases_comparison %>%
           dplyr::mutate(signal = FALSE)
       )
