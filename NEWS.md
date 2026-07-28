@@ -4,6 +4,7 @@
 * Added option to exclude outbreak-associated cases from baseline fitting for GLM-based algorithms
 * Added visualisation of age group comparison of cases in signal vs. cases from the signal detection period in the linelist tab
 * Introduced a post-processing score for alarms to support priority-based filtering
+* Fixed bug in the selected signal calses in the linelist tab that handled NA stratum values wrongly.
 
 # SignalDetectionTool 0.10.0
 
