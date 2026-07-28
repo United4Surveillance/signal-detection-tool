@@ -86,12 +86,12 @@ mod_tabpanel_linelist_server <- function(
             col_widths = c(9, 3),
             bslib::card(
               min_height = "500px",
-              bslib::card_title("Epicurve"),
+              shiny::h1("Epicurve"),
               plotly::plotlyOutput(ns("epicurve"))
             ),
             bslib::card(
               min_height = "500px",
-              bslib::card_title("Select stratum epicurve"),
+              shiny::h1("Select stratum epicurve"),
               shiny::uiOutput(ns("epicurve_stratum_ui"))
             )
           ),
@@ -142,41 +142,51 @@ mod_tabpanel_linelist_server <- function(
       shiny::req(true_signals())
 
       linelist_cases <- dplyr::bind_rows(
-        cases_linelist()$cases |> dplyr::mutate(signal = T),
-        cases_linelist()$cases_comparison |> dplyr::mutate(signal = F)
+        cases_linelist()$cases %>% dplyr::mutate(signal = T),
+        cases_linelist()$cases_comparison %>% dplyr::mutate(signal = F)
       )
-      cases_agg <- linelist_cases |>
-        dplyr::count(signal, age_group) |>
-        dplyr::group_by(signal) |>
+      cases_agg <- linelist_cases %>%
+        dplyr::count(signal, age_group) %>%
+        dplyr::group_by(signal) %>%
         dplyr::mutate(
           total_n = sum(n),
           perc = round(n / total_n * 100)
-        ) |>
+        ) %>%
         dplyr::ungroup()
 
       plot_agegroup_comparison(cases_agg, unique(true_signals()$number_of_time_units), unique(true_signals()$time_unit))
     })
 
-    # display epicurve graphic
-    output$epicurve <- plotly::renderPlotly({
-      shiny::req(cases_linelist())
-      shiny::req(input$epicurve_stratum)
+    # Generate epicurve plot
+    epicurve_plot <- shiny::reactive({
+      linelist <- shiny::req(cases_linelist())
+      epicurve_stratum <- shiny::req(input$epicurve_stratum)
 
       cases_agg <- dplyr::bind_rows(
-        cases_linelist()$cases |> dplyr::mutate(signal = T),
-        cases_linelist()$cases_comparison |> dplyr::mutate(signal = F)
+        linelist$cases %>%
+          dplyr::mutate(signal = TRUE),
+
+        linelist$cases_comparison %>%
+          dplyr::mutate(signal = FALSE)
       )
 
-      selected_stratum <- if (input$epicurve_stratum == "None") {
+      selected_stratum <- if (
+        identical(epicurve_stratum, "None")
+      ) {
         NULL
       } else {
-        input$epicurve_stratum
+        epicurve_stratum
       }
 
       plot_epicurve(
         cases_agg,
         stratum = selected_stratum
       )
+    })
+
+    # Display epicurve graphic
+    output$epicurve <- plotly::renderPlotly({
+      epicurve_plot()
     })
 
     # make selection of stratum possible
@@ -188,13 +198,13 @@ mod_tabpanel_linelist_server <- function(
         cases_linelist()$cases_comparison
       )
 
-      stratum_choices <- dat |>
-        dplyr::select(where(is.character) | where(is.factor)) |>
+      stratum_choices <- dat %>%
+        dplyr::select(where(is.character) | where(is.factor)) %>%
         dplyr::select(
           -dplyr::any_of(c("pathogen")),
           -dplyr::ends_with("_id")
-        ) |>
-        names() |>
+        ) %>%
+        names() %>%
         sort()
 
       shiny::selectInput(
@@ -217,18 +227,20 @@ mod_tabpanel_linelist_server <- function(
 
       # fix problem with displaying all values when signals with stratum category "unknown" are selected
       replace_unknown <- function(data) {
-        data |>
+        data %>%
           dplyr::mutate(
             dplyr::across(
               where(is.character),
-              \(x) tidyr::replace_na(x, "unknown")
+              function(x) tidyr::replace_na(x, "unknown")
             ),
             dplyr::across(
               where(is.factor),
-              \(x) forcats::fct_na_value_to_level(
-                x,
-                level = "unknown"
-              )
+              function(x) {
+                forcats::fct_na_value_to_level(
+                  x,
+                  level = "unknown"
+                )
+              }
             )
           )
       }

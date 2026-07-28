@@ -57,8 +57,8 @@ plot_epicurve <- function(
   }
 
   # Aggregate selected signal cases
-  data_cases <- data_cases |>
-    dplyr::filter(signal) |>
+  data_cases <- data_cases %>%
+    dplyr::filter(signal) %>%
     dplyr::mutate(
       plot_stratum = if (is.null(stratum)) {
         "All cases"
@@ -142,18 +142,18 @@ plot_epicurve <- function(
   }
 
   # Apply plotting order and add missing date-stratum combinations
-  data_cases <- data_cases |>
+  data_cases <- data_cases %>%
     dplyr::mutate(
       plot_stratum = factor(
         plot_stratum,
         levels = stack_levels
       )
-    ) |>
+    ) %>%
     tidyr::complete(
       date_report,
       plot_stratum,
       fill = list(n = 0)
-    ) |>
+    ) %>%
     dplyr::mutate(
       tooltip = paste0(
         "Date: ", date_report,
