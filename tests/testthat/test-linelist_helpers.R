@@ -222,7 +222,7 @@ test_that("build_signal_and_comparison_linelist selects cases with unknown sex",
     time_unit = c("weekly", "weekly")
   )
 
-   signals_padded <- data.frame(
+  signals_padded <- data.frame(
     year = c(rep(2023, 52), 2024, rep(2023, 52), 2024),
     week = c(seq(1, 52), 1, seq(1, 52), 1),
     cases = c(rep(5, 52), 13, rep(5, 52), 12),
@@ -290,7 +290,6 @@ test_that("build_signal_and_comparison_linelist selects cases with unknown sex",
       rep("2023-12-26", 10),
       rep("2024-01-02", 13),
       rep("2024-01-02", 12)
-
     )),
     sex = c(
       rep(c("male", NA_character_), 260),
@@ -309,5 +308,4 @@ test_that("build_signal_and_comparison_linelist selects cases with unknown sex",
   # selecting signal id 2, should give back the 12 unknown sex cases
   expect_equal(nrow(result$cases), 12)
   expect_false(any(result$cases_comparison$case_id %in% result$cases$case_id))
-
 })
