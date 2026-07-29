@@ -229,31 +229,11 @@ mod_tabpanel_linelist_server <- function(
 
       selected_signal_ids <- sort(input$show_signals_padded_rows_selected)
 
-      # fix problem with displaying all values when signals with stratum category "unknown" are selected
-      replace_unknown <- function(data) {
-        data %>%
-          dplyr::mutate(
-            dplyr::across(
-              where(is.character),
-              function(x) tidyr::replace_na(x, "unknown")
-            ),
-            dplyr::across(
-              where(is.factor),
-              function(x) {
-                forcats::fct_na_value_to_level(
-                  x,
-                  level = "unknown"
-                )
-              }
-            )
-          )
-      }
-
       build_signal_and_comparison_linelist(
         selected_signal_ids = selected_signal_ids,
-        true_signals = replace_unknown(true_signals()),
-        signals_padded = replace_unknown(signals_padded()),
-        filtered_data = replace_unknown(filtered_data())
+        true_signals = true_signals(),
+        signals_padded = signals_padded(),
+        filtered_data = filtered_data()
       )
     })
 
