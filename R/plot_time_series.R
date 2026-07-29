@@ -27,6 +27,14 @@ plot_time_series <- function(results, interactive = FALSE,
   padding_expected <- "expected_pad" %in% colnames(results)
   padding <- any(padding_expected, padding_upperbound)
 
+  # check if signals are scored
+  if ("score" %in% colnames(results)) {
+    # if the column exists, check if there are values different to NA
+    has_scores <- any(!is.na(results$score))
+  } else {
+    has_scores <- FALSE
+  }
+
   # extract time unit used
   if ("monthly" == results$time_unit %>% head(1)) {
     time_unit <- "monthly"
@@ -255,6 +263,12 @@ plot_time_series <- function(results, interactive = FALSE,
   col.test <- "#304794"
   col.intervention <- "#ff8c00"
 
+  if (has_scores) {
+    # custom color ramp from viridis pakage (inferno scale)
+    colors_ramp <- c("#FCFFA4FF", "#FCFFA4FF", "#FCFFA4FF", "#FBBE22FF", "#F3771AFF", "#CC4248FF", "#932667FF", "#56106EFF", "#170C3AFF")
+    score_colors <- colorRamp(colors = colors_ramp)
+  }
+
   legend_values <- c(
     "Expected" = col.expected,
     "Threshold" = col.threshold
@@ -404,17 +418,41 @@ plot_time_series <- function(results, interactive = FALSE,
         )
     }
 
-    plt <- plt %>%
-      plotly::add_trace( # Signals
-        name = "Signal",
-        type = "scatter",
-        mode = "markers",
-        x = results$date[!is.na(results$alarms) & results$alarms == T],
-        y = results$cases[!is.na(results$alarms) & results$alarms == T],
-        marker = list(symbol = "star", size = 15),
-        color = I(col.alarm),
-        hovertemplate = "Signal<extra></extra>"
-      )
+    if (has_scores) {
+      signals_df <- results %>% dplyr::filter(!is.na(alarms), alarms == T)
+
+      plt <- plt %>%
+        plotly::add_trace(
+          name = "Signal",
+          type = "scatter",
+          mode = "markers",
+          data = signals_df,
+          x = signals_df$date,
+          y = signals_df$cases,
+          customdata = signals_df$score,
+          marker = list(
+            symbol = "star",
+            size = 15,
+            color = rgb(score_colors(signals_df$score), maxColorValue = 255),
+            cmin = 0,
+            cmax = 1,
+            showscale = FALSE
+          ),
+          hovertemplate = "Signal score: %{customdata:.2f}<extra></extra>"
+        )
+    } else {
+      plt <- plt %>%
+        plotly::add_trace( # Signals
+          name = "Signal",
+          type = "scatter",
+          mode = "markers",
+          x = results$date[!is.na(results$alarms) & results$alarms == T],
+          y = results$cases[!is.na(results$alarms) & results$alarms == T],
+          marker = list(symbol = "star", size = 15),
+          color = I(col.alarm),
+          hovertemplate = "Signal<extra></extra>"
+        )
+    }
 
     plt <- plt %>%
       plotly::layout(

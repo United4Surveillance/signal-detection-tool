@@ -22,9 +22,9 @@ Must contain a `date_report` column.}
 `date_report <= end_date` are retained.}
 
 \item{signal_row}{Optional one-row data frame from the signal results
-containing the columns `category` and `stratum`. If provided and both
-values are not `NA`, the linelist is filtered to rows where the column
-named in `category` equals `stratum`}
+containing the columns `category` and `stratum`. If provided, and the value
+of `category` is not NA, the linelist is filtered to rows where the
+column named in `category` equals `stratum`.}
 }
 \value{
 A filtered data frame containing linelist rows within the selected

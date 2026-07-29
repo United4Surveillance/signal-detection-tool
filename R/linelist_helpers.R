@@ -11,9 +11,9 @@
 #' @param end_date End date of the reporting period. Rows with
 #'   `date_report <= end_date` are retained.
 #' @param signal_row Optional one-row data frame from the signal results
-#'   containing the columns `category` and `stratum`. If provided and both
-#'   values are not `NA`, the linelist is filtered to rows where the column
-#'   named in `category` equals `stratum`
+#'   containing the columns `category` and `stratum`. If provided, and the value
+#'   of `category` is not NA, the linelist is filtered to rows where the
+#'   column named in `category` equals `stratum`.
 #'
 #' @return A filtered data frame containing linelist rows within the selected
 #'   reporting period and, if applicable, the selected stratum.
@@ -31,9 +31,14 @@ filter_linelist_by_period_and_stratum <- function(linelist, start_date, end_date
   if (!is.null(signal_row)) {
     category <- signal_row$category
     stratum <- signal_row$stratum
-    if (!is.na(category) && !is.na(stratum)) {
-      filtered_df <- filtered_df %>%
-        dplyr::filter(!!rlang::sym(category) == stratum)
+    if (!is.na(category)) {
+      if (!is.na(stratum)) {
+        filtered_df <- filtered_df %>%
+          dplyr::filter(!!sym(category) == stratum)
+      } else { # unknown stratum can be NA for sex
+        filtered_df <- filtered_df %>%
+          dplyr::filter(is.na(!!sym(category)))
+      }
     }
   }
 
@@ -197,4 +202,66 @@ build_signal_and_comparison_linelist <- function(selected_signal_ids, true_signa
     cases = cases,
     cases_comparison = cases_comparison
   )
+}
+
+#' Build table with summary statistics for selected signals vs rest
+#' Calculates the median and quantiles for age, and the male/female ratio, if present in linelist,
+#' for cases in the selected signals and for the rest of the cases within the signal detection period.
+#'
+#' @param comparison_linelist list containing two linelist data frames: `cases` and `cases_comparison`, as returned by `build_signal_and_comparison_linelist()`.
+#'
+#' @returns data frame with summary statistics for selected signals and rest of cases, formatted as strings.
+build_comparison_summary <- function(comparison_linelist) {
+  comparison_linelist <- comparison_linelist %>%
+    dplyr::bind_rows(.id = "signal") %>%
+    dplyr::mutate(signal = dplyr::if_else(signal == "cases", "cases.in.selected.signals", "rest.of.cases")) %>%
+    dplyr::group_by(signal)
+
+  comparison_summary <- tibble::tibble(signal = c("cases.in.selected.signals", "rest.of.cases"))
+
+  # checks age exist in dataframes
+  if (checkmate::test_choice("age", names(comparison_linelist))) {
+    comparison_summary <- dplyr::left_join(
+      comparison_summary,
+      comparison_linelist %>%
+        dplyr::summarise(
+          `Q1 age` = as.character(quantile(age, 0.25, na.rm = TRUE)),
+          `Median age` = as.character(median(age, na.rm = TRUE)),
+          `Q3 age` = as.character(quantile(age, 0.75, na.rm = TRUE)),
+          .groups = "drop"
+        ),
+      by = "signal"
+    )
+  }
+
+  # checks sex exist in dataframes
+  if (checkmate::test_choice("sex", names(comparison_linelist))
+  ) {
+    comparison_summary <- dplyr::left_join(
+      comparison_summary,
+      comparison_linelist %>%
+        dplyr::summarise(
+          `Male/Female ratio` = as.character(MASS::fractions(sum(sex == "male", na.rm = TRUE) / sum(sex == "female", na.rm = TRUE))),
+          .groups = "drop"
+        ),
+      by = "signal"
+    )
+  }
+
+  # ungroup and rearrange
+  if (ncol(comparison_summary) > 1) {
+    comparison_summary <- comparison_summary %>%
+      dplyr::ungroup() %>%
+      tidyr::pivot_longer(-signal, names_to = "measure") %>%
+      tidyr::pivot_wider(id_cols = measure, names_from = signal)
+  } else {
+    comparison_summary <- tibble::tibble(
+      measure = character(0),
+      cases.in.selected.signals = character(0),
+      rest.of.cases = character(0)
+    )
+  }
+
+
+  return(comparison_summary)
 }

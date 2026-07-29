@@ -209,3 +209,159 @@ test_that("build_signal_and_comparison_linelist excludes selected signal cases f
     279:290
   )
 })
+
+test_that("build_comparison_summary returns correct summary statistics", {
+  cases <- data.frame(
+    case_id = 1:10,
+    age = seq(20, 65, by = 5),
+    sex = rep(c("male", "female"), 5)
+  )
+
+  cases_comparison <- data.frame(
+    case_id = 11:20,
+    age = seq(10, 28, by = 2),
+    sex = c(rep("male", 9), "female")
+  )
+
+  comparison_linelist <- list(cases = cases, cases_comparison = cases_comparison)
+
+  summary_stats <- build_comparison_summary(comparison_linelist)
+  result <- tibble::tibble(
+    measure = c("Q1 age", "Median age", "Q3 age", "Male/Female ratio"),
+    cases.in.selected.signals = c("31.25", "42.5", "53.75", "1"),
+    rest.of.cases = c("14.5", "19", "23.5", "9")
+  )
+
+  expect_equal(summary_stats, result)
+})
+
+test_that("build_comparison_summary returns NA when no sex and age columns in data", {
+  # only sex in linelist
+  comparison_linelist <- list(
+    cases = data.frame(case_id = 1:10, sex = rep(c("male", "female"), 5)),
+    cases_comparison = data.frame(case_id = 11:20, sex = c(rep("male", 9), "female"))
+  )
+
+  summary_stats <- build_comparison_summary(comparison_linelist)
+  result <- tibble::tibble(
+    measure = c("Q1 age", "Median age", "Q3 age"),
+    cases.in.selected.signals = c("31.25", "42.5", "53.75"),
+    rest.of.cases = c("14.5", "19", "23.5")
+  )
+
+  # No sex or age in linelist
+  comparison_linelist <- list(
+    cases = data.frame(case_id = 1:10, foo = runif(10)),
+    cases_comparison = data.frame(case_id = 11:20, foo = runif(10))
+  )
+
+  summary_stats <- build_comparison_summary(comparison_linelist)
+
+  result <- tibble::tibble(
+    measure = character(0),
+    cases.in.selected.signals = character(0),
+    rest.of.cases = character(0)
+  )
+
+  expect_equal(summary_stats, result)
+})
+
+test_that("build_signal_and_comparison_linelist selects cases with unknown sex", {
+  true_signals <- data.frame(
+    year = rep(2024, 2),
+    week = c(1, 1),
+    cases = c(13, 12),
+    category = c("sex", "sex"),
+    stratum = c("male", NA_character_),
+    alarms = c(TRUE, TRUE),
+    signal_id = c(1, 2),
+    time_unit = c("weekly", "weekly")
+  )
+
+  signals_padded <- data.frame(
+    year = c(rep(2023, 52), 2024, rep(2023, 52), 2024),
+    week = c(seq(1, 52), 1, seq(1, 52), 1),
+    cases = c(rep(5, 52), 13, rep(5, 52), 12),
+    alarms = c(rep(NA, 52), TRUE, rep(NA, 52), TRUE),
+    category = c(rep("sex", 53), rep("sex", 53)),
+    stratum = c(rep("male", 53), rep(NA_character_, 53)),
+    number_of_time_units = 1,
+    time_unit = "weekly"
+  )
+
+  filtered_data <- data.frame(
+    case_id = seq_len(545),
+    date_report = as.Date(c(
+      rep("2023-01-03", 10),
+      rep("2023-01-10", 10),
+      rep("2023-01-17", 10),
+      rep("2023-01-24", 10),
+      rep("2023-01-31", 10),
+      rep("2023-02-07", 10),
+      rep("2023-02-14", 10),
+      rep("2023-02-21", 10),
+      rep("2023-02-28", 10),
+      rep("2023-03-07", 10),
+      rep("2023-03-14", 10),
+      rep("2023-03-21", 10),
+      rep("2023-03-28", 10),
+      rep("2023-04-04", 10),
+      rep("2023-04-11", 10),
+      rep("2023-04-18", 10),
+      rep("2023-04-25", 10),
+      rep("2023-05-02", 10),
+      rep("2023-05-09", 10),
+      rep("2023-05-16", 10),
+      rep("2023-05-23", 10),
+      rep("2023-05-30", 10),
+      rep("2023-06-06", 10),
+      rep("2023-06-13", 10),
+      rep("2023-06-20", 10),
+      rep("2023-06-27", 10),
+      rep("2023-07-04", 10),
+      rep("2023-07-11", 10),
+      rep("2023-07-18", 10),
+      rep("2023-07-25", 10),
+      rep("2023-08-01", 10),
+      rep("2023-08-08", 10),
+      rep("2023-08-15", 10),
+      rep("2023-08-22", 10),
+      rep("2023-08-29", 10),
+      rep("2023-09-05", 10),
+      rep("2023-09-12", 10),
+      rep("2023-09-19", 10),
+      rep("2023-09-26", 10),
+      rep("2023-10-03", 10),
+      rep("2023-10-10", 10),
+      rep("2023-10-17", 10),
+      rep("2023-10-24", 10),
+      rep("2023-10-31", 10),
+      rep("2023-11-07", 10),
+      rep("2023-11-14", 10),
+      rep("2023-11-21", 10),
+      rep("2023-11-28", 10),
+      rep("2023-12-05", 10),
+      rep("2023-12-12", 10),
+      rep("2023-12-19", 10),
+      rep("2023-12-26", 10),
+      rep("2024-01-02", 13),
+      rep("2024-01-02", 12)
+    )),
+    sex = c(
+      rep(c("male", NA_character_), 260),
+      rep("male", 13),
+      rep(NA_character_, 12)
+    )
+  )
+
+  result <- build_signal_and_comparison_linelist(
+    selected_signal_ids = c(2),
+    true_signals = true_signals,
+    signals_padded = signals_padded,
+    filtered_data = filtered_data
+  )
+
+  # selecting signal id 2, should give back the 12 unknown sex cases
+  expect_equal(nrow(result$cases), 12)
+  expect_false(any(result$cases_comparison$case_id %in% result$cases$case_id))
+})

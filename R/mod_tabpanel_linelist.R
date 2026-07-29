@@ -97,6 +97,11 @@ mod_tabpanel_linelist_server <- function(
           ),
           bslib::card(
             min_height = "500px",
+            shiny::h1("Comparisons table"),
+            DT::DTOutput(ns("comparisons_tbl"))
+          ),
+          bslib::card(
+            min_height = "500px",
             shiny::h1("Case Linelist for Selected Signals"),
             shiny::span("Export or review cases linked to the selected signals."),
             DT::DTOutput(ns("linelist"))
@@ -250,6 +255,19 @@ mod_tabpanel_linelist_server <- function(
         signals_padded = replace_unknown(signals_padded()),
         filtered_data = replace_unknown(filtered_data())
       )
+    })
+
+    comparisons_table <- shiny::reactive({
+      req(cases_linelist)
+
+      build_comparison_summary(cases_linelist())
+    })
+
+    output$comparisons_tbl <- DT::renderDT({
+      req(comparisons_table)
+
+      comparisons_table() %>%
+        DT::datatable(rownames = FALSE, colnames = c("Measure", "Cases in selected signals", "Rest of cases"))
     })
 
     # display line lists of selected signals

@@ -5,6 +5,9 @@
 * Added visualisation of age group comparison of cases in signal vs. cases from the signal detection period in the linelist tab
 * Introduced a post-processing score for alarms to support priority-based filtering
 * Added an interactive epidemic curve to the linelist tab with optional stratification and consistent colour handling for categorical variables, age groups, and unknown values
+* Fixed bug in linelist tab that handled NA stratum values wrongly for selected signals.
+* Added visualisation for Signal score in time series plots
+* Implemented Comparisons table in the linelist tab, showing summary statistics for age and sex ratios for cases in selected signals.
 
 # SignalDetectionTool 0.10.0
 
