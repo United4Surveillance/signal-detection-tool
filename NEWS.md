@@ -1,13 +1,19 @@
-* Added support for selecting different time units for case aggregation
-* Fix padding of signals with cusum. Strata with very low number of cases would have no cases in the training period, which caused the signal function to find an error.
-* fix missing display of expectation and/or threshold for historic data when using an extension date with FarringtonFlexible, EARS and CUSUM
-* Added option to exclude outbreak-associated cases from baseline fitting for GLM-based algorithms
-* Added visualisation of age group comparison of cases in signal vs. cases from the signal detection period in the linelist tab
-* Introduced a post-processing score for alarms to support priority-based filtering
-* Added an interactive epidemic curve to the linelist tab with optional stratification and consistent colour handling for categorical variables, age groups, and unknown values
-* Fixed bug in linelist tab that handled NA stratum values wrongly for selected signals.
+# SignalDetectionTool 0.11.0
+* Added visualisations and bug fixes in the linelist tab
+  * Added visualisation of age group comparison of cases in signal vs. cases from the signal detection period.
+  * Implemented Comparisons table, showing summary statistics for age and sex ratios for cases in selected signals.
+  * Added an interactive epidemic curve with optional stratification and consistent colour handling for categorical variables, age groups, and unknown values
+  * Fixed bug that handled NA stratum values wrongly for selected signals.
+* Introduced a post-processing score with values between 0 and 1 for signals to support priority-based filtering. The overall score is computed from four individual scores evaluating different aspects of the signal
+  * strength: deviation from the threshold
+  * seasonality: 1 − scaled average monthly proportion of cases
+  * specificity: number of signals in the same dimension divided by the number of strata in that dimension.
+  * recurrence: number of signals in the same stratum divided by the total number of signals in the detection period
 * Added visualisation for Signal score in time series plots
-* Implemented Comparisons table in the linelist tab, showing summary statistics for age and sex ratios for cases in selected signals.
+* Added support for selecting different time units for case aggregation.
+* Fix signal padding with cusum. Strata with very low number of cases would have no cases in the training period, which caused the signal function to find an error.
+* Fix missing display of expectation and/or threshold for historic data when using an extension date with FarringtonFlexible, EARS and CUSUM
+* Added option to exclude outbreak-associated cases from baseline fitting for GLM-based algorithms.
 
 # SignalDetectionTool 0.10.0
 
