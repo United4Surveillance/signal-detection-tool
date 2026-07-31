@@ -12,7 +12,8 @@ run_report(
   data,
   report_format = "HTML",
   method = "FarringtonFlexible",
-  number_of_weeks = 6,
+  number_of_time_units = 6,
+  time_unit = "weekly",
   pathogens = NULL,
   strata = NULL,
   selected_filter_vars = NULL,
@@ -25,8 +26,10 @@ run_report(
   custom_logo = NULL,
   custom_theme = NULL,
   min_cases_signals = 1,
+  min_score_signals = 0,
   title = NULL,
-  alpha_upper = 0.05
+  alpha_upper = 0.05,
+  exclude_outbreak_cases_from_fitting = FALSE
 )
 ```
 
@@ -51,10 +54,15 @@ run_report(
   with timetrend"\`. Use \[names(available_algorithms())\] to retrieve
   the full list.
 
-- number_of_weeks:
+- number_of_time_units:
 
-  Integer scalar giving the number of weeks for which signals are
-  generated.
+  integer, number of time units for which signals are generated
+
+- time_unit:
+
+  a character specifying the time unit the case aggregation is performed
+  on. Default is "weekly". Algorithms using the farrington framework can
+  only be used with weekly aggregated data.
 
 - pathogens:
 
@@ -146,6 +154,14 @@ run_report(
   is applied only when signals are recomputed inside \`run_report()\`,
   i.e. when \`signals_agg\` or \`signals_padded\` is \`NULL\`.
 
+- min_score_signals:
+
+  Numeric scalar in the interval \[0, 1\] giving the minimum score an
+  alarm must have to remain flagged. For signals below this score,
+  \`alarms\` is set to \`FALSE\` in a post-processing step. This is
+  applied only when signals are recomputed inside \`run_report()\`, i.e.
+  when \`signals_agg\` or \`signals_padded\` is \`NULL\`.
+
 - title:
 
   \`NULL\` or a character scalar specifying the report title. If
@@ -162,6 +178,16 @@ run_report(
   with timetrend"), for which a default value of 0.05 is applied. Ears
   and cusum do not use the value; for these, the argument is ignored and
   internally set to NULL.
+
+- exclude_outbreak_cases_from_fitting:
+
+  A boolean specifying whether outbreak-associated case counts should be
+  excluded only when fitting the baseline. \`TRUE\` can only be applied
+  when GLM-based outbreak detection models are used and \`data\`
+  contains an \`outbreak_status\` column indicating the number of cases
+  associated with outbreaks. For other specifications only \`FALSE\` is
+  a valid input. Default is \`FALSE\`. \`TRUE\` can not be combined with
+  using \`outbreak_status\` in \`strata\`.
 
 ## Value
 
@@ -188,7 +214,7 @@ run_report(
   data = input_example,
   method = "FarringtonFlexible",
   strata = c("county", "sex"),
-  number_of_weeks = 6
+  number_of_time_units = 6
 )
 
 # Example 2: Specify an output directory

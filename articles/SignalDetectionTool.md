@@ -66,22 +66,23 @@ signals <- data_prepro %>% get_signals()
 ```
 
 The generated `signals` output is a data.frame containing the aggregated
-number of cases per week with additional columns `cases_in_outbreak`,
-`alarms`, `upperbound`, `expected`, `category`, `stratum`, `method` and
-`number_of_weeks`.
+number of cases per time unit with additional columns
+`cases_in_outbreak`, `alarms`, `upperbound`, `expected`, `category`,
+`stratum`, `method` and `number_of_time_units`.
 
 - `cases_in_outbreak` is only generated if the column `outbreak_status`
   was available in your provided linelist. It counts how many cases in
   this week were already part of a known outbreak.  
 - `alarms` is a column with booleans indicating for which weeks a signal
-  has been generated. Of course the majority of weeks in the aggregated
-  timeseries contain `NA` in this column as only the most recent
-  selected `number_of_weeks` are filled with `TRUE` of `FALSE`.  
+  has been generated. Of course the majority of time units in the
+  aggregated timeseries contain `NA` in this column as only the most
+  recent selected `number_of_time_units` are filled with `TRUE` of
+  `FALSE`.  
 - `upperbound` contains a numeric threshold calculated with the signal
-  detection methods. As for `alarms` the majority of weeks in the
+  detection methods. As for `alarms` the majority of time units in the
   aggregated timeseries contain `NA` as this is only calculated for the
-  `number_of_weeks` for which signals are generated. Furthermore some
-  algorithms such as EARS do not calculate a threshold.  
+  `number_of_time_units` for which signals are generated. Furthermore
+  some algorithms such as EARS do not calculate a threshold.  
 - `expected` is a numeric value giving the expected number of cases by
   the signal detection algorithm. Only filled for the weeks for which
   signals are generated.  
@@ -94,8 +95,8 @@ number of cases per week with additional columns `cases_in_outbreak`,
   `NA`.  
 - `method` Character string specifying the signal detection method which
   was used.
-- `number_of_weeks` Integer specifying the number of weeks for which
-  signals were generated.
+- `number_of_time_units` Integer specifying the number of time units
+  (e.g. weeks) for which signals were generated.
 
 Generating stratified signals using EARS:
 
@@ -132,8 +133,8 @@ with `category == "county"` the values of `stratum` are “Burgenland”,
 ### Create visualisations and tables
 
 To visualise signal detection in your data for the most recent
-`number_of_weeks`, you first need to preprocess your linelist and then
-apply
+`number_of_time_units`, you first need to preprocess your linelist and
+then apply
 [`get_signals()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_signals.md).
 To display aggregated signal detection results, first aggregate the
 signals. In the final step, apply a function to generate either a plot
@@ -175,7 +176,7 @@ European shapefile (`nuts_shp`).
 
 data_prepro <- input_example %>% preprocess_data()
 signals <- data_prepro %>% get_signals(stratification = c("county"))
-signals_agg <- signals %>% aggregate_signals(number_of_weeks = 6)
+signals_agg <- signals %>% aggregate_signals(number_of_time_units = 6, time_unit = "weekly")
 nuts_shp <- nuts_shp %>%
   sf::st_as_sf() %>%
   dplyr::filter(LEVL_CODE == 2 & CNTR_CODE == "AT") %>%
@@ -215,7 +216,7 @@ as `stratum` and for the non-interactive plot using
 
 data_prepro <- input_example %>% preprocess_data()
 signals <- data_prepro %>% get_signals(stratification = c("age_group"))
-signals_agg <- signals %>% aggregate_signals(number_of_weeks = 6)
+signals_agg <- signals %>% aggregate_signals(number_of_time_units = 6, time_unit = "weekly")
 signals_barchart <- plot_barchart(
   signals_agg,
   interactive = FALSE
@@ -235,7 +236,7 @@ To create an interactive or a non-interactive 100% stacked barplot
 showing a week-to-week representation of strata levels that had alarms
 you have to use signal data and specify the number of stratification
 levels in
-[`plot_signals_per_week()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_signals_per_week.md).
+[`plot_signals_per_time_unit()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_signals_per_time_unit.md).
 This is an example for visualising the specified data using “county” as
 `stratum` with 9 levels for the non-interactive plot:
 
@@ -247,7 +248,7 @@ signals <- get_signals(
   stratification = "county"
 )
 n.strata <- 9
-signals_week_barchart <- plot_signals_per_week(
+signals_week_barchart <- plot_signals_per_time_unit(
   signals,
   n_strata = n.strata
 )
@@ -272,7 +273,7 @@ and default options:
 data_prepro <- input_example %>% preprocess_data()
 signals <- data_prepro %>% get_signals(
   stratification = c("age_group"),
-  number_of_weeks = 6
+  number_of_time_units = 6
 )
 signals_table <- signals %>% build_signals_table()
 signals_table
@@ -289,9 +290,9 @@ and default options:
 data_prepro <- input_example %>% preprocess_data()
 signals <- data_prepro %>% get_signals(
   stratification = c("age_group"),
-  number_of_weeks = 6
+  number_of_time_units = 6
 )
-agg_signals <- signals %>% aggregate_signals(number_of_weeks = 6)
+agg_signals <- signals %>% aggregate_signals(number_of_time_units = 6, time_unit = "weekly")
 agg_signals_table <- agg_signals %>% build_signals_agg_table()
 agg_signals_table
 ```
@@ -328,7 +329,7 @@ group, county and sex for the last 2 weeks using FarringtonFlexible
 
 run_report(input_example,
   strata = c("age_group", "county", "sex"),
-  number_of_weeks = 2
+  number_of_time_units = 2
 )
 ```
 

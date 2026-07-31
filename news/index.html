@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">SignalDetectionTool</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,6 +33,26 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.11.0" id="signaldetectiontool-0110">SignalDetectionTool 0.11.0<a class="anchor" aria-label="anchor" href="#signaldetectiontool-0110"></a></h2>
+<ul><li>Added visualisations and bug fixes in the linelist tab
+<ul><li>Added visualisation of age group comparison of cases in signal vs. cases from the signal detection period.</li>
+<li>Implemented Comparisons table, showing summary statistics for age and sex ratios for cases in selected signals.</li>
+<li>Added an interactive epidemic curve with optional stratification and consistent colour handling for categorical variables, age groups, and unknown values</li>
+<li>Fixed bug that handled NA stratum values wrongly for selected signals.</li>
+</ul></li>
+<li>Introduced a post-processing score with values between 0 and 1 for signals to support priority-based filtering. The overall score is computed from four individual scores evaluating different aspects of the signal
+<ul><li>strength: deviation from the threshold</li>
+<li>seasonality: 1 − scaled average monthly proportion of cases</li>
+<li>specificity: number of signals in the same dimension divided by the number of strata in that dimension.</li>
+<li>recurrence: number of signals in the same stratum divided by the total number of signals in the detection period</li>
+</ul></li>
+<li>Added visualisation for Signal score in time series plots</li>
+<li>Added support for selecting different time units for case aggregation.</li>
+<li>Fix signal padding with cusum. Strata with very low number of cases would have no cases in the training period, which caused the signal function to find an error.</li>
+<li>Fix missing display of expectation and/or threshold for historic data when using an extension date with FarringtonFlexible, EARS and CUSUM</li>
+<li>Added option to exclude outbreak-associated cases from baseline fitting for GLM-based algorithms.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.10.0" id="signaldetectiontool-0100">SignalDetectionTool 0.10.0<a class="anchor" aria-label="anchor" href="#signaldetectiontool-0100"></a></h2>
 <ul><li>Bug fixes and improvements to the HTML report
 <ul><li>mark those timeseries widgets in the stratified page that had signals</li>
@@ -53,7 +73,6 @@
 <li>Added option to extend the linelist up to the current day</li>
 <li>Added new multi-seasonal harmonic method with annual and semiannual components and optional timetrend</li>
 <li>Added handling for ages and age-group bounds greater than or equal to 115 to avoid unplausible ages in linelist</li>
-<li>integrated missing ISO calendar week handling (add_cw_iso()) directly into aggregate_data(), removing the need for a seperate preprocessing step</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9.0" id="signaldetectiontool-090">SignalDetectionTool 0.9.0<a class="anchor" aria-label="anchor" href="#signaldetectiontool-090"></a></h2>
@@ -217,7 +236,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

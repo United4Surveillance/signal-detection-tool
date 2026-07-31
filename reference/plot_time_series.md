@@ -1,8 +1,9 @@
 # Plot time-series based on the results of a signal detection algorithm, being alarms, threshold and expectation
 
 Static plots (default) are only based on the dates of the latest
-\`number_of_weeks\` weeks. Interactive plots are based on all data, but
-zoom in by default on the latest \`number_of_weeks\` weeks.
+\`number_of_time_units\` time units. Interactive plots are based on all
+data, but zoom in by default on the latest \`number_of_time_units\` time
+units.
 
 ## Usage
 
@@ -11,7 +12,7 @@ plot_time_series(
   results,
   interactive = FALSE,
   intervention_date = NULL,
-  number_of_weeks = 52
+  number_of_time_units = 52
 )
 ```
 
@@ -19,7 +20,8 @@ plot_time_series(
 
 - results:
 
-  data returned by the get_signals_farringtonflexible()
+  data returned by the get_signals_farringtonflexible() or signal
+  detection results
 
 - interactive:
 
@@ -32,9 +34,9 @@ plot_time_series(
   is NULL which indicates that no intervention is done.The intervention
   is marked with a dashed line.
 
-- number_of_weeks:
+- number_of_time_units:
 
-  number of weeks to be covered in the plot
+  number of time units to be covered in the plot
 
 ## Value
 

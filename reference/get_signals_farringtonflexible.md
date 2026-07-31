@@ -7,7 +7,7 @@ Get signals of surveillance's farringtonFlexible algorithm
 ``` r
 get_signals_farringtonflexible(
   data_aggregated,
-  number_of_weeks = 52,
+  number_of_time_units = 52,
   alpha_upper = 0.05
 )
 ```
@@ -18,9 +18,10 @@ get_signals_farringtonflexible(
 
   data.frame, aggregated data with case counts
 
-- number_of_weeks:
+- number_of_time_units:
 
-  integer, specifying number of weeks to generate signals for
+  integer, specifying number of time units to generate signals for. The
+  default is weeks and should not be changed.
 
 - alpha_upper:
 

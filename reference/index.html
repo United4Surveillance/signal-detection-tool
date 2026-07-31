@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">SignalDetectionTool</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,7 @@
           <code><a href="aggregate_data.html">aggregate_data()</a></code>
 
         </dt>
-        <dd>Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek and adds missing isoweeks to the aggregated dataset. Additionally number of cases part of a known outbreak is added if the variable outbreak_status exists in the data.</dd>
+        <dd>Aggregates case data (linelist, i.e. one row per case) by isoyear and isoweek or the month and adds missing isoweeks or months to the aggregated dataset. Additionally number of cases part of a known outbreak is added if the variable outbreak_status exists in the data.</dd>
 
         <dt>
 
@@ -81,7 +81,7 @@
           <code><a href="aggregate_signals.html">aggregate_signals()</a></code>
 
         </dt>
-        <dd>Aggregate cases and signals over the number of weeks. First the signals are filtered to obtain the signals for the last n weeks aggregating the number of cases observed, create variable any signal generated and the aggregate the number of signals</dd>
+        <dd>Aggregate cases and signals over the number of time units. First the signals are filtered to obtain the signals for the last n time units aggregating the number of cases observed, create variable any signal generated and the aggregate the number of signals</dd>
 
         <dt>
 
@@ -99,10 +99,24 @@
 
         <dt>
 
+          <code><a href="build_comparison_summary.html">build_comparison_summary()</a></code>
+
+        </dt>
+        <dd>Build table with summary statistics for selected signals vs rest Calculates the median and quantiles for age, and the male/female ratio, if present in linelist, for cases in the selected signals and for the rest of the cases within the signal detection period.</dd>
+
+        <dt>
+
           <code><a href="build_empty_datatable.html">build_empty_datatable()</a></code>
 
         </dt>
         <dd>Create an Empty DataTable with a Custom Message</dd>
+
+        <dt>
+
+          <code><a href="build_signal_and_comparison_linelist.html">build_signal_and_comparison_linelist()</a></code>
+
+        </dt>
+        <dd>Build linelists for selected signal cases and comparison cases</dd>
 
         <dt>
 
@@ -116,7 +130,7 @@
           <code><a href="build_signals_table.html">build_signals_table()</a></code>
 
         </dt>
-        <dd>Builds the signal detection results table with different formatting options. To get the raw data.frame containing method ald number_of_weeks as well use format = "data.frame", to obtain nicely formatted tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".</dd>
+        <dd>Builds the signal detection results table with different formatting options. To get the raw data.frame containing method and number_of_time_units as well use format = "data.frame", to obtain nicely formatted tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".</dd>
 
         <dt>
 
@@ -351,10 +365,31 @@
 
         <dt>
 
-          <code><a href="filter_data_last_n_weeks.html">filter_data_last_n_weeks()</a></code>
+          <code><a href="filter_data_last_n_time_units.html">filter_data_last_n_time_units()</a></code>
 
         </dt>
-        <dd>Filter the data so that only the data of the last n weeks are returned This function can be used to filter for those last n weeks where signals were generated.</dd>
+        <dd>Filter the data so that only the data of the last n time units are returned This function can be used to filter for those last n time units where signals were generated.</dd>
+
+        <dt>
+
+          <code><a href="filter_linelist_by_period_and_stratum.html">filter_linelist_by_period_and_stratum()</a></code>
+
+        </dt>
+        <dd>Filter linelist by reporting period and optional stratum</dd>
+
+        <dt>
+
+          <code><a href="filter_rows_past_time_units.html">filter_rows_past_time_units()</a></code>
+
+        </dt>
+        <dd>Filter linelist to the signal detection period</dd>
+
+        <dt>
+
+          <code><a href="filter_rows_signal_time_unit.html">filter_rows_signal_time_unit()</a></code>
+
+        </dt>
+        <dd>Filter linelist to one signal week and stratum</dd>
 
         <dt>
 
@@ -368,7 +403,7 @@
           <code><a href="get_all_cw_iso.html">get_all_cw_iso()</a></code>
 
         </dt>
-        <dd>function to get all iso weeks between `date_start` and `date_end`</dd>
+        <dd>function to get all time units between `date_start` and `date_end`</dd>
 
         <dt>
 
@@ -445,7 +480,7 @@
           <code><a href="get_possible_methods.html">get_possible_methods()</a></code>
 
         </dt>
-        <dd>Determine Possible Outbreak Detection Methods Based on Available Historic Data</dd>
+        <dd>Determine Possible Outbreak Detection Methods Based on Available Historic Data and Selected Time Unit</dd>
 
         <dt>
 
@@ -460,6 +495,13 @@
 
         </dt>
         <dd>Function to get the region_id variable names from the region variables</dd>
+
+        <dt>
+
+          <code><a href="get_scores.html">get_scores()</a></code>
+
+        </dt>
+        <dd>Calculate aggregated scores for epidemiological signals</dd>
 
         <dt>
 
@@ -624,10 +666,24 @@
 
         <dt>
 
+          <code><a href="plot_agegroup_comparison.html">plot_agegroup_comparison()</a></code>
+
+        </dt>
+        <dd>Age group comparison plot for signal detection</dd>
+
+        <dt>
+
           <code><a href="plot_barchart.html">plot_barchart()</a></code>
 
         </dt>
         <dd>Barplot visualising the number of cases and information about any signals</dd>
+
+        <dt>
+
+          <code><a href="plot_epicurve.html">plot_epicurve()</a></code>
+
+        </dt>
+        <dd>Plot epidemic curve for signal detection for different strata</dd>
 
         <dt>
 
@@ -638,7 +694,7 @@
 
         <dt>
 
-          <code><a href="plot_signals_per_week.html">plot_signals_per_week()</a></code>
+          <code><a href="plot_signals_per_time_unit.html">plot_signals_per_time_unit()</a></code>
 
         </dt>
         <dd>Plot in how many strata an signal was detected under the detection period</dd>
@@ -736,6 +792,41 @@
 
         <dt>
 
+          <code><a href="score_recurrence.html">score_recurrence()</a></code>
+
+        </dt>
+        <dd>Score signals based on temporal alarm recurrence within strata</dd>
+
+        <dt>
+
+          <code><a href="score_seasonal.html">score_seasonal()</a></code>
+
+        </dt>
+        <dd>Score signals according to seasonal distribution of cases</dd>
+
+        <dt>
+
+          <code><a href="score_specificity_alarm.html">score_specificity_alarm()</a></code>
+
+        </dt>
+        <dd>Score signals according to specificity of signal within category</dd>
+
+        <dt>
+
+          <code><a href="score_specificity_stronger.html">score_specificity_stronger()</a></code>
+
+        </dt>
+        <dd>Score signals according to specificity of signal strength within category</dd>
+
+        <dt>
+
+          <code><a href="score_strength.html">score_strength()</a></code>
+
+        </dt>
+        <dd>Score signals according to size strength</dd>
+
+        <dt>
+
           <code><a href="sex_levels.html">sex_levels()</a></code>
 
         </dt>
@@ -791,7 +882,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

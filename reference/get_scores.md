@@ -1,0 +1,71 @@
+# Calculate aggregated scores for epidemiological signals
+
+Adds an internal row identifier, applies multiple scorer functions to
+the input data, validates each scorer output, joins the resulting
+individual scores by \`.row_id\`, and returns the original input data
+with one final aggregated \`score\` column.
+
+## Usage
+
+``` r
+get_scores(signal_results, scorers, aggregation = c("mean", "sum"))
+```
+
+## Arguments
+
+- signal_results:
+
+  A data frame or tibble containing the input signals, including an
+  \`alarms\` column.
+
+- scorers:
+
+  A named list of scorer functions.
+
+- aggregation:
+
+  A character string specifying how individual scores should be
+  aggregated. Must be either \`"mean"\` or \`"sum"\`.
+
+## Value
+
+A tibble or dataframe containing the original \`signal_results\` columns
+plus one additional aggregated \`score\` column. Rows with no
+non-missing individual score receive \`NA_real\_\`.
+
+## Details
+
+Each scorer must accept \`signal_results\` including the \`.row_id\` and
+\`alarms\` columns and must return a tibble or data frame with exactly
+two columns: \`.row_id\` and \`score\`.
+
+Scores must be numeric in \`\[0, 1\]\` only for rows where \`alarms ==
+TRUE\`. For all other rows, scorers must return \`NA\`. Missing scores
+must be encoded as \`NA\`, not \`NaN\`.
+
+During aggregation, missing individual scores are ignored. Rows for
+which all individual scores are missing receive \`NA_real\_\` as their
+final aggregated score.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+signal_results <- input_example %>%
+  preprocess_data() %>%
+  get_signals_all()
+
+scorers <- list(
+  seasonal = score_seasonal,
+  recurrence = score_recurrence,
+  strength = score_strength,
+  specificity = score_specificity_alarm
+)
+
+get_scores(
+  signal_results = signal_results,
+  scorers = scorers,
+  aggregation = "mean"
+)
+} # }
+```

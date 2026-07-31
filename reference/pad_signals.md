@@ -25,7 +25,7 @@ pad_signals(data, signals)
 
   tibble, output of the
   [`get_signals`](https://united4surveillance.github.io/signal-detection-tool/reference/get_signals.md)
-  function with number of cases and signal per week, year
+  function with number of cases and signal per time unit, year
 
 ## Value
 

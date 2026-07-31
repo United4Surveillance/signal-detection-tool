@@ -13,7 +13,7 @@ generation window. This is primarily used for report generation and visualizatio
 
     <a class="navbar-brand me-2" href="../index.html">SignalDetectionTool</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +48,13 @@ generation window. This is primarily used for report generation and visualizatio
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">aggregate_pad_signals</span><span class="op">(</span><span class="va">signal_results</span>, <span class="va">preprocessed</span>, <span class="va">number_of_weeks</span>, <span class="va">method</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">aggregate_pad_signals</span><span class="op">(</span></span>
+<span>  <span class="va">signal_results</span>,</span>
+<span>  <span class="va">preprocessed</span>,</span>
+<span>  <span class="va">number_of_time_units</span>,</span>
+<span>  <span class="va">time_unit</span>,</span>
+<span>  <span class="va">method</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -56,7 +62,7 @@ generation window. This is primarily used for report generation and visualizatio
 
 
 <dl><dt id="arg-signal-results">signal_results<a class="anchor" aria-label="anchor" href="#arg-signal-results"></a></dt>
-<dd><p>A tibble returned by [get_signals()], containing weekly
+<dd><p>A tibble returned by [get_signals()], containing weekly, biweekly or monthly
 signal detection results (cases, alarms, upperbound, expected, etc.).</p></dd>
 
 
@@ -64,8 +70,12 @@ signal detection results (cases, alarms, upperbound, expected, etc.).</p></dd>
 <dd><p>A data frame containing the surveillance data preprocessed with [preprocess_data()].</p></dd>
 
 
-<dt id="arg-number-of-weeks">number_of_weeks<a class="anchor" aria-label="anchor" href="#arg-number-of-weeks"></a></dt>
-<dd><p>Integer specifying how many weeks to include in the aggregation.</p></dd>
+<dt id="arg-number-of-time-units">number_of_time_units<a class="anchor" aria-label="anchor" href="#arg-number-of-time-units"></a></dt>
+<dd><p>Integer specifying how many time units to include in the aggregation.</p></dd>
+
+
+<dt id="arg-time-unit">time_unit<a class="anchor" aria-label="anchor" href="#arg-time-unit"></a></dt>
+<dd><p>a character specifying the time unit the case aggregation is performed on. Default is "weekly".</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
@@ -78,7 +88,7 @@ as it is assumed to be already included.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A named list with two elements:</p><dl><dt>signals_agg</dt>
 <dd><p>A tibble with aggregated results per stratum, including total cases,
-    whether any alarms occurred, and the number of alarms in the last `number_of_weeks`.</p></dd>
+    whether any alarms occurred, and the number of alarms in the last `number_of_time_units`.</p></dd>
 
   <dt>signals_padded</dt>
 <dd><p>A tibble with the original `signal_results` augmented with additional
@@ -108,7 +118,8 @@ before the signal detection window, which is useful for plotting full time serie
 <span class="r-in"><span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">aggregate_pad_signals</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  signal_results <span class="op">=</span> <span class="va">results</span>,</span></span>
 <span class="r-in"><span>  preprocessed <span class="op">=</span> <span class="va">data_preprocessed</span>,</span></span>
-<span class="r-in"><span>  number_of_weeks <span class="op">=</span> <span class="fl">6</span>,</span></span>
+<span class="r-in"><span>  number_of_time_units <span class="op">=</span> <span class="fl">6</span>,</span></span>
+<span class="r-in"><span>  time_unit <span class="op">=</span> <span class="st">"weekly"</span>,</span></span>
 <span class="r-in"><span>  method <span class="op">=</span> <span class="st">"farrington"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">output</span><span class="op">$</span><span class="va">signals_agg</span></span></span>
@@ -125,7 +136,7 @@ before the signal detection window, which is useful for plotting full time serie
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

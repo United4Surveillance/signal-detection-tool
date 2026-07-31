@@ -18,8 +18,10 @@ get_signals_all(
   date_end = NULL,
   date_ext = NULL,
   date_var = "date_report",
-  number_of_weeks = 6,
-  alpha_upper = 0.05
+  time_unit = "weekly",
+  number_of_time_units = 6,
+  alpha_upper = 0.05,
+  exclude_outbreak_cases_from_fitting = FALSE
 )
 ```
 
@@ -65,9 +67,14 @@ get_signals_all(
   A character string specifying the column name of the date variable to
   use. Default is "date_report".
 
-- number_of_weeks:
+- time_unit:
 
-  Integer specifying how many weeks to generate signals for.
+  a character specifying the time unit the case aggregation is performed
+  on. Default is "weekly".
+
+- number_of_time_units:
+
+  Integer specifying how many time units to generate signals for.
 
 - alpha_upper:
 
@@ -75,6 +82,16 @@ get_signals_all(
   use the value; for these, the argument is ignored and internally set
   to NULL. Specifies the p-value cutoff used to compute the threshold;
   for example, a value of 0.05 corresponds to using the 0.95 quantile.
+
+- exclude_outbreak_cases_from_fitting:
+
+  A boolean specifying whether outbreak-associated case counts should be
+  excluded only when fitting the baseline. \`TRUE\` can only be applied
+  when GLM-based outbreak detection models are used. For other models
+  only \`FALSE\` is a valid input. If \`preprocessed_data\` does not
+  contain an \`outbreak_status\` column indicating the number of cases
+  associated with outbreaks, no exclusion is applied, even when
+  \`exclude_outbreak_cases_from_fitting = TRUE\`. Default is \`FALSE\`.
 
 ## Value
 

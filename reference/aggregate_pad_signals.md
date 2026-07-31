@@ -9,24 +9,36 @@ for report generation and visualization.
 ## Usage
 
 ``` r
-aggregate_pad_signals(signal_results, preprocessed, number_of_weeks, method)
+aggregate_pad_signals(
+  signal_results,
+  preprocessed,
+  number_of_time_units,
+  time_unit,
+  method
+)
 ```
 
 ## Arguments
 
 - signal_results:
 
-  A tibble returned by \[get_signals()\], containing weekly signal
-  detection results (cases, alarms, upperbound, expected, etc.).
+  A tibble returned by \[get_signals()\], containing weekly, biweekly or
+  monthly signal detection results (cases, alarms, upperbound, expected,
+  etc.).
 
 - preprocessed:
 
   A data frame containing the surveillance data preprocessed with
   \[preprocess_data()\].
 
-- number_of_weeks:
+- number_of_time_units:
 
-  Integer specifying how many weeks to include in the aggregation.
+  Integer specifying how many time units to include in the aggregation.
+
+- time_unit:
+
+  a character specifying the time unit the case aggregation is performed
+  on. Default is "weekly".
 
 - method:
 
@@ -42,7 +54,7 @@ A named list with two elements:
 
   A tibble with aggregated results per stratum, including total cases,
   whether any alarms occurred, and the number of alarms in the last
-  \`number_of_weeks\`.
+  \`number_of_time_units\`.
 
 - signals_padded:
 
@@ -73,7 +85,8 @@ results <- get_signals(
 output <- aggregate_pad_signals(
   signal_results = results,
   preprocessed = data_preprocessed,
-  number_of_weeks = 6,
+  number_of_time_units = 6,
+  time_unit = "weekly",
   method = "farrington"
 )
 output$signals_agg

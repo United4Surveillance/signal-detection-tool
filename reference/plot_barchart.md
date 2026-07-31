@@ -1,7 +1,7 @@
 # Barplot visualising the number of cases and information about any signals
 
 Bars showing number of cases and coloring around the bar showing whether
-any signal was generated in the last n weeks for this stratum
+any signal was generated in the last n time units for this stratum
 
 ## Usage
 
@@ -17,7 +17,7 @@ plot_barchart(signals_agg, interactive = TRUE, toggle_alarms = FALSE)
   function
   [`aggregate_signals`](https://united4surveillance.github.io/signal-detection-tool/reference/aggregate_signals.md).
   It contains the number of cases, any_alarms and n_alarms for one
-  category, i.e. age group summed over the number of weeks used in
+  category, i.e. age group summed over the number of time units used in
   [`aggregate_signals`](https://united4surveillance.github.io/signal-detection-tool/reference/aggregate_signals.md).
 
 - interactive:
@@ -39,7 +39,7 @@ either a gg or plotly object
 if (FALSE) { # \dontrun{
 data_preprocessed <- input_example %>% preprocess_data()
 signals <- data_preprocessed %>% get_signals(stratification = c("sex"))
-signals_agg <- signals %>% aggregate_signals(number_of_weeks = 12)
+signals_agg <- signals %>% aggregate_signals(number_of_time_units = 12, time_unit = "weekly")
 signals_barchart <- plot_barchart(
   signals_agg,
   interactive = FALSE

@@ -1,15 +1,21 @@
-# Determine Possible Outbreak Detection Methods Based on Available Historic Data
+# Determine Possible Outbreak Detection Methods Based on Available Historic Data and Selected Time Unit
 
 This function identifies which algorithms can be applied for outbreak
 detection depending on the amount of historic data available for model
 fitting. The decision is based on the minimum and maximum dates of the
-time series and the number of weeks reserved at the end of the series
-(e.g. for current detection).
+time series and the number of time units reserved at the end of the
+series (e.g. for current detection). Furthermore algorithms using the
+farrington framework can only be used with weekly aggregated data.
 
 ## Usage
 
 ``` r
-get_possible_methods(min_date, max_date, number_of_weeks = 6)
+get_possible_methods(
+  min_date,
+  max_date,
+  time_unit = "weekly",
+  number_of_time_units = 6
+)
 ```
 
 ## Arguments
@@ -24,9 +30,14 @@ get_possible_methods(min_date, max_date, number_of_weeks = 6)
   A `Date` object, the maximum date in the time series used for fitting
   a model.
 
-- number_of_weeks:
+- time_unit:
 
-  Integer. Number of weeks at the end of the time series that are
+  a character specifying the time unit the case aggregation is performed
+  on. Default is "weekly".
+
+- number_of_time_units:
+
+  Integer. Number of time units at the end of the time series that are
   reserved for detection / monitoring and therefore not counted as
   historic data for model fitting. Default is `6`.
 
@@ -38,9 +49,8 @@ method is applicable.
 ## Details
 
 Historic data is defined as the period from `min_date` to
-`max_date - number_of_weeks`. The number of available weeks is computed
-on this interval, counting partial weeks as full weeks to match the
-weekly aggregation used by the algorithms.
+`max_date - number_of_time_units`. The number of available weeks is
+computed on this interval, counting partial weeks as full weeks.
 
 The method selection criteria are approximately:
 
@@ -68,11 +78,11 @@ The method selection criteria are approximately:
 - If no training data is available (less than 1 week), `NULL` is
   returned.
 
-The function computes `max_date_fit = max_date - number_of_weeks` and
-then calculates the number of weeks between `min_date` and
+The function computes `max_date_fit = max_date - number_of_time_units`
+and then calculates the number of weeks between `min_date` and
 `max_date_fit`. Partial weeks are counted as full weeks to align with
-the weekly aggregation of the data. Based on this number of historic
-weeks, suitable algorithms are selected using
+the aggregation of the data. Based on this number of historic week data,
+suitable algorithms are selected using
 [`available_algorithms`](https://united4surveillance.github.io/signal-detection-tool/reference/available_algorithms.md).
 
 ## See also
@@ -96,7 +106,7 @@ mm <- get_min_max_date(
 get_possible_methods(
   min_date = mm$min_date,
   max_date = mm$max_date,
-  number_of_weeks = 6
+  number_of_time_units = 6
 )
 } # }
 ```

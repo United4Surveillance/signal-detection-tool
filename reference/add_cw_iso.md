@@ -1,12 +1,18 @@
 # Adds a column \`cw_iso\` to the data.frame \`data\`.
 
-Uses \`date_var\`to create a factor column of isoweeks. Factor levels
-are all weeks between \`date_start\` and \`date_end\`.
+Uses \`date_var\`to create a factor column of time units. Factor levels
+are all time units between \`date_start\` and \`date_end\`.
 
 ## Usage
 
 ``` r
-add_cw_iso(data, date_start = NULL, date_end = NULL, date_var = "date_report")
+add_cw_iso(
+  data,
+  date_start = NULL,
+  date_end = NULL,
+  date_var = "date_report",
+  time_unit = "weekly"
+)
 ```
 
 ## Arguments
@@ -33,3 +39,8 @@ add_cw_iso(data, date_start = NULL, date_end = NULL, date_var = "date_report")
 
   a character specifying the date variable name used for the
   aggregation. Default is "date_report".
+
+- time_unit:
+
+  a character specifying the time unit the case aggregation is performed
+  on. Default is "weekly".

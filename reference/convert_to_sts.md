@@ -5,7 +5,7 @@ Turns aggregated data into surveillance's sts format
 ## Usage
 
 ``` r
-convert_to_sts(case_counts)
+convert_to_sts(case_counts, time_unit = "weekly")
 ```
 
 ## Arguments
@@ -13,6 +13,11 @@ convert_to_sts(case_counts)
 - case_counts:
 
   case count data frame to be converted
+
+- time_unit:
+
+  a character specifying the time unit the case aggregation is performed
+  on. Default is "weekly".
 
 ## Examples
 

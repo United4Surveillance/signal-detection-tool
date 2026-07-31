@@ -1,9 +1,9 @@
 # Prepare the signal detection results for creation of table with results
 
-This function converts the columns week, year and cases to integer,
-columns are renamed and category with NA is replaced by None. It can
-filter the data based on the \`signals_only\` parameter giving back only
-those weeks where a signal was found.
+This function converts the columns week or month, year and cases to
+integer, columns are renamed and category with NA is replaced by None.
+It can filter the data based on the \`signals_only\` parameter giving
+back only those time units where a signal was found.
 
 ## Usage
 
@@ -21,10 +21,10 @@ prepare_signals_table(data, signals_only = TRUE)
 - signals_only:
 
   Logical indicating whether to filter the signal results to include
-  only the weeks when a signal was generated (default is TRUE). If set
-  to TRUE, the signals column is removed from the table. When FALSE the
-  signals column is kept to distinguish the weeks with and without
-  alarms.
+  only the time units when a signal was generated (default is TRUE). If
+  set to TRUE, the signals column is removed from the table. When FALSE
+  the signals column is kept to distinguish the time units with and
+  without alarms.
 
 ## Value
 

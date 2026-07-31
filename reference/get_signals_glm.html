@@ -9,7 +9,7 @@ The GLM is flexible being able to just fit a mean, add a time trend, fit a harmo
 
     <a class="navbar-brand me-2" href="../index.html">SignalDetectionTool</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@ The GLM is flexible being able to just fit a mean, add a time trend, fit a harmo
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_signals_glm</span><span class="op">(</span></span>
 <span>  <span class="va">data_aggregated</span>,</span>
-<span>  number_of_weeks <span class="op">=</span> <span class="fl">6</span>,</span>
+<span>  number_of_time_units <span class="op">=</span> <span class="fl">6</span>,</span>
 <span>  model <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>  time_trend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  return_full_model <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -52,7 +52,9 @@ The GLM is flexible being able to just fit a mean, add a time trend, fit a harmo
 <span>  intervention_date <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  min_timepoints_baseline <span class="op">=</span> <span class="fl">12</span>,</span>
 <span>  min_timepoints_trend <span class="op">=</span> <span class="fl">12</span>,</span>
-<span>  past_weeks_not_included <span class="op">=</span> <span class="fl">4</span></span>
+<span>  past_time_units_not_included <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  exclude_outbreak_cases_from_fitting <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  time_unit <span class="op">=</span> <span class="st">"weekly"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -64,8 +66,8 @@ The GLM is flexible being able to just fit a mean, add a time trend, fit a harmo
 <dd><p>data.frame, aggregated data with case counts.</p></dd>
 
 
-<dt id="arg-number-of-weeks">number_of_weeks<a class="anchor" aria-label="anchor" href="#arg-number-of-weeks"></a></dt>
-<dd><p>integer, specifying number of weeks to generate signals for.</p></dd>
+<dt id="arg-number-of-time-units">number_of_time_units<a class="anchor" aria-label="anchor" href="#arg-number-of-time-units"></a></dt>
+<dd><p>integer, specifying number of time units to generate signals for.</p></dd>
 
 
 <dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
@@ -77,7 +79,7 @@ The GLM is flexible being able to just fit a mean, add a time trend, fit a harmo
 
 
 <dt id="arg-return-full-model">return_full_model<a class="anchor" aria-label="anchor" href="#arg-return-full-model"></a></dt>
-<dd><p>boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_weeks should be returned and attached to data_aggregated as well.</p></dd>
+<dd><p>boolean, default TRUE, specifying whether the fitted values of the model obtained from fitting the model to the first week of number_of_time_units should be returned and attached to data_aggregated as well.</p></dd>
 
 
 <dt id="arg-alpha-upper">alpha_upper<a class="anchor" aria-label="anchor" href="#arg-alpha-upper"></a></dt>
@@ -97,10 +99,21 @@ Specifies the p-value cutoff used to compute the threshold; for example, a value
 <dd><p>integer, default 12, this parameter is only used when intervention_date is not NULL, specifying the number of weeks at least needed for fitting a new timetrend after the intervention.</p></dd>
 
 
-<dt id="arg-past-weeks-not-included">past_weeks_not_included<a class="anchor" aria-label="anchor" href="#arg-past-weeks-not-included"></a></dt>
-<dd><p>An integer specifying the number of past weeks to exclude from
+<dt id="arg-past-time-units-not-included">past_time_units_not_included<a class="anchor" aria-label="anchor" href="#arg-past-time-units-not-included"></a></dt>
+<dd><p>An integer specifying the number of past time units to exclude from
 the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 Default is `4`.</p></dd>
+
+
+<dt id="arg-exclude-outbreak-cases-from-fitting">exclude_outbreak_cases_from_fitting<a class="anchor" aria-label="anchor" href="#arg-exclude-outbreak-cases-from-fitting"></a></dt>
+<dd><p>A boolean specifying whether outbreak-associated cases should be excluded from case counts.
+If `data_aggregated` does not contain a `cases_not_in_outbreak` column indicating the number of cases not associated with outbreaks,
+no exclusion is applied, even when `exclude_outbreak_cases_from_fitting = TRUE`.
+Default is `FALSE`.</p></dd>
+
+
+<dt id="arg-time-unit">time_unit<a class="anchor" aria-label="anchor" href="#arg-time-unit"></a></dt>
+<dd><p>character, specifying the time units to aggregate case data on. Default is "weekly". Algorithms using the farrington framework can only be used with weekly aggregated data.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -128,7 +141,7 @@ Default is `4`.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

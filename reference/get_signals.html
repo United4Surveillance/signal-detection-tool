@@ -9,7 +9,7 @@ specified method."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">SignalDetectionTool</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,8 +51,10 @@ specified method.</p>
 <span>  date_end <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  date_ext <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  date_var <span class="op">=</span> <span class="st">"date_report"</span>,</span>
-<span>  number_of_weeks <span class="op">=</span> <span class="fl">6</span>,</span>
-<span>  alpha_upper <span class="op">=</span> <span class="fl">0.05</span></span>
+<span>  time_unit <span class="op">=</span> <span class="st">"weekly"</span>,</span>
+<span>  number_of_time_units <span class="op">=</span> <span class="fl">6</span>,</span>
+<span>  alpha_upper <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  exclude_outbreak_cases_from_fitting <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -98,14 +100,26 @@ the analysis. Default is NULL.</p></dd>
 <dd><p>a character specifying the date variable name used for the aggregation. Default is "date_report".</p></dd>
 
 
-<dt id="arg-number-of-weeks">number_of_weeks<a class="anchor" aria-label="anchor" href="#arg-number-of-weeks"></a></dt>
-<dd><p>integer, specifying number of weeks to generate signals for.</p></dd>
+<dt id="arg-time-unit">time_unit<a class="anchor" aria-label="anchor" href="#arg-time-unit"></a></dt>
+<dd><p>a character specifying the time unit the case aggregation is performed on. Default is "weekly". Algorithms using the farrington framework can only be used with weekly aggregated data.</p></dd>
+
+
+<dt id="arg-number-of-time-units">number_of_time_units<a class="anchor" aria-label="anchor" href="#arg-number-of-time-units"></a></dt>
+<dd><p>integer, specifying number of time units to generate signals for.</p></dd>
 
 
 <dt id="arg-alpha-upper">alpha_upper<a class="anchor" aria-label="anchor" href="#arg-alpha-upper"></a></dt>
 <dd><p>numeric between 0.001 and 0.2 (default: 0.05). Ears and cusum do not use the value; for these, the argument is ignored
 and internally set to NULL.
 Specifies the p-value cutoff used to compute the threshold; for example, a value of 0.05 corresponds to using the 0.95 quantile.</p></dd>
+
+
+<dt id="arg-exclude-outbreak-cases-from-fitting">exclude_outbreak_cases_from_fitting<a class="anchor" aria-label="anchor" href="#arg-exclude-outbreak-cases-from-fitting"></a></dt>
+<dd><p>A boolean specifying whether outbreak-associated case counts should be excluded only when fitting the baseline.
+`TRUE` can only be applied when GLM-based outbreak detection models are used. For other models only `FALSE` is a valid input.
+If `data` does not contain an `outbreak_status` column indicating the number of cases associated with outbreaks,
+no exclusion is applied, even when `exclude_outbreak_cases_from_fitting = TRUE`.
+Default is `FALSE`.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -140,7 +154,7 @@ Specifies the p-value cutoff used to compute the threshold; for example, a value
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

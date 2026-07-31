@@ -1,4 +1,4 @@
-# Builds the signal detection results table with different formatting options. To get the raw data.frame containing method ald number_of_weeks as well use format = "data.frame", to obtain nicely formatted tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".
+# Builds the signal detection results table with different formatting options. To get the raw data.frame containing method and number_of_time_units as well use format = "data.frame", to obtain nicely formatted tables in an interactive DataTable or as Flextable use format = "DataTable" or format = "Flextable".
 
 This function applies the
 [prepare_signals_table](https://united4surveillance.github.io/signal-detection-tool/reference/prepare_signals_table.md)
@@ -35,10 +35,10 @@ build_signals_table(
 - signals_only:
 
   Logical indicating whether to filter the signal results to include
-  only the weeks when a signal was generated (default is TRUE). If set
-  to TRUE, the signals column is removed from the table. When FALSE the
-  signals column is kept to distinguish the weeks with and without
-  alarms.
+  only the time units when a signal was generated (default is TRUE). If
+  set to TRUE, the signals column is removed from the table. When FALSE
+  the signals column is kept to distinguish the time units with and
+  without alarms.
 
 - format:
 
@@ -70,7 +70,7 @@ signal_results <- input_example %>%
   preprocess_data() %>%
   get_signals(
     stratification = c("age_group"),
-    number_of_weeks = 6
+    number_of_time_units = 6
   )
 signals_table <- build_signals_table(signal_results, format = "data.frame")
 signals_table

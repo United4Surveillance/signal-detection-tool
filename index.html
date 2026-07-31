@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">SignalDetectionTool</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -273,6 +273,8 @@ You can try the shiny application yourself using <a href="https://github.com/Uni
 <li><p><code>alpha_upper</code>: <em>(Scalar: Numeric)</em> – Adjust the p-value cutoff used to compute the threshold, only used in FarringtonFlexible and GLM algorithms.</p></li>
 <li><p><code>pandemic_correction</code>: <em>(Scalar: Boolean)</em> - Correct for the effects of the COVID-19 pandemic, only used in GLM algorithms.</p></li>
 <li><p><code>intervention_date</code>: <em>(Scalar: String, Date format <code>YYYY-MM-DD</code>)</em> - Date for the intervention in the pandemic correction models.</p></li>
+<li><p><code>time_unit</code>: <em>(Scalar: String)</em> - Choose a time unit (weekly, biweekly, monthly) for case count aggregation</p></li>
+<li><p><code>exclude_outbreak_cases_from_fitting</code>: <em>(Scalar: Boolean)</em> - Exclude outbreak-associated cases from baseline fitting, only used for GLM-based algorithms.</p></li>
 </ul>
 </div>
 <div class="section level5">
@@ -282,8 +284,8 @@ You can try the shiny application yourself using <a href="https://github.com/Uni
 </h5>
 <p>Defines key variables for post-processing.</p>
 <ul>
-<li>
-<code>min_cases_signals</code> <em>(Scalar: Integer)</em> - Minimum number of cases required for a signal to be shown.</li>
+<li><p><code>min_cases_signals</code> <em>(Scalar: Integer)</em> - Minimum number of cases required for a signal to be shown.</p></li>
+<li><p><code>min_score_signals</code> <em>(Scalar: Numeric)</em> - The score reflects the priority of a signal and specifies the threshold below which signals are not flagged.</p></li>
 </ul>
 </div>
 <div class="section level5">
@@ -340,7 +342,6 @@ This way it is possible to adjust parameters and algorithm choice to the pathoge
 </h2>
 <p>The initial version of the tool (0.1.0) was deployed in April 2024 to eleven European public health institutes for piloting. The official piloting phase ended in November 2024. The tool can and is used after November 2024 and will still be developed further.<br> Some key features we want to develop are:</p>
 <ul>
-<li>possibility to aggregate the time series on different levels i.e. daily, biweekly, monthly,…</li>
 <li>possibility to combine stratifications</li>
 <li>retrieve linelist with cases corresponding to signals generated</li>
 </ul>
@@ -402,7 +403,7 @@ This way it is possible to adjust parameters and algorithm choice to the pathoge
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

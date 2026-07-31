@@ -10,7 +10,7 @@ seasonal components) or the seasons from the farringtonflexible.
 ``` r
 get_signals_glm(
   data_aggregated,
-  number_of_weeks = 6,
+  number_of_time_units = 6,
   model = "mean",
   time_trend = TRUE,
   return_full_model = TRUE,
@@ -18,7 +18,9 @@ get_signals_glm(
   intervention_date = NULL,
   min_timepoints_baseline = 12,
   min_timepoints_trend = 12,
-  past_weeks_not_included = 4
+  past_time_units_not_included = 4,
+  exclude_outbreak_cases_from_fitting = FALSE,
+  time_unit = "weekly"
 )
 ```
 
@@ -28,9 +30,9 @@ get_signals_glm(
 
   data.frame, aggregated data with case counts.
 
-- number_of_weeks:
+- number_of_time_units:
 
-  integer, specifying number of weeks to generate signals for.
+  integer, specifying number of time units to generate signals for.
 
 - model:
 
@@ -48,8 +50,8 @@ get_signals_glm(
 
   boolean, default TRUE, specifying whether the fitted values of the
   model obtained from fitting the model to the first week of
-  number_of_weeks should be returned and attached to data_aggregated as
-  well.
+  number_of_time_units should be returned and attached to
+  data_aggregated as well.
 
 - alpha_upper:
 
@@ -78,11 +80,25 @@ get_signals_glm(
   intervention_date is not NULL, specifying the number of weeks at least
   needed for fitting a new timetrend after the intervention.
 
-- past_weeks_not_included:
+- past_time_units_not_included:
 
-  An integer specifying the number of past weeks to exclude from the
-  fitting process. This can be useful for excluding recent data with
+  An integer specifying the number of past time units to exclude from
+  the fitting process. This can be useful for excluding recent data with
   outbreaks or data that may not be fully reported. Default is \`4\`.
+
+- exclude_outbreak_cases_from_fitting:
+
+  A boolean specifying whether outbreak-associated cases should be
+  excluded from case counts. If \`data_aggregated\` does not contain a
+  \`cases_not_in_outbreak\` column indicating the number of cases not
+  associated with outbreaks, no exclusion is applied, even when
+  \`exclude_outbreak_cases_from_fitting = TRUE\`. Default is \`FALSE\`.
+
+- time_unit:
+
+  character, specifying the time units to aggregate case data on.
+  Default is "weekly". Algorithms using the farrington framework can
+  only be used with weekly aggregated data.
 
 ## Value
 

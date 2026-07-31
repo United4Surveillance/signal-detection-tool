@@ -10,14 +10,14 @@
   : Create age grouping variable for a given data set
 - [`aggregate_data()`](https://united4surveillance.github.io/signal-detection-tool/reference/aggregate_data.md)
   : Aggregates case data (linelist, i.e. one row per case) by isoyear
-  and isoweek and adds missing isoweeks to the aggregated dataset.
-  Additionally number of cases part of a known outbreak is added if the
-  variable outbreak_status exists in the data.
+  and isoweek or the month and adds missing isoweeks or months to the
+  aggregated dataset. Additionally number of cases part of a known
+  outbreak is added if the variable outbreak_status exists in the data.
 - [`aggregate_pad_signals()`](https://united4surveillance.github.io/signal-detection-tool/reference/aggregate_pad_signals.md)
   : Aggregate and Pad Signals for Reporting
 - [`aggregate_signals()`](https://united4surveillance.github.io/signal-detection-tool/reference/aggregate_signals.md)
-  : Aggregate cases and signals over the number of weeks. First the
-  signals are filtered to obtain the signals for the last n weeks
+  : Aggregate cases and signals over the number of time units. First the
+  signals are filtered to obtain the signals for the last n time units
   aggregating the number of cases observed, create variable any signal
   generated and the aggregate the number of signals
 - [`algo.cusum_with_reset()`](https://united4surveillance.github.io/signal-detection-tool/reference/algo.cusum_with_reset.md)
@@ -27,17 +27,24 @@
   algo.cusum
 - [`available_algorithms()`](https://united4surveillance.github.io/signal-detection-tool/reference/available_algorithms.md)
   : List Available Signal Detection Algorithms
+- [`build_comparison_summary()`](https://united4surveillance.github.io/signal-detection-tool/reference/build_comparison_summary.md)
+  : Build table with summary statistics for selected signals vs rest
+  Calculates the median and quantiles for age, and the male/female
+  ratio, if present in linelist, for cases in the selected signals and
+  for the rest of the cases within the signal detection period.
 - [`build_empty_datatable()`](https://united4surveillance.github.io/signal-detection-tool/reference/build_empty_datatable.md)
   : Create an Empty DataTable with a Custom Message
+- [`build_signal_and_comparison_linelist()`](https://united4surveillance.github.io/signal-detection-tool/reference/build_signal_and_comparison_linelist.md)
+  : Build linelists for selected signal cases and comparison cases
 - [`build_signals_agg_table()`](https://united4surveillance.github.io/signal-detection-tool/reference/build_signals_agg_table.md)
   : Builds the aggregated signal detection results table with different
   formatting options.
 - [`build_signals_table()`](https://united4surveillance.github.io/signal-detection-tool/reference/build_signals_table.md)
   : Builds the signal detection results table with different formatting
-  options. To get the raw data.frame containing method ald
-  number_of_weeks as well use format = "data.frame", to obtain nicely
-  formatted tables in an interactive DataTable or as Flextable use
-  format = "DataTable" or format = "Flextable".
+  options. To get the raw data.frame containing method and
+  number_of_time_units as well use format = "data.frame", to obtain
+  nicely formatted tables in an interactive DataTable or as Flextable
+  use format = "DataTable" or format = "Flextable".
 - [`check_any_age()`](https://united4surveillance.github.io/signal-detection-tool/reference/check_any_age.md)
   : Helper function to check for presence of age variable or instead
   age_group
@@ -130,14 +137,20 @@
   create_barplot_or_table is used
 - [`filter_by_date()`](https://united4surveillance.github.io/signal-detection-tool/reference/filter_by_date.md)
   : Filter Data Frame by Date Range
-- [`filter_data_last_n_weeks()`](https://united4surveillance.github.io/signal-detection-tool/reference/filter_data_last_n_weeks.md)
-  : Filter the data so that only the data of the last n weeks are
-  returned This function can be used to filter for those last n weeks
-  where signals were generated.
+- [`filter_data_last_n_time_units()`](https://united4surveillance.github.io/signal-detection-tool/reference/filter_data_last_n_time_units.md)
+  : Filter the data so that only the data of the last n time units are
+  returned This function can be used to filter for those last n time
+  units where signals were generated.
+- [`filter_linelist_by_period_and_stratum()`](https://united4surveillance.github.io/signal-detection-tool/reference/filter_linelist_by_period_and_stratum.md)
+  : Filter linelist by reporting period and optional stratum
+- [`filter_rows_past_time_units()`](https://united4surveillance.github.io/signal-detection-tool/reference/filter_rows_past_time_units.md)
+  : Filter linelist to the signal detection period
+- [`filter_rows_signal_time_unit()`](https://united4surveillance.github.io/signal-detection-tool/reference/filter_rows_signal_time_unit.md)
+  : Filter linelist to one signal week and stratum
 - [`format_table()`](https://united4surveillance.github.io/signal-detection-tool/reference/format_table.md)
   : Format the signal results to an interactive or static table
 - [`get_all_cw_iso()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_all_cw_iso.md)
-  : function to get all iso weeks between \`date_start\` and
+  : function to get all time units between \`date_start\` and
   \`date_end\`
 - [`get_case_id_duplicates()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_case_id_duplicates.md)
   : Checking for duplicates in case_id
@@ -165,12 +178,14 @@
   background work with the values
 - [`get_possible_methods()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_possible_methods.md)
   : Determine Possible Outbreak Detection Methods Based on Available
-  Historic Data
+  Historic Data and Selected Time Unit
 - [`get_region_from_region_id()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_region_from_region_id.md)
   : Function to extract corresponding region to the region_id variable
 - [`get_region_id_from_region()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_region_id_from_region.md)
   : Function to get the region_id variable names from the region
   variables
+- [`get_scores()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_scores.md)
+  : Calculate aggregated scores for epidemiological signals
 - [`get_shp_config_or_internal()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_shp_config_or_internal.md)
   : Get Shapefile: Read from Config or Use Internal Dataset
 - [`get_signals()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_signals.md)
@@ -235,12 +250,16 @@
   for. This depends on the algorithm and the amount of historic data.
   The already generated signals dataframe is then extended with the
   expectation and threshold into the past
+- [`plot_agegroup_comparison()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_agegroup_comparison.md)
+  : Age group comparison plot for signal detection
 - [`plot_barchart()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_barchart.md)
   : Barplot visualising the number of cases and information about any
   signals
+- [`plot_epicurve()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_epicurve.md)
+  : Plot epidemic curve for signal detection for different strata
 - [`plot_regional()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_regional.md)
   : Plot number of cases with number of signals by region
-- [`plot_signals_per_week()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_signals_per_week.md)
+- [`plot_signals_per_time_unit()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_signals_per_time_unit.md)
   : Plot in how many strata an signal was detected under the detection
   period
 - [`plot_time_series()`](https://united4surveillance.github.io/signal-detection-tool/reference/plot_time_series.md)
@@ -275,6 +294,17 @@
   : Renders a signal detection report
 - [`save_signals()`](https://united4surveillance.github.io/signal-detection-tool/reference/save_signals.md)
   : Save signals
+- [`score_recurrence()`](https://united4surveillance.github.io/signal-detection-tool/reference/score_recurrence.md)
+  : Score signals based on temporal alarm recurrence within strata
+- [`score_seasonal()`](https://united4surveillance.github.io/signal-detection-tool/reference/score_seasonal.md)
+  : Score signals according to seasonal distribution of cases
+- [`score_specificity_alarm()`](https://united4surveillance.github.io/signal-detection-tool/reference/score_specificity_alarm.md)
+  : Score signals according to specificity of signal within category
+- [`score_specificity_stronger()`](https://united4surveillance.github.io/signal-detection-tool/reference/score_specificity_stronger.md)
+  : Score signals according to specificity of signal strength within
+  category
+- [`score_strength()`](https://united4surveillance.github.io/signal-detection-tool/reference/score_strength.md)
+  : Score signals according to size strength
 - [`sex_levels()`](https://united4surveillance.github.io/signal-detection-tool/reference/sex_levels.md)
   : Allowed levels for sex in preprocessed surveillance data used for
   all calculations

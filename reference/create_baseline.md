@@ -12,7 +12,7 @@ create_baseline(
   ts_len,
   intervention_start = NULL,
   min_timepoints_baseline = 12,
-  past_weeks_not_included = 4
+  past_time_units_not_included = 4
 )
 ```
 
@@ -33,10 +33,10 @@ create_baseline(
   integer, default 12, specifying the minimum number of time points
   required after the intervention to fit a new baseline.
 
-- past_weeks_not_included:
+- past_time_units_not_included:
 
-  An integer specifying the number of past weeks to exclude from the
-  fitting process. This can be useful for excluding recent data with
+  An integer specifying the number of past time units to exclude from
+  the fitting process. This can be useful for excluding recent data with
   outbreaks or data that may not be fully reported. Default is \`4\`.
 
 ## Value

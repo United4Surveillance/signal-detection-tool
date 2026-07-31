@@ -3,7 +3,7 @@
 Prepares and formats the aggregated signal results table for one
 category and orders the strata by the factor levels. This function
 combines the preparation of the aggregated signals data.frame with the
-final formatting of the table by applying
+final formating of the table by applying
 [prepare_signals_agg_table](https://united4surveillance.github.io/signal-detection-tool/reference/prepare_signals_agg_table.md)
 and
 [format_table](https://united4surveillance.github.io/signal-detection-tool/reference/format_table.md).
@@ -19,7 +19,7 @@ build_signals_agg_table(signals_agg, format = "DataTable", page_length = 10)
 - signals_agg:
 
   A tibble or data.frame containing aggregated signals produced from
-  [aggregate_signals](https://united4surveillance.github.io/signal-detection-tool/reference/aggregate_signals.md)(signals,number_of_weeks
+  [aggregate_signals](https://united4surveillance.github.io/signal-detection-tool/reference/aggregate_signals.md)(signals,number_of_time_units
   = 6).
 
 - format:
@@ -46,7 +46,7 @@ if (FALSE) { # \dontrun{
 signals_agg <- input_example %>%
   preprocess_data() %>%
   get_signals(stratification = c("age_group", "sex")) %>%
-  aggregate_signals(number_of_weeks = 6) %>%
+  aggregate_signals(number_of_time_units = 6) %>%
   filter(category == "age_group")
 signals_agg_table <- build_signals_agg_table(signals_agg, format = "data.frame")
 signals_agg_table

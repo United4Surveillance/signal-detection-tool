@@ -1,14 +1,14 @@
-# Aggregate cases and signals over the number of weeks. First the signals are filtered to obtain the signals for the last n weeks aggregating the number of cases observed, create variable any signal generated and the aggregate the number of signals
+# Aggregate cases and signals over the number of time units. First the signals are filtered to obtain the signals for the last n time units aggregating the number of cases observed, create variable any signal generated and the aggregate the number of signals
 
-Aggregate cases and signals over the number of weeks. First the signals
-are filtered to obtain the signals for the last n weeks aggregating the
-number of cases observed, create variable any signal generated and the
-aggregate the number of signals
+Aggregate cases and signals over the number of time units. First the
+signals are filtered to obtain the signals for the last n time units
+aggregating the number of cases observed, create variable any signal
+generated and the aggregate the number of signals
 
 ## Usage
 
 ``` r
-aggregate_signals(signals, number_of_weeks)
+aggregate_signals(signals, number_of_time_units, time_unit)
 ```
 
 ## Arguments
@@ -17,12 +17,17 @@ aggregate_signals(signals, number_of_weeks)
 
   tibble, output of the
   [`get_signals`](https://united4surveillance.github.io/signal-detection-tool/reference/get_signals.md)
-  function with number of cases and signal per week, year
+  function with number of cases and signal per time unit, year
 
-- number_of_weeks:
+- number_of_time_units:
 
-  integer, specifying the number of weeks we want to aggregate the
+  integer, specifying the number of time units we want to aggregate the
   number of cases and the generated signals
+
+- time_unit:
+
+  a character specifying the time unit the case aggregation is performed
+  on. Default is "weekly".
 
 ## Value
 
@@ -38,7 +43,7 @@ results <- get_signals(
   data_preprocessed,
   stratification = c("sex", "county_id")
 )
-results_agg <- results %>% aggregate_signals(number_of_weeks = 6)
+results_agg <- results %>% aggregate_signals(number_of_time_units = 6, time_unit = "weekly")
 results_agg
 } # }
 ```

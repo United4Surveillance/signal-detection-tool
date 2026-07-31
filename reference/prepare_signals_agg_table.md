@@ -18,7 +18,7 @@ prepare_signals_agg_table(signals_agg)
 - signals_agg:
 
   A tibble or data.frame containing aggregated signals produced from
-  [aggregate_signals](https://united4surveillance.github.io/signal-detection-tool/reference/aggregate_signals.md)(signals,number_of_weeks
+  [aggregate_signals](https://united4surveillance.github.io/signal-detection-tool/reference/aggregate_signals.md)(signals,number_of_time_units
   = 6) for only one category
 
 ## Value
@@ -32,7 +32,7 @@ if (FALSE) { # \dontrun{
 signals_agg <- input_example %>%
   preprocess_data() %>%
   get_signals(stratification = c("age_group", "sex")) %>%
-  aggregate_signals(number_of_weeks = 6) %>%
+  aggregate_signals(number_of_time_units = 6) %>%
   filter(category == "age_group")
 signals_agg_table <- prepare_signals_agg_table(signals_agg)
 signals_agg_table

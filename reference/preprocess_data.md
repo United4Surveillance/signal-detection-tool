@@ -17,7 +17,7 @@ preprocess_data(data)
 ## Value
 
 data.frame, preprocessed linelist with transformation of columns to
-date, to lower, generation of isoyear and isoweek
+date, to lower
 
 ## Examples
 

@@ -10,11 +10,12 @@ the data provided and the settings for the delays.
 get_valid_dates_intervention_start(
   data,
   date_var = "date_report",
-  number_of_weeks = 6,
+  number_of_time_units = 6,
+  time_unit = "weekly",
   time_trend = TRUE,
   min_timepoints_baseline = 12,
   min_timepoints_trend = 12,
-  past_weeks_not_included = 4
+  past_time_units_not_included = 4
 )
 ```
 
@@ -30,9 +31,13 @@ get_valid_dates_intervention_start(
   a character specifying the date variable name used for the
   aggregation. Default is "date_report".
 
-- number_of_weeks:
+- number_of_time_units:
 
-  integer, specifying number of weeks to generate signals for
+  integer, specifying number of time units to generate signals for
+
+- time_unit:
+
+  character, specifying the time units to aggreagte case data on
 
 - time_trend:
 
@@ -49,10 +54,10 @@ get_valid_dates_intervention_start(
   integer, default 12, specifying the number of weeks at least needed
   for fitting a new timetrend after the intervention.
 
-- past_weeks_not_included:
+- past_time_units_not_included:
 
-  An integer specifying the number of past weeks to exclude from the
-  fitting process. This can be useful for excluding recent data with
+  An integer specifying the number of past time units to exclude from
+  the fitting process. This can be useful for excluding recent data with
   outbreaks or data that may not be fully reported. Default is \`4\`.
 
 ## Value

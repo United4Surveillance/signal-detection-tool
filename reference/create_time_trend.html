@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">SignalDetectionTool</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,7 +43,7 @@
 <span>  <span class="va">ts_len</span>,</span>
 <span>  intervention_start <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  min_timepoints_trend <span class="op">=</span> <span class="fl">12</span>,</span>
-<span>  past_weeks_not_included <span class="op">=</span> <span class="fl">4</span></span>
+<span>  past_time_units_not_included <span class="op">=</span> <span class="fl">4</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -63,8 +63,8 @@
 <dd><p>integer, default 12, specifying the minimum number of time points required after the intervention to fit a new time trend.</p></dd>
 
 
-<dt id="arg-past-weeks-not-included">past_weeks_not_included<a class="anchor" aria-label="anchor" href="#arg-past-weeks-not-included"></a></dt>
-<dd><p>An integer specifying the number of past weeks to exclude from
+<dt id="arg-past-time-units-not-included">past_time_units_not_included<a class="anchor" aria-label="anchor" href="#arg-past-time-units-not-included"></a></dt>
+<dd><p>An integer specifying the number of past time units to exclude from
 the fitting process. This can be useful for excluding recent data with outbreaks or data that may not be fully reported.
 Default is `4`.</p></dd>
 
@@ -91,7 +91,7 @@ Default is `4`.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

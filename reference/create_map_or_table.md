@@ -21,8 +21,8 @@ create_map_or_table(
 
 - signals_agg:
 
-  tibble, aggregated signals over n weeks with columns number of cases,
-  any_alarms and n_alarms
+  tibble, aggregated signals over n time units with columns number of
+  cases, any_alarms and n_alarms
   [`aggregate_signals`](https://united4surveillance.github.io/signal-detection-tool/reference/aggregate_signals.md).
   This tibble can contain the aggregated signals for multiple categories
   i.e. state and county.
@@ -73,7 +73,7 @@ if (FALSE) { # \dontrun{
 signals <- input_example %>%
   preprocess_data() %>%
   get_signals(stratification = c("sex", "county"))
-signals_agg <- signals %>% aggregate_signals(number_of_weeks = 6)
+signals_agg <- signals %>% aggregate_signals(number_of_time_units = 6)
 create_map_or_table(
   signals_agg,
   input_example,
