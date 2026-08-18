@@ -1,3 +1,5 @@
+* Fix error when clicking "No signals found." in the app
+
 # SignalDetectionTool 0.11.0
 * Added visualisations and bug fixes in the linelist tab
   * Added visualisation of age group comparison of cases in signal vs. cases from the signal detection period.
