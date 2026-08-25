@@ -703,8 +703,19 @@ pad_signals <- function(signals) {
   method_list <- get_method_func_parameters(method)
 
   # testing paddings for unstratified agg data
-  data_agg <- data_no_signals %>%
-    dplyr::filter(is.na(category))
+  strata_in_data <- unique(data_no_signals$category)
+  if (any(is.na(strata_in_data))){ # unstratified timeseries present
+    data_agg <- data_no_signals %>%
+      dplyr::filter(is.na(category))
+  } else { # generate unstratified timeseries from first stratification in data
+    strata_in_data <- strata_in_data[!is.na(strata_in_data)]
+
+    data_agg <- data_no_signals %>% 
+      dplyr::filter(.data[["category"]] == strata_in_data[1]) %>% 
+      dplyr::group_by(.data[["year"]], .data[[time_unit_column]]) %>%
+      dplyr::summarise(dplyr::across(dplyr::contains("cases"), sum), .groups = "drop") %>% 
+      dplyr::mutate(category = NA_character_, stratum = NA_character_)
+  }
 
   available_thresholds <- c(26, 20, 14, 8, 2)
   for (timeopt in available_thresholds) {
