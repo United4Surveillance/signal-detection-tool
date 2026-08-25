@@ -710,7 +710,7 @@ pad_signals <- function(signals) {
   for (timeopt in available_thresholds) {
     max_time_opt <- timeopt
 
-    signals_timeopt <- run_method_parameters(method_list, data_agg, 
+    signals_timeopt <- run_method_parameters(method_list, data_agg,
       n_time_units = timeopt + number_of_time_units,
       time_unit = time_unit,
       intervention_date = NULL, # intervention_date,
@@ -742,7 +742,7 @@ pad_signals <- function(signals) {
       signals_strata <- list()
       for (stratum_i in strata) {
         # filter stratum_i (can be NA)
-        if (is.na(stratum_i)){
+        if (is.na(stratum_i)) {
           data_agg <- data_no_signals %>%
             dplyr::filter(category == category_i, is.na(stratum))
         } else {
@@ -765,13 +765,13 @@ pad_signals <- function(signals) {
             )
         } else {
           # run signal method
-          signals_stratum_i <- run_method_parameters(method_list, data_agg, 
+          signals_stratum_i <- run_method_parameters(method_list, data_agg,
             n_time_units = max_time_opt + number_of_time_units,
             time_unit = time_unit,
             intervention_date = NULL, # intervention_date,
             alpha_upper = alpha_upper,
             exclude_outbreak_cases_from_fitting = FALSE # exclude_outbreak_cases_from_fitting
-          ) 
+          )
         }
 
         signals_strata[[stratum_i]] <- signals_stratum_i %>%
@@ -795,7 +795,7 @@ pad_signals <- function(signals) {
   results <- signals %>%
     dplyr::arrange(.data[["category"]], .data[["stratum"]], .data[["year"]], .data[[time_unit_column]]) %>%
     dplyr::left_join(x = ., y = result_padding, by = c("category", "stratum", "year", time_unit_column))
-  
+
   # adjusting padding that the first upperbound which is calculated in the signals is set to the last upperbound padding such that no jump in the visualisation occurs
   results <- results %>%
     dplyr::group_by(category, stratum) %>%
