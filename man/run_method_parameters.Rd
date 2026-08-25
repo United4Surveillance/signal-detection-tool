@@ -4,14 +4,22 @@
 \alias{run_method_parameters}
 \title{Run method for signal detection using aggregated data}
 \usage{
-run_method_parameters(method_list, data_aggregated, time_units, ...)
+run_method_parameters(
+  method_list,
+  data_aggregated,
+  time_unit,
+  n_time_units,
+  ...
+)
 }
 \arguments{
 \item{method_list}{List with method specification generated with [get_method_func_parameters()]}
 
 \item{data_aggregated}{data.frame with timeseries of cases of one single stratification.}
 
-\item{time_units}{Integer. Time units of the Signal detection test period.}
+\item{time_unit}{Character indicating the time unit aggregation (weekly, biweekly, or monthly)}
+
+\item{n_time_units}{Integer. Time units of the Signal detection test period.}
 
 \item{...}{additional arguments for each specific method}
 }
@@ -24,13 +32,14 @@ Used in combination with [get_method_func_parameters()].
 }
 \examples{
 \dontrun{
-  dat <- input_example \%>\% preprocess_data()
-  dat_agg <- aggregate_data(dat)
-  
-  run_method_parameters(get_method_func_parameters("farrington"),
-    data_aggregated = dat_agg,
-    time_units = 6,
-    alpha_upper = 0.05
-  )
+dat <- input_example \%>\% preprocess_data()
+dat_agg <- aggregate_data(dat)
+
+run_method_parameters(get_method_func_parameters("farrington"),
+  data_aggregated = dat_agg,
+  time_unit = "weekly",
+  n_time_units = 6,
+  alpha_upper = 0.05
+)
 }
 }

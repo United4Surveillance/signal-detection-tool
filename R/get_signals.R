@@ -647,7 +647,7 @@ aggregate_signals <- function(signals, number_of_time_units, time_unit) {
 #' \dontrun{
 #' data_preprocessed <- input_example %>% preprocess_data()
 #' results <- data_preprocessed %>% get_signals(stratification = c("sex", "county_id"))
-#' results_padded <- pad_signals(data_preprocessed, results)
+#' results_padded <- pad_signals(results)
 #' results_padded
 #' }
 #' @export
@@ -687,10 +687,17 @@ pad_signals <- function(signals) {
   stopifnot(length(time_unit) == 1)
   stopifnot(is.null(date_ext) || length(date_ext) == 1)
 
+  # select time unit column
+  if (time_unit %in% c("weekly", "biweekly")) {
+    time_unit_column <- "week"
+  } else if (time_unit %in% c("monthly")) {
+    time_unit_column <- "month"
+  }
+
   # remove test period from signals object as this is essentially the aggregated data
   data_no_signals <- signals %>%
-    dplyr::filter(is.na(alarms)) %>%
-    dplyr::select(year, week, cases, cases_in_outbreak, category, stratum)
+    dplyr::filter(is.na(.data[["alarms"]])) %>%
+    dplyr::select("year", time_unit_column, "cases", "cases_in_outbreak", "category", "stratum")
 
   # getting necessary functions and options for method
   method_list <- get_method_func_parameters(method)
@@ -703,7 +710,9 @@ pad_signals <- function(signals) {
   for (timeopt in available_thresholds) {
     max_time_opt <- timeopt
 
-    signals_timeopt <- run_method_parameters(method_list, data_agg, timeopt + number_of_time_units,
+    signals_timeopt <- run_method_parameters(method_list, data_agg, 
+      n_time_units = timeopt + number_of_time_units,
+      time_unit = time_unit,
       intervention_date = NULL, # intervention_date,
       alpha_upper = alpha_upper,
       exclude_outbreak_cases_from_fitting = FALSE # exclude_outbreak_cases_from_fitting
@@ -714,89 +723,64 @@ pad_signals <- function(signals) {
     }
   }
 
-  if (time_unit %in% c("weekly", "biweekly")) {
-    result_padding_unstratified <- signals_timeopt %>%
-      dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
+  result_padding_unstratified <- signals_timeopt %>%
+    dplyr::select("year", time_unit_column, "category", "stratum", upperbound_pad = "upperbound", expected_pad = "expected")
 
-    # preparing dataset with padding
-    if (is.null(stratification)) {
-      result_padding <- result_padding_unstratified
-    } else {
-      # loop for each category
-      signals_category <- list()
-      for (category_i in stratification) {
-        strata <- data_no_signals %>%
-          dplyr::filter(category == category_i) %>%
-          dplyr::distinct(stratum) %>%
-          dplyr::pull(stratum)
+  # preparing dataset with padding
+  if (is.null(stratification)) {
+    result_padding <- result_padding_unstratified
+  } else {
+    # loop for each category
+    signals_category <- list()
+    for (category_i in stratification) {
+      strata <- data_no_signals %>%
+        dplyr::filter(category == category_i) %>%
+        dplyr::distinct(stratum) %>%
+        dplyr::pull(stratum)
 
-        # loop for each stratum
-        signals_strata <- list()
-        for (stratum_i in strata) {
+      # loop for each stratum
+      signals_strata <- list()
+      for (stratum_i in strata) {
+        # filter stratum_i (can be NA)
+        if (is.na(stratum_i)){
+          data_agg <- data_no_signals %>%
+            dplyr::filter(category == category_i, is.na(stratum))
+        } else {
           data_agg <- data_no_signals %>%
             dplyr::filter(category == category_i, stratum == stratum_i)
-
-          # run signal method
-          signals_stratum_i <- run_method_parameters(method_list, data_agg, max_time_opt + number_of_weeks,
-            intervention_date = NULL, # intervention_date,
-            alpha_upper = alpha_upper,
-            exclude_outbreak_cases_from_fitting = FALSE # exclude_outbreak_cases_from_fitting
-          )
-
-          signals_strata[[stratum_i]] <- signals_stratum_i %>%
-            dplyr::select(year, week, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
         }
 
-        # join all strata results and save in category list
-        signals_category[[category_i]] <- dplyr::bind_rows(signals_strata)
-      }
-
-      # join all category results
-      result_padding_stratified <- dplyr::bind_rows(signals_category)
-
-        result_padding <- dplyr::bind_rows(
-          result_padding_stratified,
-          result_padding_unstratified
+        # run signal method
+        signals_stratum_i <- run_method_parameters(method_list, data_agg, 
+          n_time_units = max_time_opt + number_of_time_units,
+          time_unit = time_unit,
+          intervention_date = NULL, # intervention_date,
+          alpha_upper = alpha_upper,
+          exclude_outbreak_cases_from_fitting = FALSE # exclude_outbreak_cases_from_fitting
         )
-      }
-  } else if (time_unit %in% c("monthly")) {
-    result_padding_unstratified <- signals_timeopt %>%
-      dplyr::select(year, month, category, stratum, upperbound_pad = upperbound, expected_pad = expected)
-    # preparing dataset with padding
-    if (is.null(stratification)) {
-      result_padding <- result_padding_unstratified
-    } else {
-      result_padding_stratified <- SignalDetectionTool::get_signals(
-        data = data_no_signals,
-        method = method,
-        date_var = "date_report",
-        stratification = stratification,
-        number_of_time_units = max_time_opt + number_of_time_units,
-        alpha_upper = alpha_upper,
-        date_ext = date_ext,
-        time_unit = time_unit,
-        exclude_outbreak_cases_from_fitting = FALSE # no filtering used in CUSUM, EARS, FarringtonFlexible
-      ) %>%
-        dplyr::select(year, month, upperbound_pad = upperbound, expected_pad = expected, category, stratum)
 
-      result_padding <- dplyr::bind_rows(
-        result_padding_stratified,
-        result_padding_unstratified
-      )
+        signals_strata[[stratum_i]] <- signals_stratum_i %>%
+          dplyr::select("year", time_unit_column, "category", "stratum", upperbound_pad = "upperbound", expected_pad = "expected")
+      }
+
+      # join all strata results and save in category list
+      signals_category[[category_i]] <- dplyr::bind_rows(signals_strata)
     }
+
+    # join all category results
+    result_padding_stratified <- dplyr::bind_rows(signals_category)
+
+    result_padding <- dplyr::bind_rows(
+      result_padding_stratified,
+      result_padding_unstratified
+    )
   }
 
   # preparing dataset within actual signal detection period
-  if (time_unit %in% c("weekly", "biweekly")) {
-    results <- signals %>%
-      dplyr::arrange(category, stratum, year, week) %>%
-      dplyr::left_join(x = ., y = result_padding, by = c("category", "stratum", "year", "week"))
-  } else if (time_unit %in% "monthly") {
-    results <- signals %>%
-      dplyr::arrange(category, stratum, year, month) %>%
-      dplyr::left_join(x = ., y = result_padding, by = c("category", "stratum", "year", "month"))
-  }
-
+  results <- signals %>%
+    dplyr::arrange(.data[["category"]], .data[["stratum"]], .data[["year"]], .data[[time_unit_column]]) %>%
+    dplyr::left_join(x = ., y = result_padding, by = c("category", "stratum", "year", time_unit_column))
+  
   # adjusting padding that the first upperbound which is calculated in the signals is set to the last upperbound padding such that no jump in the visualisation occurs
   results <- results %>%
     dplyr::group_by(category, stratum) %>%
@@ -863,7 +847,8 @@ get_method_func_parameters <- function(method) {
 #'
 #' @param method_list List with method specification generated with [get_method_func_parameters()]
 #' @param data_aggregated data.frame with timeseries of cases of one single stratification.
-#' @param time_units Integer. Time units of the Signal detection test period.
+#' @param time_unit Character indicating the time unit aggregation (weekly, biweekly, or monthly)
+#' @param n_time_units Integer. Time units of the Signal detection test period.
 #' @param ... additional arguments for each specific method
 #'
 #' @returns data.frame with signal detection results
@@ -876,11 +861,12 @@ get_method_func_parameters <- function(method) {
 #'
 #' run_method_parameters(get_method_func_parameters("farrington"),
 #'   data_aggregated = dat_agg,
-#'   time_units = 6,
+#'   time_unit = "weekly",
+#'   n_time_units = 6,
 #'   alpha_upper = 0.05
 #' )
 #' }
-run_method_parameters <- function(method_list, data_aggregated, time_units, ...) {
+run_method_parameters <- function(method_list, data_aggregated, time_unit, n_time_units, ...) {
   # extract function, model, and timetrend parameter
   method <- method_list[["method"]]
   fun <- method_list[["fun"]]
@@ -893,7 +879,8 @@ run_method_parameters <- function(method_list, data_aggregated, time_units, ...)
   # run method
   if (grepl("glm", method)) {
     method_results <- fun(data_aggregated,
-      time_units,
+      number_of_time_units = n_time_units,
+      time_unit = time_unit,
       model = model,
       alpha_upper = extra_params$alpha_upper, time_trend = time_trend,
       intervention_date = extra_params$intervention_date,
@@ -901,11 +888,15 @@ run_method_parameters <- function(method_list, data_aggregated, time_units, ...)
     )
   } else if (grepl("farrington", method)) {
     method_results <- fun(data_aggregated,
-      time_units,
+      number_of_time_units = n_time_units,
+      # time_unit = time_unit, # farrington function doesn't have time_unit parameter for now
       alpha_upper = extra_params$alpha_upper
     )
   } else {
-    method_results <- fun(data_aggregated, time_units)
+    method_results <- fun(data_aggregated,
+      number_of_time_units = n_time_units,
+      time_unit = time_unit
+    )
   }
 
   return(method_results)
