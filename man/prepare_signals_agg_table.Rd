@@ -7,7 +7,7 @@
 prepare_signals_agg_table(signals_agg)
 }
 \arguments{
-\item{signals_agg}{A tibble or data.frame containing aggregated signals produced from \link{aggregate_signals}(signals,number_of_weeks = 6) for only one category}
+\item{signals_agg}{A tibble or data.frame containing aggregated signals produced from \link{aggregate_signals}(signals,number_of_time_units = 6) for only one category}
 }
 \value{
 tibble with preprocessed aggregated signals
@@ -23,7 +23,7 @@ and results for all the strata no matter whether there are signals or not.
 signals_agg <- input_example \%>\%
   preprocess_data() \%>\%
   get_signals(stratification = c("age_group", "sex")) \%>\%
-  aggregate_signals(number_of_weeks = 6) \%>\%
+  aggregate_signals(number_of_time_units = 6) \%>\%
   filter(category == "age_group")
 signals_agg_table <- prepare_signals_agg_table(signals_agg)
 signals_agg_table

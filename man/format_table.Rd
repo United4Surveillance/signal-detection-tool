@@ -15,7 +15,7 @@ format_table(
 \arguments{
 \item{data}{A data frame.}
 
-\item{signals_only}{Logical indicating whether to filter the signal results to include only the weeks when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the weeks with and without alarms.}
+\item{signals_only}{Logical indicating whether to filter the signal results to include only the time units when a signal was generated (default is TRUE). If set to TRUE, the signals column is removed from the table. When FALSE the signals column is kept to distinguish the time units with and without alarms.}
 
 \item{interactive}{Logical indicating whether to create an interactive
 DataTable (default is TRUE).}
@@ -43,7 +43,7 @@ data <- data.frame(
   expected_pad = c(NA, NA, NA, NA),
   upperbound_pad = c(NA, NA, NA, NA),
   first_alarm_nonNA = c(NA, NA, NA, NA),
-  number_of_weeks = 1,
+  number_of_time_units = 1,
   method = "glm mean",
   category = c("age_group", "age_group", "sex", "sex"),
   stratum = c("00-05", "30-35", "female", "male")

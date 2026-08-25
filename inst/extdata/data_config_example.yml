@@ -12,10 +12,12 @@ default:
       - age_group
       - community
     signal_detection_period: 6
+    time_unit: weekly
     signal_detection_algorithm: ears
   shapefile_path: ~
   post-processing:
         min_cases_signals: 4
+        min_score_signals: 0.5
   report:
     title: "My Signal Report"
 
@@ -26,6 +28,7 @@ pertussis:
       - age_group
       - sex
     signal_detection_period: 6
+    time_unit: weekly
     signal_detection_algorithm: glm harmonic
     alpha_upper: 0.05
     pandemic_correction: TRUE
@@ -42,4 +45,5 @@ salmonella:
       - sex
     alpha_upper: 0.05
     signal_detection_algorithm: farrington
+    time_unit: weekly
   shapefile_path: ~

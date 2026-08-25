@@ -16,11 +16,11 @@ build_signal_and_comparison_linelist(
 identifying the signal rows selected by the user.}
 
 \item{true_signals}{A data frame containing signal rows, typically filtered
-to true or selected signals. Must contain `year` and `week`, and may contain
+to true or selected signals. Must contain `year` and `week`/`month`, and may contain
 `category` and `stratum`.}
 
 \item{signals_padded}{A data frame containing padded signal detection results.
-Used to determine the full comparison period. Must contain `year`, `week`,
+Used to determine the full comparison period. Must contain `year`, `week`/`month`,
 and `alarms`.}
 
 \item{filtered_data}{A case linelist after applying the current app filters.

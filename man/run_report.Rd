@@ -8,7 +8,8 @@ run_report(
   data,
   report_format = "HTML",
   method = "FarringtonFlexible",
-  number_of_weeks = 6,
+  number_of_time_units = 6,
+  time_unit = "weekly",
   pathogens = NULL,
   strata = NULL,
   selected_filter_vars = NULL,
@@ -21,6 +22,7 @@ run_report(
   custom_logo = NULL,
   custom_theme = NULL,
   min_cases_signals = 1,
+  min_score_signals = 0,
   title = NULL,
   alpha_upper = 0.05,
   exclude_outbreak_cases_from_fitting = FALSE
@@ -39,8 +41,9 @@ Must be one of `"FarringtonFlexible"`, `"EARS"`, `"CUSUM"`, `"Mean"`,
 `"Step harmonic"`, or `"Step harmonic with timetrend"`.
 Use [names(available_algorithms())] to retrieve the full list.}
 
-\item{number_of_weeks}{Integer scalar giving the number of weeks for which
-signals are generated.}
+\item{number_of_time_units}{integer, number of time units for which signals are generated}
+
+\item{time_unit}{a character specifying the time unit the case aggregation is performed on. Default is "weekly". Algorithms using the farrington framework can only be used with weekly aggregated data.}
 
 \item{pathogens}{Character vector specifying which pathogens to include in
 the report. If `NULL`, all pathogens present in `data` are used when
@@ -104,6 +107,12 @@ number of cases, `alarms` is set to `FALSE` in a post-processing step.
 This is applied only when signals are recomputed inside `run_report()`,
 i.e. when `signals_agg` or `signals_padded` is `NULL`.}
 
+\item{min_score_signals}{Numeric scalar in the interval [0, 1] giving the minimum score an
+alarm must have to remain flagged. For signals below this score,
+`alarms` is set to `FALSE` in a post-processing step.
+This is applied only when signals are recomputed inside `run_report()`,
+i.e. when `signals_agg` or `signals_padded` is `NULL`.}
+
 \item{title}{`NULL` or a character scalar specifying the report title. If
 `NULL` or an empty string, a default title of the form
 `"Signal Detection Report - <country>"` is used.}
@@ -140,7 +149,7 @@ run_report(
   data = input_example,
   method = "FarringtonFlexible",
   strata = c("county", "sex"),
-  number_of_weeks = 6
+  number_of_time_units = 6
 )
 
 # Example 2: Specify an output directory
