@@ -1,4 +1,5 @@
 * Fix error when clicking "No signals found." in the app
+* Updated min required version for "surveillance" package to v1.25.0
 
 # SignalDetectionTool 0.11.0
 * Added visualisations and bug fixes in the linelist tab
