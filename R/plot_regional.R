@@ -133,7 +133,7 @@ plot_regional <- function(shape_with_signals,
 
   if (interactive) {
     shape_areas_sf <- shape_with_signals %>%
-      sf::st_transform(4326) %>% 
+      sf::st_transform(4326) %>%
       dplyr::filter(!sf::st_is_empty(geometry)) %>%
       sf::st_make_valid() %>%
       sf::st_collection_extract("POLYGON", warn = FALSE) %>%
