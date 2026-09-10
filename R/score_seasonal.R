@@ -45,7 +45,7 @@ score_seasonal <- function(signals_res) {
   # if no complete years, seasonal score is skipped and returns NA
   if (length(sel_years) == 0) {
     signals_res <- signals_res %>%
-      dplyr::mutate(score = NA)
+      dplyr::mutate(score = NA_real_)
   } else {
     # generate cases distribution
     scores_per_month <- case_yearly_dist(ts_pathogen, sel_years) %>%
@@ -74,7 +74,7 @@ score_seasonal <- function(signals_res) {
       dplyr::mutate(
         score = dplyr::case_when(
           .data$alarms ~ .data$score,
-          .default = NA
+          .default = NA_real_
         )
       )
   }
