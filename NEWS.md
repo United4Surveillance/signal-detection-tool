@@ -1,6 +1,10 @@
 * Fix error when clicking "No signals found." in the app
 * Updated min required version for "surveillance" package to v1.25.0
 
+# SignalDetectionTool 0.11.1
+
+* Fix that missing scorer values are not consistently returned as numeric NA values
+
 # SignalDetectionTool 0.11.0
 * Added visualisations and bug fixes in the linelist tab
   * Added visualisation of age group comparison of cases in signal vs. cases from the signal detection period.

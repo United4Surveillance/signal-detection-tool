@@ -48,9 +48,9 @@ score_recurrence <- function(signal_results) {
     dplyr::summarise(
       n_time_units = dplyr::n(),
       n_alarms = sum(.data$alarms, na.rm = TRUE),
-      score_stratum = dplyr::if_else(n_alarms > 0, n_alarms / n_time_units, NA),
+      score_stratum = dplyr::if_else(n_alarms > 0, n_alarms / n_time_units, NA_real_),
       score_stratum = dplyr::if_else(n_alarms == 1, 0, score_stratum),
-      score_stratum = dplyr::if_else(n_time_units == 1, NA, score_stratum)
+      score_stratum = dplyr::if_else(n_time_units == 1, NA_real_, score_stratum)
     ) %>%
     dplyr::ungroup()
 
@@ -59,7 +59,7 @@ score_recurrence <- function(signal_results) {
     dplyr::select(".row_id", "category", "stratum", "alarms") %>%
     dplyr::left_join(score_stratum, by = c("category", "stratum")) %>%
     dplyr::mutate(
-      score = dplyr::if_else(.data$alarms %in% TRUE, .data$score_stratum, NA)
+      score = dplyr::if_else(.data$alarms %in% TRUE, .data$score_stratum, NA_real_)
     ) %>%
     dplyr::select(".row_id", "score")
 
