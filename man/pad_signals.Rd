@@ -5,12 +5,10 @@
 \title{Extend the computed threshold and expectation of the signal detection method to the past for visualisation purposes but not for signal generation
 Inside the function it is computed what the maximum number of timepoints is the signal detection algorithms can be applied for. This depends on the algorithm and the amount of historic data. The already generated signals dataframe is then extended with the expectation and threshold into the past}
 \usage{
-pad_signals(data, signals)
+pad_signals(signals)
 }
 \arguments{
-\item{data}{A data frame containing the surveillance data preprocessed with [preprocess_data()].}
-
-\item{signals}{tibble, output of the \code{\link{get_signals}} function with number of cases and signal per time unit, year}
+\item{signals}{tibble, output of the \code{\link{get_signals}} function with number of cases and signal per week, year}
 }
 \value{
 tibble, with padded signals
@@ -23,7 +21,7 @@ Inside the function it is computed what the maximum number of timepoints is the 
 \dontrun{
 data_preprocessed <- input_example \%>\% preprocess_data()
 results <- data_preprocessed \%>\% get_signals(stratification = c("sex", "county_id"))
-results_padded <- pad_signals(data_preprocessed, results)
+results_padded <- pad_signals(results)
 results_padded
 }
 }
