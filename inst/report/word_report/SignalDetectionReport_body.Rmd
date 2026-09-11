@@ -9,13 +9,30 @@ library(SignalDetectionTool)
 if (is.null(params$data)) {
   data <- SignalDetectionTool::input_example
 }
+
+# Use time unit labels
+time_unit_label <- dplyr::case_when(
+  params$time_unit == "weekly" && params$number_of_time_units == 1 ~ "week",
+  params$time_unit == "weekly" && params$number_of_time_units > 1 ~ "weeks",
+  params$time_unit == "biweekly" && params$number_of_time_units == 1 ~ "biweekly period",
+  params$time_unit == "biweekly" && params$number_of_time_units > 1  ~ "biweekly periods",
+  params$time_unit == "monthly" && params$number_of_time_units == 1 ~ "month",
+  params$time_unit == "monthly" && params$number_of_time_units > 1  ~ "months"
+)
+
+# Use time unit labels avoiding singular
+time_unit_label_plural <- dplyr::case_when(
+  params$time_unit == "weekly" ~ "weeks",
+  params$time_unit == "biweekly" ~ "biweekly periods",
+  params$time_unit == "monthly" ~ "months"
+)
 ```
 
 
 # Data and Methods 
 
 - Method used: `r names(available_algorithms()[which(available_algorithms() == params$method)])`
-- Length of signal detection period: `r params$number_of_weeks` weeks
+- Length of signal detection period: `r params$number_of_time_units` `r time_unit_label`
 - Strata selected: `r paste(params$strata, collapse = ", ")`
 - Intervention date: `r params$intervention_date`
 `r ifelse(grepl("glm|farrington", params$method) && !is.null(params$alpha_upper), paste0("- P-value cutoff: ", params$alpha_upper), paste0(""))`
@@ -32,8 +49,9 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
   signal_results <- SignalDetectionTool::get_signals(data_preprocessed,
     stratification = NULL,
     method = params$method,
+    number_of_time_units = params$number_of_time_units,
+    time_unit = params$time_unit,
     alpha_upper = params$alpha_upper,
-    number_of_weeks = params$number_of_weeks,
     intervention_date = params$intervention_date,
     exclude_outbreak_cases_from_fitting = params$exclude_outbreak_cases_from_fitting
   )
@@ -43,8 +61,9 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
       data_preprocessed,
       stratification = params$strata,
       method = params$method,
+      number_of_time_units = params$number_of_time_units,
+      time_unit = params$time_unit,
       alpha_upper = params$alpha_upper,
-      number_of_weeks = params$number_of_weeks,
       intervention_date = params$intervention_date,
       exclude_outbreak_cases_from_fitting = params$exclude_outbreak_cases_from_fitting
     )
@@ -53,7 +72,8 @@ if (!is.null(params$signals_padded) & !is.null(params$signals_agg)) {
       dplyr::bind_rows(signal_results_stratified)
 
     signals_agg <- SignalDetectionTool::aggregate_signals(signal_results_stratified,
-      number_of_weeks = params$number_of_weeks
+      number_of_time_units = params$number_of_time_units,
+      time_unit = params$time_unit,
     )
   }
 
@@ -78,9 +98,8 @@ results_analysis <- signals_padded %>%
     !is.na(alarms)
   )
 
-
 stringr::str_glue(
-  "In the signal detection period - last {params$number_of_weeks} weeks available in the data - ",
+  "In the signal detection period - last {params$number_of_time_units} {time_unit_label} available in the data - ",
   "there were {sum(results_analysis$cases)} cases of {params$disease} in {params$country}. ",
   "Using the {names(params$method)} algorithm {sum(results_analysis$alarms)} signal{ifelse(sum(results_analysis$n_alarms) == 1, '', 's')} {ifelse(sum(results_analysis$n_alarms) == 1, ' was', ' were')} detected."
 )
@@ -88,7 +107,7 @@ stringr::str_glue(
 
 
 ```{r}
-#| fig.cap=paste0("Number of ", params$disease, " cases by week and signals, ", params$country),
+#| fig.cap=paste0("Number of ", params$disease, " cases by ", time_unit_label_plural ," and signals, ", params$country),
 #| out.width="100%"
 SignalDetectionTool::plot_time_series(
   signals_padded %>%

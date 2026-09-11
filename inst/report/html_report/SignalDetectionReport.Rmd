@@ -8,7 +8,8 @@ params:
   data: NULL
   disease: "Pertussis"
   country: "Austria"
-  number_of_weeks: 6
+  number_of_time_units: 6
+  time_unit: "weekly"
   method: "farrington"
   alpha_upper: 0.05
   strata: !r c("county_id", "community_id", "sex", "age_group") 
@@ -58,6 +59,16 @@ brand_colors <- bs_get_variables(
     "danger"
   )
 )
+
+# Use time unit labels
+time_unit_label <- dplyr::case_when(
+  params$time_unit == "weekly" && params$number_of_time_units == 1 ~ "week",
+  params$time_unit == "weekly" && params$number_of_time_units > 1 ~ "weeks",
+  params$time_unit == "biweekly" && params$number_of_time_units == 1 ~ "biweekly period",
+  params$time_unit == "biweekly" && params$number_of_time_units > 1  ~ "biweekly periods",
+  params$time_unit == "monthly" && params$number_of_time_units == 1 ~ "month",
+  params$time_unit == "monthly" && params$number_of_time_units > 1  ~ "months"
+)
 ```
 <!-- Landing page -->
 
@@ -69,10 +80,18 @@ sidebar {.sidebar}
 
 ```{r}
 # For calculating week of start and end
-records <- params$signals_padded %>% 
+if (params$time_unit %in% c("weekly", "biweekly")){
+  records <- params$signals_padded %>% 
   dplyr::filter(!is.na(alarms)) %>% 
   dplyr::count(year, week) %>% 
-  dplyr::mutate(yearweek = sprintf("%d-W%02d", year, week))
+  dplyr::mutate(yeartimeunit = sprintf("%d-W%02d", year, week))
+} else if (params$time_unit == "monthly"){
+  records <- params$signals_padded %>% 
+  dplyr::filter(!is.na(alarms)) %>% 
+  dplyr::count(year, month) %>% 
+  dplyr::mutate(yeartimeunit = sprintf("%d-%02d", year, month))
+  
+}
 
 # Selected pathogens
 text_diseases <- ifelse(
@@ -87,13 +106,13 @@ text_diseases <- ifelse(
 
 ```
 
-This report contains an overview of signals observed for the period `r head(records$yearweek, 1)` to `r tail(records$yearweek, 1)` for `r text_diseases` in `r params$country`. The signals were calculated using the `r params$method` algorithm`r ifelse(grepl("glm|farrington", params$method) && !is.null(params$alpha_upper), paste0(" with a p-value cutoff of ", params$alpha_upper, "."), paste0("."))` The following filters were applied in the application: `r paste0(ifelse(length(params$selected_filter_vars) != 0, paste(params$selected_filter_vars, collapse = ", "), "None"))`. `r ifelse(params$exclude_outbreak_cases_from_fitting == TRUE && grepl("glm", params$method), paste0(" Only cases not associated with outbreaks are used for training."), paste0(""))`
+This report contains an overview of signals observed for the period `r head(records$yeartimeunit, 1)` to `r tail(records$yeartimeunit, 1)` for `r text_diseases` in `r params$country`. The signals were calculated using the `r params$method` algorithm`r ifelse(grepl("glm|farrington", params$method) && !is.null(params$alpha_upper), paste0(" with a p-value cutoff of ", params$alpha_upper, "."), paste0("."))` The following filters were applied in the application: `r paste0(ifelse(length(params$selected_filter_vars) != 0, paste(params$selected_filter_vars, collapse = ", "), "None"))`. `r ifelse(params$exclude_outbreak_cases_from_fitting == TRUE && grepl("glm", params$method), paste0(" Only cases not associated with outbreaks are used for training."), paste0(""))`
 
 For each disease, an unstratified overview of the observed signals is provided, as well as stratified analyses by relevant characteristics.
 The stratification may differ by disease.
 
 ```{r}
-# compute unstratified number of cases in the last 6 weeks
+# compute unstratified number of cases in the last 6 time units
 results_cases <- params$signals_agg %>% 
   dplyr::filter(is.na(category)) %>% 
   dplyr::select(pathogen,cases)
@@ -117,7 +136,7 @@ tmp_df <- params$signals_agg %>%
 # max number of signals in category in period
 maxsignals <- params$signals_agg %>% 
   dplyr::group_by(category,pathogen) %>% 
-  dplyr::summarise(max_signals = dplyr::n()*params$number_of_weeks) %>% 
+  dplyr::summarise(max_signals = dplyr::n()*params$number_of_time_units) %>% 
   dplyr::mutate(
     category = dplyr::case_when(
       is.na(category)~"Unstratified", 
@@ -174,7 +193,7 @@ dt <- DT::datatable(
   rownames = FALSE,
   escape = FALSE,
   caption = paste0("Number of signals encountered in each stratification level in the last ",
-                   params$number_of_weeks, " weeks"),
+                   params$number_of_time_units, " ", time_unit_label, "."),
   fillContainer = FALSE,
   class = list(stripe = FALSE),
   options = list(

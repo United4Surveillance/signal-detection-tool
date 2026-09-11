@@ -17,8 +17,8 @@
 #'   `"Timetrend"`, `"Harmonic"`, `"Harmonic with timetrend"`, `Multi-seasonal harmonic`,
 #'   `"Step harmonic"`, or `"Step harmonic with timetrend"`.
 #'   Use [names(available_algorithms())] to retrieve the full list.
-#' @param number_of_weeks Integer scalar giving the number of weeks for which
-#'   signals are generated.
+#' @param number_of_time_units integer, number of time units for which signals are generated
+#' @param time_unit a character specifying the time unit the case aggregation is performed on. Default is "weekly". Algorithms using the farrington framework can only be used with weekly aggregated data.
 #' @param pathogens Character vector specifying which pathogens to include in
 #'   the report. If `NULL`, all pathogens present in `data` are used when
 #'   signals are recomputed; otherwise the pathogens in `signals_padded` are
@@ -69,6 +69,11 @@
 #'   number of cases, `alarms` is set to `FALSE` in a post-processing step.
 #'   This is applied only when signals are recomputed inside `run_report()`,
 #'   i.e. when `signals_agg` or `signals_padded` is `NULL`.
+#' @param min_score_signals Numeric scalar in the interval [0, 1] giving the minimum score an
+#'   alarm must have to remain flagged. For signals below this score,
+#'   `alarms` is set to `FALSE` in a post-processing step.
+#'   This is applied only when signals are recomputed inside `run_report()`,
+#'   i.e. when `signals_agg` or `signals_padded` is `NULL`.
 #' @param title `NULL` or a character scalar specifying the report title. If
 #'   `NULL` or an empty string, a default title of the form
 #'   `"Signal Detection Report - <country>"` is used.
@@ -94,7 +99,7 @@
 #'   data = input_example,
 #'   method = "FarringtonFlexible",
 #'   strata = c("county", "sex"),
-#'   number_of_weeks = 6
+#'   number_of_time_units = 6
 #' )
 #'
 #' # Example 2: Specify an output directory
@@ -149,7 +154,8 @@ run_report <- function(
   data,
   report_format = "HTML",
   method = "FarringtonFlexible",
-  number_of_weeks = 6,
+  number_of_time_units = 6,
+  time_unit = "weekly",
   pathogens = NULL,
   strata = NULL,
   selected_filter_vars = NULL,
@@ -162,6 +168,7 @@ run_report <- function(
   custom_logo = NULL,
   custom_theme = NULL,
   min_cases_signals = 1,
+  min_score_signals = 0,
   title = NULL,
   alpha_upper = 0.05,
   exclude_outbreak_cases_from_fitting = FALSE
@@ -190,8 +197,19 @@ run_report <- function(
   }
 
   checkmate::assert(
-    checkmate::check_integerish(number_of_weeks, lower = 1)
+    checkmate::check_integerish(number_of_time_units, lower = 1)
   )
+
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
+  )
+
+  if (grepl("farrington", method, ignore.case = TRUE) || grepl("^step harmonic\\b", method, ignore.case = TRUE)) {
+    checkmate::assert_choice(time_unit, choices = "weekly")
+  }
+
   # assert pathogens is NULL (default includes all pathogens) or exist in dataframe or padded signals
   checkmate::assert(
     checkmate::check_null(pathogens),
@@ -252,6 +270,9 @@ run_report <- function(
   )
   checkmate::assert(
     checkmate::check_integerish(min_cases_signals, lower = 1)
+  )
+  checkmate::assert(
+    checkmate::check_numeric(min_score_signals, lower = 0, upper = 1)
   )
   checkmate::assert(
     checkmate::check_string(title, null.ok = TRUE)
@@ -341,7 +362,8 @@ run_report <- function(
         date_start = NULL,
         date_end = NULL,
         date_var = "date_report",
-        number_of_weeks = number_of_weeks,
+        number_of_time_units = number_of_time_units,
+        time_unit = time_unit,
         alpha_upper = alpha_upper,
         exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting
       ) %>%
@@ -350,12 +372,26 @@ run_report <- function(
           alarms = dplyr::if_else(alarms & cases < min_cases_signals,
             FALSE, alarms, missing = alarms
           )
+        ) %>%
+        get_scores(
+          list(
+            seasonal = score_seasonal,
+            recurrence = score_recurrence,
+            strength = score_strength,
+            specificity = score_specificity_alarm
+          ),
+          aggregation = "mean"
+        ) %>% # apply post-processing to scores
+        dplyr::mutate(
+          alarms = dplyr::if_else(score < min_score_signals, FALSE, alarms, missing = alarms)
         )
+
 
       signals_agg_pad <- aggregate_pad_signals(
         signals,
         preprocessed_data_pat,
-        number_of_weeks,
+        number_of_time_units,
+        time_unit,
         method
       )
 
@@ -382,7 +418,8 @@ run_report <- function(
     data = data,
     country = unique(data$country),
     disease = pathogens,
-    number_of_weeks = number_of_weeks,
+    number_of_time_units = number_of_time_units,
+    time_unit = time_unit,
     method = method,
     selected_filter_vars = selected_filter_vars,
     signals_padded = signals_padded,
@@ -517,7 +554,8 @@ run_report <- function(
         data = data,
         disease = patho,
         country = unique(data$country),
-        number_of_weeks = number_of_weeks,
+        number_of_time_units = number_of_time_units,
+        time_unit = time_unit,
         strata = strata_per_path,
         signals_padded = signals_pad_p,
         signals_agg = signals_agg_p,
@@ -543,7 +581,8 @@ run_report <- function(
         strata_report_params <- list(
           disease = patho,
           country = unique(data$country),
-          number_of_weeks = number_of_weeks,
+          number_of_time_units = number_of_time_units,
+          time_unit = time_unit,
           category = ctg,
           signals_agg = signals_agg_c,
           signals_padded = signals_pad_c,

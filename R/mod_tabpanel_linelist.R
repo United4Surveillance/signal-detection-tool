@@ -44,7 +44,7 @@ mod_tabpanel_linelist_server <- function(
   id,
   filtered_data,
   errors_detected,
-  number_of_weeks_input_valid,
+  number_of_time_units_input_valid,
   method,
   no_algorithm_possible,
   intervention_date,
@@ -58,8 +58,8 @@ mod_tabpanel_linelist_server <- function(
     output$signal_linelist_tab_ui <- shiny::renderUI({
       if (errors_detected() == TRUE) {
         return(datacheck_error_message)
-      } else if (!number_of_weeks_input_valid()) {
-        return(nweeks_error_message)
+      } else if (!number_of_time_units_input_valid()) {
+        return(ntime_units_error_message)
       } else if (no_algorithm_possible() == TRUE) {
         return(algorithm_error_message)
       } else {
@@ -82,6 +82,24 @@ mod_tabpanel_linelist_server <- function(
             shiny::h1("Signal Investigation"),
             plotly::plotlyOutput(ns("age_comparison"))
           ),
+          bslib::layout_columns(
+            col_widths = c(9, 3),
+            bslib::card(
+              min_height = "500px",
+              shiny::h1("Epicurve"),
+              plotly::plotlyOutput(ns("epicurve"))
+            ),
+            bslib::card(
+              min_height = "500px",
+              shiny::h1("Select stratum epicurve"),
+              shiny::uiOutput(ns("epicurve_stratum_ui"))
+            )
+          ),
+          bslib::card(
+            min_height = "500px",
+            shiny::h1("Comparisons table"),
+            DT::DTOutput(ns("comparisons_tbl"))
+          ),
           bslib::card(
             min_height = "500px",
             shiny::h1("Case Linelist for Selected Signals"),
@@ -94,7 +112,7 @@ mod_tabpanel_linelist_server <- function(
 
 
     true_signals <- shiny::reactive({
-      shiny::req(signals_padded)
+      shiny::req(signals_padded())
 
       signals <- signals_padded() %>% dplyr::filter(alarms == TRUE)
       if (nrow(signals) > 0) {
@@ -105,8 +123,8 @@ mod_tabpanel_linelist_server <- function(
 
     # output padded signal data in table
     output$show_signals_padded <- DT::renderDT({
-      req(!errors_detected())
-      req(true_signals)
+      shiny::req(!errors_detected())
+      shiny::req(true_signals)
 
       signals <- true_signals()
 
@@ -125,32 +143,90 @@ mod_tabpanel_linelist_server <- function(
 
     # display age distribution graphic
     output$age_comparison <- plotly::renderPlotly({
-      req(cases_linelist)
-      req(true_signals)
+      shiny::req(cases_linelist())
+      shiny::req(true_signals())
 
       linelist_cases <- dplyr::bind_rows(
-        cases_linelist()$cases |> dplyr::mutate(signal = T),
-        cases_linelist()$cases_comparison |> dplyr::mutate(signal = F)
+        cases_linelist()$cases %>% dplyr::mutate(signal = T),
+        cases_linelist()$cases_comparison %>% dplyr::mutate(signal = F)
       )
-      cases_agg <- linelist_cases |>
-        dplyr::count(signal, age_group) |>
-        dplyr::group_by(signal) |>
+      cases_agg <- linelist_cases %>%
+        dplyr::count(signal, age_group) %>%
+        dplyr::group_by(signal) %>%
         dplyr::mutate(
           total_n = sum(n),
           perc = round(n / total_n * 100)
-        ) |>
+        ) %>%
         dplyr::ungroup()
 
-      plot_agegroup_comparison(cases_agg, unique(true_signals()$number_of_weeks))
+      plot_agegroup_comparison(cases_agg, unique(true_signals()$number_of_time_units), unique(true_signals()$time_unit))
+    })
+
+    # Generate epicurve plot
+    epicurve_plot <- shiny::reactive({
+      linelist <- shiny::req(cases_linelist())
+      epicurve_stratum <- shiny::req(input$epicurve_stratum)
+
+      cases_agg <- dplyr::bind_rows(
+        linelist$cases %>%
+          dplyr::mutate(signal = TRUE),
+        linelist$cases_comparison %>%
+          dplyr::mutate(signal = FALSE)
+      )
+
+      selected_stratum <- if (
+        identical(epicurve_stratum, "None")
+      ) {
+        NULL
+      } else {
+        epicurve_stratum
+      }
+
+      plot_epicurve(
+        cases_agg,
+        stratum = selected_stratum
+      )
+    })
+
+    # Display epicurve graphic
+    output$epicurve <- plotly::renderPlotly({
+      epicurve_plot()
+    })
+
+    # make selection of stratum possible
+    output$epicurve_stratum_ui <- shiny::renderUI({
+      shiny::req(cases_linelist())
+
+      dat <- dplyr::bind_rows(
+        cases_linelist()$cases,
+        cases_linelist()$cases_comparison
+      )
+
+      stratum_choices <- dat %>%
+        dplyr::select(where(is.character) | where(is.factor)) %>%
+        dplyr::select(
+          -dplyr::any_of(c("pathogen")),
+          -dplyr::ends_with("_id")
+        ) %>%
+        names() %>%
+        sort()
+
+      shiny::selectInput(
+        inputId = ns("epicurve_stratum"),
+        label = "Select a stratum to display in the epicurve",
+        choices = c("None", stratum_choices),
+        selected = "None",
+        multiple = FALSE,
+        width = "100%"
+      )
     })
 
     cases_linelist <- shiny::reactive({
-      req(filtered_data)
-      req(true_signals)
-      # check if any signals are selected for investigation
-      req(!is.na(input$show_signals_padded_rows_selected))
+      shiny::req(filtered_data())
+      shiny::req(true_signals())
+      shiny::req(signals_padded())
+      shiny::req(!is.na(input$show_signals_padded_rows_selected))
 
-      # selected rows by user in UI
       selected_signal_ids <- sort(input$show_signals_padded_rows_selected)
 
       build_signal_and_comparison_linelist(
@@ -159,6 +235,19 @@ mod_tabpanel_linelist_server <- function(
         signals_padded = signals_padded(),
         filtered_data = filtered_data()
       )
+    })
+
+    comparisons_table <- shiny::reactive({
+      req(cases_linelist)
+
+      build_comparison_summary(cases_linelist())
+    })
+
+    output$comparisons_tbl <- DT::renderDT({
+      req(comparisons_table)
+
+      comparisons_table() %>%
+        DT::datatable(rownames = FALSE, colnames = c("Measure", "Cases in selected signals", "Rest of cases"))
     })
 
     # display line lists of selected signals
