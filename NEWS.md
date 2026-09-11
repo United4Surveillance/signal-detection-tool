@@ -1,5 +1,6 @@
 * Fix error when clicking "No signals found." in the app
 * Updated min required version for "surveillance" package to v1.25.0
+* Fixed bug that caused skewed map plots of certain regions
 
 # SignalDetectionTool 0.11.1
 
