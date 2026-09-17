@@ -522,5 +522,4 @@ check_columns_shapefile <- function(shape) {
   col_names <- colnames(shape)
   # NUTS_ID, LEVL_CODE, and CNTR_CODE are subset of colnames(shape)
   checkmate::assert_subset(c("NUTS_ID", "LEVL_CODE", "CNTR_CODE"), col_names)
-
 }
