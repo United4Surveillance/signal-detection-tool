@@ -20,19 +20,19 @@
 score_strength <- function(signals_res) {
   method <- unique(signals_res$method)
 
-  if (method %in% c("EARS", "CUSUM")) {
+  if (method %in% c("ears", "cusum")) {
     # strength score not possible with EARS or CUSUM as they don't return an expected value
     signals_res <- signals_res %>%
       dplyr::mutate(
-        size.alarm = NA,
-        score = NA
+        size.alarm = NA_real_,
+        score = NA_real_
       )
   } else {
     signals_res <- signals_res %>%
       dplyr::mutate(
         size.alarm = dplyr::case_when(
           .data$alarms ~ abs((.data$cases - .data$expected) / (.data$upperbound - .data$expected)),
-          .default = NA
+          .default = NA_real_
         )
       )
 
@@ -40,7 +40,7 @@ score_strength <- function(signals_res) {
       dplyr::mutate(
         score = dplyr::case_when(
           .data$alarms ~ round(((.data$size.alarm^3) - 1) / (.data$size.alarm^3), digits = 2),
-          .default = NA
+          .default = NA_real_
         )
       )
   }
