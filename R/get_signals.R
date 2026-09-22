@@ -734,6 +734,9 @@ pad_signals <- function(signals) {
     }
   }
 
+  if (nrow(signals_timeopt)) {
+    stop("Signal results cannot be padded")
+  }
   result_padding_unstratified <- signals_timeopt %>%
     dplyr::select("year", time_unit_column, "category", "stratum", upperbound_pad = "upperbound", expected_pad = "expected")
 
