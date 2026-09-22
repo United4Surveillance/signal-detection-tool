@@ -515,7 +515,7 @@ get_case_id_duplicates <- function(data) {
 #' @returns if check passess, returns TRUE invisibly. If not, throws an error message
 check_columns_shapefile <- function(shape) {
   # check that it contains a coordinate system
-  if (is.na(sf::st_crs(shape_with_signals))) {
+  if (is.na(sf::st_crs(shape))) {
     stop("The supplied shapefile must have a coordinate reference system (CRS).")
   }
 
