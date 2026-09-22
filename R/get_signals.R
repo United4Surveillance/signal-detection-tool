@@ -734,7 +734,7 @@ pad_signals <- function(signals) {
     }
   }
 
-  if (nrow(signals_timeopt)) {
+  if (nrow(signals_timeopt) == 0) {
     stop("Signal results cannot be padded")
   }
   result_padding_unstratified <- signals_timeopt %>%
