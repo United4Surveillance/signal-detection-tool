@@ -174,7 +174,7 @@ plot_regional <- function(shape_with_signals,
       # calculate centre robustly
       stars_sf <- stars_sf %>%
         sf::st_make_valid() %>%
-        sf::st_centroid() %>%
+        sf::st_centroid(of_largest_polygon = TRUE) %>%
         sf::st_collection_extract("POINT") %>% # only keep points
         dplyr::filter(!sf::st_is_empty(geometry)) # remove empty ones
 
