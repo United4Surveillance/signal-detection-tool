@@ -21,19 +21,17 @@ plot_agegroup_comparison <- function(data_agg, number_of_time_units, time_unit) 
     min.cols = 2
   )
 
-  if (any(data_agg$signal, na.rm = TRUE)) {
-    checkmate::assert_integerish(
-      number_of_time_units,
-      lower = 1,
-      len = 1
-    )
+  checkmate::assert_integerish(
+    number_of_time_units,
+    lower = 1,
+    len = 1
+  )
 
-    checkmate::assert_choice(
-      time_unit,
-      choices = c("weekly", "biweekly", "monthly"),
-      null.ok = FALSE
-    )
-  }
+  checkmate::assert_choice(
+    time_unit,
+    choices = c("weekly", "biweekly", "monthly"),
+    null.ok = FALSE
+  )
 
   # Use time unit labels
   time_unit_label <- dplyr::case_when(
