@@ -34,6 +34,10 @@ plot_regional <- function(shape_with_signals,
                           toggle_alarms = FALSE) {
   checkmate::assertClass(shape_with_signals, "sf")
 
+  if (is.na(sf::st_crs(shape_with_signals))) {
+    stop("The supplied shapefile must have a coordinate reference system (CRS).")
+  }
+
   checkmate::assert(
     checkmate::check_true(interactive),
     checkmate::check_false(interactive),
