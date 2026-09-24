@@ -1,5 +1,11 @@
 # Changelog
 
+## SignalDetectionTool 0.11.2
+
+- Fixed bug that caused skewed map plots of certain regions (adds
+  `lwgeom` dependency)
+- Add additional check for coordinate system present in shapefiles
+
 ## SignalDetectionTool 0.11.1
 
 - Fix that missing scorer values are not consistently returned as
