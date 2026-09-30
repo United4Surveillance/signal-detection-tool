@@ -737,7 +737,7 @@ pad_signals <- function(signals) {
   if (is.null(signals_timeopt)) {
     stop("Signal results cannot be padded")
   } else {
-    if(nrow(signals_timeopt) == 0){
+    if (nrow(signals_timeopt) == 0) {
       stop("Signal results cannot be padded")
     }
   }
@@ -829,7 +829,7 @@ pad_signals <- function(signals) {
 
 
   return(results)
-  }
+}
 
 #' Get necessary functions and parameters for selected method
 #'
