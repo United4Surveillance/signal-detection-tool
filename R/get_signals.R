@@ -641,7 +641,7 @@ aggregate_signals <- function(signals, number_of_time_units, time_unit) {
 #' Extend the computed threshold and expectation of the signal detection method to the past for visualisation purposes but not for signal generation
 
 #' Inside the function it is computed what the maximum number of timepoints is the signal detection algorithms can be applied for. This depends on the algorithm and the amount of historic data. The already generated signals dataframe is then extended with the expectation and threshold into the past
-#' @param signals tibble, output of the \code{\link{get_signals}} function with number of cases and signal per week, year
+#' @param signals tibble, output of the \code{\link{get_signals}} function with number of cases and signal per time unit, year
 #' @returns tibble, with padded signals
 #' @examples
 #' \dontrun{
@@ -734,9 +734,14 @@ pad_signals <- function(signals) {
     }
   }
 
-  if (nrow(signals_timeopt) == 0) {
+  if (is.null(signals_timeopt)) {
     stop("Signal results cannot be padded")
+  } else {
+    if(nrow(signals_timeopt) == 0){
+      stop("Signal results cannot be padded")
+    }
   }
+
   result_padding_unstratified <- signals_timeopt %>%
     dplyr::select("year", time_unit_column, "category", "stratum", upperbound_pad = "upperbound", expected_pad = "expected")
 
@@ -824,7 +829,7 @@ pad_signals <- function(signals) {
 
 
   return(results)
-}
+  }
 
 #' Get necessary functions and parameters for selected method
 #'

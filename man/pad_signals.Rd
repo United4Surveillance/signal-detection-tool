@@ -8,7 +8,7 @@ Inside the function it is computed what the maximum number of timepoints is the 
 pad_signals(signals)
 }
 \arguments{
-\item{signals}{tibble, output of the \code{\link{get_signals}} function with number of cases and signal per week, year}
+\item{signals}{tibble, output of the \code{\link{get_signals}} function with number of cases and signal per time unit, year}
 }
 \value{
 tibble, with padded signals
