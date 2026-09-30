@@ -34,6 +34,10 @@ plot_regional <- function(shape_with_signals,
                           toggle_alarms = FALSE) {
   checkmate::assertClass(shape_with_signals, "sf")
 
+  if (is.na(sf::st_crs(shape_with_signals))) {
+    stop("The supplied shapefile must have a coordinate reference system (CRS).")
+  }
+
   checkmate::assert(
     checkmate::check_true(interactive),
     checkmate::check_false(interactive),
@@ -133,6 +137,7 @@ plot_regional <- function(shape_with_signals,
 
   if (interactive) {
     shape_areas_sf <- shape_with_signals %>%
+      sf::st_transform(4326) %>%
       dplyr::filter(!sf::st_is_empty(geometry)) %>%
       sf::st_make_valid() %>%
       sf::st_collection_extract("POLYGON", warn = FALSE) %>%
@@ -161,7 +166,7 @@ plot_regional <- function(shape_with_signals,
         inherit = FALSE
       )
 
-    stars_sf <- shape_with_signals %>%
+    stars_sf <- shape_areas_sf %>%
       dplyr::filter(any_alarms == "At least 1 signal")
     nrow_stars_before <- nrow(stars_sf)
 

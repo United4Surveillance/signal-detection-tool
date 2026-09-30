@@ -510,10 +510,15 @@ get_case_id_duplicates <- function(data) {
     dplyr::filter(duplicated(case_id))
 }
 
-#' check that shapefile contains NUTS_ID, LEVL_CODE, and CNTR_CODE
+#' check that shapefile contains coordinate system, and columns NUTS_ID, LEVL_CODE, and CNTR_CODE
 #' @param shape shapefile object loaded using sf::st_read()
 #' @returns if check passess, returns TRUE invisibly. If not, throws an error message
 check_columns_shapefile <- function(shape) {
+  # check that it contains a coordinate system
+  if (is.na(sf::st_crs(shape))) {
+    stop("The supplied shapefile must have a coordinate reference system (CRS).")
+  }
+
   col_names <- colnames(shape)
   # NUTS_ID, LEVL_CODE, and CNTR_CODE are subset of colnames(shape)
   checkmate::assert_subset(c("NUTS_ID", "LEVL_CODE", "CNTR_CODE"), col_names)
