@@ -795,8 +795,20 @@ pad_signals <- function(signals) {
           )
         }
 
-        signals_strata[[stratum_i]] <- signals_stratum_i %>%
-          dplyr::select("year", time_unit_column, "category", "stratum", upperbound_pad = "upperbound", expected_pad = "expected")
+        # check if results could be computed
+        if (is.null(signals_stratum_i)) {
+          warning(paste0(
+            "The stratum ", category_i, ":", stratum_i,
+            " will be neglected due to lack of data."
+          ))
+        } else {
+          # add information on stratification to results
+          if (stratum_i == "NA") {
+            stratum <- NA
+          }
+          signals_strata[[stratum_i]] <- signals_stratum_i %>%
+            dplyr::select("year", time_unit_column, "category", "stratum", upperbound_pad = "upperbound", expected_pad = "expected")
+        }
       }
 
       # join all strata results and save in category list
