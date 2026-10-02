@@ -735,10 +735,18 @@ pad_signals <- function(signals) {
   }
 
   if (is.null(signals_timeopt)) {
-    stop("Signal results cannot be padded")
+    stop(
+      "Signal results cannot be padded. Last attempted padding length (",
+      timeopt + number_of_time_units,
+      "time units) didn't return a valid result"
+    )
   } else {
     if (nrow(signals_timeopt) == 0) {
-      stop("Signal results cannot be padded")
+      stop(
+        "Signal results cannot be padded. Last attempted padding length (",
+        timeopt + number_of_time_units,
+        "time units) didn't return a valid result"
+      )
     }
   }
 
