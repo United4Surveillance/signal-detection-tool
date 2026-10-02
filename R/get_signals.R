@@ -671,12 +671,6 @@ pad_signals <- function(signals) {
 
   stopifnot(length(number_of_time_units) == 1)
 
-  if ("extension_date" %in% names(signals)) {
-    date_ext <- unique(signals$extension_date)
-  } else {
-    date_ext <- NULL
-  }
-
   if (grepl("farrington", method)) {
     alpha_upper <- unique(signals$alpha_upper)
   } else {
