@@ -24,7 +24,10 @@ score_specificity_stronger <- function(signal_results) {
     dplyr::group_by(category, year, .data[[time_column]]) %>%
     dplyr::mutate(
       num_other_cat = dplyr::n() - 1,
-      num_stronger_cat = sapply(score, function(x) sum(score > x, na.rm = TRUE)),
+      num_stronger_cat = dplyr::coalesce(
+        dplyr::min_rank(dplyr::desc(score)) - 1L,
+        0L
+      ),
       score = ifelse(
         num_other_cat == 0,
         1,

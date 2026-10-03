@@ -199,6 +199,30 @@ testthat::test_that("aggregate_scores() errors if no score columns are present",
   )
 })
 
+testthat::test_that("score_specificity_stronger() matches strict stronger counts", {
+  scores <- c(0.2, 0.8, 0.8, 0.5, NA_real_)
+  signal_results <- tibble::tibble(
+    .row_id = seq_along(scores),
+    time_unit = "weekly",
+    week = 1,
+    year = 2024,
+    category = "category_a",
+    alarms = TRUE,
+    score = scores
+  )
+  num_other_cat <- length(scores) - 1
+  legacy_num_stronger <- vapply(
+    scores,
+    function(x) sum(scores > x, na.rm = TRUE),
+    integer(1)
+  )
+  expected <- 1 - (legacy_num_stronger / num_other_cat)
+
+  result <- score_specificity_stronger(signal_results)
+
+  testthat::expect_equal(result$score, expected)
+})
+
 
 testthat::test_that("get_scores() returns original columns plus aggregated score", {
   signal_results <- tibble::tibble(
