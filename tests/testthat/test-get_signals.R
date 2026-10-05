@@ -127,3 +127,117 @@ testthat::test_that("get_signals defaults to full date range when no bounds give
     dplyr::filter(stratum == "85-89") %>%
     dplyr::pull(week_year)))
 })
+
+test_that("pad_signals extends the expected and upperbound values of a given `signals` dataframe", {
+  # historical data 2025-2026, 10 cases per week
+  signals_1 <- expand.grid(year = c(2025, 2026), week = 1:52) %>% 
+    dplyr::mutate(
+      cases = 10, 
+      cases_in_outbreak = 0,
+      alarms = NA,
+      upperbound = NA,
+      expected = NA, 
+      category = NA, 
+      stratum = NA, 
+      method = "ears",
+      number_of_time_units = 6, 
+      time_unit = "weekly", 
+      alpha_upper = 0.05
+    )
+  
+  # add alarms for first 6 weeks of 2027
+  signals_2 <- data.frame(
+    year = rep(2027, times = 6),
+    week = 1:6,
+    cases = c(10, 12, 14, 12 ,10, 12),
+    cases_in_outbreak = 0,
+    alarms = c(FALSE, TRUE, TRUE, TRUE, FALSE, TRUE),
+    upperbound = 11,
+    expected = NA, # ears doesn't return expected
+    category = NA, 
+    stratum = NA, 
+    method = "ears",
+    number_of_time_units = 6, 
+    time_unit = "weekly", 
+    alpha_upper = 0.05
+  )
+
+  signals <- dplyr::bind_rows(signals_1, signals_2)
+
+  padded <- pad_signals(signals)
+  
+  # there is sufficient data, so padding should be the max possible (26 + 6)
+  # this corresponds to rows 73:104 in padded
+  expect_true(all(!is.na(padded$upperbound_pad[73:104])))
+
+})
+
+test_that("pad_signals doesn't pad if there is no enough historical data", {
+  # signals for 2026, 10 cases per week 
+  # signal detection period for weeks 8 to 52
+  signals <- expand.grid(year = c(2026), week = 1:52) %>% 
+    dplyr::mutate(
+      cases = 10, 
+      cases_in_outbreak = 0,
+      alarms = c(rep(NA, times = 7), rep(FALSE, 45)), 
+      upperbound = c(rep(NA, times = 7), rep(11, 45)),
+      expected = c(rep(NA, times = 7), rep(10, 45)), 
+      category = NA, 
+      stratum = NA, 
+      method = "ears",
+      number_of_time_units = 6, 
+      time_unit = "weekly", 
+      alpha_upper = 0.05
+    )
+   
+  # minimum padding length is 6 + 2, available data is 7
+  pad_signals(signals) %>% 
+    expect_error("Signal results cannot be padded.") %>% 
+    suppressWarnings() # suppressing warnings given by the different available_threshold 
+
+})
+
+test_that("pad_signals work for stratified signals", {
+  # signals for 2026, 10 cases per week, for
+  # signal detection period for weeks 47 to 52
+  signals_ <- data.frame(
+    year = c(2026),
+    week = 1:52,
+    cases = 10, 
+    cases_in_outbreak = 0,
+    alarms = c(rep(NA, times = 46), rep(FALSE, 6)), 
+    upperbound = c(rep(NA, times = 46), rep(11, 6)),
+    expected = c(rep(NA, times = 46), rep(10, 6)), 
+    category = "sex", 
+    stratum = "male", 
+    method = "ears",
+    number_of_time_units = 6, 
+    time_unit = "weekly", 
+    alpha_upper = 0.05
+  )
+  
+  # all strata use the same dataframe, just changing the stratum value
+  signals <- dplyr::bind_rows(
+    signals_, 
+    signals_ %>% dplyr::mutate(stratum = "female"),
+    signals_ %>% dplyr::mutate(stratum = "diverse"),
+    signals_ %>% dplyr::mutate(stratum = NA)
+  ) %>% 
+    dplyr::mutate(stratum = factor(stratum))
+  
+  # there is sufficient data, so padding should be the max possible (26 + 6)
+  padded <- pad_signals(signals)
+
+  # this corresponds to rows 15:46 for each stratum
+  padded_m <- padded %>% dplyr::filter(stratum == "male")
+  expect_true(all(!is.na(padded_m$upperbound_pad[15:46])))
+
+  padded_f <- padded %>% dplyr::filter(stratum == "female")
+  expect_true(all(!is.na(padded_f$upperbound_pad[15:46])))
+
+  padded_d <- padded %>% dplyr::filter(stratum == "diverse")
+  expect_true(all(!is.na(padded_d$upperbound_pad[15:46])))
+
+  padded_n <- padded %>% dplyr::filter(is.na(stratum))
+  expect_true(all(!is.na(padded_n$upperbound_pad[15:46])))
+})
