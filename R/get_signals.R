@@ -775,11 +775,8 @@ pad_signals <- function(signals) {
         n_cases <- sum(data_agg %>% dplyr::slice_tail(n = max_time_opt + number_of_time_units) %>% dplyr::select("cases"))
         if (n_cases == 0) {
           # don't run algorithm on those strata with 0 cases created by factors
+          # set upperbound and expected to NA
           signals_stratum_i <- data_agg %>%
-            # set alarms to FALSE for the timeperiod signals are generated for in the other present levels
-            # logically the alarms column should also contain NA but later on computations are based on when the first alarm appears and when giving 0 timeseries to the algorithms they also put FALSE to the alarms column thus it is consistent
-            # upperbound and expected to NA
-            dplyr::mutate(alarms = dplyr::if_else(dplyr::row_number() >= (nrow(.) - (max_time_opt + number_of_time_units) + 1), FALSE, NA)) %>%
             dplyr::mutate(
               upperbound = NA,
               expected = NA
@@ -802,10 +799,6 @@ pad_signals <- function(signals) {
             " will be neglected due to lack of data."
           ))
         } else {
-          # add information on stratification to results
-          if (stratum_i == "NA") {
-            stratum <- NA
-          }
           signals_strata[[stratum_i]] <- signals_stratum_i %>%
             dplyr::select("year", time_unit_column, "category", "stratum", upperbound_pad = "upperbound", expected_pad = "expected")
         }
