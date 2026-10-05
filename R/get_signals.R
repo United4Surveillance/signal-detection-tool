@@ -691,7 +691,7 @@ pad_signals <- function(signals) {
   # remove test period from signals object as this is essentially the aggregated data
   data_no_signals <- signals %>%
     dplyr::filter(is.na(.data[["alarms"]])) %>%
-    dplyr::select("year", time_unit_column, "cases", "cases_in_outbreak", "category", "stratum") %>% 
+    dplyr::select("year", time_unit_column, "cases", "cases_in_outbreak", "category", "stratum") %>%
     dplyr::arrange(.data[["category"]], .data[["stratum"]], .data[["year"]], .data[[time_unit_column]])
 
   # getting necessary functions and options for method
