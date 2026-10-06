@@ -80,56 +80,7 @@ mod_tabpanel_linelist_server <- function(
           ), 
 
           # CARD 2: Signal Analysis
-          bslib::card(
-            min_height = "700px",
-            shiny::h1("Signal Analysis"),
-            bslib::card(
-              bslib::card_header("Platzhalter: Selected signals")
-            ), 
-            bslib::navset_pill(
-              ## TAB: Analysis
-              bslib::nav_panel(
-                title = "Analysis",
-                bslib::card(
-                  min_height = "50px",
-                  bslib::card_header("Comparisons table"),
-                  DT::DTOutput(ns("comparisons_tbl"))
-                ), 
-                bslib::layout_sidebar(
-                  sidebar = bslib::sidebar(
-                    shiny::uiOutput(ns("epicurve_stratum_ui"))
-                    # bslib::card(
-                    #   min_height = "200px",
-                    #   bslib::card_header("Select stratum epicurve"),
-                    #   
-                    # )
-                  ),
-                  bslib::layout_columns(
-                    bslib::card(
-                      min_height = "50px",
-                      bslib::card_header("Epicurve"),
-                      plotly::plotlyOutput(ns("epicurve"))
-                    ), 
-                    bslib::card(
-                      min_height = "50px",
-                      bslib::card_header("Signal Investigation"),
-                      plotly::plotlyOutput(ns("age_comparison"))
-                    )
-                  )
-                )                  
-              ),
-              ## TAB: Case Linelist
-              bslib::nav_panel(
-                title = "Case Linelist",
-                bslib::card(
-                  min_height = "500px",
-                  bslib::card_header("Case Linelist for Selected Signals"),
-                  shiny::span("Export or review cases linked to the selected signals."),
-                  DT::DTOutput(ns("linelist"))
-                )
-              )
-            )
-          )
+          shiny::uiOutput(ns("signal_analysis_panel"))
         ))
       }
     })
@@ -178,6 +129,60 @@ mod_tabpanel_linelist_server <- function(
         true_signals = true_signals(),
         signals_padded = signals_padded(),
         filtered_data = filtered_data()
+      )
+    })
+
+    # render signal analysis only when cases_linelist exist
+    output$signal_analysis_panel <- shiny::renderUI({
+      shiny::req(cases_linelist())
+      shiny::req(true_signals())
+
+      shiny::tagList(
+        bslib::card(
+          min_height = "700px",
+          shiny::h1("Signal Analysis"),
+          bslib::card(
+            bslib::card_header("Platzhalter: Selected signals")
+          ), 
+          bslib::navset_pill(
+            ## TAB: Analysis
+            bslib::nav_panel(
+              title = "Analysis",
+              bslib::card(
+                min_height = "50px",
+                bslib::card_header("Comparisons table"),
+                DT::DTOutput(ns("comparisons_tbl"))
+              ), 
+              bslib::layout_sidebar(
+                sidebar = bslib::sidebar(
+                  shiny::uiOutput(ns("epicurve_stratum_ui"))
+                ),
+                bslib::layout_columns(
+                  bslib::card(
+                    min_height = "50px",
+                    bslib::card_header("Epicurve"),
+                    plotly::plotlyOutput(ns("epicurve"))
+                  ), 
+                  bslib::card(
+                    min_height = "50px",
+                    bslib::card_header("Signal Investigation"),
+                    plotly::plotlyOutput(ns("age_comparison"))
+                  )
+                )
+              )                  
+            ),
+            ## TAB: Case Linelist
+            bslib::nav_panel(
+              title = "Case Linelist",
+              bslib::card(
+                min_height = "500px",
+                bslib::card_header("Case Linelist for Selected Signals"),
+                shiny::span("Export or review cases linked to the selected signals."),
+                DT::DTOutput(ns("linelist"))
+              )
+            )
+          )
+        )
       )
     })
 
