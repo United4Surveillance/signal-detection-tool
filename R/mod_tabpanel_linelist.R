@@ -64,6 +64,7 @@ mod_tabpanel_linelist_server <- function(
         return(algorithm_error_message)
       } else {
         return(shiny::tagList(
+          # CARD 1: Signals Overview 
           bslib::card(
             min_height = "700px",
             shiny::h1("Signals Overview"),
@@ -76,35 +77,58 @@ mod_tabpanel_linelist_server <- function(
               style = "font-size:120%;font-weight: bold"
             ),
             DT::DTOutput(ns("show_signals_padded"))
-          ),
+          ), 
+
+          # CARD 2: Signal Analysis
           bslib::card(
-            min_height = "500px",
-            shiny::h1("Signal Investigation"),
-            plotly::plotlyOutput(ns("age_comparison"))
-          ),
-          bslib::layout_columns(
-            col_widths = c(9, 3),
+            min_height = "700px",
+            shiny::h1("Signal Analysis"),
             bslib::card(
-              min_height = "500px",
-              shiny::h1("Epicurve"),
-              plotly::plotlyOutput(ns("epicurve"))
-            ),
-            bslib::card(
-              min_height = "500px",
-              shiny::h1("Select stratum epicurve"),
-              shiny::uiOutput(ns("epicurve_stratum_ui"))
+              bslib::card_header("Platzhalter: Selected signals")
+            ), 
+            bslib::navset_pill(
+              ## TAB: Analysis
+              bslib::nav_panel(
+                title = "Analysis",
+                bslib::card(
+                  min_height = "50px",
+                  bslib::card_header("Comparisons table"),
+                  DT::DTOutput(ns("comparisons_tbl"))
+                ), 
+                bslib::layout_sidebar(
+                  sidebar = bslib::sidebar(
+                    shiny::uiOutput(ns("epicurve_stratum_ui"))
+                    # bslib::card(
+                    #   min_height = "200px",
+                    #   bslib::card_header("Select stratum epicurve"),
+                    #   
+                    # )
+                  ),
+                  bslib::layout_columns(
+                    bslib::card(
+                      min_height = "50px",
+                      bslib::card_header("Epicurve"),
+                      plotly::plotlyOutput(ns("epicurve"))
+                    ), 
+                    bslib::card(
+                      min_height = "50px",
+                      bslib::card_header("Signal Investigation"),
+                      plotly::plotlyOutput(ns("age_comparison"))
+                    )
+                  )
+                )                  
+              ),
+              ## TAB: Case Linelist
+              bslib::nav_panel(
+                title = "Case Linelist",
+                bslib::card(
+                  min_height = "500px",
+                  bslib::card_header("Case Linelist for Selected Signals"),
+                  shiny::span("Export or review cases linked to the selected signals."),
+                  DT::DTOutput(ns("linelist"))
+                )
+              )
             )
-          ),
-          bslib::card(
-            min_height = "500px",
-            shiny::h1("Comparisons table"),
-            DT::DTOutput(ns("comparisons_tbl"))
-          ),
-          bslib::card(
-            min_height = "500px",
-            shiny::h1("Case Linelist for Selected Signals"),
-            shiny::span("Export or review cases linked to the selected signals."),
-            DT::DTOutput(ns("linelist"))
           )
         ))
       }
@@ -139,6 +163,22 @@ mod_tabpanel_linelist_server <- function(
           dt_selection_type = "multiple"
         )
       }
+    })
+
+    cases_linelist <- shiny::reactive({
+      shiny::req(filtered_data())
+      shiny::req(true_signals())
+      shiny::req(signals_padded())
+      shiny::req(!is.na(input$show_signals_padded_rows_selected))
+
+      selected_signal_ids <- sort(input$show_signals_padded_rows_selected)
+
+      build_signal_and_comparison_linelist(
+        selected_signal_ids = selected_signal_ids,
+        true_signals = true_signals(),
+        signals_padded = signals_padded(),
+        filtered_data = filtered_data()
+      )
     })
 
     # display age distribution graphic
@@ -218,22 +258,6 @@ mod_tabpanel_linelist_server <- function(
         selected = "None",
         multiple = FALSE,
         width = "100%"
-      )
-    })
-
-    cases_linelist <- shiny::reactive({
-      shiny::req(filtered_data())
-      shiny::req(true_signals())
-      shiny::req(signals_padded())
-      shiny::req(!is.na(input$show_signals_padded_rows_selected))
-
-      selected_signal_ids <- sort(input$show_signals_padded_rows_selected)
-
-      build_signal_and_comparison_linelist(
-        selected_signal_ids = selected_signal_ids,
-        true_signals = true_signals(),
-        signals_padded = signals_padded(),
-        filtered_data = filtered_data()
       )
     })
 
