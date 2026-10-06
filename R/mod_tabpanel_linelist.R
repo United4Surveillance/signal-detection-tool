@@ -64,7 +64,7 @@ mod_tabpanel_linelist_server <- function(
         return(algorithm_error_message)
       } else {
         return(shiny::tagList(
-          # CARD 1: Signals Overview 
+          # CARD 1: Signals Overview
           bslib::card(
             min_height = "700px",
             shiny::h1("Signals Overview"),
@@ -77,7 +77,7 @@ mod_tabpanel_linelist_server <- function(
               style = "font-size:120%;font-weight: bold"
             ),
             DT::DTOutput(ns("show_signals_padded"))
-          ), 
+          ),
 
           # CARD 2: Signal Analysis
           shiny::uiOutput(ns("signal_analysis_panel"))
@@ -143,7 +143,7 @@ mod_tabpanel_linelist_server <- function(
           shiny::h1("Signal Analysis"),
           bslib::card(
             bslib::card_header("Platzhalter: Selected signals")
-          ), 
+          ),
           bslib::navset_pill(
             ## TAB: Analysis
             bslib::nav_panel(
@@ -152,7 +152,7 @@ mod_tabpanel_linelist_server <- function(
                 min_height = "50px",
                 bslib::card_header("Comparisons table"),
                 DT::DTOutput(ns("comparisons_tbl"))
-              ), 
+              ),
               bslib::layout_sidebar(
                 sidebar = bslib::sidebar(
                   shiny::uiOutput(ns("epicurve_stratum_ui"))
@@ -162,14 +162,14 @@ mod_tabpanel_linelist_server <- function(
                     min_height = "50px",
                     bslib::card_header("Epicurve"),
                     plotly::plotlyOutput(ns("epicurve"))
-                  ), 
+                  ),
                   bslib::card(
                     min_height = "50px",
                     bslib::card_header("Signal Investigation"),
                     plotly::plotlyOutput(ns("age_comparison"))
                   )
                 )
-              )                  
+              )
             ),
             ## TAB: Case Linelist
             bslib::nav_panel(
