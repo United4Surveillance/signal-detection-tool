@@ -137,22 +137,22 @@ mod_tabpanel_linelist_server <- function(
       shiny::req(cases_linelist())
       shiny::req(true_signals())
 
-      shiny::tagList(
+      bslib::card(
+        bslib::card_title("Signal Analysis", container = htmltools::h1),
         bslib::card(
-          min_height = "700px",
-          shiny::h1("Signal Analysis"),
-          bslib::card(
-            bslib::card_header("Platzhalter: Selected signals")
-          ),
-          bslib::navset_pill(
-            ## TAB: Analysis
-            bslib::nav_panel(
-              title = "Analysis",
-              bslib::card(
-                min_height = "50px",
-                bslib::card_header("Comparisons table"),
-                DT::DTOutput(ns("comparisons_tbl"))
-              ),
+          htmltools::h3("Platzhalter: Selected signals"),
+          height = "100px",
+          fill = FALSE
+        ),
+        bslib::navset_card_pill(
+          ## TAB: Analysis
+          bslib::nav_panel(
+            title = "Analysis",
+            bslib::card(
+              bslib::card_title("Comparisons table", container = htmltools::h3),
+              bslib::card_body(DT::DTOutput(ns("comparisons_tbl")), fillable = FALSE),
+            ),
+            bslib::card(
               bslib::layout_sidebar(
                 sidebar = bslib::sidebar(
                   shiny::uiOutput(ns("epicurve_stratum_ui"))
@@ -160,27 +160,24 @@ mod_tabpanel_linelist_server <- function(
                 bslib::layout_columns(
                   bslib::card(
                     min_height = "50px",
-                    bslib::card_header("Epicurve"),
+                    full_screen = TRUE,
                     plotly::plotlyOutput(ns("epicurve"))
                   ),
                   bslib::card(
                     min_height = "50px",
-                    bslib::card_header("Signal Investigation"),
+                    full_screen = TRUE,
                     plotly::plotlyOutput(ns("age_comparison"))
                   )
                 )
               )
-            ),
-            ## TAB: Case Linelist
-            bslib::nav_panel(
-              title = "Case Linelist",
-              bslib::card(
-                min_height = "500px",
-                bslib::card_header("Case Linelist for Selected Signals"),
-                shiny::span("Export or review cases linked to the selected signals."),
-                DT::DTOutput(ns("linelist"))
-              )
             )
+          ),
+          ## TAB: Case Linelist
+          bslib::nav_panel(
+            title = "Case Linelist",
+            bslib::card_title("Case Linelist for Selected Signals", container = htmltools::h3),
+            bslib::card_title("Export or review cases linked to the selected signals.", container = htmltools::h5),
+            bslib::card_body(DT::DTOutput(ns("linelist")), fillable = FALSE)
           )
         )
       )
@@ -274,12 +271,15 @@ mod_tabpanel_linelist_server <- function(
 
     output$comparisons_tbl <- DT::renderDT({
       req(comparisons_table)
-
-      comparisons_table() %>%
-        DT::datatable(rownames = FALSE, colnames = c("Measure", "Cases in selected signals", "Rest of cases"))
+      
+      DT::datatable(
+        comparisons_table(),
+        rownames = FALSE, 
+        colnames = c("Measure", "Cases in selected signals", "Rest of cases")
+      )
     })
 
-    # display line lists of selected signals
+    # display linelist of selected signals
     output$linelist <- DT::renderDataTable({
       filename_download <- "signals_line_list"
 
