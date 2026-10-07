@@ -1,4 +1,7 @@
 * Layout of linelist tab updated - Dynamic rendering of Analysis area after selecting signals
+* Improved performance of `pad_signals()` by reusing already agreggated data
+* Fix error when clicking "No signals found." in the app
+* Updated min required version for "surveillance" package to v1.25.0
 
 # SignalDetectionTool 0.11.2
 
