@@ -138,9 +138,9 @@ mod_tabpanel_linelist_server <- function(
       shiny::req(true_signals())
 
       bslib::card(
-        bslib::card_title("Signal Analysis", container = htmltools::h1),
+        bslib::card_title("Signal Analysis", container = shiny::h1),
         bslib::card(
-          htmltools::h3("Platzhalter: Selected signals"),
+          shiny::h3("Platzhalter: Selected signals"),
           height = "100px",
           fill = FALSE
         ),
@@ -149,7 +149,7 @@ mod_tabpanel_linelist_server <- function(
           bslib::nav_panel(
             title = "Analysis",
             bslib::card(
-              bslib::card_title("Comparisons table", container = htmltools::h3),
+              bslib::card_title("Comparisons table", container = shiny::h3),
               bslib::card_body(DT::DTOutput(ns("comparisons_tbl")), fillable = FALSE),
             ),
             bslib::card(
@@ -175,8 +175,8 @@ mod_tabpanel_linelist_server <- function(
           ## TAB: Case Linelist
           bslib::nav_panel(
             title = "Case Linelist",
-            bslib::card_title("Case Linelist for Selected Signals", container = htmltools::h3),
-            bslib::card_title("Export or review cases linked to the selected signals.", container = htmltools::h5),
+            bslib::card_title("Case Linelist for Selected Signals", container = shiny::h3),
+            bslib::card_title("Export or review cases linked to the selected signals.", container = shiny::h5),
             bslib::card_body(DT::DTOutput(ns("linelist")), fillable = FALSE)
           )
         )
