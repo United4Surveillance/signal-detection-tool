@@ -1,3 +1,5 @@
+* Layout of linelist tab updated - Dynamic rendering of Analysis area after selecting signals
+
 # SignalDetectionTool 0.11.2
 
 * Fixed bug that caused skewed map plots of certain regions (adds `lwgeom` dependency)
