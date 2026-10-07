@@ -48,7 +48,10 @@ mod_tabpanel_linelist_server <- function(
   method,
   no_algorithm_possible,
   intervention_date,
-  signals_padded
+  signals_padded,
+  pathogen_vars,
+  signals_agg,
+  signal_period
 ) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -64,6 +67,7 @@ mod_tabpanel_linelist_server <- function(
         return(algorithm_error_message)
       } else {
         return(shiny::tagList(
+          shiny::uiOutput(ns("alarm_summary")),
           bslib::card(
             min_height = "700px",
             shiny::h1("Signals Overview"),
@@ -248,6 +252,87 @@ mod_tabpanel_linelist_server <- function(
 
       comparisons_table() %>%
         DT::datatable(rownames = FALSE, colnames = c("Measure", "Cases in selected signals", "Rest of cases"))
+    })
+
+    output$alarm_summary <- shiny::renderUI({
+      shiny::req(
+        !errors_detected(),
+        number_of_time_units_input_valid(),
+        !no_algorithm_possible()
+      )
+      shiny::req(pathogen_vars(), signals_agg())
+
+      aggregated <- signals_agg()
+
+      by_category <- aggregated %>%
+        dplyr::filter(!is.na(category)) %>%
+        dplyr::group_by(category) %>%
+        dplyr::summarise(n_alarms = sum(n_alarms), .groups = "drop")
+
+      summary <- list(
+        total = sum(aggregated$n_alarms),
+        unstratified = sum(aggregated$n_alarms[is.na(aggregated$category)]),
+        stratified = sum(by_category$n_alarms),
+        by_category = by_category
+      )
+
+      category_labels <- pretty_variable_names()
+
+      category_counts <- lapply(seq_len(nrow(summary$by_category)), function(i) {
+        category <- summary$by_category$category[i]
+
+        label <- if (category %in% names(category_labels)) {
+          category_labels[[category]]
+        } else {
+          category
+        }
+
+        shiny::div(label, ": ", summary$by_category$n_alarms[i])
+      })
+
+      alarm_box <- function(title, count, details = NULL) {
+        bslib::value_box(
+          min_height = 135,
+          theme = bslib::value_box_theme(
+            bg = if (count > 0) "#DF536B" else "#23FF00",
+            fg = "#FFFFFF"
+          ),
+          title = title,
+          value = shiny::div(count, details)
+        )
+      }
+
+      bslib::layout_column_wrap(
+        width = 1 / 4,
+        # bslib::value_box(
+        #   min_height = 135,
+        #   theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
+        #   title = "Disease:",
+        #   value = paste(pathogen_vars(), collapse = ", ")
+        # ),
+        bslib::value_box(
+          min_height = 135,
+          theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
+          title = "Method, disease and period",
+          value = shiny::div(
+            "Algorithm: ", get_name_by_value(method(), available_algorithms()),
+            shiny::tags$br(),
+            "Disease: ", paste(pathogen_vars(), collapse = ", "),
+            shiny::tags$br(),
+            "Time period: ", signal_period()
+          )
+        ),
+        alarm_box("Number of total alarms:", summary$total),
+        alarm_box("Number of unstratified alarms:", summary$unstratified),
+        alarm_box(
+          "Number of stratified alarms:",
+          summary$stratified,
+          shiny::div(
+            style = "margin-top: 12px;",
+            shiny::tagList(category_counts)
+          )
+        )
+      )
     })
 
     # display line lists of selected signals

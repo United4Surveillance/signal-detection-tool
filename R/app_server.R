@@ -64,7 +64,10 @@ app_server <- function(input, output, session) {
     method = datinput$method,
     no_algorithm_possible = datinput$no_algorithm_possible,
     intervention_date = datinput$intervention_date,
-    signals_padded = signals_output$signals_padded
+    signals_padded = signals_output$signals_padded,
+    pathogen_vars = datinput$pathogen_vars,
+    signals_agg = signals_output$signals_agg,
+    signal_period = signals_output$signal_period
   )
 
   # Calculate tab-content size based on title-panel and footer -----------------
