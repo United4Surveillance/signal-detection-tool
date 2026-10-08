@@ -132,15 +132,28 @@ mod_tabpanel_linelist_server <- function(
       )
     })
 
+    render_analysis <- reactiveVal(FALSE)
+
+    shiny::observeEvent(input$show_signals_padded_rows_selected, {
+      if(isFALSE(render_analysis())){
+        if(length(input$show_signals_padded_rows_selected) > 0) {
+          render_analysis(TRUE)
+        }
+      } else {
+        if(is.null(input$show_signals_padded_rows_selected)){
+          render_analysis(FALSE)
+        }
+      }
+    }, ignoreNULL = FALSE)
+
     # render signal analysis only when cases_linelist exist
     output$signal_analysis_panel <- shiny::renderUI({
-      shiny::req(cases_linelist())
-      shiny::req(true_signals())
+      shiny::req(render_analysis() == TRUE)
 
       bslib::card(
         bslib::card_title("Signal Analysis", container = shiny::h1),
         bslib::card(
-          shiny::h3("Platzhalter: Selected signals"),
+          shiny::h3("..."), # placeholder for summary
           height = "100px",
           fill = FALSE
         ),
@@ -150,7 +163,7 @@ mod_tabpanel_linelist_server <- function(
             title = "Analysis",
             bslib::card(
               bslib::card_title("Comparisons table", container = shiny::h3),
-              bslib::card_body(DT::DTOutput(ns("comparisons_tbl")), fillable = FALSE),
+              bslib::card_body(DT::DTOutput(ns("comparisons_tbl")), fillable = FALSE)
             ),
             bslib::card(
               bslib::layout_sidebar(
@@ -176,7 +189,7 @@ mod_tabpanel_linelist_server <- function(
           bslib::nav_panel(
             title = "Case Linelist",
             bslib::card_title("Case Linelist for Selected Signals", container = shiny::h3),
-            bslib::card_title("Export or review cases linked to the selected signals.", container = shiny::h5),
+            bslib::card_title("Export or review cases linked to the selected signals.", container = shiny::h4),
             bslib::card_body(DT::DTOutput(ns("linelist")), fillable = FALSE)
           )
         )
