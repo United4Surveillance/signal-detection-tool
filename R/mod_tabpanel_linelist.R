@@ -134,17 +134,20 @@ mod_tabpanel_linelist_server <- function(
 
     render_analysis <- reactiveVal(FALSE)
 
-    shiny::observeEvent(input$show_signals_padded_rows_selected, {
-      if(isFALSE(render_analysis())){
-        if(length(input$show_signals_padded_rows_selected) > 0) {
-          render_analysis(TRUE)
+    shiny::observeEvent(input$show_signals_padded_rows_selected,
+      {
+        if (isFALSE(render_analysis())) {
+          if (length(input$show_signals_padded_rows_selected) > 0) {
+            render_analysis(TRUE)
+          }
+        } else {
+          if (is.null(input$show_signals_padded_rows_selected)) {
+            render_analysis(FALSE)
+          }
         }
-      } else {
-        if(is.null(input$show_signals_padded_rows_selected)){
-          render_analysis(FALSE)
-        }
-      }
-    }, ignoreNULL = FALSE)
+      },
+      ignoreNULL = FALSE
+    )
 
     # render signal analysis only when cases_linelist exist
     output$signal_analysis_panel <- shiny::renderUI({
