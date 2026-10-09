@@ -349,12 +349,6 @@ mod_tabpanel_linelist_server <- function(
 
       bslib::layout_column_wrap(
         width = 1 / 4,
-        # bslib::value_box(
-        #   min_height = 135,
-        #   theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
-        #   title = "Disease:",
-        #   value = paste(pathogen_vars(), collapse = ", ")
-        # ),
         bslib::value_box(
           min_height = 135,
           theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
