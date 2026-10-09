@@ -92,7 +92,7 @@ get_possible_methods <- function(min_date,
     time_units_test <- months(number_of_time_units)
   }
 
-  max_date_fit <- max_date - time_units_test
+  max_date_fit <- lubridate::`%m-%`(max_date, time_units_test)
 
   # we subtract 1 day because otherwise the time difference between the dates is computed and e.g. difftime("2020-01-08","2020-01-01", units = "weeks) gives 1 week we want to count end and start date in as well thus the number of days for this example is 8
   # furthermore result is rounded to the next integer as e.g. 1.3 weeks are 2 weeks in the aggregation

@@ -1,3 +1,4 @@
+* Fixed an error in algorithm availability checks when subtracting months could produce an invalid fitting end date
 * Layout of linelist tab updated - Dynamic rendering of Analysis area after selecting signals
 * Improved performance of `pad_signals()` by reusing already agreggated data
 * Fix error when clicking "No signals found." in the app
