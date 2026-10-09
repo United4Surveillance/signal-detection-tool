@@ -102,4 +102,4 @@ plot_agegroup_comparison <- function(data_agg, number_of_time_units, time_unit) 
       "zoom2d",
       "toggleSpikelines"
     ))
-  }
+}
