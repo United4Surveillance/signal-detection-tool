@@ -213,7 +213,7 @@ mod_tabpanel_linelist_server <- function(
                          start <- ISOweek::ISOweek2date(paste0(
                            selected$year, "-W", sprintf("%02d", selected$week), "-1"
                          ))
-                         paste(start, start + 13, sep = " – ")
+                         paste(start, start + 13, sep = " - ")
                        },
                        monthly = paste0(selected$year, "-", sprintf("%02d", selected$month))
       )
