@@ -208,14 +208,14 @@ mod_tabpanel_linelist_server <- function(
       cases <- cases_linelist()$cases
 
       period <- switch(unique(selected$time_unit),
-                       weekly = paste0("Week ", selected$week, ", ", selected$year),
-                       biweekly = {
-                         start <- ISOweek::ISOweek2date(paste0(
-                           selected$year, "-W", sprintf("%02d", selected$week), "-1"
-                         ))
-                         paste(start, start + 13, sep = " - ")
-                       },
-                       monthly = paste0(selected$year, "-", sprintf("%02d", selected$month))
+        weekly = paste0("Week ", selected$week, ", ", selected$year),
+        biweekly = {
+          start <- ISOweek::ISOweek2date(paste0(
+            selected$year, "-W", sprintf("%02d", selected$week), "-1"
+          ))
+          paste(start, start + 13, sep = " - ")
+        },
+        monthly = paste0(selected$year, "-", sprintf("%02d", selected$month))
       )
 
       scores <- selected$score
@@ -228,7 +228,7 @@ mod_tabpanel_linelist_server <- function(
 
       outbreak_cases <- if (
         "outbreak_status" %in% names(cases) &&
-        (nrow(cases) == 0L || any(!is.na(cases$outbreak_status)))
+          (nrow(cases) == 0L || any(!is.na(cases$outbreak_status)))
       ) {
         sum(cases$outbreak_status == "yes", na.rm = TRUE)
       } else {
