@@ -66,6 +66,7 @@ mod_tabpanel_linelist_server <- function(
         return(shiny::tagList(
           # CARD 1: Signals Overview
           bslib::card(
+            id = ns("signal-selection"),
             min_height = "700px",
             shiny::h1("Signals Overview"),
             shiny::span("Click into the table to select the signals you want to further investigate."),
@@ -156,8 +157,7 @@ mod_tabpanel_linelist_server <- function(
       bslib::card(
         bslib::card_title("Signal Analysis", container = shiny::h1),
         bslib::card(
-          shiny::h3("..."), # placeholder for summary
-          height = "100px",
+          shiny::uiOutput(ns("selected_signals_summary")),
           fill = FALSE
         ),
         bslib::navset_card_pill(
@@ -194,6 +194,123 @@ mod_tabpanel_linelist_server <- function(
             bslib::card_title("Case Linelist for Selected Signals", container = shiny::h3),
             bslib::card_title("Export or review cases linked to the selected signals.", container = shiny::h4),
             bslib::card_body(DT::DTOutput(ns("linelist")), fillable = FALSE)
+          )
+        )
+      )
+    })
+
+    output$selected_signals_summary <- shiny::renderUI({
+      rows <- sort(shiny::req(input$show_signals_padded_rows_selected))
+      signals <- true_signals()
+      shiny::req(all(rows >= 1L & rows <= nrow(signals)))
+
+      selected <- dplyr::slice(signals, rows)
+      cases <- cases_linelist()$cases
+
+      period <- switch(unique(selected$time_unit),
+        weekly = paste0("Week ", selected$week, ", ", selected$year),
+        biweekly = {
+          start <- ISOweek::ISOweek2date(paste0(
+            selected$year, "-W", sprintf("%02d", selected$week), "-1"
+          ))
+          paste(start, start + 13, sep = " - ")
+        },
+        monthly = paste0(selected$year, "-", sprintf("%02d", selected$month))
+      )
+
+      scores <- selected$score
+      scores <- scores[is.finite(scores)]
+      mean_score <- if (length(scores)) {
+        sprintf("%.2f", mean(scores))
+      } else {
+        "Not available"
+      }
+
+      outbreak_cases <- if (
+        "outbreak_status" %in% names(cases) &&
+          (nrow(cases) == 0L || any(!is.na(cases$outbreak_status)))
+      ) {
+        sum(cases$outbreak_status == "yes", na.rm = TRUE)
+      } else {
+        "Not available"
+      }
+
+      metric <- function(label, value) {
+        shiny::div(
+          style = paste(
+            "border: 1px solid #bdcae6;",
+            "border-radius: 6px;",
+            "padding: 10px 12px;",
+            "height: 100%;",
+            "color: #304794;"
+          ),
+          shiny::div(
+            style = paste(
+              "font-size: 13px;",
+              "line-height: 18px;",
+              "min-height: 36px;",
+              "margin-bottom: 10px;"
+            ),
+            label
+          ),
+          shiny::div(
+            style = "font-size: 28px; font-weight: 700; line-height: 1.2;",
+            value
+          )
+        )
+      }
+
+      bslib::layout_columns(
+        col_widths = c(4, 2, 2, 2, 2),
+
+        # Selected signals
+        shiny::div(
+          style = "color: #304794;",
+          shiny::div(
+            style = paste(
+              "display: flex; justify-content: space-between;",
+              "flex-wrap: wrap; gap: 8px; margin-bottom: 10px;"
+            ),
+            shiny::tags$strong("Selected signals"),
+            shiny::span(paste(
+              nrow(selected),
+              if (nrow(selected) == 1L) "signal selected" else "signals selected"
+            ))
+          ),
+          shiny::div(
+            style = "display: flex; flex-wrap: wrap; gap: 8px;",
+            lapply(seq_len(nrow(selected)), function(i) {
+              shiny::div(
+                style = paste(
+                  "border: 1px solid #bdcae6;",
+                  "border-radius: 4px;",
+                  "background: #f6f8fc;",
+                  "padding: 6px 10px;",
+                  "font-size: 13px;"
+                ),
+                shiny::tags$strong(paste0("S", selected$signal_id[i])),
+                shiny::tags$br(),
+                period[i],
+                shiny::tags$br(),
+                paste(selected$cases[i], "cases")
+              )
+            })
+          )
+        ),
+
+        # Summary metrics
+        metric("Number of cases total", nrow(cases)),
+        metric("Number of cases in outbreaks", outbreak_cases),
+        metric("Mean score", mean_score),
+
+        # Back to selection
+        shiny::div(
+          style = "display: flex; align-items: center; height: 100%;",
+          shiny::tags$a(
+            href = paste0("#", ns("signal-selection")),
+            class = "btn btn-outline-primary",
+            style = "width: 100%;",
+            "Change selection"
           )
         )
       )
