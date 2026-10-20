@@ -66,17 +66,23 @@ mod_tabpanel_linelist_server <- function(
         return(shiny::tagList(
           # CARD 1: Signals Overview
           bslib::card(
-            min_height = "700px",
-            shiny::h1("Signals Overview"),
-            shiny::span("Click into the table to select the signals you want to further investigate."),
-            shiny::span(
-              paste0(
-                "Detected signals using method '",
-                get_name_by_value(method(), available_algorithms()), "':"
+            min_height = "750px",
+            bslib::card_title("Signals Overview", container = shiny::h1),
+            bslib::card_title("Click into the table to select the signals you want to further investigate.", container = shiny::span),
+            # filter buttons, if "Stratified", creates another seletize for each strata
+            bslib::layout_columns(
+              col_widths = c(3, 3, -6),
+              shiny::selectizeInput(
+                ns("sel_signals"),
+                label = "Filter signals",
+                choices = c("All signals", "Unstratified", "Stratified"),
+                selected = "All signals"
               ),
-              style = "font-size:120%;font-weight: bold"
+              shiny::uiOutput(ns("sel_strata_ui"))
             ),
-            DT::DTOutput(ns("show_signals_padded"))
+            bslib::card_body(
+              DT::DTOutput(ns("show_signals_padded"))
+            )
           ),
 
           # CARD 2: Signal Analysis
@@ -85,15 +91,34 @@ mod_tabpanel_linelist_server <- function(
       }
     })
 
+    output$sel_strata_ui <- shiny::renderUI({
+      shiny::req(input$sel_signals == "Stratified")
+
+      sel_strata <- signals_padded() %>%
+        dplyr::filter(alarms == TRUE, !is.na(category)) %>%
+        dplyr::distinct(category) %>% dplyr::pull()
+
+      shiny::selectizeInput(
+        ns("sel_signals_strata"),
+        label = "Filter strata",
+        choices = sel_strata, 
+        selected = sel_strata,
+        multiple = TRUE
+      )
+    })
 
     true_signals <- shiny::reactive({
       shiny::req(signals_padded())
 
-      signals <- signals_padded() %>% dplyr::filter(alarms == TRUE)
-      if (nrow(signals) > 0) {
-        signals <- signals %>% dplyr::mutate(signal_id = 1:dplyr::n(), .before = 1)
+      if (input$sel_signals == "All signals"){
+        signals_padded() %>% dplyr::filter(alarms == TRUE)
+      } else if (input$sel_signals == "Unstratified") {
+        signals_padded() %>% dplyr::filter(alarms == TRUE, is.na(category))
+      } else if (input$sel_signals == "Stratified") {
+        signals_padded() %>% dplyr::filter(alarms == TRUE, category %in% input$sel_signals_strata)
+      } else {
+        NULL
       }
-      return(signals)
     })
 
     # output padded signal data in table
@@ -102,6 +127,10 @@ mod_tabpanel_linelist_server <- function(
       shiny::req(true_signals)
 
       signals <- true_signals()
+
+      if (nrow(signals) > 0) {
+        signals <- signals %>% dplyr::mutate(signal_id = 1:dplyr::n(), .before = 1)
+      }
 
       if (nrow(signals) == 0) {
         # Return a placeholder message
