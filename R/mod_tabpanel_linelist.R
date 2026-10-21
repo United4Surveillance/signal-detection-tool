@@ -66,13 +66,15 @@ mod_tabpanel_linelist_server <- function(
         return(shiny::tagList(
           # CARD 1: Signals Overview
           bslib::card(
-            bslib::card_title("Signals Overview", container = shiny::h1),
-            bslib::card_title("Click into the table to select the signals you want to further investigate.", container = shiny::span),
-            # filter buttons, if "Stratified", creates another selectize for each strata
             bslib::card_body(
-              min_height = "200px",
+              min_height = "180px",
               bslib::layout_columns(
-                col_widths = c(3, 3, -6),
+                col_widths = c(6, 3, 3),
+                bslib::card_body(
+                  bslib::card_title("Signals Overview", container = shiny::h1),
+                  bslib::card_title("Click into the table to select the signals you want to further investigate.", container = shiny::span),
+                ),
+                # filter buttons, if "Stratified", creates another selectize for each strata
                 shiny::selectizeInput(
                   ns("sel_signals"),
                   label = "Filter signals",
