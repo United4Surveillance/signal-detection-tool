@@ -123,7 +123,7 @@ format_table <- function(data, signals_only = TRUE, interactive = TRUE,
       filter = list(position = "bottom", plain = TRUE),
       extensions = c("Buttons", "RowGroup"),
       selection = dt_selection_type,
-      #fillContainer = TRUE,
+      # fillContainer = TRUE,
       options = list(
         pageLength = page_length,
         rowGroup = list(dataSrc = 0),

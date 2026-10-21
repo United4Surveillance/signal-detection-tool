@@ -101,12 +101,13 @@ mod_tabpanel_linelist_server <- function(
 
       sel_strata <- signals_padded() %>%
         dplyr::filter(alarms == TRUE, !is.na(category)) %>%
-        dplyr::distinct(category) %>% dplyr::pull()
+        dplyr::distinct(category) %>%
+        dplyr::pull()
 
       shiny::selectizeInput(
         ns("sel_signals_strata"),
         label = "Filter strata",
-        choices = sel_strata, 
+        choices = sel_strata,
         selected = sel_strata,
         multiple = TRUE
       )
@@ -115,7 +116,7 @@ mod_tabpanel_linelist_server <- function(
     true_signals <- shiny::reactive({
       shiny::req(signals_padded())
 
-      if (input$sel_signals == "All signals"){
+      if (input$sel_signals == "All signals") {
         signals_padded() %>% dplyr::filter(alarms == TRUE)
       } else if (input$sel_signals == "Unstratified") {
         signals_padded() %>% dplyr::filter(alarms == TRUE, is.na(category))
