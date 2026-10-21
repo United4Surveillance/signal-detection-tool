@@ -66,22 +66,25 @@ mod_tabpanel_linelist_server <- function(
         return(shiny::tagList(
           # CARD 1: Signals Overview
           bslib::card(
-            min_height = "750px",
             bslib::card_title("Signals Overview", container = shiny::h1),
             bslib::card_title("Click into the table to select the signals you want to further investigate.", container = shiny::span),
-            # filter buttons, if "Stratified", creates another seletize for each strata
-            bslib::layout_columns(
-              col_widths = c(3, 3, -6),
-              shiny::selectizeInput(
-                ns("sel_signals"),
-                label = "Filter signals",
-                choices = c("All signals", "Unstratified", "Stratified"),
-                selected = "All signals"
-              ),
-              shiny::uiOutput(ns("sel_strata_ui"))
+            # filter buttons, if "Stratified", creates another selectize for each strata
+            bslib::card_body(
+              min_height = "200px",
+              bslib::layout_columns(
+                col_widths = c(3, 3, -6),
+                shiny::selectizeInput(
+                  ns("sel_signals"),
+                  label = "Filter signals",
+                  choices = c("All signals", "Unstratified", "Stratified"),
+                  selected = "All signals"
+                ),
+                shiny::uiOutput(ns("sel_strata_ui"))
+              )
             ),
             bslib::card_body(
-              DT::DTOutput(ns("show_signals_padded"))
+              DT::DTOutput(ns("show_signals_padded")),
+              fillable = FALSE
             )
           ),
 
