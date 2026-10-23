@@ -1,3 +1,5 @@
+* Fixed bug regarding seasonal and strength score with low number historical cases  
+
 # SignalDetectionTool 0.11.2
 
 * Fixed bug that caused skewed map plots of certain regions (adds `lwgeom` dependency)
