@@ -36,7 +36,7 @@ score_strength <- function(signals_res) {
           .default = NA_real_
         )
       )
-    
+
     # arbitrary handling of high sizes: from size 100 the score doesn't grow anymore
     # intended to solve possible infinites
     signals_res <- signals_res %>%
