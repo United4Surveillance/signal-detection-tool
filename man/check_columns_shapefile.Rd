@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_checks.R
 \name{check_columns_shapefile}
 \alias{check_columns_shapefile}
-\title{check that shapefile contains NUTS_ID, LEVL_CODE, and CNTR_CODE}
+\title{check that shapefile contains coordinate system, and columns NUTS_ID, LEVL_CODE, and CNTR_CODE}
 \usage{
 check_columns_shapefile(shape)
 }
@@ -13,5 +13,5 @@ check_columns_shapefile(shape)
 if check passess, returns TRUE invisibly. If not, throws an error message
 }
 \description{
-check that shapefile contains NUTS_ID, LEVL_CODE, and CNTR_CODE
+check that shapefile contains coordinate system, and columns NUTS_ID, LEVL_CODE, and CNTR_CODE
 }
