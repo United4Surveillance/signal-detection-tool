@@ -51,7 +51,6 @@ score_strength <- function(signals_res) {
       dplyr::mutate(
         score = dplyr::case_when(
           .data$alarms ~ round(((.data$size.alarm^3) - 1) / (.data$size.alarm^3), digits = 2),
-          .data$size.alarm >= 100 ~ 1,
           .default = NA_real_
         )
       )
