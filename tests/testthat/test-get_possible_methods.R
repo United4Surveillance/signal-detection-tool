@@ -1,8 +1,8 @@
 # check that if the dataset is too small no methods are possible
 test_that("6 days of historic data no method possible", {
-  min_date <- as.Date("2020-01-01")
+  min_date <- as.Date("2019-12-30")
   number_of_time_units <- 1
-  max_date <- as.Date("2020-01-07")
+  max_date <- as.Date("2020-01-05")
   time_unit <- "weekly"
 
   expect_identical(get_possible_methods(min_date, max_date, time_unit = time_unit, number_of_time_units = number_of_time_units), NULL)
@@ -12,7 +12,7 @@ test_that("1 week of historic data CUSUM possible, number_of_time_units = 2, no 
   min_date <- as.Date("2020-01-01")
   max_date <- as.Date("2020-01-08")
   number_of_time_units <- 2
-  # the week we do signal detection for actually only consists of 1 day of data but this yields a week in the aggregation
+  # the week we do signal detection for actually only consists of 5 days of data but this yields a week in the aggregation
   time_unit <- "weekly"
 
   expect_identical(names(get_possible_methods(min_date, max_date, time_unit = time_unit, number_of_time_units = number_of_time_units)), NULL)
@@ -22,7 +22,7 @@ test_that("1 week of historic data, number_of_time_units = 1, CUSUM possible", {
   min_date <- as.Date("2020-01-01")
   max_date <- as.Date("2020-01-08")
   number_of_time_units <- 1
-  # the week we do signal detection for actually only consists of 1 day of data but this yields a week in the aggregation
+  # the week we do signal detection for actually only consists of 5 days of data but this yields a week in the aggregation
   time_unit <- "weekly"
 
   expect_identical(names(get_possible_methods(min_date, max_date, time_unit = time_unit, number_of_time_units = number_of_time_units)), "CUSUM")
@@ -32,7 +32,7 @@ test_that("2 weeks of historic data, number_of_time_units = 1  only CUSUM possib
   min_date <- as.Date("2020-01-01")
   max_date <- min_date + lubridate::weeks(2)
   number_of_time_units <- 1
-  # the week we do signal detection for actually only consists of 1 day of data but this yields a week in the aggregation
+  # the week we do signal detection for does not consist of a full week of data but this yields a week in the aggregation
   time_unit <- "weekly"
 
   expect_identical(names(get_possible_methods(min_date, max_date, time_unit = time_unit, number_of_time_units = number_of_time_units)), "CUSUM")
