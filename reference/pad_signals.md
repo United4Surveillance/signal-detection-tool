@@ -11,15 +11,10 @@ threshold into the past
 ## Usage
 
 ``` r
-pad_signals(data, signals)
+pad_signals(signals)
 ```
 
 ## Arguments
-
-- data:
-
-  A data frame containing the surveillance data preprocessed with
-  \[preprocess_data()\].
 
 - signals:
 
@@ -37,7 +32,7 @@ tibble, with padded signals
 if (FALSE) { # \dontrun{
 data_preprocessed <- input_example %>% preprocess_data()
 results <- data_preprocessed %>% get_signals(stratification = c("sex", "county_id"))
-results_padded <- pad_signals(data_preprocessed, results)
+results_padded <- pad_signals(results)
 results_padded
 } # }
 ```

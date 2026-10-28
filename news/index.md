@@ -1,5 +1,17 @@
 # Changelog
 
+## SignalDetectionTool 0.12.0
+
+- Fixed bug regarding seasonal and strength score with low number
+  historical cases  
+- Layout of linelist tab updated - Dynamic rendering of Analysis area
+  after selecting signals
+- Improved performance of
+  [`pad_signals()`](https://united4surveillance.github.io/signal-detection-tool/reference/pad_signals.md)
+  by reusing already agreggated data
+- Fix error when clicking “No signals found.” in the app
+- Updated min required version for “surveillance” package to v1.25.0
+
 ## SignalDetectionTool 0.11.2
 
 - Fixed bug that caused skewed map plots of certain regions (adds

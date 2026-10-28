@@ -175,9 +175,9 @@ run_report(
   using the 0.95 quantile. \`alpha_upper\` is only used for methods that
   require it (currently "Mean", "Timetrend", "Harmonic", "Harmonic with
   timetrend", "Multi-seasonal harmonic", "Step harmonic", "Step harmonic
-  with timetrend"), for which a default value of 0.05 is applied. Ears
-  and cusum do not use the value; for these, the argument is ignored and
-  internally set to NULL.
+  with timetrend" and "FarringtonFlexible"), for which a default value
+  of 0.05 is applied. Ears and cusum do not use the value; for these,
+  the argument is ignored and internally set to NULL.
 
 - exclude_outbreak_cases_from_fitting:
 

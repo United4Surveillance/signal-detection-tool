@@ -52,7 +52,8 @@
   : Helper to check that values of a character variable are in given
   levels
 - [`check_columns_shapefile()`](https://united4surveillance.github.io/signal-detection-tool/reference/check_columns_shapefile.md)
-  : check that shapefile contains NUTS_ID, LEVL_CODE, and CNTR_CODE
+  : check that shapefile contains coordinate system, and columns
+  NUTS_ID, LEVL_CODE, and CNTR_CODE
 - [`check_empty_rows()`](https://united4surveillance.github.io/signal-detection-tool/reference/check_empty_rows.md)
   : check whether there is a completely empty row in provided
   surveillance data
@@ -167,6 +168,8 @@
   corresponding to the date given
 - [`get_iso_week_year()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_iso_week_year.md)
   : Get isoweek and isoyear from a given date
+- [`get_method_func_parameters()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_method_func_parameters.md)
+  : Get necessary functions and parameters for selected method
 - [`get_min_max_date()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_min_max_date.md)
   : Get minimum and maximum date in the linelist
 - [`get_missing_data()`](https://united4surveillance.github.io/signal-detection-tool/reference/get_missing_data.md)
@@ -290,6 +293,8 @@
   : Removing columns from data which only contain missing values
 - [`run_app()`](https://united4surveillance.github.io/signal-detection-tool/reference/run_app.md)
   : Run the Shiny Application
+- [`run_method_parameters()`](https://united4surveillance.github.io/signal-detection-tool/reference/run_method_parameters.md)
+  : Run method for signal detection using aggregated data
 - [`run_report()`](https://united4surveillance.github.io/signal-detection-tool/reference/run_report.md)
   : Renders a signal detection report
 - [`save_signals()`](https://united4surveillance.github.io/signal-detection-tool/reference/save_signals.md)

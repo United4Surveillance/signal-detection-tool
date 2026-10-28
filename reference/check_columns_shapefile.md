@@ -1,6 +1,7 @@
-# check that shapefile contains NUTS_ID, LEVL_CODE, and CNTR_CODE
+# check that shapefile contains coordinate system, and columns NUTS_ID, LEVL_CODE, and CNTR_CODE
 
-check that shapefile contains NUTS_ID, LEVL_CODE, and CNTR_CODE
+check that shapefile contains coordinate system, and columns NUTS_ID,
+LEVL_CODE, and CNTR_CODE
 
 ## Usage
 

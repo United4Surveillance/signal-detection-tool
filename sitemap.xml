@@ -68,6 +68,7 @@
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_float_columns.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_intervention_timepoint.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_iso_week_year.html</loc></url>
+<url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_method_func_parameters.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_min_max_date.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_missing_data.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/get_name_by_value.html</loc></url>
@@ -115,6 +116,7 @@
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/region_variable_names.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/remove_empty_columns.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/run_app.html</loc></url>
+<url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/run_method_parameters.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/run_report.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/save_signals.html</loc></url>
 <url><loc>https://united4surveillance.github.io/signal-detection-tool/reference/score_recurrence.html</loc></url>
