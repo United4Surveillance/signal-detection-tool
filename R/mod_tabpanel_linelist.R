@@ -228,7 +228,6 @@ mod_tabpanel_linelist_server <- function(
     })
 
     output$selected_signals_summary <- shiny::renderUI({
-
       rows <- sort(shiny::req(input$show_signals_padded_rows_selected))
       signals <- true_signals()
       shiny::req(all(rows >= 1L & rows <= nrow(signals)))
@@ -238,8 +237,7 @@ mod_tabpanel_linelist_server <- function(
 
       # Period labels
       period <- vapply(seq_len(nrow(selected)), function(i) {
-        switch(
-          selected$time_unit[i],
+        switch(selected$time_unit[i],
           weekly = paste0(
             "Week ", selected$week[i], ", ", selected$year[i]
           ),
@@ -302,7 +300,6 @@ mod_tabpanel_linelist_server <- function(
         # Selected signals
         bslib::card(
           class = "summary-card",
-
           bslib::card_header(
             shiny::tags$strong("Selected signals"),
             shiny::span(
@@ -317,19 +314,16 @@ mod_tabpanel_linelist_server <- function(
               )
             )
           ),
-
           bslib::card_body(
             fillable = FALSE,
             shiny::div(
               class = "selected-signals-list",
-
               if (show_all_signals()) {
                 signal_items
               } else {
                 head(signal_items, 4)
               }
             ),
-
             if (length(signal_items) > 4L) {
               shiny::actionLink(
                 inputId = ns("toggle_signals"),
@@ -352,7 +346,6 @@ mod_tabpanel_linelist_server <- function(
           fill = FALSE,
           class = "border"
         ),
-
         bslib::value_box(
           title = "Number of cases in outbreaks",
           value = outbreak_cases,
@@ -361,7 +354,6 @@ mod_tabpanel_linelist_server <- function(
           fill = FALSE,
           class = "border"
         ),
-
         bslib::value_box(
           title = "Mean score",
           value = mean_score,
