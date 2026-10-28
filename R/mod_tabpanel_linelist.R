@@ -315,11 +315,15 @@ mod_tabpanel_linelist_server <- function(
         dplyr::summarise(n_alarms = sum(n_alarms), .groups = "drop")
 
       summary <- list(
-        total = sum(aggregated$n_alarms),
         unstratified = sum(aggregated$n_alarms[is.na(aggregated$category)]),
         stratified = sum(by_category$n_alarms),
         by_category = by_category
       )
+
+      summary$total <- summary$unstratified + summary$stratified
+
+      # Check whether strata were selected
+      has_strata <- nrow(by_category) > 0
 
       category_labels <- pretty_variable_names()
 
@@ -332,23 +336,14 @@ mod_tabpanel_linelist_server <- function(
           category
         }
 
-        shiny::div(label, ": ", summary$by_category$n_alarms[i])
+        shiny::div(
+          style = "padding-left: 24px;",
+          label, ": ", by_category$n_alarms[i]
+        )
       })
 
-      alarm_box <- function(title, count, details = NULL) {
-        bslib::value_box(
-          min_height = 135,
-          theme = bslib::value_box_theme(
-            bg = if (count > 0) "#DF536B" else "#23FF00",
-            fg = "#FFFFFF"
-          ),
-          title = title,
-          value = shiny::div(count, details)
-        )
-      }
-
       bslib::layout_column_wrap(
-        width = 1 / 4,
+        width = 1 / 2,
         bslib::value_box(
           min_height = 135,
           theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
@@ -361,14 +356,26 @@ mod_tabpanel_linelist_server <- function(
             "Time period: ", signal_period()
           )
         ),
-        alarm_box("Number of total alarms:", summary$total),
-        alarm_box("Number of unstratified alarms:", summary$unstratified),
-        alarm_box(
-          "Number of stratified alarms:",
-          summary$stratified,
-          shiny::div(
-            style = "margin-top: 12px;",
-            shiny::tagList(category_counts)
+        bslib::value_box(
+          min_height = 135,
+          theme = bslib::value_box_theme(
+            bg = if (summary$total > 0) "#DF536B" else "#23FF00",
+            fg = "#FFFFFF"
+          ),
+          title = "Number of alarms",
+          value = shiny::div(
+            "Unstratified: ", summary$unstratified,
+
+            if (has_strata) {
+              shiny::tagList(
+                shiny::tags$br(),
+                "Stratified: ", summary$stratified,
+                shiny::div(
+                  style = "margin-top: 4px;",
+                  shiny::tagList(category_counts)
+                )
+              )
+            }
           )
         )
       )
