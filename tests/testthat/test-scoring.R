@@ -459,9 +459,9 @@ testthat::test_that("Score strength works with small case numbers", {
 })
 
 testthat::test_that("seasonal score ignores complete zero-case years", {
-  # dummy dataset, contains all months of 2020 to 2022, cases are distributed 
+  # dummy dataset, contains all months of 2020 to 2022, cases are distributed
   # evenly for all months, so the score is 0.5. 2021 has no cases
-  # alarms triggered for the complete 2022 
+  # alarms triggered for the complete 2022
   signals <- tibble::tibble(
     .row_id = 1:36,
     year = rep(2020:2022, each = 12),
