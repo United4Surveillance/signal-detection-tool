@@ -403,7 +403,10 @@ make_sparse_cases <- function(seed){
       cases = rbinom(260, 1, 0.01) * round(runif(260, 1, 3))
     ) %>%
     dplyr::mutate(
-      cases = dplyr::replace_when(cases, year == 2022 & week > 46 ~ 1)
+      cases = dplyr::case_when(
+        year == 2022 & week > 46 ~ 1, 
+        .default = cases
+      )
     )
    
    return(sparse_cases)
