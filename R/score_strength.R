@@ -39,13 +39,13 @@ score_strength <- function(signals_res) {
 
     # arbitrary handling of high sizes: from size 100 the score doesn't grow anymore
     # intended to solve possible infinites
-    # for "low" sizes < 1, sometimes appear when upperbound == 0 and expected >> 0, 
+    # for "low" sizes < 1, sometimes appear when upperbound == 0 and expected >> 0,
     # limit the size to >= 1
     signals_res <- signals_res %>%
       dplyr::mutate(
         size.alarm = dplyr::case_when(
           .data$size.alarm >= 100 ~ 100,
-          .data$size.alarm < 1 ~ 1, 
+          .data$size.alarm < 1 ~ 1,
           .default = .data$size.alarm
         )
       )
