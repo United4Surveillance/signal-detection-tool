@@ -270,7 +270,7 @@ mod_tabpanel_linelist_server <- function(
       # Cases in outbreaks
       outbreak_cases <- if (
         "outbreak_status" %in% names(cases) &&
-        (nrow(cases) == 0L || any(!is.na(cases$outbreak_status)))
+          (nrow(cases) == 0L || any(!is.na(cases$outbreak_status)))
       ) {
         sum(cases$outbreak_status == "yes", na.rm = TRUE)
       } else {
@@ -298,8 +298,6 @@ mod_tabpanel_linelist_server <- function(
       bslib::layout_columns(
         col_widths = c(4, 2, 2, 2, 2),
         fill = FALSE,
-
-        # Selected signals
 
         # Selected signals
         bslib::card(
