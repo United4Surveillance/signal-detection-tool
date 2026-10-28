@@ -305,7 +305,20 @@ mod_tabpanel_linelist_server <- function(
         number_of_time_units_input_valid(),
         !no_algorithm_possible()
       )
-      shiny::req(pathogen_vars(), signals_agg())
+      shiny::req(pathogen_vars(), signals_agg(),signals_padded())
+
+      signals <- signals_padded()
+
+      alpha_upper_value <- if ("alpha_upper" %in% names(signals)) {
+        paste(unique(stats::na.omit(signals$alpha_upper)), collapse = ", ")
+      } else {
+        NULL
+      }
+
+      time_unit_value <- paste(
+        unique(stats::na.omit(signals$time_unit)),
+        collapse = ", "
+      )
 
       aggregated <- signals_agg()
 
@@ -353,7 +366,15 @@ mod_tabpanel_linelist_server <- function(
             shiny::tags$br(),
             "Disease: ", paste(pathogen_vars(), collapse = ", "),
             shiny::tags$br(),
-            "Time period: ", signal_period()
+            "Time period: ", signal_period(),
+            shiny::tags$br(),
+            "Time unit: ", time_unit_value,
+            if (!is.null(alpha_upper_value)) {
+              shiny::tagList(
+                shiny::tags$br(),
+                "Alpha upper: ", alpha_upper_value
+              )
+              }
           )
         ),
         bslib::value_box(
