@@ -509,7 +509,8 @@ mod_tabpanel_signals_server <- function(
     # Return list of subsetted data and parameters
     return(list(
       signals_padded = shiny::reactive(signals_padded()),
-      signals_agg = shiny::reactive(signals_agg())
+      signals_agg = shiny::reactive(signals_agg()),
+      signal_period = signal_period
     ))
   })
 }
