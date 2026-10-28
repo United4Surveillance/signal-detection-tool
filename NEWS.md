@@ -1,3 +1,4 @@
+# SignalDetectionTool 0.12.0
 * Fixed bug regarding seasonal and strength score with low number historical cases  
 * Layout of linelist tab updated - Dynamic rendering of Analysis area after selecting signals
 * Improved performance of `pad_signals()` by reusing already agreggated data
