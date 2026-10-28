@@ -385,13 +385,13 @@ testthat::test_that("get_scores() errors if a scorer returns invalid output", {
 })
 
 
-###### Tests for each score function 
+###### Tests for each score function
 
-# helper function: artificial aggregated data between 2018 and 2022, 
+# helper function: artificial aggregated data between 2018 and 2022,
 # 99% of cases are 0, otherwise between 1 and 3. For weeks 47 to 52 2022, 1 case
-make_sparse_cases <- function(seed){
+make_sparse_cases <- function(seed) {
   set.seed(seed)
-  
+
   sparse_cases <- expand.grid(
     year = 2018:2022,
     week = 1:52,
@@ -404,16 +404,15 @@ make_sparse_cases <- function(seed){
     ) %>%
     dplyr::mutate(
       cases = dplyr::case_when(
-        year == 2022 & week > 46 ~ 1, 
+        year == 2022 & week > 46 ~ 1,
         .default = cases
       )
     )
-   
-   return(sparse_cases)
- }
+
+  return(sparse_cases)
+}
 
 testthat::test_that("Score seasonal works with small case numbers", {
-  
   # make sparse_cases
   cases_agg <- make_sparse_cases(123)
 
