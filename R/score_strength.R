@@ -2,7 +2,7 @@
 #' @description Scores each signal in the signals_res object using the signal size,
 #' defined by the distance from expected value and upperbound threshold value
 #' the score follows the formula (size^3-1)/size^3 and then is rounded to the 2nd decimal point.
-#' For sizes equal or higher than 100, the score is automaticaly 1.
+#' The value for size is capped at 100 to for the correct processing of possible Inf values.
 #' For EARS and CUSUM method, the function returns a score of NA.
 #'
 #' @param signals_res dataframe with the results of signal detection
