@@ -2,6 +2,7 @@
 #' @description Scores each signal in the signals_res object using the signal size,
 #' defined by the distance from expected value and upperbound threshold value
 #' the score follows the formula (size^3-1)/size^3 and then is rounded to the 2nd decimal point.
+#' The value for size is capped at 100 to for the correct processing of possible Inf values.
 #' For EARS and CUSUM method, the function returns a score of NA.
 #'
 #' @param signals_res dataframe with the results of signal detection
@@ -33,6 +34,19 @@ score_strength <- function(signals_res) {
         size.alarm = dplyr::case_when(
           .data$alarms ~ abs((.data$cases - .data$expected) / (.data$upperbound - .data$expected)),
           .default = NA_real_
+        )
+      )
+
+    # arbitrary handling of high sizes: from size 100 the score doesn't grow anymore
+    # intended to solve possible infinites
+    # for "low" sizes < 1, sometimes appear when upperbound == 0 and expected >> 0,
+    # limit the size to >= 1
+    signals_res <- signals_res %>%
+      dplyr::mutate(
+        size.alarm = dplyr::case_when(
+          .data$size.alarm >= 100 ~ 100,
+          .data$size.alarm < 1 ~ 1,
+          .default = .data$size.alarm
         )
       )
 
