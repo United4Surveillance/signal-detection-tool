@@ -430,6 +430,9 @@ testthat::test_that("Score seasonal works with small case numbers", {
 
   # there is no NaNs in the scores
   testthat::expect_true(all(!is.nan(results$score)))
+
+  # the scores are between 0 and 1
+  testthat::expect_true(all(results$score >= 0 & results$score <= 1))
 })
 
 testthat::test_that("Score strength works with small case numbers", {
@@ -450,4 +453,7 @@ testthat::test_that("Score strength works with small case numbers", {
 
   # there is no NaNs in the scores
   testthat::expect_true(all(!is.nan(results$score)))
+
+  # the scores are between 0 and 1
+  testthat::expect_true(all(results$score >= 0 & results$score <= 1))
 })
