@@ -384,12 +384,15 @@ testthat::test_that("get_scores() errors if a scorer returns invalid output", {
   )
 })
 
-testthat::test_that("Score seasonal works with small case numbers", {
-  set.seed(123)
 
-  # artificial aggregated data between 2018 and 2022, 99% of cases are 0, otherwise between 1 and 3.
-  # for weeks 47 to 52 2022, 1 case
-  cases_agg <- expand.grid(
+###### Tests for each score function 
+
+# helper function: artificial aggregated data between 2018 and 2022, 
+# 99% of cases are 0, otherwise between 1 and 3. For weeks 47 to 52 2022, 1 case
+make_sparse_cases <- function(seed){
+  set.seed(seed)
+  
+  sparse_cases <- expand.grid(
     year = 2018:2022,
     week = 1:52,
     category = NA,
@@ -402,6 +405,14 @@ testthat::test_that("Score seasonal works with small case numbers", {
     dplyr::mutate(
       cases = dplyr::replace_when(cases, year == 2022 & week > 46 ~ 1)
     )
+   
+   return(sparse_cases)
+ }
+
+testthat::test_that("Score seasonal works with small case numbers", {
+  
+  # make sparse_cases
+  cases_agg <- make_sparse_cases(123)
 
   # signals with harmonic with time trend
   signals <- get_signals_glm(cases_agg, number_of_time_units = 52, model = "sincos") %>%
@@ -420,23 +431,8 @@ testthat::test_that("Score seasonal works with small case numbers", {
 })
 
 testthat::test_that("Score strength works with small case numbers", {
-  set.seed(123)
-
-  # artificial aggregated data between 2018 and 2022, 99% of cases are 0, otherwise between 1 and 3.
-  # for weeks 47 to 52 2022, 1 case
-  cases_agg <- expand.grid(
-    year = 2018:2022,
-    week = 1:52,
-    category = NA,
-    time_unit = "weekly"
-  ) %>%
-    dplyr::arrange(year, week) %>%
-    dplyr::mutate(
-      cases = rbinom(260, 1, 0.01) * round(runif(260, 1, 3))
-    ) %>%
-    dplyr::mutate(
-      cases = dplyr::replace_when(cases, year == 2022 & week > 46 ~ 1)
-    )
+  # make sparse cases
+  cases_agg <- make_sparse_cases(123)
 
   # signals with harmonic with time trend
   signals <- get_signals_glm(cases_agg, number_of_time_units = 52, model = "sincos") %>%
