@@ -12,7 +12,7 @@ test_that("1 week of historic data CUSUM possible, number_of_time_units = 2, no 
   min_date <- as.Date("2020-01-01")
   max_date <- as.Date("2020-01-08")
   number_of_time_units <- 2
-  # the week we do signal detection for actually only consists of 5 days of data but this yields a week in the aggregation
+  # the week we do signal detection for actually only consists of 3 days of data but this yields a week in the aggregation
   time_unit <- "weekly"
 
   expect_identical(names(get_possible_methods(min_date, max_date, time_unit = time_unit, number_of_time_units = number_of_time_units)), NULL)
@@ -22,7 +22,7 @@ test_that("1 week of historic data, number_of_time_units = 1, CUSUM possible", {
   min_date <- as.Date("2020-01-01")
   max_date <- as.Date("2020-01-08")
   number_of_time_units <- 1
-  # the week we do signal detection for actually only consists of 5 days of data but this yields a week in the aggregation
+  # the week we do signal detection for actually only consists of 3 days of data but this yields a week in the aggregation
   time_unit <- "weekly"
 
   expect_identical(names(get_possible_methods(min_date, max_date, time_unit = time_unit, number_of_time_units = number_of_time_units)), "CUSUM")
