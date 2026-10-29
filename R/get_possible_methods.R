@@ -100,10 +100,18 @@ get_possible_methods <- function(min_date,
     max_date_fit <- lubridate::floor_date(max_date_fit, unit = "week", week_start = 1) + lubridate::days(6)
   }
 
+  min_date_fit <- if (time_unit == "monthly") {
+    lubridate::floor_date(min_date, unit = "month")
+  } else {
+    lubridate::floor_date(min_date, unit = "week", week_start = 1)
+  }
+
   # we subtract 1 day because otherwise the time difference between the dates is computed and e.g. difftime("2020-01-08","2020-01-01", units = "weeks) gives 1 week we want to count end and start date in as well thus the number of days for this example is 8
   # furthermore result is rounded to the next integer as e.g. 1.3 weeks are 2 weeks in the aggregation
 
-  number_of_weeks_available_fitting <- ceiling(as.numeric(difftime(max_date_fit, min_date - lubridate::days(1), units = "weeks")))
+  number_of_weeks_available_fitting <- ceiling(as.numeric(difftime(max_date_fit, min_date_fit - lubridate::days(1), units = "weeks")))
+
+  if (time_unit == "biweekly") {number_of_weeks_available_fitting <- ceiling(number_of_weeks_available_fitting / 2) * 2}
 
   algos <- available_algorithms()
 
