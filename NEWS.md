@@ -1,3 +1,5 @@
+* Implemented dynamic filter in the linelist tab to select which signal type is shown in the signals table
+
 # SignalDetectionTool 0.12.0
 * Fixed bug regarding seasonal and strength score with low number historical cases  
 * Layout of linelist tab updated - Dynamic rendering of Analysis area after selecting signals
