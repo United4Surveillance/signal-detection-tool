@@ -99,7 +99,7 @@ mod_tabpanel_linelist_server <- function(
     signals_type <- shiny::reactive({
       shiny::req(signals_padded())
 
-      signals_padded() %>% 
+      signals_padded() %>%
         dplyr::distinct(category) %>%
         dplyr::pull()
     })
@@ -110,7 +110,7 @@ mod_tabpanel_linelist_server <- function(
 
       # render only if there is signals
       if (signals_n() > 0) {
-        # Minimun two categories should be there to render the dropdown 
+        # Minimun two categories should be there to render the dropdown
         if (length(signals_type()) > 1) {
           if (any(is.na(signals_type()))) {
             choices <- c(choices, "All signals", "Unstratified")
@@ -118,7 +118,7 @@ mod_tabpanel_linelist_server <- function(
           if (any(!is.na(signals_type()))) {
             choices <- c(choices, "Stratified")
           }
-    
+
           if (length(choices > 0)) {
             shiny::selectizeInput(
               ns("sel_signals"),
@@ -151,7 +151,7 @@ mod_tabpanel_linelist_server <- function(
       shiny::req(signals_padded())
 
       # check if several signal categories
-      if(length(signals_type()) > 1) {
+      if (length(signals_type()) > 1) {
         shiny::req(!is.na(input$sel_signals))
         if (input$sel_signals == "All signals") {
           signals_padded() %>% dplyr::filter(alarms == TRUE)
