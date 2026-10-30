@@ -42,6 +42,16 @@ score_seasonal <- function(signals_res) {
     dplyr::filter(n >= required_time_units) %>%
     dplyr::pull(year)
 
+  # remove years with no cases
+  empty_years <- ts_pathogen %>%
+    dplyr::filter(year %in% sel_years) %>%
+    dplyr::group_by(year) %>%
+    dplyr::summarise(cases = sum(cases)) %>%
+    dplyr::filter(cases == 0) %>%
+    dplyr::pull(year)
+
+  sel_years <- sel_years[!sel_years %in% empty_years]
+
   # if no complete years, seasonal score is skipped and returns NA
   if (length(sel_years) == 0) {
     signals_res <- signals_res %>%
