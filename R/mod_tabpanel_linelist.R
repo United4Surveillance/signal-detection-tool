@@ -305,7 +305,7 @@ mod_tabpanel_linelist_server <- function(
         number_of_time_units_input_valid(),
         !no_algorithm_possible()
       )
-      shiny::req(pathogen_vars(), signals_agg(),signals_padded())
+      shiny::req(pathogen_vars(), signals_agg(), signals_padded())
 
       signals <- signals_padded()
 
@@ -374,7 +374,7 @@ mod_tabpanel_linelist_server <- function(
                 shiny::tags$br(),
                 "Alpha upper: ", alpha_upper_value
               )
-              }
+            }
           )
         ),
         bslib::value_box(
@@ -386,7 +386,6 @@ mod_tabpanel_linelist_server <- function(
           title = "Number of alarms",
           value = shiny::div(
             "Unstratified: ", summary$unstratified,
-
             if (has_strata) {
               shiny::tagList(
                 shiny::tags$br(),
