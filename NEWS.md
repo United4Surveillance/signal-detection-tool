@@ -1,4 +1,7 @@
+* Fixed an error in algorithm availability checks when subtracting months could produce an invalid fitting end date
+
 # SignalDetectionTool 0.12.0
+
 * Fixed bug regarding seasonal and strength score with low number historical cases  
 * Layout of linelist tab updated - Dynamic rendering of Analysis area after selecting signals
 * Improved performance of `pad_signals()` by reusing already agreggated data
@@ -15,6 +18,7 @@
 * Fix that missing scorer values are not consistently returned as numeric NA values
 
 # SignalDetectionTool 0.11.0
+
 * Added visualisations and bug fixes in the linelist tab
   * Added visualisation of age group comparison of cases in signal vs. cases from the signal detection period.
   * Implemented Comparisons table, showing summary statistics for age and sex ratios for cases in selected signals.
