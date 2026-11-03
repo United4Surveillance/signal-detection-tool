@@ -111,7 +111,9 @@ get_possible_methods <- function(min_date,
 
   number_of_weeks_available_fitting <- ceiling(as.numeric(difftime(max_date_fit, min_date_fit - lubridate::days(1), units = "weeks")))
 
-  if (time_unit == "biweekly") {number_of_weeks_available_fitting <- ceiling(number_of_weeks_available_fitting / 2) * 2}
+  if (time_unit == "biweekly") {
+    number_of_weeks_available_fitting <- ceiling(number_of_weeks_available_fitting / 2) * 2
+  }
 
   algos <- available_algorithms()
 
