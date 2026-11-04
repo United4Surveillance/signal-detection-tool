@@ -1,8 +1,9 @@
+* Added summary in Signals Overview in the linelist tab
 * Fixed an error in algorithm availability checks when subtracting months could produce an invalid fitting end date
 
 # SignalDetectionTool 0.12.0
 
-* Fixed bug regarding seasonal and strength score with low number historical cases  
+* Fixed bug regarding seasonal and strength score with low number historical cases
 * Layout of linelist tab updated - Dynamic rendering of Analysis area after selecting signals
 * Improved performance of `pad_signals()` by reusing already agreggated data
 * Fix error when clicking "No signals found." in the app
