@@ -100,7 +100,7 @@ mod_tabpanel_linelist_server <- function(
       shiny::req(signals_padded())
 
       signals_padded() %>%
-        dplyr::filter(alarms == TRUE) %>% 
+        dplyr::filter(alarms == TRUE) %>%
         dplyr::distinct(category) %>%
         dplyr::pull()
     })
@@ -130,7 +130,7 @@ mod_tabpanel_linelist_server <- function(
       # render dropdown only if there are minimum two categories with signals and Stratified is selected
       if (length(signals_type()) > 1) {
         shiny::req(input$sel_signals == "Stratified")
-        
+
         sel_strata <- signals_padded() %>%
           dplyr::filter(alarms == TRUE, !is.na(category)) %>%
           dplyr::distinct(category) %>%
