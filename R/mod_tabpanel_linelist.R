@@ -91,60 +91,55 @@ mod_tabpanel_linelist_server <- function(
       }
     })
 
-    signals_n <- reactive(
-      sum(signals_padded()$alarms, na.rm = TRUE)
-    )
-
     # list of possible signal category types
     signals_type <- shiny::reactive({
       shiny::req(signals_padded())
 
       signals_padded() %>%
+        dplyr::filter(alarms == TRUE) %>% 
         dplyr::distinct(category) %>%
         dplyr::pull()
     })
 
     output$sel_signals_ui <- shiny::renderUI({
-      req(signals_type())
+      shiny::req(signals_type())
       choices <- character(0)
 
-      # render only if there is signals
-      if (signals_n() > 0) {
-        # Minimun two categories should be there to render the dropdown
-        if (length(signals_type()) > 1) {
-          if (any(is.na(signals_type()))) {
-            choices <- c(choices, "All signals", "Unstratified")
-          }
-          if (any(!is.na(signals_type()))) {
-            choices <- c(choices, "Stratified")
-          }
-
-          if (length(choices > 0)) {
-            shiny::selectizeInput(
-              ns("sel_signals"),
-              label = "Filter signals",
-              choices = choices
-            )
-          }
+      # render dropdown only if there are minimum two categories with signals
+      if (length(signals_type()) > 1) {
+        if (any(is.na(signals_type()))) {
+          choices <- c(choices, "All signals", "Unstratified")
         }
+        if (any(!is.na(signals_type()))) {
+          choices <- c(choices, "Stratified")
+        }
+
+        shiny::selectizeInput(
+          ns("sel_signals"),
+          label = "Filter signals",
+          choices = choices
+        )
       }
     })
 
     output$sel_strata_ui <- shiny::renderUI({
-      shiny::req(input$sel_signals == "Stratified")
+      # render dropdown only if there are minimum two categories with signals and Stratified is selected
+      if (length(signals_type()) > 1) {
+        shiny::req(input$sel_signals == "Stratified")
+        
+        sel_strata <- signals_padded() %>%
+          dplyr::filter(alarms == TRUE, !is.na(category)) %>%
+          dplyr::distinct(category) %>%
+          dplyr::pull()
 
-      sel_strata <- signals_padded() %>%
-        dplyr::filter(alarms == TRUE, !is.na(category)) %>%
-        dplyr::distinct(category) %>%
-        dplyr::pull()
-
-      shiny::selectizeInput(
-        ns("sel_signals_strata"),
-        label = "Filter strata",
-        choices = sel_strata,
-        selected = sel_strata,
-        multiple = TRUE
-      )
+        shiny::selectizeInput(
+          ns("sel_signals_strata"),
+          label = "Filter strata",
+          choices = sel_strata,
+          selected = sel_strata,
+          multiple = TRUE
+        )
+      }
     })
 
     true_signals <- shiny::reactive({
