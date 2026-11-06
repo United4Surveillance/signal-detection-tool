@@ -1,3 +1,4 @@
+* Implemented dynamic filter in the linelist tab to select which signal type is shown in the signals table
 * Added summary in Signals Overview in the linelist tab
 * Fixed an error in algorithm availability checks when subtracting months could produce an invalid fitting end date
 
