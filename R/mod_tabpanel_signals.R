@@ -133,9 +133,8 @@ mod_tabpanel_signals_server <- function(
             plotly::plotlyOutput(ns("time_series_plot"))
           ),
           bslib::card(
-            min_height = "775px",
-            shiny::h1("Signal detection table"),
-            DT::DTOutput(ns("signals"))
+            bslib::card_title("Signal detection table", container = shiny::h1),
+            bslib::card_body(DT::DTOutput(ns("signals")), fillable = FALSE)
           )
         )
       }
@@ -509,7 +508,8 @@ mod_tabpanel_signals_server <- function(
     # Return list of subsetted data and parameters
     return(list(
       signals_padded = shiny::reactive(signals_padded()),
-      signals_agg = shiny::reactive(signals_agg())
+      signals_agg = shiny::reactive(signals_agg()),
+      signal_period = signal_period
     ))
   })
 }

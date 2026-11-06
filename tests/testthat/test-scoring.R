@@ -383,3 +383,100 @@ testthat::test_that("get_scores() errors if a scorer returns invalid output", {
     "`score` must be in the interval \\[0, 1\\]"
   )
 })
+
+
+###### Tests for each score function
+
+# helper function: artificial aggregated data between 2018 and 2022,
+# 99% of cases are 0, otherwise between 1 and 3. For weeks 47 to 52 2022, 1 case
+make_sparse_cases <- function(seed) {
+  set.seed(seed)
+
+  sparse_cases <- expand.grid(
+    year = 2018:2022,
+    week = 1:52,
+    category = NA,
+    time_unit = "weekly"
+  ) %>%
+    dplyr::arrange(year, week) %>%
+    dplyr::mutate(
+      cases = rbinom(260, 1, 0.01) * round(runif(260, 1, 3))
+    ) %>%
+    dplyr::mutate(
+      cases = dplyr::case_when(
+        year == 2022 & week > 46 ~ 1,
+        .default = cases
+      )
+    )
+
+  return(sparse_cases)
+}
+
+testthat::test_that("Score seasonal works with small case numbers", {
+  # make sparse_cases
+  cases_agg <- make_sparse_cases(123) # this dataset contains 0-cases for 2019, 2020, and 2021
+
+  # signals with harmonic with time trend
+  signals <- get_signals_glm(cases_agg, number_of_time_units = 52, model = "sincos") %>%
+    dplyr::mutate(.row_id = dplyr::row_number(), method = "glm harmonic with timetrend")
+
+  # no errors expected, warning is suppressed as glm does not converge
+  testthat::expect_no_error(
+    scores <- score_seasonal(signals)
+  ) %>% suppressWarnings()
+
+  results <- dplyr::full_join(signals, scores, by = ".row_id") %>%
+    dplyr::filter(alarms == TRUE)
+
+  # there is no NaNs in the scores
+  testthat::expect_true(all(!is.nan(results$score)))
+
+  # the scores are between 0 and 1
+  testthat::expect_true(all(results$score >= 0 & results$score <= 1))
+})
+
+testthat::test_that("Score strength works with small case numbers", {
+  # make sparse cases
+  cases_agg <- make_sparse_cases(123)
+
+  # signals with harmonic with time trend
+  signals <- get_signals_glm(cases_agg, number_of_time_units = 52, model = "sincos") %>%
+    dplyr::mutate(.row_id = dplyr::row_number(), method = "glm harmonic with timetrend")
+
+  # no errors expected, warning is suppressed as glm does not converge
+  testthat::expect_no_error(
+    scores <- score_strength(signals)
+  ) %>% suppressWarnings()
+
+  results <- dplyr::full_join(signals, scores, by = ".row_id") %>%
+    dplyr::filter(alarms == TRUE)
+
+  # there is no NaNs in the scores
+  testthat::expect_true(all(!is.nan(results$score)))
+
+  # the scores are between 0 and 1
+  testthat::expect_true(all(results$score >= 0 & results$score <= 1))
+})
+
+testthat::test_that("seasonal score ignores complete zero-case years", {
+  # dummy dataset, contains all months of 2020 to 2022, cases are distributed
+  # evenly for all months, so the score is 0.5. 2021 has no cases
+  # alarms triggered for the complete 2022
+  signals <- tibble::tibble(
+    .row_id = 1:36,
+    year = rep(2020:2022, each = 12),
+    month = rep(1:12, times = 3),
+    category = NA_character_,
+    time_unit = "monthly",
+    cases = c(rep(6, 12), rep(0, 12), rep(7, 12)),
+    alarms = c(rep(NA, 24), rep(TRUE, 12))
+  )
+
+  scores <- score_seasonal(signals)
+
+  # expected to have 0.5 as score for the last year
+  expected <- c(rep(NA_real_, 24), rep(0.5, 12))
+
+  testthat::expect_equal(scores$.row_id, signals$.row_id)
+  testthat::expect_equal(scores$score, expected)
+})

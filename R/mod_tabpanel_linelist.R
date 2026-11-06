@@ -70,7 +70,10 @@ mod_tabpanel_linelist_server <- function(
   method,
   no_algorithm_possible,
   intervention_date,
-  signals_padded
+  signals_padded,
+  pathogen_vars,
+  signals_agg,
+  signal_period
 ) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -86,20 +89,27 @@ mod_tabpanel_linelist_server <- function(
         return(algorithm_error_message)
       } else {
         return(shiny::tagList(
+          shiny::uiOutput(ns("alarm_summary")),
           # CARD 1: Signals Overview
           bslib::card(
             id = ns("signal-selection"),
-            min_height = "700px",
-            shiny::h1("Signals Overview"),
-            shiny::span("Click into the table to select the signals you want to further investigate."),
-            shiny::span(
-              paste0(
-                "Detected signals using method '",
-                get_name_by_value(method(), available_algorithms()), "':"
-              ),
-              style = "font-size:120%;font-weight: bold"
+            bslib::card_body(
+              min_height = "180px",
+              bslib::layout_columns(
+                col_widths = c(6, 3, 3),
+                bslib::card_body(
+                  bslib::card_title("Signals Overview", container = shiny::h1),
+                  bslib::card_title("Click into the table to select the signals you want to further investigate.", container = shiny::span)
+                ),
+                # filter buttons, if "Stratified", creates another selectize for each strata
+                shiny::uiOutput(ns("sel_signals_ui")),
+                shiny::uiOutput(ns("sel_strata_ui"))
+              )
             ),
-            DT::DTOutput(ns("show_signals_padded"))
+            bslib::card_body(
+              DT::DTOutput(ns("show_signals_padded")),
+              fillable = FALSE
+            )
           ),
 
           # CARD 2: Signal Analysis
@@ -108,23 +118,88 @@ mod_tabpanel_linelist_server <- function(
       }
     })
 
+    # list of possible signal category types
+    signals_type <- shiny::reactive({
+      shiny::req(signals_padded())
+
+      signals_padded() %>%
+        dplyr::filter(alarms == TRUE) %>%
+        dplyr::distinct(category) %>%
+        dplyr::pull()
+    })
+
+    output$sel_signals_ui <- shiny::renderUI({
+      shiny::req(signals_type())
+      choices <- character(0)
+
+      # render dropdown only if there are minimum two categories with signals
+      if (length(signals_type()) > 1) {
+        if (any(is.na(signals_type()))) {
+          choices <- c(choices, "All signals", "Unstratified")
+        }
+        if (any(!is.na(signals_type()))) {
+          choices <- c(choices, "Stratified")
+        }
+
+        shiny::selectizeInput(
+          ns("sel_signals"),
+          label = "Filter signals",
+          choices = choices
+        )
+      }
+    })
+
+    output$sel_strata_ui <- shiny::renderUI({
+      # render dropdown only if there are minimum two categories with signals and Stratified is selected
+      if (length(signals_type()) > 1) {
+        shiny::req(input$sel_signals == "Stratified")
+
+        sel_strata <- signals_padded() %>%
+          dplyr::filter(alarms == TRUE, !is.na(category)) %>%
+          dplyr::distinct(category) %>%
+          dplyr::pull()
+
+        shiny::selectizeInput(
+          ns("sel_signals_strata"),
+          label = "Filter strata",
+          choices = sel_strata,
+          selected = sel_strata,
+          multiple = TRUE
+        )
+      }
+    })
 
     true_signals <- shiny::reactive({
       shiny::req(signals_padded())
 
-      signals <- signals_padded() %>% dplyr::filter(alarms == TRUE)
-      if (nrow(signals) > 0) {
-        signals <- signals %>% dplyr::mutate(signal_id = 1:dplyr::n(), .before = 1)
+      # check if several signal categories
+      if (length(signals_type()) > 1) {
+        shiny::req(!is.na(input$sel_signals))
+        if (input$sel_signals == "All signals") {
+          signals_padded() %>% dplyr::filter(alarms == TRUE)
+        } else if (input$sel_signals == "Unstratified") {
+          signals_padded() %>% dplyr::filter(alarms == TRUE, is.na(category))
+        } else if (input$sel_signals == "Stratified") {
+          signals_padded() %>% dplyr::filter(alarms == TRUE, category %in% input$sel_signals_strata)
+        } else {
+          NULL
+        }
+      } else {
+        signals_padded() %>% dplyr::filter(alarms == TRUE)
       }
-      return(signals)
     })
 
     # output padded signal data in table
     output$show_signals_padded <- DT::renderDT({
       shiny::req(!errors_detected())
-      shiny::req(true_signals)
+      shiny::req(true_signals())
 
       signals <- true_signals()
+
+      if (nrow(signals) > 0) {
+        signals <- signals %>%
+          dplyr::mutate(signal_id = 1:dplyr::n(), .before = 1)
+      }
 
       if (nrow(signals) == 0) {
         # Return a placeholder message
@@ -233,6 +308,8 @@ mod_tabpanel_linelist_server <- function(
       shiny::req(all(rows >= 1L & rows <= nrow(signals)))
 
       selected <- dplyr::slice(signals, rows)
+      selected$signal_id <- rows
+
       cases <- cases_linelist()$cases
 
       # Period labels
@@ -471,7 +548,109 @@ mod_tabpanel_linelist_server <- function(
       )
     })
 
-    # display linelist of selected signals
+    output$alarm_summary <- shiny::renderUI({
+      shiny::req(
+        !errors_detected(),
+        number_of_time_units_input_valid(),
+        !no_algorithm_possible()
+      )
+      shiny::req(pathogen_vars(), signals_agg(), signals_padded())
+
+      signals <- signals_padded()
+
+      alpha_upper_value <- if ("alpha_upper" %in% names(signals)) {
+        paste(unique(stats::na.omit(signals$alpha_upper)), collapse = ", ")
+      } else {
+        NULL
+      }
+
+      time_unit_value <- paste(
+        unique(stats::na.omit(signals$time_unit)),
+        collapse = ", "
+      )
+
+      aggregated <- signals_agg()
+
+      by_category <- aggregated %>%
+        dplyr::filter(!is.na(category)) %>%
+        dplyr::group_by(category) %>%
+        dplyr::summarise(n_alarms = sum(n_alarms), .groups = "drop")
+
+      summary <- list(
+        unstratified = sum(aggregated$n_alarms[is.na(aggregated$category)]),
+        stratified = sum(by_category$n_alarms),
+        by_category = by_category
+      )
+
+      summary$total <- summary$unstratified + summary$stratified
+
+      # Check whether strata were selected
+      has_strata <- nrow(by_category) > 0
+
+      category_labels <- pretty_variable_names()
+
+      category_counts <- lapply(seq_len(nrow(summary$by_category)), function(i) {
+        category <- summary$by_category$category[i]
+
+        label <- if (category %in% names(category_labels)) {
+          category_labels[[category]]
+        } else {
+          category
+        }
+
+        shiny::div(
+          style = "padding-left: 24px;",
+          label, ": ", by_category$n_alarms[i]
+        )
+      })
+
+      bslib::layout_column_wrap(
+        width = 1 / 2,
+        bslib::value_box(
+          min_height = 135,
+          theme = bslib::value_box_theme(bg = "#304794", fg = "#FFFFFF"),
+          title = "Method, disease and period",
+          value = shiny::div(
+            "Algorithm: ", get_name_by_value(method(), available_algorithms()),
+            shiny::tags$br(),
+            "Disease: ", paste(pathogen_vars(), collapse = ", "),
+            shiny::tags$br(),
+            "Time period: ", signal_period(),
+            shiny::tags$br(),
+            "Time unit: ", time_unit_value,
+            if (!is.null(alpha_upper_value)) {
+              shiny::tagList(
+                shiny::tags$br(),
+                "Alpha upper: ", alpha_upper_value
+              )
+            }
+          )
+        ),
+        bslib::value_box(
+          min_height = 135,
+          theme = bslib::value_box_theme(
+            bg = if (summary$total > 0) "#DF536B" else "#23FF00",
+            fg = "#FFFFFF"
+          ),
+          title = "Number of alarms",
+          value = shiny::div(
+            "Unstratified: ", summary$unstratified,
+            if (has_strata) {
+              shiny::tagList(
+                shiny::tags$br(),
+                "Stratified: ", summary$stratified,
+                shiny::div(
+                  style = "margin-top: 4px;",
+                  shiny::tagList(category_counts)
+                )
+              )
+            }
+          )
+        )
+      )
+    })
+
+    # display line lists of selected signals
     output$linelist <- DT::renderDataTable({
       filename_download <- "signals_line_list"
 
