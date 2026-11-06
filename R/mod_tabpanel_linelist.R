@@ -315,8 +315,7 @@ mod_tabpanel_linelist_server <- function(
       # Period labels
       period <- vapply(seq_len(nrow(selected)), function(i) {
         switch(selected$time_unit[i],
-          weekly = paste0(selected$year[i], "-", "W", selected$week[i]
-          ),
+          weekly = paste0(selected$year[i], "-", "W", selected$week[i]),
           biweekly = {
             start <- ISOweek::ISOweek2date(paste0(
               selected$year[i], "-W",
