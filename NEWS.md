@@ -1,3 +1,5 @@
+# SignalDetectionTool 0.13.0
+
 * Added summary in Signals Analysis in the linelist tab
 * Implemented dynamic filter in the linelist tab to select which signal type is shown in the signals table
 * Added summary in Signals Overview in the linelist tab
