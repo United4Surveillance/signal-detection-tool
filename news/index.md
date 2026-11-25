@@ -1,9 +1,18 @@
 # Changelog
 
+## SignalDetectionTool 0.13.0
+
+- Added summary in Signals Analysis in the linelist tab
+- Implemented dynamic filter in the linelist tab to select which signal
+  type is shown in the signals table
+- Added summary in Signals Overview in the linelist tab
+- Fixed an error in algorithm availability checks when subtracting
+  months could produce an invalid fitting end date
+
 ## SignalDetectionTool 0.12.0
 
 - Fixed bug regarding seasonal and strength score with low number
-  historical cases  
+  historical cases
 - Layout of linelist tab updated - Dynamic rendering of Analysis area
   after selecting signals
 - Improved performance of
