@@ -185,7 +185,7 @@ test_that("pad_signals extends the expected and upperbound values of a given `si
     year = rep(2027, times = 6),
     week = 1:6,
     cases = c(10, 12, 14, 12, 10, 12),
-    cases_in_outbreak = 0,
+    cases_in_outbreak = c(0, 2, 4, 1, 0, 3),
     alarms = c(FALSE, TRUE, TRUE, TRUE, FALSE, TRUE),
     upperbound = 11,
     expected = NA, # ears doesn't return expected
@@ -200,6 +200,12 @@ test_that("pad_signals extends the expected and upperbound values of a given `si
   signals <- dplyr::bind_rows(signals_1, signals_2)
 
   padded <- pad_signals(signals)
+
+  expected_outbreak_counts <- signals %>%
+    dplyr::arrange(year, week) %>%
+    dplyr::pull(cases_in_outbreak)
+  # checking that if cases_in_outbreak column was in the signals that it is also available after padding
+  expect_equal(padded$cases_in_outbreak, expected_outbreak_counts)
 
   # there is sufficient data, so padding should be the max possible (26 + 6)
   # this corresponds to rows 73:104 in padded
