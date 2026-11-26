@@ -37,29 +37,25 @@ testthat::test_that("get_signals returns expected structure", {
   expect_true(all(expected_minimal_cols %in% names(res_stratified)))
 })
 
-for (method in c("farrington", "glm harmonic with timetrend")) {
-  test_that(paste("minimal linelist works with", method), {
-    linelist <- dplyr::select(
-      input_example, case_id, date_report, country, country_id, pathogen, age
-    )
+testthat::test_that("preprocessing and signal detection work with only mandatory columns", {
+  linelist <- dplyr::select(
+    input_example, case_id, date_report, country, country_id, pathogen, age
+  )
 
-    preprocessed_minimal <- preprocess_data(linelist)
+  preprocessed <- preprocess_data(linelist)
 
-    expect_equal(nrow(preprocessed_minimal), nrow(linelist))
-    expect_s3_class(preprocessed_minimal$date_report, "Date")
-    expect_equal(
-      as.character(preprocessed_minimal$age_group),
-      as.character(input_example$age_group)
-    )
+  expect_equal(nrow(preprocessed), nrow(linelist))
+  expect_s3_class(preprocessed$date_report, "Date")
+  expect_equal(as.character(preprocessed$age_group), as.character(input_example$age_group))
 
-    signals <- get_signals(preprocessed_minimal, method = method)
+  for (method in c("farrington", "glm harmonic with timetrend")) {
+    signals <- get_signals(preprocessed, method = method, number_of_time_units = 6)
 
     expect_equal(sum(signals$cases), nrow(linelist))
     expect_equal(sum(!is.na(signals$alarms)), 6)
     expect_false("cases_in_outbreak" %in% names(signals))
 
     historical <- is.na(signals$alarms)
-
     if (method == "farrington") {
       padded <- pad_signals(signals)
 
@@ -69,8 +65,8 @@ for (method in c("farrington", "glm harmonic with timetrend")) {
     } else {
       expect_true(any(is.finite(signals$expected_pad[historical])))
     }
-  })
-}
+  }
+})
 
 testthat::test_that("get_signals handles date_start before start date of the linelist", {
   start_date <- as.Date("2016-06-01")
