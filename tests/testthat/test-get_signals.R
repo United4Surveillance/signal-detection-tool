@@ -48,7 +48,7 @@ testthat::test_that("preprocessing and signal detection work with only mandatory
   expect_s3_class(preprocessed$date_report, "Date")
   expect_equal(as.character(preprocessed$age_group), as.character(input_example$age_group))
 
-  for (method in c("farrington", "glm harmonic with timetrend")) {
+  for (method in c("farrington", "ears", "cusum", "glm harmonic with timetrend")) {
     signals <- get_signals(preprocessed, method = method, number_of_time_units = 6)
 
     expect_equal(sum(signals$cases), nrow(linelist))
@@ -56,14 +56,16 @@ testthat::test_that("preprocessing and signal detection work with only mandatory
     expect_false("cases_in_outbreak" %in% names(signals))
 
     historical <- is.na(signals$alarms)
-    if (method == "farrington") {
+    if (method == "glm harmonic with timetrend") {
+      expect_true(any(is.finite(signals$expected_pad[historical])))
+    } else {
       padded <- pad_signals(signals)
 
       expect_equal(nrow(padded), nrow(signals))
       expect_true(any(is.finite(padded$upperbound_pad[historical])))
-      expect_true(any(is.finite(padded$expected_pad[historical])))
-    } else {
-      expect_true(any(is.finite(signals$expected_pad[historical])))
+      if (method == "farrington") {
+        expect_true(any(is.finite(padded$expected_pad[historical])))
+      }
     }
   }
 })
