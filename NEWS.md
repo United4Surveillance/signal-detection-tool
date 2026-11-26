@@ -1,3 +1,4 @@
+# SignalDetectionTool 0.13.1
 * Bug fix in `pad_signals()` that required optional column 'cases_in_outbreak' to work, usage of FarringtonFlexible did not work if this column was not part of the input data
 
 # SignalDetectionTool 0.13.0
