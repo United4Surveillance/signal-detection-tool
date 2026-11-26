@@ -694,7 +694,7 @@ pad_signals <- function(signals) {
     dplyr::select(
       dplyr::all_of(c("year", time_unit_column, "cases", "category", "stratum")),
       dplyr::any_of("cases_in_outbreak")
-    )%>%
+    ) %>%
     dplyr::arrange(.data[["category"]], .data[["stratum"]], .data[["year"]], .data[[time_unit_column]])
 
   # getting necessary functions and options for method
