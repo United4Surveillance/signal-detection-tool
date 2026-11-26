@@ -37,6 +37,41 @@ testthat::test_that("get_signals returns expected structure", {
   expect_true(all(expected_minimal_cols %in% names(res_stratified)))
 })
 
+for (method in c("farrington", "glm harmonic with timetrend")) {
+  test_that(paste("minimal linelist works with", method), {
+    linelist <- dplyr::select(
+      input_example, case_id, date_report, country, country_id, pathogen, age
+    )
+
+    preprocessed_minimal <- preprocess_data(linelist)
+
+    expect_equal(nrow(preprocessed_minimal), nrow(linelist))
+    expect_s3_class(preprocessed_minimal$date_report, "Date")
+    expect_equal(
+      as.character(preprocessed_minimal$age_group),
+      as.character(input_example$age_group)
+    )
+
+    signals <- get_signals(preprocessed_minimal, method = method)
+
+    expect_equal(sum(signals$cases), nrow(linelist))
+    expect_equal(sum(!is.na(signals$alarms)), 6)
+    expect_false("cases_in_outbreak" %in% names(signals))
+
+    historical <- is.na(signals$alarms)
+
+    if (method == "farrington") {
+      padded <- pad_signals(signals)
+
+      expect_equal(nrow(padded), nrow(signals))
+      expect_true(any(is.finite(padded$upperbound_pad[historical])))
+      expect_true(any(is.finite(padded$expected_pad[historical])))
+    } else {
+      expect_true(any(is.finite(signals$expected_pad[historical])))
+    }
+  })
+}
+
 testthat::test_that("get_signals handles date_start before start date of the linelist", {
   start_date <- as.Date("2016-06-01")
   start_date_week <- lubridate::isoweek(start_date)
