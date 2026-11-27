@@ -37,6 +37,39 @@ testthat::test_that("get_signals returns expected structure", {
   expect_true(all(expected_minimal_cols %in% names(res_stratified)))
 })
 
+testthat::test_that("preprocessing and signal detection work with only mandatory columns", {
+  linelist <- dplyr::select(
+    input_example, case_id, date_report, country, country_id, pathogen, age
+  )
+
+  preprocessed <- preprocess_data(linelist)
+
+  expect_equal(nrow(preprocessed), nrow(linelist))
+  expect_s3_class(preprocessed$date_report, "Date")
+  expect_equal(as.character(preprocessed$age_group), as.character(input_example$age_group))
+
+  for (method in c("farrington", "ears", "cusum", "glm harmonic with timetrend")) {
+    signals <- get_signals(preprocessed, method = method, number_of_time_units = 6)
+
+    expect_equal(sum(signals$cases), nrow(linelist))
+    expect_equal(sum(!is.na(signals$alarms)), 6)
+    expect_false("cases_in_outbreak" %in% names(signals))
+
+    historical <- is.na(signals$alarms)
+    if (method == "glm harmonic with timetrend") {
+      expect_true(any(is.finite(signals$expected_pad[historical])))
+    } else {
+      padded <- pad_signals(signals)
+
+      expect_equal(nrow(padded), nrow(signals))
+      expect_true(any(is.finite(padded$upperbound_pad[historical])))
+      if (method == "farrington") {
+        expect_true(any(is.finite(padded$expected_pad[historical])))
+      }
+    }
+  }
+})
+
 testthat::test_that("get_signals handles date_start before start date of the linelist", {
   start_date <- as.Date("2016-06-01")
   start_date_week <- lubridate::isoweek(start_date)
@@ -150,7 +183,7 @@ test_that("pad_signals extends the expected and upperbound values of a given `si
     year = rep(2027, times = 6),
     week = 1:6,
     cases = c(10, 12, 14, 12, 10, 12),
-    cases_in_outbreak = 0,
+    cases_in_outbreak = c(0, 2, 4, 1, 0, 3),
     alarms = c(FALSE, TRUE, TRUE, TRUE, FALSE, TRUE),
     upperbound = 11,
     expected = NA, # ears doesn't return expected
@@ -165,6 +198,12 @@ test_that("pad_signals extends the expected and upperbound values of a given `si
   signals <- dplyr::bind_rows(signals_1, signals_2)
 
   padded <- pad_signals(signals)
+
+  expected_outbreak_counts <- signals %>%
+    dplyr::arrange(year, week) %>%
+    dplyr::pull(cases_in_outbreak)
+  # checking that if cases_in_outbreak column was in the signals that it is also available after padding
+  expect_equal(padded$cases_in_outbreak, expected_outbreak_counts)
 
   # there is sufficient data, so padding should be the max possible (26 + 6)
   # this corresponds to rows 73:104 in padded
