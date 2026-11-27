@@ -116,8 +116,19 @@ mod_tabpanel_signals_server <- function(
               bslib::card(
                 shiny::h1("Signals by stratum"),
                 shiny::uiOutput(ns("plot_table_stratas")),
-                shiny::uiOutput(ns("alarm_button")),
-                shiny::uiOutput(ns("subtype_filter_button"))
+                bslib::layout_columns(
+                  shiny::uiOutput(ns("alarm_button")),
+                  if ("subtype" %in% strat_vars()) {
+                    value_subtyp_f <- isolate(input$subtype_filter) # midway solution, capture the previous value before rerendering the UI
+                    shinyWidgets::materialSwitch(
+                      inputId = ns("subtype_filter"),
+                      label = "Show all subtypes\n(include those with 0 cases in detection period)",
+                      value = value_subtyp_f,
+                      right = TRUE,
+                      status = "primary"
+                    )
+                  }
+                )
               )
             )
           },
@@ -237,7 +248,7 @@ mod_tabpanel_signals_server <- function(
             dplyr::filter(.data$category == "subtype", !is.na(.data$alarms)) %>%
             dplyr::count(.data$stratum, wt = .data$cases) 
         
-        if (subtype_filter()) {
+        if (subtype_filter() == FALSE) {
           sel_subtypes <- sel_subtypes %>%
             dplyr::filter(.data$n > 0) %>% 
             dplyr::pull(.data$stratum)
@@ -540,23 +551,6 @@ mod_tabpanel_signals_server <- function(
           shinyWidgets::materialSwitch(
             inputId = ns("alarms_trig"),
             label = "Show number of alarms",
-            value = TRUE,
-            right = TRUE,
-            status = "primary"
-          )
-        )
-      }
-    })
-
-    output$subtype_filter_button <- shiny::renderUI({
-      req(!errors_detected())
-
-      if ("subtype" %in% strat_vars()) {
-        shiny::tagList(
-          shiny::br(),
-          shinyWidgets::materialSwitch(
-            inputId = ns("subtype_filter"),
-            label = "Filter subtypes with less than 0 cases in signal detection period",
             value = TRUE,
             right = TRUE,
             status = "primary"
