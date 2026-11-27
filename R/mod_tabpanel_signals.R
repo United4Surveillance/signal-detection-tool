@@ -243,14 +243,14 @@ mod_tabpanel_signals_server <- function(
         )
 
       # remove from results table subtypes with <1 cases in test period
-      if ("subtype" %in% strat_vars()){
+      if ("subtype" %in% strat_vars()) {
         sel_subtypes <- results %>%
-            dplyr::filter(.data$category == "subtype", !is.na(.data$alarms)) %>%
-            dplyr::count(.data$stratum, wt = .data$cases) 
-        
+          dplyr::filter(.data$category == "subtype", !is.na(.data$alarms)) %>%
+          dplyr::count(.data$stratum, wt = .data$cases)
+
         if (subtype_filter() == FALSE) {
           sel_subtypes <- sel_subtypes %>%
-            dplyr::filter(.data$n > 0) %>% 
+            dplyr::filter(.data$n > 0) %>%
             dplyr::pull(.data$stratum)
         } else {
           sel_subtypes <- sel_subtypes %>%
@@ -259,8 +259,8 @@ mod_tabpanel_signals_server <- function(
         results <- results %>%
           dplyr::filter(
             (.data$category == "subtype" & .data$stratum %in% sel_subtypes) |
-            (.data$category != "subtype") |
-            (is.na(.data$category))
+              (.data$category != "subtype") |
+              (is.na(.data$category))
           )
       }
 
