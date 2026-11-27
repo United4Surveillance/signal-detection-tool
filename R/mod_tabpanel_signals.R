@@ -116,7 +116,19 @@ mod_tabpanel_signals_server <- function(
               bslib::card(
                 shiny::h1("Signals by stratum"),
                 shiny::uiOutput(ns("plot_table_stratas")),
-                shiny::uiOutput(ns("alarm_button"))
+                bslib::layout_columns(
+                  shiny::uiOutput(ns("alarm_button")),
+                  if ("subtype" %in% strat_vars()) {
+                    value_subtyp_f <- isolate(input$subtype_filter) # midway solution, capture the previous value before rerendering the UI
+                    shinyWidgets::materialSwitch(
+                      inputId = ns("subtype_filter"),
+                      label = "Show all subtypes\n(include those with 0 cases in detection period)",
+                      value = value_subtyp_f,
+                      right = TRUE,
+                      status = "primary"
+                    )
+                  }
+                )
               )
             )
           },
@@ -201,7 +213,7 @@ mod_tabpanel_signals_server <- function(
     })
 
     # generate signals for number of time units and stratification specified and always also the non stratified signals
-    signal_results <- shiny::reactive({
+    signal_results_pre <- shiny::reactive({
       shiny::req(!errors_detected())
       shiny::req(!no_algorithm_possible())
 
@@ -217,16 +229,49 @@ mod_tabpanel_signals_server <- function(
         alpha_upper = alpha_upper(),
         exclude_outbreak_cases_from_fitting = exclude_outbreak_cases_from_fitting()
       )
+    })
 
-      # post-processing
-      results %>% dplyr::mutate(
-        alarms = dplyr::if_else(alarms & cases < min_cases_signals(),
-          FALSE, alarms, missing = alarms
+    # post-processing
+    signal_results_post <- shiny::reactive({
+      shiny::req(signal_results_pre())
+
+      results <- signal_results_pre()
+
+      results <- results %>%
+        dplyr::mutate(
+          alarms = dplyr::if_else(alarms & cases < min_cases_signals(), FALSE, alarms, missing = alarms)
         )
-      )
+
+      # remove from results table subtypes with <1 cases in test period
+      if ("subtype" %in% strat_vars()) {
+        sel_subtypes <- results %>%
+          dplyr::filter(.data$category == "subtype", !is.na(.data$alarms)) %>%
+          dplyr::count(.data$stratum, wt = .data$cases)
+
+        if (subtype_filter() == FALSE) {
+          sel_subtypes <- sel_subtypes %>%
+            dplyr::filter(.data$n > 0) %>%
+            dplyr::pull(.data$stratum)
+        } else {
+          sel_subtypes <- sel_subtypes %>%
+            dplyr::pull(.data$stratum)
+        }
+        results <- results %>%
+          dplyr::filter(
+            (.data$category == "subtype" & .data$stratum %in% sel_subtypes) |
+              (.data$category != "subtype") |
+              (is.na(.data$category))
+          )
+      }
+
+      results
+    })
+
+    signal_results <- shiny::reactive({
+      shiny::req(signal_results_post())
 
       # score signals
-      results <- results %>%
+      signal_results_post() %>%
         get_scores(
           scorers = list(
             seasonal = score_seasonal,
@@ -291,6 +336,16 @@ mod_tabpanel_signals_server <- function(
       }
 
       toggle_numbers
+    })
+
+    subtype_filter <- shiny::reactive({
+      toggle_subtype <- input$subtype_filter
+      # Default to FALSE if toggle_numbers is NULL
+      if (is.null(toggle_subtype)) {
+        toggle_subtype <- FALSE
+      }
+
+      toggle_subtype
     })
 
     output$plot_table_stratas <- shiny::renderUI({
@@ -503,7 +558,6 @@ mod_tabpanel_signals_server <- function(
         )
       }
     })
-
 
     # Return list of subsetted data and parameters
     return(list(
