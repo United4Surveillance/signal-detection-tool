@@ -1,3 +1,8 @@
+# SignalDetectionTool 0.13.1
+* Bug fix in `pad_signals()` that required optional column 'cases_in_outbreak' to work, usage of FarringtonFlexible did not work if this column was not part of the input data
+
+# SignalDetectionTool 0.13.0
+
 * Added summary in Signals Analysis in the linelist tab
 * Implemented dynamic filter in the linelist tab to select which signal type is shown in the signals table
 * Added summary in Signals Overview in the linelist tab
