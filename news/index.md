@@ -1,5 +1,13 @@
 # Changelog
 
+## SignalDetectionTool 0.13.1
+
+- Bug fix in
+  [`pad_signals()`](https://united4surveillance.github.io/signal-detection-tool/reference/pad_signals.md)
+  that required optional column ‘cases_in_outbreak’ to work, usage of
+  FarringtonFlexible did not work if this column was not part of the
+  input data
+
 ## SignalDetectionTool 0.13.0
 
 - Added summary in Signals Analysis in the linelist tab
